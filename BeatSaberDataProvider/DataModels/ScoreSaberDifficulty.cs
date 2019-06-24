@@ -79,6 +79,44 @@ namespace BeatSaberDataProvider.DataModels
             }
         }
 
+        //    public static bool TryParseScoreSaberSong(JToken token, ref ScoreSaberSong song)
+        //    {
+        //        string songName = token["name"]?.Value<string>();
+        //        if (songName == null)
+        //            songName = "";
+        //        bool successful = true;
+        //        try
+        //        {
+        //            song = token.ToObject<ScoreSaberSong>(new JsonSerializer() {
+        //                NullValueHandling = NullValueHandling.Ignore,
+        //                MissingMemberHandling = MissingMemberHandling.Ignore
+        //            });
+        //            //Logger.Debug(song.ToString());
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Logger.Exception($"Unable to create a ScoreSaberSong from the JSON for {songName}\n", ex);
+        //            successful = false;
+        //            song = null;
+        //        }
+        //        return successful;
+        //    }
+
+        //    public JsonSong GenerateSongInfo()
+        //    {
+        //        var newSong = new JsonSong(hash);
+        //        /*
+        //        var newSong = new SongInfo() {
+        //            songName = name,
+        //            songSubName = songSubName,
+        //            authorName = levelAuthorName,
+        //            bpm = bpm
+        //        };
+        //        */
+        //        //newSong.ScoreSaberInfo.Add(uid, this);
+        //        return newSong;
+        //    }
+
         public bool Equals(ScoreSaberDifficulty other)
         {
             return ScoreSaberDifficultyId == other.ScoreSaberDifficultyId;

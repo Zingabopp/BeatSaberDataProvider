@@ -80,8 +80,8 @@ namespace BeatSaberDataProvider.DataModels
                     throw new ArgumentNullException("Item cannot be null.");
                 else
                     return false;
-            DataType added = default;
-            DataType removed = default;
+            DataType added = default(DataType);
+            DataType removed = default(DataType);
             bool successful = false;
             lock (Data)
             {

@@ -17,12 +17,15 @@ namespace BeatSaberDataProvider.DataProviders
         public DbSet<Difficulty> Difficulties { get; set; }
         public DbSet<Uploader> Uploaders { get; set; }
         public DbSet<SongMetadata> Metadatas { get; set; }
+        public string DataSourcePath { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=songs.db");
-
+            if (string.IsNullOrEmpty(DataSourcePath))
+                DataSourcePath = "songs.db";
+            optionsBuilder.UseSqlite($"Data Source={DataSourcePath}");
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -79,8 +82,6 @@ namespace BeatSaberDataProvider.DataProviders
                 .HasOne(b => b.Song)
                 .WithMany(b => b.Metadata.Difficulties)
                 .HasForeignKey(b => b.SongId);
-
-
         }
 
 

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29009.5
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberDataProvider", "BeatSaberDataProvider\BeatSaberDataProvider.csproj", "{F529D287-9DE2-40E7-B18F-70302B6026EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProviderTests", "DataProviderTests\DataProviderTests.csproj", "{B6B94AA1-7DF6-499A-BB09-D8DD6D2ECC8A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F529D287-9DE2-40E7-B18F-70302B6026EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F529D287-9DE2-40E7-B18F-70302B6026EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F529D287-9DE2-40E7-B18F-70302B6026EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F529D287-9DE2-40E7-B18F-70302B6026EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6B94AA1-7DF6-499A-BB09-D8DD6D2ECC8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6B94AA1-7DF6-499A-BB09-D8DD6D2ECC8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6B94AA1-7DF6-499A-BB09-D8DD6D2ECC8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6B94AA1-7DF6-499A-BB09-D8DD6D2ECC8A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4B2D94E5-F3CA-44A9-BEB4-1D88609692F0}
+	EndGlobalSection
+EndGlobal

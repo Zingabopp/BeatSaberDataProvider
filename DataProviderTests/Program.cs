@@ -31,6 +31,7 @@ namespace DataProviderTests
             {
                 jSong = Song.CreateFromJson(item);
                 context.Songs.Update(jSong);
+                context.SaveChanges();
                 listSongs.Add(jSong);
             }
             var songs = ScrapedDataProvider.Songs;

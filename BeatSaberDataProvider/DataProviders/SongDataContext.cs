@@ -44,24 +44,24 @@ namespace BeatSaberDataProvider.DataProviders
                 .HasKey(u => u.UploaderId);
             modelBuilder.Entity<Uploader>()
                 .HasAlternateKey(u => u.UploaderName);
-            modelBuilder.Entity<JsonMetaData>()
-                .HasKey(m => m.SongId);
-            modelBuilder.Entity<JsonStats>()
-                .HasKey(m => m.SongId);
+            //modelBuilder.Entity<JsonMetaData>()
+            //    .HasKey(m => m.SongId);
+            //modelBuilder.Entity<JsonStats>()
+            //    .HasKey(m => m.SongId);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasKey(b => new { b.CharactersticId, b.SongId });
             modelBuilder.Entity<SongDifficulty>()
                 .HasKey(d => new { d.DifficultyId, d.SongId });
 
-            modelBuilder.Entity<JsonMetaData>()
-                .HasOne(m => m.Song)
-                .WithOne(s => s.Metadata)
-                .HasForeignKey<JsonMetaData>(m => m.SongId);
-            modelBuilder.Entity<JsonStats>()
-                .HasOne(st => st.Song)
-                .WithOne(s => s.Stats)
-                .HasForeignKey<JsonStats>(st => st.SongId);
+            //modelBuilder.Entity<JsonMetaData>()
+            //    .HasOne(m => m.Song)
+            //    .WithOne(s => s.Metadata)
+            //    .HasForeignKey<JsonMetaData>(m => m.SongId);
+            //modelBuilder.Entity<JsonStats>()
+            //    .HasOne(st => st.Song)
+            //    .WithOne(s => s.Stats)
+            //    .HasForeignKey<JsonStats>(st => st.SongId);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Characteristic)
@@ -78,10 +78,10 @@ namespace BeatSaberDataProvider.DataProviders
                 .WithMany(b => b.SongDifficulties)
                 .HasForeignKey(b => b.DifficultyId);
 
-            modelBuilder.Entity<SongDifficulty>()
-                .HasOne(b => b.Song)
-                .WithMany(b => b.Metadata.Difficulties)
-                .HasForeignKey(b => b.SongId);
+            //modelBuilder.Entity<SongDifficulty>()
+            //    .HasOne(b => b.Song)
+            //    .WithMany(b => b.Metadata.Difficulties)
+            //    .HasForeignKey(b => b.SongId);
         }
 
 

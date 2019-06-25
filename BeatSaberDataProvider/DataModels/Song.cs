@@ -12,52 +12,41 @@ using BeatSaberDataProvider.Util;
 namespace BeatSaberDataProvider.DataModels
 {
     [Table("songs")]
-    public class Song : IEquatable<Song>, IEquatable<ScoreSaberDifficulty>
+    public class Song : IEquatable<Song>, IEquatable<ScoreSaberDifficulty>, IEquatable<BeatSaverSong>
     {
         #region Main
         [NotMapped]
-        [JsonIgnore]
         private string _songId;
         [Key]
-        [JsonProperty("_id")]
         public string SongId { get { return _songId; } set { _songId = value.ToLower(); } }
         [NotMapped]
-        [JsonIgnore]
         private string _key;
-        [JsonProperty("key")]
         public string Key { get { return _key; } set { _key = value.ToLower(); } }
-        [JsonProperty("name")]
         public string Name { get; set; }
-        [JsonProperty("description")]
         public string Description { get; set; }
-        [JsonProperty("deletedAt")]
         public DateTime DeletedAt { get; set; }
         [Key]
-        [JsonProperty("hash")]
         public string Hash { get; set; }
-        [JsonProperty("uploaded")]
         public DateTime Uploaded { get; set; }
-        [JsonProperty("downloadURL")]
         public string DownloadUrl { get; set; }
-        [JsonProperty("coverURL")]
         public string CoverUrl { get; set; }
         public DateTime ScrapedAt { get; set; }
         #endregion
         #region Metadata
-        //public virtual ICollection<SongDifficulty> Difficulties { get; set; }
-        //public string SongName { get; set; }
-        //public string SongSubName { get; set; }
-        //public string SongAuthorName { get; set; }
-        //public string LevelAuthorName { get; set; }
-        //public double BeatsPerMinute { get; set; }
+        public virtual ICollection<SongDifficulty> Difficulties { get; set; }
+        public string SongName { get; set; }
+        public string SongSubName { get; set; }
+        public string SongAuthorName { get; set; }
+        public string LevelAuthorName { get; set; }
+        public double BeatsPerMinute { get; set; }
         #endregion
         #region Stats
-        //public int Downloads { get; set; }
-        //public int Plays { get; set; }
-        //public int DownVotes { get; set; }
-        //public int UpVotes { get; set; }
-        //public double Heat { get; set; }
-        //public double Rating { get; set; }
+        public int Downloads { get; set; }
+        public int Plays { get; set; }
+        public int DownVotes { get; set; }
+        public int UpVotes { get; set; }
+        public double Heat { get; set; }
+        public double Rating { get; set; }
         #endregion
 
 
@@ -66,25 +55,9 @@ namespace BeatSaberDataProvider.DataModels
 
         [ForeignKey("SongHash")]
         public virtual ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
-        [JsonIgnore]
         public string UploaderRefId { get; set; }
         public Uploader Uploader { get; set; }
 
-        [NotMapped]
-        [JsonProperty("metadata")]
-        public JsonMetaData Metadata { get; set; }
-        [NotMapped]
-        [JsonProperty("stats")]
-        public JsonStats Stats { get; set; }
-
-        [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
-        {
-            if (Uploader != null)
-                UploaderRefId = Uploader.UploaderId;
-            Metadata.SongId = SongId;
-            Stats.SongId = SongId;
-        }
 
         public bool Equals(Song other)
         {
@@ -96,14 +69,19 @@ namespace BeatSaberDataProvider.DataModels
             return Hash == other.SongHash;
         }
 
-        public Song()
+        public bool Equals(BeatSaverSong other)
         {
-            Metadata = new JsonMetaData() { Song = this };
-            Stats = new JsonStats() { Song = this };
-            ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
+            return SongId.ToLower() == other._id;
         }
 
-        public Song(BeatSaverSong s)
+        public Song()
+        {
+            //Metadata = new JsonMetaData() { Song = this };
+            //Stats = new JsonStats() { Song = this };
+            //ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
+        }
+
+        public Song(BeatSaverSong s, IEnumerable<ScoreSaberDifficulty> scoreSaberDifficulties = null)
             : this()
         {
             SongId = s._id;
@@ -115,68 +93,86 @@ namespace BeatSaberDataProvider.DataModels
             DownloadUrl = s.downloadURL;
             CoverUrl = s.coverURL;
 
-            Metadata.SongName = s.metadata.songName;
-            Metadata.SongSubName = s.metadata.songSubName;
-            Metadata.SongAuthorName = s.metadata.songAuthorName;
-            Metadata.LevelAuthorName = s.metadata.levelAuthorName;
-            Metadata.BeatsPerMinute = s.metadata.bpm;
+            SongName = s.metadata.songName;
+            SongSubName = s.metadata.songSubName;
+            SongAuthorName = s.metadata.songAuthorName;
+            LevelAuthorName = s.metadata.levelAuthorName;
+            BeatsPerMinute = s.metadata.bpm;
 
-            Stats.Downloads = s.stats.downloads;
-            Stats.Plays = s.stats.plays;
-            Stats.DownVotes = s.stats.downVotes;
-            Stats.UpVotes = s.stats.upVotes;
-            Stats.Heat = s.stats.heat;
-            Stats.Rating = s.stats.rating;
+            Downloads = s.stats.downloads;
+            Plays = s.stats.plays;
+            DownVotes = s.stats.downVotes;
+            UpVotes = s.stats.upVotes;
+            Heat = s.stats.heat;
+            Rating = s.stats.rating;
 
             ScrapedAt = s.ScrapedAt;
 
-            Metadata.Difficulties = Difficulty.DictionaryToDifficulties(s.metadata.difficulties).
+            Difficulties = Difficulty.DictionaryToDifficulties(s.metadata.difficulties).
                 Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = s._id }).ToList();
             BeatmapCharacteristics = Characteristic.ConvertCharacteristics(s.metadata.characteristics).
                 Select(c => new BeatmapCharacteristic() { SongId = s._id, Song = this, Characteristic = c }).ToList();
             UploaderRefId = s.uploader.id;
             Uploader = new Uploader() { UploaderId = UploaderRefId, UploaderName = s.uploader.username };
-            //ScoreSaberDifficulties = s.ScoreSaberInfo.Values.Select(d => new ScoreSaberDifficulty(d)).ToList();
+            if (scoreSaberDifficulties != null)
+            {
+                ScoreSaberDifficulties = scoreSaberDifficulties.ToList();
+            }
+            else
+                ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
+            //
         }
 
-        //public static Song CreateFromJson(JToken token)
-        //{
-        //    Song song = new Song()
-        //    {
-        //        SongId = token["_id"]?.Value<string>(),
-        //        Key = token["key"]?.Value<string>(),
-        //        Name = s.BeatSaverInfo.name,
-        //        Description = s.BeatSaverInfo.description,
-        //        Hash = s.BeatSaverInfo.hash.ToUpper(),
-        //        Uploaded = s.BeatSaverInfo.uploaded,
-        //        DownloadUrl = s.BeatSaverInfo.downloadURL,
-        //        CoverUrl = s.BeatSaverInfo.coverURL,
+        public static Song CreateFromJson(JToken token)
+        {
 
-        //        SongName = s.BeatSaverInfo.metadata.songName,
-        //        SongSubName = s.BeatSaverInfo.metadata.songSubName,
-        //        SongAuthorName = s.BeatSaverInfo.metadata.songAuthorName,
-        //        LevelAuthorName = s.BeatSaverInfo.metadata.levelAuthorName,
-        //        BeatsPerMinute = s.BeatSaverInfo.metadata.bpm,
+            var test = JsonConvert.DeserializeObject<List<string>>(token["metadata"]?["characteristics"]?.ToString());
+            var uploaderId = token["uploader"]?["_id"]?.Value<string>().ToLower();
+            var songId = token["_id"]?.Value<string>();
+            Song song = null;
+            song = new Song()
+            {
+                // Root
+                SongId = token["_id"]?.Value<string>(),
+                Key = token["key"]?.Value<string>(),
+                Name = token["name"]?.Value<string>(),
+                Description = token["description"]?.Value<string>(),
+                Hash = token["hash"]?.Value<string>().ToUpper(),
+                Uploaded = token["uploaded"]?.Value<DateTime>() ?? DateTime.MinValue,
+                DownloadUrl = token["downloadURL"]?.Value<string>(),
+                CoverUrl = token["coverURL"]?.Value<string>(),
 
-        //        Downloads = s.BeatSaverInfo.stats.downloads,
-        //        Plays = s.BeatSaverInfo.stats.plays,
-        //        DownVotes = s.BeatSaverInfo.stats.downVotes,
-        //        UpVotes = s.BeatSaverInfo.stats.upVotes,
-        //        Heat = s.BeatSaverInfo.stats.heat,
-        //        Rating = s.BeatSaverInfo.stats.rating,
+                // Metadata
+                //Difficulties = Difficulty.DictionaryToDifficulties(token["metadata"]?["difficulties"]?.ToDictionary(t => t.).Select(d =>
+                //new SongDifficulty() { Difficulty = d, Song = song, SongId = s.BeatSaverInfo._id }).ToList(),
 
-        //        ScrapedAt = s.BeatSaverInfo.ScrapedAt,
+                
+                BeatmapCharacteristics = Characteristic.ConvertCharacteristics(test).Select(c =>
+                    new BeatmapCharacteristic() { SongId = songId, Song = song, Characteristic = c }).ToList(), // Check if Song = song works
 
-        //        Difficulties = Difficulty.DictionaryToDifficulties(s.BeatSaverInfo.metadata.difficulties).Select(d =>
-        //        new SongDifficulty() { Difficulty = d, Song = this, SongId = s.BeatSaverInfo._id }).ToList(),
-        //        BeatmapCharacteristics = Characteristic.ConvertCharacteristics(s.BeatSaverInfo.metadata.characteristics).Select(c =>
-        //        new BeatmapCharacteristic() { SongId = s.BeatSaverInfo._id, Song = this, Characteristic = c }).ToList(),
-        //        UploaderRefId = s.BeatSaverInfo.uploader.id,
-        //        Uploader = new Uploader() { UploaderId = UploaderRefId, UploaderName = s.BeatSaverInfo.uploader.username },
-        //        ScoreSaberDifficulties = s.ScoreSaberInfo.Values.Select(d => new ScoreSaberDifficulty(d)).ToList(),
-        //    }
-        //    return song;
-        //}
+                SongName = token["metadata"]?["songName"]?.Value<string>(),
+                SongSubName = token["metadata"]?["songSubName"]?.Value<string>(),
+                SongAuthorName = token["metadata"]?["songAuthorName"]?.Value<string>(),
+                LevelAuthorName = token["metadata"]?["levelAuthorName"]?.Value<string>(),
+                BeatsPerMinute = token["metadata"]?["bpm"]?.Value<double>() ?? 0d,
+                //Stats
+                Downloads = token["stats"]?["downloads"]?.Value<int>() ?? 0,
+                Plays = token["stats"]?["plays"]?.Value<int>() ?? 0,
+                DownVotes = token["stats"]?["downVotes"]?.Value<int>() ?? 0,
+                UpVotes = token["stats"]?["upVotes"]?.Value<int>() ?? 0,
+                Heat = token["stats"]?["heat"]?.Value<double>() ?? 0,
+                Rating = token["stats"]?["rating"]?.Value<double>() ?? 0,
+                // Uploader
+                UploaderRefId = token["uploader"]?["_id"]?.Value<string>().ToLower(),
+                Uploader = new Uploader() { UploaderId = uploaderId, UploaderName = token["uploader"]?["username"]?.Value<string>() },
+
+                ScrapedAt = token[""]?.Value<DateTime>() ?? DateTime.MinValue,
+
+                //ScoreSaberDifficulties = s.ScoreSaberInfo.Values.Select(d => new ScoreSaberDifficulty(d)).ToList(),
+            };
+            
+            return song;
+        }
     }
 
     [Table("characteristics")]
@@ -319,87 +315,103 @@ namespace BeatSaberDataProvider.DataModels
     }
 
     #region Old Json Stuff
-    [Serializable]
-    public class JsonMetaData
-    {
-        public virtual ICollection<SongDifficulty> Difficulties { get; set; }
 
-        [JsonProperty("difficulties")]
-        private Dictionary<string, bool> JsonDiffs
-        {
-            get
-            {
-                return Difficulties?.Select(d => d.Difficulty.DifficultyName).ToDictionary(d => d, d => true);
-            }
-            set
-            {
-                Difficulties = Difficulty.DictionaryToDifficulties(value).
-                    Select(d => new SongDifficulty() { Difficulty = d, Song = Song, SongId = Song.SongId }).ToList();
-            }
-        }
+    //[OnDeserialized]
+    //private void OnDeserialized(StreamingContext context)
+    //{
+    //    if (Uploader != null)
+    //        UploaderRefId = Uploader.UploaderId;
+    //    Metadata.SongId = SongId;
+    //    Stats.SongId = SongId;
+    //}
+    //[NotMapped]
+    //[JsonProperty("metadata")]
+    //public JsonMetaData Metadata { get; set; }
+    //[NotMapped]
+    //[JsonProperty("stats")]
+    //public JsonStats Stats { get; set; }
+    //[Serializable]
+    //public class JsonMetaData
+    //{
+    //    public virtual ICollection<SongDifficulty> Difficulties { get; set; }
 
-        [JsonIgnore]
-        public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
+    //    [JsonProperty("difficulties")]
+    //    private Dictionary<string, bool> JsonDiffs
+    //    {
+    //        get
+    //        {
+    //            return Difficulties?.Select(d => d.Difficulty.DifficultyName).ToDictionary(d => d, d => true);
+    //        }
+    //        set
+    //        {
+    //            Difficulties = Difficulty.DictionaryToDifficulties(value).
+    //                Select(d => new SongDifficulty() { Difficulty = d, Song = Song, SongId = Song.SongId }).ToList();
+    //        }
+    //    }
 
-        [NotMapped]
-        [JsonProperty("characteristics")]
-        private List<string> Characteristics
-        {
-            get { return BeatmapCharacteristics?.Select(c => c.Characteristic.CharacteristicName).ToList(); }
-            set
-            {
-                Characteristic.ConvertCharacteristics(value).
-                Select(c => new BeatmapCharacteristic() { SongId = Song.SongId, Song = Song, Characteristic = c }).ToList();
-            }
-        }
+    //    [JsonIgnore]
+    //    public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
 
-        [JsonProperty("songName")]
-        public string SongName { get; set; }
+    //    [NotMapped]
+    //    [JsonProperty("characteristics")]
+    //    private List<string> Characteristics
+    //    {
+    //        get { return BeatmapCharacteristics?.Select(c => c.Characteristic.CharacteristicName).ToList(); }
+    //        set
+    //        {
+    //            Characteristic.ConvertCharacteristics(value).
+    //            Select(c => new BeatmapCharacteristic() { SongId = Song.SongId, Song = Song, Characteristic = c }).ToList();
+    //        }
+    //    }
 
-        [JsonProperty("songSubName")]
-        public string SongSubName { get; set; }
+    //    [JsonProperty("songName")]
+    //    public string SongName { get; set; }
 
-        [JsonProperty("songAuthorName")]
-        public string SongAuthorName { get; set; }
+    //    [JsonProperty("songSubName")]
+    //    public string SongSubName { get; set; }
 
-        [JsonProperty("levelAuthorName")]
-        public string LevelAuthorName { get; set; }
+    //    [JsonProperty("songAuthorName")]
+    //    public string SongAuthorName { get; set; }
 
-        [JsonProperty("bpm")]
-        public float BeatsPerMinute { get; set; }
+    //    [JsonProperty("levelAuthorName")]
+    //    public string LevelAuthorName { get; set; }
 
-        [JsonIgnore]
-        public string SongId { get; set; }
-        [JsonIgnore]
-        public Song Song { get; set; }
-    }
+    //    [JsonProperty("bpm")]
+    //    public float BeatsPerMinute { get; set; }
 
-    [Serializable]
-    public class JsonStats
-    {
-        [JsonIgnore]
-        public string SongId { get; set; }
-        [JsonIgnore]
-        public Song Song { get; set; }
+    //    [JsonIgnore]
+    //    public string SongId { get; set; }
+    //    [JsonIgnore]
+    //    public Song Song { get; set; }
+    //}
+
+    //[Serializable]
+    //public class JsonStats
+    //{
+    //    [JsonIgnore]
+    //    public string SongId { get; set; }
+    //    [JsonIgnore]
+    //    public Song Song { get; set; }
 
 
-        [JsonProperty("downloads")]
-        public int Downloads { get; set; }
+    //    [JsonProperty("downloads")]
+    //    public int Downloads { get; set; }
 
-        [JsonProperty("plays")]
-        public int Plays { get; set; }
+    //    [JsonProperty("plays")]
+    //    public int Plays { get; set; }
 
-        [JsonProperty("downVotes")]
-        public int DownVotes { get; set; }
+    //    [JsonProperty("downVotes")]
+    //    public int DownVotes { get; set; }
 
-        [JsonProperty("upVotes")]
-        public int UpVotes { get; set; }
+    //    [JsonProperty("upVotes")]
+    //    public int UpVotes { get; set; }
 
-        [JsonProperty("heat")]
-        public double Heat { get; set; }
+    //    [JsonProperty("heat")]
+    //    public double Heat { get; set; }
 
-        [JsonProperty("rating")]
-        public double Rating { get; set; }
-    }
+    //    [JsonProperty("rating")]
+    //    public double Rating { get; set; }
+    //}
     #endregion
+
 }

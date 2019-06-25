@@ -4,6 +4,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <Platforms>AnyCPU</Platforms>
+    <Copyright>Copyright © Zingabopp 2019</Copyright>
+    <PackageProjectUrl>https://github.com/Zingabopp/BeatSaberDataProvider</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Zingabopp/BeatSaberDataProvider</RepositoryUrl>
+    <Company />
+    <Authors>Zingabopp</Authors>
     
   </PropertyGroup>
 

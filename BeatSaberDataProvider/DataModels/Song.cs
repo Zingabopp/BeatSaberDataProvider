@@ -38,7 +38,7 @@ namespace BeatSaberDataProvider.DataModels
         public string SongSubName { get; set; }
         public string SongAuthorName { get; set; }
         public string LevelAuthorName { get; set; }
-        public double BeatsPerMinute { get; set; }
+        public float BeatsPerMinute { get; set; }
         #endregion
         #region Stats
         public int Downloads { get; set; }
@@ -122,55 +122,60 @@ namespace BeatSaberDataProvider.DataModels
                 ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
             //
         }
+        public static Song CreateFromJson(JObject token)
+        {
+            return CreateFromJson((JToken)token);
+        }
 
         public static Song CreateFromJson(JToken token)
         {
 
-            var test = JsonConvert.DeserializeObject<List<string>>(token["metadata"]?["characteristics"]?.ToString());
+            var characteristics = JsonConvert.DeserializeObject<List<string>>(token["metadata"]?["characteristics"]?.ToString());
+            var diffs = JsonConvert.DeserializeObject<Dictionary<string, bool>>(token["metadata"]?["difficulties"]?.ToString());
+
             var uploaderId = token["uploader"]?["_id"]?.Value<string>().ToLower();
             var songId = token["_id"]?.Value<string>();
-            Song song = null;
-            song = new Song()
-            {
-                // Root
-                SongId = token["_id"]?.Value<string>(),
-                Key = token["key"]?.Value<string>(),
-                Name = token["name"]?.Value<string>(),
-                Description = token["description"]?.Value<string>(),
-                Hash = token["hash"]?.Value<string>().ToUpper(),
-                Uploaded = token["uploaded"]?.Value<DateTime>() ?? DateTime.MinValue,
-                DownloadUrl = token["downloadURL"]?.Value<string>(),
-                CoverUrl = token["coverURL"]?.Value<string>(),
 
-                // Metadata
-                //Difficulties = Difficulty.DictionaryToDifficulties(token["metadata"]?["difficulties"]?.ToDictionary(t => t.).Select(d =>
-                //new SongDifficulty() { Difficulty = d, Song = song, SongId = s.BeatSaverInfo._id }).ToList(),
 
-                
-                BeatmapCharacteristics = Characteristic.ConvertCharacteristics(test).Select(c =>
-                    new BeatmapCharacteristic() { SongId = songId, Song = song, Characteristic = c }).ToList(), // Check if Song = song works
+            Song song = new Song();
+            // Root
+            song.SongId = token["_id"]?.Value<string>();
+            song.Key = token["key"]?.Value<string>();
+            song.Name = token["name"]?.Value<string>();
+            song.Description = token["description"]?.Value<string>();
+            song.Hash = token["hash"]?.Value<string>().ToUpper();
+            song.Uploaded = token["uploaded"]?.Value<DateTime>() ?? DateTime.MinValue;
+            song.DownloadUrl = token["downloadURL"]?.Value<string>();
+            song.CoverUrl = token["coverURL"]?.Value<string>();
 
-                SongName = token["metadata"]?["songName"]?.Value<string>(),
-                SongSubName = token["metadata"]?["songSubName"]?.Value<string>(),
-                SongAuthorName = token["metadata"]?["songAuthorName"]?.Value<string>(),
-                LevelAuthorName = token["metadata"]?["levelAuthorName"]?.Value<string>(),
-                BeatsPerMinute = token["metadata"]?["bpm"]?.Value<double>() ?? 0d,
-                //Stats
-                Downloads = token["stats"]?["downloads"]?.Value<int>() ?? 0,
-                Plays = token["stats"]?["plays"]?.Value<int>() ?? 0,
-                DownVotes = token["stats"]?["downVotes"]?.Value<int>() ?? 0,
-                UpVotes = token["stats"]?["upVotes"]?.Value<int>() ?? 0,
-                Heat = token["stats"]?["heat"]?.Value<double>() ?? 0,
-                Rating = token["stats"]?["rating"]?.Value<double>() ?? 0,
-                // Uploader
-                UploaderRefId = token["uploader"]?["_id"]?.Value<string>().ToLower(),
-                Uploader = new Uploader() { UploaderId = uploaderId, UploaderName = token["uploader"]?["username"]?.Value<string>() },
+            // Metadata
+            song.Difficulties = Difficulty.DictionaryToDifficulties(diffs)
+                .Select(d => new SongDifficulty() { Difficulty = d, Song = song, SongId = song.SongId }).ToList();
 
-                ScrapedAt = token[""]?.Value<DateTime>() ?? DateTime.MinValue,
 
-                //ScoreSaberDifficulties = s.ScoreSaberInfo.Values.Select(d => new ScoreSaberDifficulty(d)).ToList(),
-            };
-            
+            song.BeatmapCharacteristics = Characteristic.ConvertCharacteristics(characteristics).Select(c =>
+                        new BeatmapCharacteristic() { SongId = song.SongId, Song = song, Characteristic = c }).ToList();
+
+            song.SongName = token["metadata"]?["songName"]?.Value<string>();
+            song.SongSubName = token["metadata"]?["songSubName"]?.Value<string>();
+            song.SongAuthorName = token["metadata"]?["songAuthorName"]?.Value<string>();
+            song.LevelAuthorName = token["metadata"]?["levelAuthorName"]?.Value<string>();
+            song.BeatsPerMinute = token["metadata"]?["bpm"]?.Value<float>() ?? default;
+            //Stats
+            song.Downloads = token["stats"]?["downloads"]?.Value<int>() ?? 0;
+            song.Plays = token["stats"]?["plays"]?.Value<int>() ?? 0;
+            song.DownVotes = token["stats"]?["downVotes"]?.Value<int>() ?? 0;
+            song.UpVotes = token["stats"]?["upVotes"]?.Value<int>() ?? 0;
+            song.Heat = token["stats"]?["heat"]?.Value<double>() ?? 0;
+            song.Rating = token["stats"]?["rating"]?.Value<double>() ?? 0;
+            // Uploader
+            song.UploaderRefId = token["uploader"]?["_id"]?.Value<string>().ToLower();
+            song.Uploader = new Uploader() { UploaderId = uploaderId, UploaderName = token["uploader"]?["username"]?.Value<string>() };
+
+            song.ScrapedAt = token[""]?.Value<DateTime>() ?? DateTime.MinValue;
+
+            //ScoreSaberDifficulties = s.ScoreSaberInfo.Values.Select(d => new ScoreSaberDifficulty(d)).ToList(),
+
             return song;
         }
     }

@@ -117,11 +117,6 @@ namespace BeatSaberDataProvider.DataModels
             Hash
         }
 
-        /// <summary>
-        /// Downloads the page and returns it as a string in an asynchronous operation.
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
         public async Task<bool> PopulateFieldsAsync()
         {
             if (Populated)
@@ -198,38 +193,7 @@ namespace BeatSaberDataProvider.DataModels
         [OnDeserialized]
         protected void OnDeserialized(StreamingContext context)
         {
-            //if (!(this is ScoreSaberSong))
-            //if(!this.GetType().IsSubclassOf(typeof(SongInfo)))
-            //{
-            //    //Logger.Warning("SongInfo OnDeserialized");
             Populated = true;
-            /*
-            if (_songInfo == null)
-            {
-                if (_beatSaverRegex.IsMatch(key))
-                    _songInfo = ScrapedDataProvider.GetSongByKey(key, false);
-                if (_songInfo == null)
-                    _songInfo = ScrapedDataProvider.GetSongByHash(hashMd5, false);
-
-                if (_songInfo == null)
-                {
-                    //Logger.Info($"Couldn't find song {key} - {name} by {authorName}, generating new song info...");
-                    _songInfo = new SongInfo() {
-                        key = key,
-                        songName = songName,
-                        songSubName = songSubName,
-                        authorName = authorName,
-                        bpm = bpm,
-                        playedCount = playedCount,
-                        upVotes = upVotes,
-                        downVotes = downVotes,
-                        hash = hashMd5,
-                    };
-                    _songInfo.EnhancedInfo = this;
-                    ScrapedDataProvider.TryAddToScrapedData(_songInfo);
-                }
-            }
-            */
         }
 
 
@@ -335,8 +299,6 @@ namespace BeatSaberDataProvider.DataModels
             return hash.ToUpper() == other.hash.ToUpper();
         }
 
-        //[JsonIgnore]
-        //private SongInfo _songInfo { get; set; }
         [JsonIgnore]
         public int KeyAsInt
         {
@@ -401,6 +363,7 @@ namespace BeatSaberDataProvider.DataModels
 
         [JsonProperty("ScrapedAt")]
         public DateTime ScrapedAt { get; set; }
+
         /*
         [JsonIgnore]
         private SongMetadata _metadata;
@@ -408,7 +371,7 @@ namespace BeatSaberDataProvider.DataModels
         private SongStats _stats;
         [JsonIgnore]
         private SongUploader _uploader;
-*/
+        */
 
 
     }

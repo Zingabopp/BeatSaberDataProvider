@@ -57,11 +57,11 @@ namespace BeatSaberDataProvider.DataModels
         private const string HARDKEY = "_hard_solostandard";
         private const string EXPERTKEY = "_expert_solostandard";
         private const string EXPERTPLUSKEY = "_expertplus_solostandard";
-        public static string ConvertDiff(string diffString)
+        public static string ConvertDiff(string _diffString)
         {
-            diffString = diffString.ToLower();
+            string diffString = _diffString.ToLower();
             if (!diffString.Contains("solostandard"))
-                return diffString;
+                return _diffString;
             switch (diffString)
             {
                 case EXPERTPLUSKEY:
@@ -75,47 +75,14 @@ namespace BeatSaberDataProvider.DataModels
                 case EASYKEY:
                     return "Easy";
                 default:
-                    return diffString;
+                    return _diffString;
             }
         }
 
-        //    public static bool TryParseScoreSaberSong(JToken token, ref ScoreSaberSong song)
-        //    {
-        //        string songName = token["name"]?.Value<string>();
-        //        if (songName == null)
-        //            songName = "";
-        //        bool successful = true;
-        //        try
-        //        {
-        //            song = token.ToObject<ScoreSaberSong>(new JsonSerializer() {
-        //                NullValueHandling = NullValueHandling.Ignore,
-        //                MissingMemberHandling = MissingMemberHandling.Ignore
-        //            });
-        //            //Logger.Debug(song.ToString());
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Logger.Exception($"Unable to create a ScoreSaberSong from the JSON for {songName}\n", ex);
-        //            successful = false;
-        //            song = null;
-        //        }
-        //        return successful;
-        //    }
+        public void UpdateFromJson(JToken token)
+        {
 
-        //    public JsonSong GenerateSongInfo()
-        //    {
-        //        var newSong = new JsonSong(hash);
-        //        /*
-        //        var newSong = new SongInfo() {
-        //            songName = name,
-        //            songSubName = songSubName,
-        //            authorName = levelAuthorName,
-        //            bpm = bpm
-        //        };
-        //        */
-        //        //newSong.ScoreSaberInfo.Add(uid, this);
-        //        return newSong;
-        //    }
+        }
 
         public bool Equals(ScoreSaberDifficulty other)
         {
@@ -128,3 +95,41 @@ namespace BeatSaberDataProvider.DataModels
         }
     }
 }
+
+//    public static bool TryParseScoreSaberSong(JToken token, ref ScoreSaberSong song)
+//    {
+//        string songName = token["name"]?.Value<string>();
+//        if (songName == null)
+//            songName = "";
+//        bool successful = true;
+//        try
+//        {
+//            song = token.ToObject<ScoreSaberSong>(new JsonSerializer() {
+//                NullValueHandling = NullValueHandling.Ignore,
+//                MissingMemberHandling = MissingMemberHandling.Ignore
+//            });
+//            //Logger.Debug(song.ToString());
+//        }
+//        catch (Exception ex)
+//        {
+//            Logger.Exception($"Unable to create a ScoreSaberSong from the JSON for {songName}\n", ex);
+//            successful = false;
+//            song = null;
+//        }
+//        return successful;
+//    }
+
+//    public JsonSong GenerateSongInfo()
+//    {
+//        var newSong = new JsonSong(hash);
+//        /*
+//        var newSong = new SongInfo() {
+//            songName = name,
+//            songSubName = songSubName,
+//            authorName = levelAuthorName,
+//            bpm = bpm
+//        };
+//        */
+//        //newSong.ScoreSaberInfo.Add(uid, this);
+//        return newSong;
+//    }

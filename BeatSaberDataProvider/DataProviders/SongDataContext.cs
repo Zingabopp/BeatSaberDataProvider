@@ -16,7 +16,6 @@ namespace BeatSaberDataProvider.DataProviders
         public DbSet<Characteristic> Characteristics { get; set; }
         public DbSet<Difficulty> Difficulties { get; set; }
         public DbSet<Uploader> Uploaders { get; set; }
-        public DbSet<SongMetadata> Metadatas { get; set; }
         public string DataSourcePath { get; set; }
 
 

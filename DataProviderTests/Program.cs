@@ -24,13 +24,21 @@ namespace DataProviderTests
             //var songList = JsonConvert.DeserializeObject<List<Song>>(fileRead);
             var songList = JToken.Parse(fileRead);
             var listSongs = new List<Song>();
+            SongDataContext context = new SongDataContext();
+            context.Database.EnsureCreated();
             Song jSong = null;
             foreach (var item in songList.Children())
             {
                 jSong = Song.CreateFromJson(item);
+                context.Songs.Update(jSong);
                 listSongs.Add(jSong);
             }
             var songs = ScrapedDataProvider.Songs;
+
+            
+            context.Songs.UpdateRange(listSongs);
+            context.SaveChanges();
+
             ScrapedDataProvider.TryGetSongByHash("2FDDB136BDA7F9E29B4CB6621D6D8E0F8A43B126", out Song song);
             ScrapedDataProvider.TryGetSongByKey("b", out Song believer);
             string hash = believer.Hash.ToLower();

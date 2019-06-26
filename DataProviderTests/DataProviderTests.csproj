@@ -10,4 +10,10 @@
     <ProjectReference Include="..\BeatSaberDataProvider\BeatSaberDataProvider.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="BeatSaverTestSongs.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

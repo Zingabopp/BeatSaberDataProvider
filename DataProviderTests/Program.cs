@@ -16,17 +16,33 @@ namespace DataProviderTests
         {
             Console.WriteLine("Testing...");
             ScrapedDataProvider.Initialize();
-            SongHashDataProvider songHashes = new SongHashDataProvider();
-            songHashes.Initialize();
-            PlayerDataProvider playerData = new PlayerDataProvider();
-            playerData.Initialize();
+            //SongHashDataProvider songHashes = new SongHashDataProvider();
+            //songHashes.Initialize();
+            //PlayerDataProvider playerData = new PlayerDataProvider();
+            //playerData.Initialize();
+            Song jSong = null;
+            SongDataContext context = new SongDataContext();
+            context.Database.EnsureCreated();
+
+            
+            string beatSaverSongs = File.ReadAllText("BeatSaverTestSongs.json");
+            JToken bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];
+            List<Song> bsSongs = new List<Song>();
+
+            foreach (var item in bsSongsJson.Children())
+            {
+                jSong = Song.CreateFromJson(item);
+
+                context.Songs.Update(jSong);
+                context.SaveChanges();
+                bsSongs.Add(jSong);
+            }
             string fileRead = File.ReadAllText("BeatSaverSongsTest.json");
             //var songList = JsonConvert.DeserializeObject<List<Song>>(fileRead);
             var songList = JToken.Parse(fileRead);
             var listSongs = new List<Song>();
-            SongDataContext context = new SongDataContext();
-            context.Database.EnsureCreated();
-            Song jSong = null;
+            
+            
             foreach (var item in songList.Children())
             {
                 jSong = Song.CreateFromJson(item);

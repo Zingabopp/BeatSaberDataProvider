@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
 using BeatSaberDataProvider.DataModels;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace BeatSaberDataProvider.DataProviders
 {
@@ -18,19 +20,24 @@ namespace BeatSaberDataProvider.DataProviders
         public DbSet<Uploader> Uploaders { get; set; }
         public string DataSourcePath { get; set; }
 
+        public static readonly LoggerFactory MyLoggerFactory
+    = new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) });
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (string.IsNullOrEmpty(DataSourcePath))
                 DataSourcePath = "songs.db";
-            optionsBuilder.UseSqlite($"Data Source={DataSourcePath}");
-            
+            optionsBuilder
+                .UseLoggerFactory(MyLoggerFactory)
+                .EnableSensitiveDataLogging(true)
+                .UseSqlite($"Data Source={DataSourcePath}");
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Song>()
-                .HasKey(s => s.Hash);
+                .HasKey(s => s.SongId);
             modelBuilder.Entity<ScoreSaberDifficulty>()
                 .HasKey(d => d.ScoreSaberDifficultyId);
             modelBuilder.Entity<Characteristic>()
@@ -43,44 +50,35 @@ namespace BeatSaberDataProvider.DataProviders
                 .HasKey(u => u.UploaderId);
             modelBuilder.Entity<Uploader>()
                 .HasAlternateKey(u => u.UploaderName);
-            //modelBuilder.Entity<JsonMetaData>()
-            //    .HasKey(m => m.SongId);
-            //modelBuilder.Entity<JsonStats>()
-            //    .HasKey(m => m.SongId);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
-                .HasKey(b => new { b.CharactersticId, b.SongId });
+                .HasKey(b => new { b.CharacteristicId, b.SongId });
             modelBuilder.Entity<SongDifficulty>()
                 .HasKey(d => new { d.DifficultyId, d.SongId });
 
-            //modelBuilder.Entity<JsonMetaData>()
-            //    .HasOne(m => m.Song)
-            //    .WithOne(s => s.Metadata)
-            //    .HasForeignKey<JsonMetaData>(m => m.SongId);
-            //modelBuilder.Entity<JsonStats>()
-            //    .HasOne(st => st.Song)
-            //    .WithOne(s => s.Stats)
-            //    .HasForeignKey<JsonStats>(st => st.SongId);
+
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Characteristic)
-                .WithMany(b => b.BeatmapCharacteristics)
-                .HasForeignKey(b => b.CharactersticId);
+                .WithMany(b => b.BeatmapCharacteristics);
+                //.HasForeignKey(b => b.CharacteristicId);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Song)
-                .WithMany(b => b.BeatmapCharacteristics)
-                .HasForeignKey(b => b.SongId);
+                .WithMany(b => b.BeatmapCharacteristics);
+            //.HasForeignKey(b => b.SongId);
 
             modelBuilder.Entity<SongDifficulty>()
                 .HasOne(b => b.Difficulty)
-                .WithMany(b => b.SongDifficulties)
-                .HasForeignKey(b => b.DifficultyId);
+                .WithMany(b => b.SongDifficulties);
+                //.HasForeignKey(b => b.DifficultyId);
 
-            //modelBuilder.Entity<SongDifficulty>()
-            //    .HasOne(b => b.Song)
-            //    .WithMany(b => b.Metadata.Difficulties)
-            //    .HasForeignKey(b => b.SongId);
+            modelBuilder.Entity<SongDifficulty>()
+                .HasOne(b => b.Song)
+                .WithMany(b => b.Difficulties);
+                //.HasForeignKey(b => b.SongId);
+
+
         }
 
 

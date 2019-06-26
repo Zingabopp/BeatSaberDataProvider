@@ -1,0 +1,408 @@
+﻿{
+  "docs": [
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "OkDisplay",
+        "songAuthorName": "F-777",
+        "songName": "1UP (F-777)",
+        "songSubName": "",
+        "bpm": 133
+      },
+      "stats": {
+        "downloads": 237,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 5,
+        "heat": 806.3673718,
+        "rating": 0.7084432256108616
+      },
+      "description": "Two different NJ and streams intensity.",
+      "deletedAt": null,
+      "_id": "5d10e3663793fc0006d1e898",
+      "key": "544c",
+      "name": "1UP (F-777)",
+      "uploader": {
+        "_id": "5cff0b7398cc5a672c84eda2",
+        "username": "okdisplay"
+      },
+      "hash": "b169476c7323ea00e192499d02a29d10101f95a2",
+      "uploaded": "2019-06-24T14:51:18.082Z",
+      "downloadURL": "/api/download/key/544c",
+      "coverURL": "/cdn/544c/b169476c7323ea00e192499d02a29d10101f95a2.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "Majorpickle",
+        "songAuthorName": "Lost Kings (feat. Anna Clendening)",
+        "songName": "Too Far Gone ",
+        "songSubName": "",
+        "bpm": 93
+      },
+      "stats": {
+        "downloads": 164,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 2,
+        "heat": 806.2617844,
+        "rating": 0.6407951473548253
+      },
+      "description": "",
+      "deletedAt": null,
+      "_id": "5d1116c9f8aa080006152d4d",
+      "key": "5451",
+      "name": "Lost Kings - Too Far Gone (ft. Anna Clendening)",
+      "uploader": {
+        "_id": "5cff0b7398cc5a672c84f792",
+        "username": "majorpickle"
+      },
+      "hash": "12abe1074702704f3c558b062deac4c1c67cb6f1",
+      "uploaded": "2019-06-24T18:30:33.947Z",
+      "downloadURL": "/api/download/key/5451",
+      "coverURL": "/cdn/5451/12abe1074702704f3c558b062deac4c1c67cb6f1.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "Anivia",
+        "songAuthorName": "封茗囧菌",
+        "songName": "Ann's cupboard",
+        "songSubName": "",
+        "bpm": 99
+      },
+      "stats": {
+        "downloads": 12,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 1,
+        "heat": 806.2604015,
+        "rating": 0.5941636475090435
+      },
+      "description": "hah",
+      "deletedAt": null,
+      "_id": "5d114b76f8aa08000615613f",
+      "key": "5456",
+      "name": "Ann's cupboard",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c856399",
+        "username": "bowwwl"
+      },
+      "hash": "0378b045acfa87150fdb076dd83041e52be5790a",
+      "uploaded": "2019-06-24T22:15:18.068Z",
+      "downloadURL": "/api/download/key/5456",
+      "coverURL": "/cdn/5456/0378b045acfa87150fdb076dd83041e52be5790a.png"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "iChristopher",
+        "songAuthorName": "LITTLE BIG",
+        "songName": "HATEFUL LOVE",
+        "songSubName": "",
+        "bpm": 170
+      },
+      "stats": {
+        "downloads": 20,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 806.2245622,
+        "rating": 0
+      },
+      "description": "Test, first map.",
+      "deletedAt": null,
+      "_id": "5d114529300fbe00062b0821",
+      "key": "5455",
+      "name": "HATEFUL LOVE - LITTLE BIG",
+      "uploader": {
+        "_id": "5d101860f8aa08000614930a",
+        "username": "ichristopher"
+      },
+      "hash": "5e0a1ff976492851c6cc6d31dc20768d66266404",
+      "uploaded": "2019-06-24T21:48:25.297Z",
+      "downloadURL": "/api/download/key/5455",
+      "coverURL": "/cdn/5455/5e0a1ff976492851c6cc6d31dc20768d66266404.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "RedBrumbler",
+        "songAuthorName": "Qumu",
+        "songName": "Flower Garden (Qumu remix)",
+        "songSubName": "",
+        "bpm": 145
+      },
+      "stats": {
+        "downloads": 37,
+        "plays": 0,
+        "downVotes": 1,
+        "upVotes": 0,
+        "heat": 806.2188311,
+        "rating": 0.40583635249095656
+      },
+      "description": "I did an oopsie and needed to adjust some things to make the map more playable, so this is a reupload\r\n\r\nFor my first map I decided to map a great remix of a great video game tune!\r\nEnjoy!",
+      "deletedAt": null,
+      "_id": "5d1144273793fc0006d23dcd",
+      "key": "5454",
+      "name": "Yoshi's Island - Flower Garden (Qumu Remix) V1.1",
+      "uploader": {
+        "_id": "5d111e333793fc0006d218ee",
+        "username": "redbrumbler"
+      },
+      "hash": "abf0bb6a285374e3fd4d5f335d762f737ff469ea",
+      "uploaded": "2019-06-24T21:44:07.401Z",
+      "downloadURL": "/api/download/key/5454",
+      "coverURL": "/cdn/5454/abf0bb6a285374e3fd4d5f335d762f737ff469ea.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "Vilawes",
+        "songAuthorName": "BlackYooh vs. Siromaru",
+        "songName": "BLACK or WHITE?",
+        "songSubName": "",
+        "bpm": 185
+      },
+      "stats": {
+        "downloads": 33,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 806.1629716,
+        "rating": 0
+      },
+      "description": "WideExunrePepega",
+      "deletedAt": null,
+      "_id": "5d113a55300fbe00062afd3d",
+      "key": "5453",
+      "name": "BlackYooh vs. Siromaru - BLACK or WHITE?",
+      "uploader": {
+        "_id": "5cff0b7598cc5a672c852aaf",
+        "username": "vipai"
+      },
+      "hash": "26fa7cf72106a52f3d7937874d9fba12dbd04e22",
+      "uploaded": "2019-06-24T21:02:13.721Z",
+      "downloadURL": "/api/download/key/5453",
+      "coverURL": "/cdn/5453/26fa7cf72106a52f3d7937874d9fba12dbd04e22.png"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "DJXEP",
+        "songAuthorName": "M.I.A.",
+        "songName": "Bring The Noize",
+        "songSubName": "",
+        "bpm": 125
+      },
+      "stats": {
+        "downloads": 107,
+        "plays": 0,
+        "downVotes": 1,
+        "upVotes": 4,
+        "heat": 806.1118478,
+        "rating": 0.625065935366517
+      },
+      "description": "",
+      "deletedAt": null,
+      "_id": "5d10dd7a300fbe00062aaeb7",
+      "key": "544b",
+      "name": "M.I.A. - Bring The Noize",
+      "uploader": {
+        "_id": "5cff0b7698cc5a672c854968",
+        "username": "djxep"
+      },
+      "hash": "12f37fd19c607f0e3acb9ce8107e3da741015939",
+      "uploaded": "2019-06-24T14:26:02.693Z",
+      "downloadURL": "/api/download/key/544b",
+      "coverURL": "/cdn/544b/12f37fd19c607f0e3acb9ce8107e3da741015939.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": false,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "StarSquirrel",
+        "songAuthorName": "Iacovos Argyrides",
+        "songName": "Theme (From \"X-Men\")",
+        "songSubName": "",
+        "bpm": 120
+      },
+      "stats": {
+        "downloads": 134,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 2,
+        "heat": 806.0981746,
+        "rating": 0.6407951473548253
+      },
+      "description": "The 90's cartoon theme, covered by Iacovos Argyrides.  120 bpm.  Hard difficulty.  ",
+      "deletedAt": null,
+      "_id": "5d10fa071aea5f00063fd79d",
+      "key": "544e",
+      "name": "Theme (From \"X-Men\") - Iacovos Argyrides",
+      "uploader": {
+        "_id": "5cff0b7898cc5a672c856ffd",
+        "username": "starsquirrel"
+      },
+      "hash": "02e7b2fa3de5a7ac9a8324482fad3353ae204188",
+      "uploaded": "2019-06-24T16:27:51.506Z",
+      "downloadURL": "/api/download/key/544e",
+      "coverURL": "/cdn/544e/02e7b2fa3de5a7ac9a8324482fad3353ae204188.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "RedBrumbler",
+        "songAuthorName": "Qumu",
+        "songName": "Flower Garden (Qumu Remix)",
+        "songSubName": "",
+        "bpm": 145
+      },
+      "stats": {
+        "downloads": 91,
+        "plays": 0,
+        "downVotes": 1,
+        "upVotes": 2,
+        "heat": 806.0494849,
+        "rating": 0.5568645699978907
+      },
+      "description": "For my first map I decided to map a great remix of a great video game tune!\r\nEnjoy!",
+      "deletedAt": null,
+      "_id": "5d112662300fbe00062aea9a",
+      "key": "5452",
+      "name": "Yoshi's Island - Flower Garden (Qumu remix)",
+      "uploader": {
+        "_id": "5d111e333793fc0006d218ee",
+        "username": "redbrumbler"
+      },
+      "hash": "4f4087e1cce3ce26227fe5ee6f1e4e292582b31c",
+      "uploaded": "2019-06-24T19:37:06.821Z",
+      "downloadURL": "/api/download/key/5452",
+      "coverURL": "/cdn/5452/4f4087e1cce3ce26227fe5ee6f1e4e292582b31c.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": false,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard"
+        ],
+        "levelAuthorName": "Joetastic",
+        "songAuthorName": "Jinny Ng",
+        "songName": "Do Not Remember Anymore",
+        "songSubName": "",
+        "bpm": 117
+      },
+      "stats": {
+        "downloads": 143,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 1,
+        "heat": 805.8685624,
+        "rating": 0.5941636475090435
+      },
+      "description": "Do Not Remember Anymore (別再記起) is the single by Jinny Ng which was used as the Interlude song from the Hong Kong TV Drama \"My Ages Apart\".\n\nThis map was commissioned by Ronald Lam.",
+      "deletedAt": null,
+      "_id": "5d110695300fbe00062aca1c",
+      "key": "5450",
+      "name": "Do Not Remember Anymore (別再記起) - Jinny Ng",
+      "uploader": {
+        "_id": "5cff0b7498cc5a672c85050e",
+        "username": "joetastic"
+      },
+      "hash": "3d38db8eca745a197daac4b90daf8882c59aa997",
+      "uploaded": "2019-06-24T17:21:25.309Z",
+      "downloadURL": "/api/download/key/5450",
+      "coverURL": "/cdn/5450/3d38db8eca745a197daac4b90daf8882c59aa997.jpg"
+    }
+  ],
+  "totalDocs": 14175,
+  "lastPage": 1417,
+  "prevPage": null,
+  "nextPage": 1
+}

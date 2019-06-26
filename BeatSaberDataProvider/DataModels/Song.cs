@@ -34,8 +34,8 @@ namespace BeatSaberDataProvider.DataModels
         public DateTime ScrapedAt { get; set; }
         #endregion
         #region Metadata
-        public virtual ICollection<SongDifficulty> Difficulties { get; set; }
-        public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
+        public ICollection<SongDifficulty> Difficulties { get; set; }
+        public ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
         public string SongName { get; set; }
         public string SongSubName { get; set; }
         public string SongAuthorName { get; set; }
@@ -118,7 +118,7 @@ namespace BeatSaberDataProvider.DataModels
                 ScoreSaberDifficulties = scoreSaberDifficulties.ToList();
             }
             else
-                ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
+                ScoreSaberDifficulties = null; // new List<ScoreSaberDifficulty>();
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace BeatSaberDataProvider.DataModels
     public class BeatmapCharacteristic
     {
 
-        public int? CharactersticId { get; set; }
+        public int? CharacteristicId { get; set; }
         public Characteristic Characteristic { get; set; }
 
         public string SongId { get; set; }

@@ -53,7 +53,7 @@ namespace BeatSaberDataProvider.DataModels
 
 
         [ForeignKey("SongHash")]
-        public virtual ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
+        public ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
         public string UploaderRefId { get; set; }
         public Uploader Uploader { get; set; }
 
@@ -245,12 +245,11 @@ namespace BeatSaberDataProvider.DataModels
     [Table("BeatmapCharacteristics")]
     public class BeatmapCharacteristic
     {
+        public string SongId { get; set; }
+        public Song Song { get; set; }
 
         public int? CharacteristicId { get; set; }
         public Characteristic Characteristic { get; set; }
-
-        public string SongId { get; set; }
-        public Song Song { get; set; }
 
         public override string ToString()
         {
@@ -299,7 +298,7 @@ namespace BeatSaberDataProvider.DataModels
         public int? DifficultyId { get; set; }
         [Key]
         public string DifficultyName { get; set; }
-        public virtual ICollection<SongDifficulty> SongDifficulties { get; set; }
+        public ICollection<SongDifficulty> SongDifficulties { get; set; }
 
 
         public static ICollection<Difficulty> DictionaryToDifficulties(Dictionary<string, bool> diffs)
@@ -309,6 +308,7 @@ namespace BeatSaberDataProvider.DataModels
             {
                 if (diffs.Values.ElementAt(i))
                 {
+                    // 
                     if (!AvailableDifficulties.ContainsKey(i))
                         AvailableDifficulties.Add(i, new Difficulty() { DifficultyId = i, DifficultyName = diffs.Keys.ElementAt(i) });
                     difficulties.Add(AvailableDifficulties[i]);

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using BeatSaberDataProvider;
+using Microsoft.EntityFrameworkCore;
 using BeatSaberDataProvider.DataModels;
 using BeatSaberDataProvider.DataProviders;
 using Newtonsoft.Json;
@@ -22,8 +24,13 @@ namespace DataProviderTests
             //playerData.Initialize();
             Song jSong = null;
             SongDataContext context = new SongDataContext();
+            //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-
+            context.Songs.Load();
+            context.Difficulties.Load();
+            context.Characteristics.Load();
+            context.ScoreSaberDifficulties.Load();
+            context.BeatmapCharacteristics.Load();
             
             string beatSaverSongs = File.ReadAllText("BeatSaverTestSongs.json");
             JToken bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];
@@ -32,11 +39,21 @@ namespace DataProviderTests
             foreach (var item in bsSongsJson.Children())
             {
                 jSong = Song.CreateFromJson(item);
-
-                context.Songs.Update(jSong);
-                context.SaveChanges();
+                context.Songs.Add(jSong);
+                try
+                {
+                    context.SaveChanges();
+                }catch(DbUpdateConcurrencyException ex)
+                {
+                    var entry = ex.Entries.Single();
+                    var something = entry.CurrentValues;
+                    entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                }
                 bsSongs.Add(jSong);
             }
+
+
+
             string fileRead = File.ReadAllText("BeatSaverSongsTest.json");
             //var songList = JsonConvert.DeserializeObject<List<Song>>(fileRead);
             var songList = JToken.Parse(fileRead);

@@ -23,6 +23,9 @@ namespace DataProviderTests
             //PlayerDataProvider playerData = new PlayerDataProvider();
             //playerData.Initialize();
             Song jSong = null;
+            var testReadOnly = SongDataContext.AsReadOnly();
+            testReadOnly.Database.EnsureCreated();
+            testReadOnly.Songs.Load();
             SongDataContext context = new SongDataContext();
             //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
@@ -39,7 +42,7 @@ namespace DataProviderTests
             foreach (var item in bsSongsJson.Children())
             {
                 jSong = Song.CreateFromJson(item);
-                context.Songs.Add(jSong);
+                context.Songs.Update(jSong);
                 try
                 {
                     context.SaveChanges();

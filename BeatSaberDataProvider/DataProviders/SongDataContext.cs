@@ -20,12 +20,26 @@ namespace BeatSaberDataProvider.DataProviders
         public DbSet<Difficulty> Difficulties { get; set; }
         public DbSet<Uploader> Uploaders { get; set; }
         public string DataSourcePath { get; set; }
-
+        private bool ReadOnlyMode { get; set; }
         public static readonly LoggerFactory MyLoggerFactory
     = new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) });
 
+        public static SongDataContext AsReadOnly()
+        {
+            return new SongDataContext(true);
+        }
+
+        public SongDataContext()
+            : base() { }
+        public SongDataContext(bool readOnly)
+            : base()
+        {
+            ReadOnlyMode = readOnly;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            Console.WriteLine("OnConfiguring");
             if (string.IsNullOrEmpty(DataSourcePath))
                 DataSourcePath = "songs.db";
             optionsBuilder
@@ -33,6 +47,11 @@ namespace BeatSaberDataProvider.DataProviders
                 .EnableSensitiveDataLogging(true).EnableDetailedErrors(true)
                 .UseSqlite($"Data Source={DataSourcePath}", x => x.SuppressForeignKeyEnforcement());
 
+            if (ReadOnlyMode)
+            {
+                optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                Console.WriteLine("Read only mode");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

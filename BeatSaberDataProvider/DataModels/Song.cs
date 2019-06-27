@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,6 +16,36 @@ namespace BeatSaberDataProvider.DataModels
     [Table("songs")]
     public class Song : IEquatable<Song>, IEquatable<ScoreSaberDifficulty>, IEquatable<BeatSaverSong>
     {
+        public object this[string propertyName]
+        {
+            get
+            {
+                Type myType = typeof(Song);
+                object retVal;
+
+                PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                
+                if (myPropInfo != null)
+                {
+                    retVal = myPropInfo.GetValue(this);
+                }
+                else
+                {
+                    FieldInfo field = myType.GetField(propertyName);
+                    retVal = field.GetValue(this);
+                }
+
+                //Type whatType = retVal.GetType();
+                return retVal;
+            }
+            set
+            {
+                Type myType = typeof(JsonSong);
+                PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                myPropInfo.SetValue(this, value, null);
+            }
+        }
+
         #region Main
         [NotMapped]
         private string _songId;
@@ -198,6 +229,8 @@ namespace BeatSaberDataProvider.DataModels
         {
             return new Song(token);
         }
+
+        
     }
 
     [Table("characteristics")]

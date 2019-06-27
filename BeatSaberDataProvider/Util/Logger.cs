@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 
 namespace BeatSaberDataProvider.Util
 {
+    
+
     public enum LogLevel
     {
         Trace,
@@ -20,6 +22,7 @@ namespace BeatSaberDataProvider.Util
 
     public static class Logger
     {
+        //public static Dictionary<Type, Logger> Loggers; each class can implement their own logger?
         private static readonly string LoggerName = typeof(Logger).Namespace;
         public static LogLevel LogLevel = LogLevel.Info;
         private static readonly ConsoleColor DefaultFgColor = ConsoleColor.Gray;

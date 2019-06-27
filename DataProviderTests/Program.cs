@@ -9,6 +9,7 @@ using BeatSaberDataProvider.DataProviders;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using static BeatSaberDataProvider.Util.DatabaseExtensions;
 
 namespace DataProviderTests
 {
@@ -27,7 +28,7 @@ namespace DataProviderTests
             testReadOnly.Database.EnsureCreated();
             testReadOnly.Songs.Load();
             SongDataContext context = new SongDataContext();
-            //context.Database.EnsureDeleted();
+            context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             context.Songs.Load();
             context.Difficulties.Load();
@@ -42,7 +43,7 @@ namespace DataProviderTests
             foreach (var item in bsSongsJson.Children())
             {
                 jSong = Song.CreateFromJson(item);
-                context.Songs.Update(jSong);
+                context.Songs.Add(jSong);
                 try
                 {
                     context.SaveChanges();
@@ -54,8 +55,25 @@ namespace DataProviderTests
                 }
                 bsSongs.Add(jSong);
             }
-
-
+            beatSaverSongs = File.ReadAllText("BeatSaverTestSongsUpdate.json");
+            bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];
+            foreach (var item in bsSongsJson.Children())
+            {
+                jSong = Song.CreateFromJson(item);
+                jSong.UpdateDB(ref context);
+                //context.Songs.Update(jSong.UpdateDB(context));
+                try
+                {
+                    context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    var entry = ex.Entries.Single();
+                    var something = entry.CurrentValues;
+                    entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                }
+                bsSongs.Add(jSong);
+            }
 
             string fileRead = File.ReadAllText("BeatSaverSongsTest.json");
             //var songList = JsonConvert.DeserializeObject<List<Song>>(fileRead);

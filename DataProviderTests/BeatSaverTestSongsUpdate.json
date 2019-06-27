@@ -1,0 +1,50 @@
+﻿{
+  "docs": [
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          "Standard",
+		  "OneSaber",
+		  "Random"
+        ],
+        "levelAuthorName": "OkDisplay",
+        "songAuthorName": "F-777",
+        "songName": "1UP (F-777)",
+        "songSubName": "",
+        "bpm": 133
+      },
+      "stats": {
+        "downloads": 500,
+        "plays": 10,
+        "downVotes": 2,
+        "upVotes": 500,
+        "heat": 8.3673718,
+        "rating": 0.9084432256108616
+      },
+      "description": "UPDATED, removed Hard difficulty: Two different NJ and streams intensity.",
+      "deletedAt": null,
+      "_id": "5d10e3663793fc0006d1e898",
+      "key": "544c",
+      "name": "1UP (F-777)",
+      "uploader": {
+        "_id": "5cff0b7398cc5a672c84eda2",
+        "username": "okdisplay"
+      },
+      "hash": "b169476c7323ea00e192499d02a29d10101f95a2",
+      "uploaded": "2019-06-24T14:51:18.082Z",
+      "downloadURL": "/api/download/key/544c",
+      "coverURL": "/cdn/544c/b169476c7323ea00e192499d02a29d10101f95a2.jpg"
+    }
+  ],
+  "totalDocs": 14175,
+  "lastPage": 1417,
+  "prevPage": null,
+  "nextPage": 1
+}

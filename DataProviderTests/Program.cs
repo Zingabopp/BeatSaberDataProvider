@@ -24,7 +24,7 @@ namespace DataProviderTests
             //PlayerDataProvider playerData = new PlayerDataProvider();
             //playerData.Initialize();
             Song jSong = null;
-            
+            ScoreSaberDifficulty ssDiff = null;
             
             SongDataContext context = new SongDataContext();
             context.Database.EnsureDeleted();
@@ -39,6 +39,16 @@ namespace DataProviderTests
             string beatSaverSongs = File.ReadAllText("BeatSaverTestSongs.json");
             JToken bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];
             List<Song> bsSongs = new List<Song>();
+            List<ScoreSaberDifficulty> ssDiffs = new List<ScoreSaberDifficulty>();
+            string ssDiffsJson = File.ReadAllText("ScoreSaberTestDifficulties.json");
+            JToken ssDiffsToken = JToken.Parse(ssDiffsJson)["songs"];
+            foreach (var item in ssDiffsToken.Children())
+            {
+                ssDiff = new ScoreSaberDifficulty(item);
+                context.AddOrUpdate(ssDiff);
+                ssDiffs.Add(ssDiff);
+            }
+            context.SaveChanges();
 
             foreach (var item in bsSongsJson.Children())
             {
@@ -56,6 +66,12 @@ namespace DataProviderTests
                 bsSongs.Add(jSong);
             }
             var testBMChar = new BeatmapCharacteristic() { SongId = "5d10e3663793fc0006d1e898", CharacteristicId = 1 };
+            var rad = new SongDataContext();
+            rad.Songs.Load();
+            rad.Difficulties.Load();
+            rad.Characteristics.Load();
+            rad.ScoreSaberDifficulties.Load();
+            rad.BeatmapCharacteristics.Load();
             context.AddOrUpdate(testBMChar);
             beatSaverSongs = File.ReadAllText("BeatSaverTestSongsUpdate.json");
             bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];

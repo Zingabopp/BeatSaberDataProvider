@@ -17,6 +17,9 @@
     <None Update="BeatSaverTestSongsUpdate.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="ScoreSaberTestDifficulties.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

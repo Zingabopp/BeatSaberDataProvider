@@ -7,10 +7,14 @@ using Newtonsoft.Json.Linq;
 namespace BeatSaberDataProvider.DataModels
 {
     [Table("scoresaberdifficulties")]
-    public class ScoreSaberDifficulty : 
-        IEquatable<ScoreSaberDifficulty>, 
+    public class ScoreSaberDifficulty :
+        DatabaseDataType,
+        IEquatable<ScoreSaberDifficulty>,
         IEquatable<Song>
     {
+        [NotMapped]
+        public override object[] PrimaryKey { get { return new object[] { ScoreSaberDifficultyId }; } }
+
         [Key]
         [JsonProperty("uid")]
         public int ScoreSaberDifficultyId { get; set; }
@@ -25,15 +29,20 @@ namespace BeatSaberDataProvider.DataModels
         [NotMapped]
         [JsonIgnore]
         private string _diff;
+        [Updatable]
         [JsonProperty("scores")]
         [JsonConverter(typeof(IntegerWithCommasConverter))]
         public int Scores { get; set; }
+        [Updatable]
         [JsonProperty("scores_day")]
         public int ScoresPerDay { get; set; }
+        [Updatable]
         [JsonProperty("ranked")]
         public bool Ranked { get; set; }
+        [Updatable]
         [JsonProperty("stars")]
         public float Stars { get; set; }
+        [Updatable]
         [JsonProperty("image")]
         public string Image { get; set; }
         [JsonProperty("name")]
@@ -47,12 +56,33 @@ namespace BeatSaberDataProvider.DataModels
         [JsonProperty("bpm")]
         public double BeatsPerMinute { get; set; }
 
+        [Updatable]
         [JsonProperty("ScrapedAt")]
         public DateTime ScrapedAt { get; set; }
 
         public Song Song { get; set; }
 
         public ScoreSaberDifficulty() { }
+
+        public ScoreSaberDifficulty(JToken token, bool justScraped = false)
+        {
+            if (token["uid"] == null)
+                throw new ArgumentException("Unable to create ScoreSaberDifficulty from JToken, 'uid' field doesn't exist.");
+            ScoreSaberDifficultyId = token["uid"].Value<int>();
+            SongHash = token["id"]?.Value<string>();
+            SongName = token["name"]?.Value<string>();
+            SongSubName = token["songSubName"]?.Value<string>();
+            SongAuthorName = token["songAuthorName"]?.Value<string>();
+            LevelAuthorName = token["levelAuthorName"]?.Value<string>();
+            BeatsPerMinute = token["bpm"]?.Value<double>() ?? 0;
+            DifficultyName = token["diff"]?.Value<string>();
+            Scores = token["scores"]?.Value<int>() ?? 0;
+            ScoresPerDay = token["scores_day"]?.Value<int>() ?? 0;
+            Ranked = token["ranked"]?.Value<bool>() ?? false;
+            string starsStr = token["stars"]?.Value<string>();
+            Stars = string.IsNullOrEmpty(starsStr) ? 0f : float.Parse(starsStr);
+            Image = token["image"]?.Value<string>();
+        }
 
         private const string EASYKEY = "_easy_solostandard";
         private const string NORMALKEY = "_normal_solostandard";

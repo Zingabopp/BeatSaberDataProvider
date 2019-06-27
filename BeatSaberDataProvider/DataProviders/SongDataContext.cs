@@ -58,6 +58,8 @@ namespace BeatSaberDataProvider.DataProviders
         {
             modelBuilder.Entity<Song>()
                 .HasKey(s => s.SongId);
+            modelBuilder.Entity<Song>()
+                .HasAlternateKey(s => s.Hash);
             modelBuilder.Entity<ScoreSaberDifficulty>()
                 .HasKey(d => d.ScoreSaberDifficultyId);
             modelBuilder.Entity<Characteristic>()
@@ -76,7 +78,11 @@ namespace BeatSaberDataProvider.DataProviders
             modelBuilder.Entity<SongDifficulty>()
                 .HasKey(d => new { d.DifficultyId, d.SongId });
 
-
+            modelBuilder.Entity<ScoreSaberDifficulty>()
+                .HasOne(d => d.Song)
+                .WithMany(s => s.ScoreSaberDifficulties)
+                .HasForeignKey(d => d.SongHash)
+                .HasPrincipalKey(s => s.Hash);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Characteristic)

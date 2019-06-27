@@ -64,12 +64,21 @@ namespace BeatSaberDataProvider.DataModels
 
         public ScoreSaberDifficulty() { }
 
+        /// <summary>
+        /// Creates a new ScoreSaberDifficulty from a JToken. Set justScraped to true if the data was just scraped.
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="justScraped"></param>
+        /// <exception cref="ArgumentException">Thrown when 'uid' is null or 'id' is empty.</exception>
         public ScoreSaberDifficulty(JToken token, bool justScraped = false)
         {
             if (token["uid"] == null)
-                throw new ArgumentException("Unable to create ScoreSaberDifficulty from JToken, 'uid' field doesn't exist.");
+                throw new ArgumentException("Unable to create ScoreSaberDifficulty from JToken, 'uid' field is null.");
+            
             ScoreSaberDifficultyId = token["uid"].Value<int>();
             SongHash = token["id"]?.Value<string>();
+            if (string.IsNullOrEmpty(SongHash))
+                throw new ArgumentException("Unable to create ScoreSaberDifficulty from JToken, 'SongHash' field is empty.");
             SongName = token["name"]?.Value<string>();
             SongSubName = token["songSubName"]?.Value<string>();
             SongAuthorName = token["songAuthorName"]?.Value<string>();
@@ -82,6 +91,9 @@ namespace BeatSaberDataProvider.DataModels
             string starsStr = token["stars"]?.Value<string>();
             Stars = string.IsNullOrEmpty(starsStr) ? 0f : float.Parse(starsStr);
             Image = token["image"]?.Value<string>();
+            ScrapedAt = token["ScrapedAt"]?.Value<DateTime?>() ?? DateTime.MinValue;
+            if (justScraped)
+                ScrapedAt = DateTime.Now;
         }
 
         private const string EASYKEY = "_easy_solostandard";

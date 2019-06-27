@@ -29,17 +29,17 @@ namespace DataProviderTests
             SongDataContext context = new SongDataContext();
             //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-            var roContext = new SongDataContext();
-            var fullQuery = roContext.Songs
-                .Include(s => s.SongDifficulties)
-                    .ThenInclude(sd => sd.Difficulty) //IntelliSense doesn't work here
-                .Include(s => s.BeatmapCharacteristics)
-                    .ThenInclude(bc => bc.Characteristic)
-                .Include(s => s.ScoreSaberDifficulties)
-                .Include(s => s.Uploader);
-            fullQuery.Load();
-            
-            
+            //var roContext = new SongDataContext();
+            //var fullQuery = roContext.Songs
+            //    .Include(s => s.SongDifficulties)
+            //        .ThenInclude(sd => sd.Difficulty) //IntelliSense doesn't work here
+            //    .Include(s => s.BeatmapCharacteristics)
+            //        .ThenInclude(bc => bc.Characteristic)
+            //    .Include(s => s.ScoreSaberDifficulties)
+            //    .Include(s => s.Uploader);
+            //fullQuery.Load();
+            var lazyContext = new SongDataContext();
+            var lazyLoadTest = lazyContext.Songs.Where(s => s.ScoreSaberDifficulties.Any(sd => sd.Ranked == true)).Take(10);
             context.Songs.Load();
             context.Difficulties.Load();
             context.Characteristics.Load();

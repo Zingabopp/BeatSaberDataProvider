@@ -51,8 +51,8 @@ namespace BeatSaberDataProvider.DataModels
         public DateTime ScrapedAt { get; set; }
         #endregion
         #region Metadata
-        public ICollection<SongDifficulty> SongDifficulties { get; set; }
-        public ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
+        public virtual ICollection<SongDifficulty> SongDifficulties { get; set; }
+        public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
         public string SongName { get; set; }
         public string SongSubName { get; set; }
         public string SongAuthorName { get; set; }
@@ -76,7 +76,7 @@ namespace BeatSaberDataProvider.DataModels
 
 
         [ForeignKey("SongHash")]
-        public ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
+        public virtual ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
         public string UploaderRefId { get; set; }
         public Uploader Uploader { get; set; }
 
@@ -340,7 +340,7 @@ namespace BeatSaberDataProvider.DataModels
         public int? DifficultyId { get; set; }
         [Key]
         public string DifficultyName { get; set; }
-        public ICollection<SongDifficulty> SongDifficulties { get; set; }
+        public virtual ICollection<SongDifficulty> SongDifficulties { get; set; }
 
 
         public static ICollection<Difficulty> DictionaryToDifficulties(Dictionary<string, bool> diffs)

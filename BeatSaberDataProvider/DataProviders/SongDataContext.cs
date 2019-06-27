@@ -101,7 +101,7 @@ namespace BeatSaberDataProvider.DataProviders
 
             modelBuilder.Entity<SongDifficulty>()
                 .HasOne(b => b.Song)
-                .WithMany(b => b.Difficulties)
+                .WithMany(b => b.SongDifficulties)
                 .HasForeignKey(b => b.SongId);
 
 

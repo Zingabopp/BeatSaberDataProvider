@@ -51,7 +51,7 @@ namespace BeatSaberDataProvider.DataModels
         public DateTime ScrapedAt { get; set; }
         #endregion
         #region Metadata
-        public ICollection<SongDifficulty> Difficulties { get; set; }
+        public ICollection<SongDifficulty> SongDifficulties { get; set; }
         public ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
         public string SongName { get; set; }
         public string SongSubName { get; set; }
@@ -131,7 +131,7 @@ namespace BeatSaberDataProvider.DataModels
 
             ScrapedAt = s.ScrapedAt;
 
-            Difficulties = Difficulty.DictionaryToDifficulties(s.metadata.difficulties).
+            SongDifficulties = Difficulty.DictionaryToDifficulties(s.metadata.difficulties).
                 Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = s._id }).ToList();
             BeatmapCharacteristics = Characteristic.ConvertCharacteristics(s.metadata.characteristics).
                 Select(c => new BeatmapCharacteristic() { SongId = s._id, Song = this, Characteristic = c }).ToList();
@@ -180,7 +180,7 @@ namespace BeatSaberDataProvider.DataModels
             // Metadata
             var characteristics = JsonConvert.DeserializeObject<List<string>>(jMetadata["characteristics"]?.ToString());
             var diffs = JsonConvert.DeserializeObject<Dictionary<string, bool>>(jMetadata["difficulties"]?.ToString());
-            Difficulties = Difficulty.DictionaryToDifficulties(diffs)
+            SongDifficulties = Difficulty.DictionaryToDifficulties(diffs)
                     .Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = SongId }).ToList();
 
             BeatmapCharacteristics = Characteristic.ConvertCharacteristics(characteristics).Select(c =>
@@ -326,7 +326,7 @@ namespace BeatSaberDataProvider.DataModels
         /// Initialize the standard Difficulties so they have the right ID.
         /// </summary>
         static Difficulty()
-        {
+        {          
             AvailableDifficulties = new Dictionary<int, Difficulty>
             {
                 { 1, new Difficulty() { DifficultyId = 1, DifficultyName = "Easy" } },
@@ -348,12 +348,12 @@ namespace BeatSaberDataProvider.DataModels
             List<Difficulty> difficulties = new List<Difficulty>();
             for (int i = 0; i < diffs.Count; i++)
             {
-                if (diffs.Values.ElementAt(i))
+                if (diffs.Values.ElementAt(i)) // May break with custom difficulties.
                 {
-                    // 
-                    if (!AvailableDifficulties.ContainsKey(i))
-                        AvailableDifficulties.Add(i, new Difficulty() { DifficultyId = i, DifficultyName = diffs.Keys.ElementAt(i) });
-                    difficulties.Add(AvailableDifficulties[i]);
+                    // DifficultyId = i, 
+                    if (!AvailableDifficulties.ContainsKey(i + 1))
+                        AvailableDifficulties.Add(i + 1, new Difficulty() { DifficultyName = diffs.Keys.ElementAt(i) });
+                    difficulties.Add(AvailableDifficulties[i + 1]);
                 }
             }
             return difficulties;

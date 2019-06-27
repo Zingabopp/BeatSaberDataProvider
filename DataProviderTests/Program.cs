@@ -27,26 +27,38 @@ namespace DataProviderTests
             ScoreSaberDifficulty ssDiff = null;
             
             SongDataContext context = new SongDataContext();
-            context.Database.EnsureDeleted();
+            //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
+            var roContext = new SongDataContext();
+            var fullQuery = roContext.Songs
+                .Include(s => s.SongDifficulties)
+                    .ThenInclude(sd => sd.Difficulty) //IntelliSense doesn't work here
+                .Include(s => s.BeatmapCharacteristics)
+                    .ThenInclude(bc => bc.Characteristic)
+                .Include(s => s.ScoreSaberDifficulties)
+                .Include(s => s.Uploader);
+            fullQuery.Load();
+            
             
             context.Songs.Load();
             context.Difficulties.Load();
             context.Characteristics.Load();
             context.ScoreSaberDifficulties.Load();
             context.BeatmapCharacteristics.Load();
-            
+
             string beatSaverSongs = File.ReadAllText("BeatSaverTestSongs.json");
-            JToken bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];
+            //string beatSaverSongs = File.ReadAllText("BeatSaverScrape.json");
+            JToken bsSongsJson = JToken.Parse(beatSaverSongs);//["docs"];
             List<Song> bsSongs = new List<Song>();
             List<ScoreSaberDifficulty> ssDiffs = new List<ScoreSaberDifficulty>();
             string ssDiffsJson = File.ReadAllText("ScoreSaberTestDifficulties.json");
-            JToken ssDiffsToken = JToken.Parse(ssDiffsJson)["songs"];
+            //string ssDiffsJson = File.ReadAllText("ScoreSaberScrape.json");
+            JToken ssDiffsToken = JToken.Parse(ssDiffsJson);//["songs"];
             foreach (var item in ssDiffsToken.Children())
             {
                 ssDiff = new ScoreSaberDifficulty(item);
                 context.AddOrUpdate(ssDiff);
-                ssDiffs.Add(ssDiff);
+                //ssDiffs.Add(ssDiff);
             }
             context.SaveChanges();
 
@@ -54,24 +66,20 @@ namespace DataProviderTests
             {
                 jSong = Song.CreateFromJson(item);
                 context.AddOrUpdate(jSong);
-                try
-                {
-                    context.SaveChanges();
-                }catch(DbUpdateConcurrencyException ex)
-                {
-                    var entry = ex.Entries.Single();
-                    var something = entry.CurrentValues;
-                    entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                }
-                bsSongs.Add(jSong);
+                //try
+                //{
+                //    context.SaveChanges();
+                //}catch(DbUpdateConcurrencyException ex)
+                //{
+                //    var entry = ex.Entries.Single();
+                //    var something = entry.CurrentValues;
+                //    entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                //}
+                //bsSongs.Add(jSong);
             }
+            context.SaveChanges();
             var testBMChar = new BeatmapCharacteristic() { SongId = "5d10e3663793fc0006d1e898", CharacteristicId = 1 };
-            var rad = new SongDataContext();
-            rad.Songs.Load();
-            rad.Difficulties.Load();
-            rad.Characteristics.Load();
-            rad.ScoreSaberDifficulties.Load();
-            rad.BeatmapCharacteristics.Load();
+            
             context.AddOrUpdate(testBMChar);
             beatSaverSongs = File.ReadAllText("BeatSaverTestSongsUpdate.json");
             bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];

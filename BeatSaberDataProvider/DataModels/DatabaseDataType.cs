@@ -38,4 +38,9 @@ namespace BeatSaberDataProvider.DataModels
             }
         }
     }
+
+    public class Updatable : Attribute
+    {
+
+    }
 }

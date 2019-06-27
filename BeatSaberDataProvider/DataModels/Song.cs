@@ -20,6 +20,7 @@ namespace BeatSaberDataProvider.DataModels
         IEquatable<ScoreSaberDifficulty>,
         IEquatable<BeatSaverSong>
     {
+        
         [NotMapped]
         public override object[] PrimaryKey { get { return new object[] { SongId }; } }
 
@@ -34,13 +35,19 @@ namespace BeatSaberDataProvider.DataModels
         private string _key;
         public string Key { get { return _key; } set { _key = value.ToLower(); } }
         public string Name { get; set; }
+        [Updatable]
         public string Description { get; set; }
+        [Updatable]
         public DateTime? DeletedAt { get; set; }
         [Key]
         public string Hash { get; set; }
+        [Updatable]
         public DateTime Uploaded { get; set; }
+        [Updatable]
         public string DownloadUrl { get; set; }
+        [Updatable]
         public string CoverUrl { get; set; }
+        [Updatable]
         public DateTime ScrapedAt { get; set; }
         #endregion
         #region Metadata
@@ -53,11 +60,17 @@ namespace BeatSaberDataProvider.DataModels
         public float BeatsPerMinute { get; set; }
         #endregion
         #region Stats
+        [Updatable]
         public int Downloads { get; set; }
+        [Updatable]
         public int Plays { get; set; }
+        [Updatable]
         public int DownVotes { get; set; }
+        [Updatable]
         public int UpVotes { get; set; }
+        [Updatable]
         public double Heat { get; set; }
+        [Updatable]
         public double Rating { get; set; }
         #endregion
 

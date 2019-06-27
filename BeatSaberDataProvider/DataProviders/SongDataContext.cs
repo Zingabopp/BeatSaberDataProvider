@@ -43,7 +43,6 @@ namespace BeatSaberDataProvider.DataProviders
             if (string.IsNullOrEmpty(DataSourcePath))
                 DataSourcePath = "songs.db";
             optionsBuilder
-                .UseLoggerFactory(MyLoggerFactory)
                 .EnableSensitiveDataLogging(true).EnableDetailedErrors(true)
                 .UseSqlite($"Data Source={DataSourcePath}", x => x.SuppressForeignKeyEnforcement());
 
@@ -52,6 +51,7 @@ namespace BeatSaberDataProvider.DataProviders
                 optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 Console.WriteLine("Read only mode");
             }
+            //.UseLoggerFactory(MyLoggerFactory)
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

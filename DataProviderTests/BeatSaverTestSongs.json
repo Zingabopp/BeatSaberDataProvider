@@ -10,7 +10,8 @@
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          "Standard",
+          "Random"
         ],
         "levelAuthorName": "OkDisplay",
         "songAuthorName": "F-777",
@@ -90,7 +91,8 @@
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          "Standard",
+          "OneSaber"
         ],
         "levelAuthorName": "Anivia",
         "songAuthorName": "封茗囧菌",

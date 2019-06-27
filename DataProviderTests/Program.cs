@@ -24,12 +24,12 @@ namespace DataProviderTests
             //PlayerDataProvider playerData = new PlayerDataProvider();
             //playerData.Initialize();
             Song jSong = null;
-            var testReadOnly = SongDataContext.AsReadOnly();
-            testReadOnly.Database.EnsureCreated();
-            testReadOnly.Songs.Load();
+            
+            
             SongDataContext context = new SongDataContext();
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
+            
             context.Songs.Load();
             context.Difficulties.Load();
             context.Characteristics.Load();
@@ -43,7 +43,7 @@ namespace DataProviderTests
             foreach (var item in bsSongsJson.Children())
             {
                 jSong = Song.CreateFromJson(item);
-                context.Songs.Add(jSong);
+                context.AddOrUpdate(jSong);
                 try
                 {
                     context.SaveChanges();
@@ -55,13 +55,18 @@ namespace DataProviderTests
                 }
                 bsSongs.Add(jSong);
             }
+            var testBMChar = new BeatmapCharacteristic() { SongId = "5d10e3663793fc0006d1e898", CharacteristicId = 1 };
+            context.AddOrUpdate(testBMChar);
             beatSaverSongs = File.ReadAllText("BeatSaverTestSongsUpdate.json");
             bsSongsJson = JToken.Parse(beatSaverSongs)["docs"];
             foreach (var item in bsSongsJson.Children())
             {
                 jSong = Song.CreateFromJson(item);
-                jSong.UpdateDB(ref context);
+                //jSong.UpdateDB(ref context);
                 //context.Songs.Update(jSong.UpdateDB(context));
+                context.AddOrUpdate(jSong);
+                context.SaveChanges();
+                context.Songs.Remove(context.Songs.Find(jSong.PrimaryKey));
                 try
                 {
                     context.SaveChanges();
@@ -74,20 +79,14 @@ namespace DataProviderTests
                 }
                 bsSongs.Add(jSong);
             }
-
+            
+            var testReadOnly = SongDataContext.AsReadOnly();
+            testReadOnly.Songs.Load();
             string fileRead = File.ReadAllText("BeatSaverSongsTest.json");
             //var songList = JsonConvert.DeserializeObject<List<Song>>(fileRead);
             var songList = JToken.Parse(fileRead);
             var listSongs = new List<Song>();
-            
-            
-            foreach (var item in songList.Children())
-            {
-                jSong = Song.CreateFromJson(item);
-                context.Songs.Update(jSong);
-                context.SaveChanges();
-                listSongs.Add(jSong);
-            }
+            return;
             var songs = ScrapedDataProvider.Songs;
 
             

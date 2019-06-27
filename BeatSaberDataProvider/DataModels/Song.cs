@@ -14,37 +14,16 @@ using BeatSaberDataProvider.Util;
 namespace BeatSaberDataProvider.DataModels
 {
     [Table("songs")]
-    public class Song : IEquatable<Song>, IEquatable<ScoreSaberDifficulty>, IEquatable<BeatSaverSong>
+    public class Song :
+        DatabaseDataType,
+        IEquatable<Song>,
+        IEquatable<ScoreSaberDifficulty>,
+        IEquatable<BeatSaverSong>
     {
-        public object this[string propertyName]
-        {
-            get
-            {
-                Type myType = typeof(Song);
-                object retVal;
+        [NotMapped]
+        public override object[] PrimaryKey { get { return new object[] { SongId }; } }
 
-                PropertyInfo myPropInfo = myType.GetProperty(propertyName);
-                
-                if (myPropInfo != null)
-                {
-                    retVal = myPropInfo.GetValue(this);
-                }
-                else
-                {
-                    FieldInfo field = myType.GetField(propertyName);
-                    retVal = field.GetValue(this);
-                }
 
-                //Type whatType = retVal.GetType();
-                return retVal;
-            }
-            set
-            {
-                Type myType = typeof(JsonSong);
-                PropertyInfo myPropInfo = myType.GetProperty(propertyName);
-                myPropInfo.SetValue(this, value, null);
-            }
-        }
 
         #region Main
         [NotMapped]
@@ -56,7 +35,7 @@ namespace BeatSaberDataProvider.DataModels
         public string Key { get { return _key; } set { _key = value.ToLower(); } }
         public string Name { get; set; }
         public string Description { get; set; }
-        public DateTime DeletedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
         [Key]
         public string Hash { get; set; }
         public DateTime Uploaded { get; set; }
@@ -118,6 +97,7 @@ namespace BeatSaberDataProvider.DataModels
             Key = s.key.ToLower();
             Name = s.name;
             Description = s.description;
+            DeletedAt = s.deletedAt;
             Hash = s.hash.ToUpper();
             Uploaded = s.uploaded;
             DownloadUrl = s.downloadURL;
@@ -178,8 +158,9 @@ namespace BeatSaberDataProvider.DataModels
             Key = jSong["key"]?.Value<string>();
             Name = jSong["name"]?.Value<string>();
             Description = jSong["description"]?.Value<string>();
+            DeletedAt = jSong["deletedAt"]?.Value<DateTime?>();
             Hash = jSong["hash"]?.Value<string>().ToUpper();
-            Uploaded = jSong["uploaded"]?.Value<DateTime>() ?? DateTime.MinValue;
+            Uploaded = jSong["uploaded"]?.Value<DateTime?>() ?? DateTime.MinValue;
             DownloadUrl = jSong["downloadURL"]?.Value<string>();
             CoverUrl = jSong["coverURL"]?.Value<string>();
 
@@ -230,12 +211,14 @@ namespace BeatSaberDataProvider.DataModels
             return new Song(token);
         }
 
-        
+
     }
 
     [Table("characteristics")]
-    public class Characteristic
+    public class Characteristic : DatabaseDataType
     {
+        [NotMapped]
+        public override object[] PrimaryKey { get { return new object[] { CharacteristicId }; } }
         [NotMapped]
         public static Dictionary<string, Characteristic> AvailableCharacteristics = new Dictionary<string, Characteristic>();
         static Characteristic()
@@ -273,26 +256,36 @@ namespace BeatSaberDataProvider.DataModels
         [Key]
         public string CharacteristicName { get; set; }
         public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
+
+
     }
 
     [Table("BeatmapCharacteristics")]
-    public class BeatmapCharacteristic
+    public class BeatmapCharacteristic : DatabaseDataType
     {
+        [NotMapped]
+        public override object[] PrimaryKey { get { return new object[] { CharacteristicId, SongId }; } }
+
         public string SongId { get; set; }
         public Song Song { get; set; }
 
         public int? CharacteristicId { get; set; }
         public Characteristic Characteristic { get; set; }
 
+
+
         public override string ToString()
         {
-            return Characteristic.CharacteristicName;
+            return $"{CharacteristicId}: {Characteristic.CharacteristicName}, {SongId}";
         }
     }
 
     [Table("songdifficulties")]
-    public class SongDifficulty
+    public class SongDifficulty : DatabaseDataType
     {
+        [NotMapped]
+        public override object[] PrimaryKey { get { return new object[] { DifficultyId, SongId }; } }
+
         public int? DifficultyId { get; set; }
         public Difficulty Difficulty { get; set; }
 
@@ -301,13 +294,16 @@ namespace BeatSaberDataProvider.DataModels
 
         public override string ToString()
         {
-            return Difficulty?.DifficultyName;
+            return $"{DifficultyId}: {Difficulty?.DifficultyName}, {SongId}";
         }
     }
 
     [Table("difficulties")]
-    public class Difficulty
+    public class Difficulty : DatabaseDataType
     {
+        [NotMapped]
+        public override object[] PrimaryKey { get { return new object[] { DifficultyId }; } }
+
         /// <summary>
         /// Use a dictionary of created Difficulties so it doesn't keep creating the same ones.
         /// </summary>
@@ -352,13 +348,16 @@ namespace BeatSaberDataProvider.DataModels
 
         public override string ToString()
         {
-            return DifficultyName;
+            return $"{DifficultyId}: {DifficultyName}";
         }
     }
 
     [Table("uploaders")]
-    public class Uploader
+    public class Uploader : DatabaseDataType
     {
+        [NotMapped]
+        public override object[] PrimaryKey { get { return new object[] { UploaderId }; } }
+
         [Key]
         [JsonProperty("_id")]
         public string UploaderId { get; set; }

@@ -7,7 +7,9 @@ using Newtonsoft.Json.Linq;
 namespace BeatSaberDataProvider.DataModels
 {
     [Table("scoresaberdifficulties")]
-    public class ScoreSaberDifficulty : IEquatable<ScoreSaberDifficulty>, IEquatable<Song>
+    public class ScoreSaberDifficulty : 
+        IEquatable<ScoreSaberDifficulty>, 
+        IEquatable<Song>
     {
         [Key]
         [JsonProperty("uid")]

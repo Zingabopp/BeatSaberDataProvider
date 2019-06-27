@@ -333,7 +333,7 @@ namespace BeatSaberDataProvider.DataModels
         public string description { get; set; }
 
         [JsonProperty("deletedAt")]
-        public DateTime deletedAt { get; set; }
+        public DateTime? deletedAt { get; set; }
         [JsonProperty("_id")]
         public string _id { get; set; }
         [JsonIgnore]

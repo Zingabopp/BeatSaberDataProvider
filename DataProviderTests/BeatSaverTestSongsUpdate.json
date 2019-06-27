@@ -11,8 +11,8 @@
         },
         "characteristics": [
           "Standard",
-		  "OneSaber",
-		  "Random"
+          "OneSaber",
+          "Random"
         ],
         "levelAuthorName": "OkDisplay",
         "songAuthorName": "F-777",
@@ -29,7 +29,7 @@
         "rating": 0.9084432256108616
       },
       "description": "UPDATED, removed Hard difficulty: Two different NJ and streams intensity.",
-      "deletedAt": null,
+      "deletedAt": "2019-06-24T14:51:18.082Z",
       "_id": "5d10e3663793fc0006d1e898",
       "key": "544c",
       "name": "1UP (F-777)",

@@ -10,6 +10,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using static BeatSaberDataProvider.Util.DatabaseExtensions;
+using BeatSaberDataProvider.Util;
+using System.Diagnostics;
 
 namespace DataProviderTests
 {
@@ -39,12 +41,51 @@ namespace DataProviderTests
             //    .Include(s => s.Uploader);
             //fullQuery.Load();
             var lazyContext = new SongDataContext();
-            var lazyLoadTest = lazyContext.Songs.Where(s => s.ScoreSaberDifficulties.Any(sd => sd.Ranked == true)).Take(10);
-            context.Songs.Load();
-            context.Difficulties.Load();
-            context.Characteristics.Load();
-            context.ScoreSaberDifficulties.Load();
-            context.BeatmapCharacteristics.Load();
+            //var lazyLoadTest = lazyContext.Songs.Where(s => s.ScoreSaberDifficulties.Any(sd => sd.Ranked == true)).Take(10);
+            var hashData = new SongHashDataProvider();
+            hashData.Initialize();
+            hashData.AddMissingHashes();
+
+            Stopwatch timer = new Stopwatch();
+            timer.Restart();
+            hashData.Data.Values.ToList().AsParallel().ForAll(h => h.GenerateHash());
+            timer.Stop();
+            Console.WriteLine($"Hashed {hashData.Data.Count()} songs in {timer.Elapsed.ToString()}");
+            int hashCount = 0;
+            timer.Restart();
+            foreach (var item in hashData.Data)
+            {
+                item.Value.GenerateHash();
+                hashCount++;
+            }
+            timer.Stop();
+            Console.WriteLine($"Hashed {hashCount} songs in {timer.Elapsed.ToString()}");
+            
+            var eb = PredicateBuilder.False<Song>();
+            eb = eb.Or(s => s.Downloads < 50);
+            eb = eb.Or(s => s.ScoreSaberDifficulties.Any(d => d.Ranked == true));
+            var ebTest = lazyContext.Songs
+                .Include(s => s.ScoreSaberDifficulties)
+                .Include(s => s.BeatmapCharacteristics)
+                    .ThenInclude(bc => bc.Characteristic)
+                .Where(eb).OrderBy(s => s.BeatsPerMinute).Take(10).ToList();
+            var query =
+                from c in lazyContext.Songs
+                let ssds = lazyContext.ScoreSaberDifficulties.Where(d => d.SongHash == c.Hash)
+                where ssds.Any(sd => sd.Ranked == true)
+                select c;
+            var qTest = query.OrderByDescending(s => s.Uploaded).Take(20).ToList();
+            var testQuery = lazyContext.Songs.Select(s => s);
+            testQuery = testQuery.Where(s => s.BeatsPerMinute > 100 && s.BeatsPerMinute < 150);
+            testQuery = testQuery.Where(s => s.ScoreSaberDifficulties.Any(d => d.Ranked));
+            testQuery = testQuery.Where(s => s.SongDifficulties.Any(d => d.Difficulty.DifficultyName == "ExpertPlus"));
+            var testExpression = testQuery.Expression.ToString();
+            
+            //context.Songs.Load();
+            //context.Difficulties.Load();
+            //context.Characteristics.Load();
+            //context.ScoreSaberDifficulties.Load();
+            //context.BeatmapCharacteristics.Load();
 
             //string beatSaverSongs = File.ReadAllText("BeatSaverTestSongs.json");
             string beatSaverSongs = File.ReadAllText("BeatSaverScrape.json");

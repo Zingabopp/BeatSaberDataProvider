@@ -45,6 +45,7 @@ namespace BeatSaberDataProvider.DataProviders
             optionsBuilder
                 .EnableSensitiveDataLogging(true).EnableDetailedErrors(true)
                 .UseLazyLoadingProxies()
+                .UseLoggerFactory(MyLoggerFactory)
                 .UseSqlite($"Data Source={DataSourcePath}", x => x.SuppressForeignKeyEnforcement());
 
             if (ReadOnlyMode)
@@ -53,6 +54,7 @@ namespace BeatSaberDataProvider.DataProviders
                 Console.WriteLine("Read only mode");
             }
             //.UseLoggerFactory(MyLoggerFactory)
+            //.UseLazyLoadingProxies()
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

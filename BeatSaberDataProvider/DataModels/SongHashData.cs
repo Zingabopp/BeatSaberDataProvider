@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
-using System.Security.Cryptography;
+﻿using BeatSaberDataProvider.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 
 namespace BeatSaberDataProvider.DataModels
 {
@@ -57,7 +55,7 @@ namespace BeatSaberDataProvider.DataModels
 
             string hash = CreateSha1FromBytes(combinedBytes.ToArray());
             if (!string.IsNullOrEmpty(SongHash) && SongHash != hash)
-                Console.WriteLine("Hash doesn't match!");
+                Logger.Warning($"Hash doesn't match SongCore's data for {Directory}");
             SongHash = hash;
             return hash;
         }

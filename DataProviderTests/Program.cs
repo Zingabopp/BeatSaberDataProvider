@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
-using System.Collections.Generic;
-using BeatSaberDataProvider;
-using Microsoft.EntityFrameworkCore;
+﻿using BeatSaberDataProvider;
 using BeatSaberDataProvider.DataModels;
 using BeatSaberDataProvider.DataProviders;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
-using static BeatSaberDataProvider.Util.DatabaseExtensions;
 using BeatSaberDataProvider.Util;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using static BeatSaberDataProvider.Util.DatabaseExtensions;
 
 namespace DataProviderTests
 {
@@ -44,13 +42,13 @@ namespace DataProviderTests
             //var lazyLoadTest = lazyContext.Songs.Where(s => s.ScoreSaberDifficulties.Any(sd => sd.Ranked == true)).Take(10);
             var hashData = new SongHashDataProvider();
             hashData.Initialize();
-            hashData.AddMissingHashes();
+            //hashData.AddMissingHashes();
 
             Stopwatch timer = new Stopwatch();
             timer.Restart();
             hashData.Data.Values.ToList().AsParallel().ForAll(h => h.GenerateHash());
             timer.Stop();
-            Console.WriteLine($"Hashed {hashData.Data.Count()} songs in {timer.Elapsed.ToString()}");
+            Console.WriteLine($"Parallel hashed {hashData.Data.Count()} songs in {timer.Elapsed.ToString()}");
             int hashCount = 0;
             timer.Restart();
             foreach (var item in hashData.Data)
@@ -59,7 +57,7 @@ namespace DataProviderTests
                 hashCount++;
             }
             timer.Stop();
-            Console.WriteLine($"Hashed {hashCount} songs in {timer.Elapsed.ToString()}");
+            Console.WriteLine($"Serial hashed {hashCount} songs in {timer.Elapsed.ToString()}");
             
             var eb = PredicateBuilder.False<Song>();
             eb = eb.Or(s => s.Downloads < 50);

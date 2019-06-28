@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using BeatSaberDataProvider.DataModels;
 using Newtonsoft.Json.Linq;
-using BeatSaberDataProvider.DataModels;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace BeatSaberDataProvider.DataProviders
 {
@@ -78,6 +75,30 @@ namespace BeatSaberDataProvider.DataProviders
                 Data.Add(item.Key, item.Value);
             }
         }
+
+        public SongHashData AddSongToHash(string songDirectory, bool hashImmediately = true)
+        {
+            if (Directory.Exists(songDirectory))
+            {
+                var newSongHashData = new SongHashData() { Directory = songDirectory };
+                if (hashImmediately)
+                    newSongHashData.GenerateHash();
+                Data.Add(songDirectory, newSongHashData);
+                return newSongHashData;
+            }
+            return null;
+        }
+
+        public void AddSongsToHash(string[] songDirectories)
+        {
+            var hashDataList = new List<SongHashData>();
+            foreach (var songDirectory in songDirectories)
+            {
+                hashDataList.Add(AddSongToHash(songDirectory, false));
+            }
+            hashDataList.AsParallel().ForAll(h => h.GenerateHash());
+        }
+
 
     }
 

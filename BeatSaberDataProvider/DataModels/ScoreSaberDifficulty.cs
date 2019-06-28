@@ -60,7 +60,7 @@ namespace BeatSaberDataProvider.DataModels
         [JsonProperty("ScrapedAt")]
         public DateTime ScrapedAt { get; set; }
 
-        public Song Song { get; set; }
+        public virtual Song Song { get; set; }
 
         public ScoreSaberDifficulty() { }
 

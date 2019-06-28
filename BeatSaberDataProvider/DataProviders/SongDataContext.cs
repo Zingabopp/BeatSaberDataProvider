@@ -44,6 +44,7 @@ namespace BeatSaberDataProvider.DataProviders
                 DataSourcePath = "songs.db";
             optionsBuilder
                 .EnableSensitiveDataLogging(true).EnableDetailedErrors(true)
+                .UseLazyLoadingProxies()
                 .UseSqlite($"Data Source={DataSourcePath}", x => x.SuppressForeignKeyEnforcement());
 
             if (ReadOnlyMode)
@@ -83,6 +84,10 @@ namespace BeatSaberDataProvider.DataProviders
                 .WithMany(s => s.ScoreSaberDifficulties)
                 .HasForeignKey(d => d.SongHash)
                 .HasPrincipalKey(s => s.Hash);
+            modelBuilder.Entity<Uploader>()
+                .HasMany(u => u.Songs)
+                .WithOne(s => s.Uploader)
+                .HasForeignKey(u => u.UploaderRefId); // Is this right?
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Characteristic)

@@ -78,7 +78,7 @@ namespace BeatSaberDataProvider.DataModels
         [ForeignKey("SongHash")]
         public virtual ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
         public string UploaderRefId { get; set; }
-        public Uploader Uploader { get; set; }
+        public virtual Uploader Uploader { get; set; }
 
 
         public bool Equals(Song other)
@@ -280,10 +280,10 @@ namespace BeatSaberDataProvider.DataModels
         public override object[] PrimaryKey { get { return new object[] { CharacteristicId, SongId }; } }
 
         public string SongId { get; set; }
-        public Song Song { get; set; }
+        public virtual Song Song { get; set; }
 
         public int? CharacteristicId { get; set; }
-        public Characteristic Characteristic { get; set; }
+        public virtual Characteristic Characteristic { get; set; }
 
 
 
@@ -300,10 +300,10 @@ namespace BeatSaberDataProvider.DataModels
         public override object[] PrimaryKey { get { return new object[] { DifficultyId, SongId }; } }
 
         public int? DifficultyId { get; set; }
-        public Difficulty Difficulty { get; set; }
+        public virtual Difficulty Difficulty { get; set; }
 
         public string SongId { get; set; }
-        public Song Song { get; set; }
+        public virtual Song Song { get; set; }
 
         public override string ToString()
         {

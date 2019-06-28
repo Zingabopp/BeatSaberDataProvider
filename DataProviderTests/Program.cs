@@ -46,13 +46,13 @@ namespace DataProviderTests
             context.ScoreSaberDifficulties.Load();
             context.BeatmapCharacteristics.Load();
 
-            string beatSaverSongs = File.ReadAllText("BeatSaverTestSongs.json");
-            //string beatSaverSongs = File.ReadAllText("BeatSaverScrape.json");
+            //string beatSaverSongs = File.ReadAllText("BeatSaverTestSongs.json");
+            string beatSaverSongs = File.ReadAllText("BeatSaverScrape.json");
             JToken bsSongsJson = JToken.Parse(beatSaverSongs);//["docs"];
             List<Song> bsSongs = new List<Song>();
             List<ScoreSaberDifficulty> ssDiffs = new List<ScoreSaberDifficulty>();
-            string ssDiffsJson = File.ReadAllText("ScoreSaberTestDifficulties.json");
-            //string ssDiffsJson = File.ReadAllText("ScoreSaberScrape.json");
+            //string ssDiffsJson = File.ReadAllText("ScoreSaberTestDifficulties.json");
+            string ssDiffsJson = File.ReadAllText("ScoreSaberScrape.json");
             JToken ssDiffsToken = JToken.Parse(ssDiffsJson);//["songs"];
             foreach (var item in ssDiffsToken.Children())
             {
@@ -75,8 +75,11 @@ namespace DataProviderTests
                 //    var something = entry.CurrentValues;
                 //    entry.OriginalValues.SetValues(entry.GetDatabaseValues());
                 //}
-                //bsSongs.Add(jSong);
+                bsSongs.Add(jSong);
             }
+            var authors = bsSongs.Select(s => s.Uploader);
+            var duplicates = authors.GroupBy(a => a.UploaderName).Where(g => g.Count() > 1).Select(g => (g.Count(), g.Key));
+
             context.SaveChanges();
             var testBMChar = new BeatmapCharacteristic() { SongId = "5d10e3663793fc0006d1e898", CharacteristicId = 1 };
             

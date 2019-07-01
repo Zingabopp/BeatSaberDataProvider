@@ -190,7 +190,7 @@ namespace BeatSaberDataProvider.DataModels
             SongSubName = jMetadata["songSubName"]?.Value<string>();
             SongAuthorName = jMetadata["songAuthorName"]?.Value<string>();
             LevelAuthorName = jMetadata["levelAuthorName"]?.Value<string>();
-            BeatsPerMinute = jMetadata["bpm"]?.Value<float>() ?? default;
+            BeatsPerMinute = jMetadata["bpm"]?.Value<float>() ?? default(float);
             //Stats
             Downloads = jStats["downloads"]?.Value<int>() ?? 0;
             Plays = jStats["plays"]?.Value<int>() ?? 0;

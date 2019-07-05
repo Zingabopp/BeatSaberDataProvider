@@ -9,6 +9,7 @@ namespace BeatSaberDataProvider.DataProviders
         private readonly object dataLock = new object();
         //[JsonProperty("Data")]
         //public List<SongInfoEnhanced> Data { get; private set; }
+        // Nightly dumps: https://beatsaver.com/api/download/dumps/maps  (or /users)
 
         public BeatSaverScrape()
         {

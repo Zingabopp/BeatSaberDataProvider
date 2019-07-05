@@ -86,14 +86,17 @@ namespace BeatSaberDataProvider.Web
         /// <param name="url"></param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns></returns>
-        public static HttpResponseMessage GetPage(string url)
+        public static HttpResponseMessage GetPage(string url, bool getContent = true)
         {
+            HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead;
+            if (!getContent)
+                httpCompletionOption = HttpCompletionOption.ResponseHeadersRead;
             Task<HttpResponseMessage> pageGetTask;
             //lock (lockObject)
             bool goodUrl = Uri.TryCreate(url, UriKind.Absolute, out Uri result);
             if (!goodUrl)
                 throw new ArgumentException($"Error in GetPage, invalid URL: {url}");
-            pageGetTask = HttpClient.GetAsync(result);
+            pageGetTask = HttpClient.GetAsync(result, httpCompletionOption);
             try
             {
                 pageGetTask.Wait();
@@ -121,7 +124,7 @@ namespace BeatSaberDataProvider.Web
             //Task<string> pageReadTask;
             //lock (lockObject)
             string pageText = string.Empty;
-            using (HttpResponseMessage pageReadTask = GetPage(url))
+            using (HttpResponseMessage pageReadTask = GetPage(url, true))
             {//HttpClient.GetStringAsync(url);
                 //pageReadTask.Wait();
                 if (!pageReadTask.IsSuccessStatusCode)
@@ -142,11 +145,14 @@ namespace BeatSaberDataProvider.Web
         /// <param name="url"></param>
         /// <exception cref="HttpRequestException"></exception>
         /// <returns></returns>
-        public static async Task<HttpResponseMessage> GetPageAsync(string url)
+        public static async Task<HttpResponseMessage> GetPageAsync(string url, bool getContent)
         {
             //lock (lockObject)
+            HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead;
+            if (!getContent)
+                httpCompletionOption = HttpCompletionOption.ResponseHeadersRead;
 
-            HttpResponseMessage response = await HttpClient.GetAsync(url).ConfigureAwait(false);
+            HttpResponseMessage response = await HttpClient.GetAsync(url, httpCompletionOption).ConfigureAwait(false);
             //Logger.Debug(pageText.Result);
             //Logger.Debug($"Got page text for {url}");
             return response;

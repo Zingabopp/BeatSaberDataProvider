@@ -1,17 +1,16 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BeatSaberDataProvider.Util;
+using BeatSaberDataProvider.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
-using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
-using BeatSaberDataProvider.Web;
-using BeatSaberDataProvider.Util;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 
 namespace BeatSaberDataProvider.DataModels

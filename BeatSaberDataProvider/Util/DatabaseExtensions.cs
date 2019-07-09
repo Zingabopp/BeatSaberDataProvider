@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Sqlite;
-using Newtonsoft.Json;
-using System.Reflection;
-using Newtonsoft.Json.Linq;
-using BeatSaberDataProvider.DataModels;
+﻿using BeatSaberDataProvider.DataModels;
 using BeatSaberDataProvider.DataProviders;
+using System;
+using System.Collections.Generic;
 
 namespace BeatSaberDataProvider.Util
 {

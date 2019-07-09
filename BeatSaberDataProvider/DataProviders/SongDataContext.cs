@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BeatSaberDataProvider.DataModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Sqlite;
-using BeatSaberDataProvider.DataModels;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace BeatSaberDataProvider.DataProviders
 {
@@ -21,6 +20,9 @@ namespace BeatSaberDataProvider.DataProviders
         public DbSet<Uploader> Uploaders { get; set; }
         public string DataSourcePath { get; set; }
         private bool ReadOnlyMode { get; set; }
+        public bool UseLoggerFactory { get; set; }
+        public bool UseLazyLoadingProxies { get; set; }
+        public bool EnableSensitiveDataLogging { get; set; }
         public static readonly LoggerFactory MyLoggerFactory
     = new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) });
 
@@ -37,14 +39,23 @@ namespace BeatSaberDataProvider.DataProviders
             ReadOnlyMode = readOnly;
         }
 
+        public IIncludableQueryable<Song, ICollection<ScoreSaberDifficulty>> LoadQuery(IQueryable<Song> query)
+        {
+                return query
+                        .Include(s => s.SongDifficulties)
+                            .ThenInclude(sd => sd.Difficulty)
+                        .Include(s => s.BeatmapCharacteristics)
+                            .ThenInclude(bc => bc.Characteristic)
+                        .Include(s => s.Uploader)
+                        .Include(s => s.ScoreSaberDifficulties);
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             Console.WriteLine("OnConfiguring");
             if (string.IsNullOrEmpty(DataSourcePath))
                 DataSourcePath = "songs.db";
             optionsBuilder
-                .EnableSensitiveDataLogging(true).EnableDetailedErrors(true)
-                .UseLazyLoadingProxies()
                 .UseSqlite($"Data Source={DataSourcePath}", x => x.SuppressForeignKeyEnforcement());
 
             if (ReadOnlyMode)
@@ -52,7 +63,12 @@ namespace BeatSaberDataProvider.DataProviders
                 optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
                 Console.WriteLine("Read only mode");
             }
-            //.UseLoggerFactory(MyLoggerFactory)
+            if (EnableSensitiveDataLogging)
+                optionsBuilder.EnableSensitiveDataLogging(true);
+            if (UseLoggerFactory)
+                optionsBuilder.UseLoggerFactory(MyLoggerFactory);
+            if (UseLazyLoadingProxies)
+                optionsBuilder.UseLazyLoadingProxies();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

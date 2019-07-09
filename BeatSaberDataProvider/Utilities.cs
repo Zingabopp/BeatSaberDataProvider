@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections;
+﻿using BeatSaberDataProvider.Util;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.IO.Compression;
-using System.Net;
-using System.ComponentModel;
-using System.Diagnostics;
-using BeatSaberDataProvider.Util;
 
 namespace BeatSaberDataProvider
 {

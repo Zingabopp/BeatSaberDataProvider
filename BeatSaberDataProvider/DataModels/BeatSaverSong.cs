@@ -207,7 +207,8 @@ namespace BeatSaberDataProvider.DataModels
             Song beatSaverSong;
             try
             {
-                beatSaverSong = token.ToObject<Song>(new JsonSerializer() {
+                beatSaverSong = token.ToObject<Song>(new JsonSerializer()
+                {
                     NullValueHandling = NullValueHandling.Ignore,
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 });
@@ -382,7 +383,7 @@ namespace BeatSaberDataProvider.DataModels
         public Dictionary<string, bool> difficulties;
 
         [JsonProperty("characteristics")]
-        public List<string> characteristics;
+        public List<JsonBeatmapCharacteristic> characteristics;
 
         [JsonProperty("songName")]
         public string songName;
@@ -398,6 +399,31 @@ namespace BeatSaberDataProvider.DataModels
 
         [JsonProperty("bpm")]
         public float bpm;
+    }
+
+    public class JsonBeatmapCharacteristic
+    {
+        [JsonProperty("name")]
+        public string name { get; set; }
+        [JsonProperty("difficulties")]
+        public Dictionary<string, DifficultyCharacteristics> difficulties { get; set; }
+    }
+
+    [Serializable]
+    public class DifficultyCharacteristics
+    {
+        [JsonProperty("duration")]
+        public double duration { get; set; }
+        [JsonProperty("length")]
+        public int length { get; set; }
+        [JsonProperty("bombs")]
+        public int bombs { get; set; }
+        [JsonProperty("notes")]
+        public int notes { get; set; }
+        [JsonProperty("obstacles")]
+        public int obstacles { get; set; }
+        [JsonProperty("njs")]
+        public float njs { get; set; }
     }
 
     public class SongStats

@@ -78,6 +78,7 @@ namespace BeatSaberDataProvider.DataModels
         [ForeignKey("SongHash")]
         public virtual ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
         public string UploaderRefId { get; set; }
+        [ForeignKey("UploaderRefId")]
         public virtual Uploader Uploader { get; set; }
 
 
@@ -231,7 +232,7 @@ namespace BeatSaberDataProvider.DataModels
     public class Characteristic : DatabaseDataType
     {
         [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { CharacteristicId }; } }
+        public override object[] PrimaryKey { get { return new object[] { CharacteristicName }; } }
         [NotMapped]
         public static Dictionary<string, Characteristic> AvailableCharacteristics = new Dictionary<string, Characteristic>();
         static Characteristic()
@@ -273,11 +274,11 @@ namespace BeatSaberDataProvider.DataModels
 
         public override string ToString()
         {
-            return $"{CharacteristicId}, {CharacteristicName}";
+            return $"{CharacteristicName}";
         }
 
-        [Key]
-        public int? CharacteristicId { get; set; }
+        //[Key]
+        //public int? CharacteristicId { get; set; }
         [Key]
         public string CharacteristicName { get; set; }
         public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
@@ -373,7 +374,7 @@ namespace BeatSaberDataProvider.DataModels
         public string SongId { get; set; }
         public virtual Song Song { get; set; }
 
-        public int? CharacteristicId { get; set; }
+        public string CharacteristicName { get; set; }
         public virtual Characteristic Characteristic { get; set; }
 
         public virtual ICollection<CharacteristicDifficulty> CharacteristicDifficulties { get; set; }
@@ -385,7 +386,7 @@ namespace BeatSaberDataProvider.DataModels
             {
                 var newChar = Characteristic.GetOrAddCharacteristic(jChar["name"]?.Value<string>());
                 var charDiffs = new List<CharacteristicDifficulty>();
-                var newBChar = new BeatmapCharacteristic() { SongId = _songId, CharacteristicId = newChar.CharacteristicId, Characteristic = newChar };
+                var newBChar = new BeatmapCharacteristic() { SongId = _songId, CharacteristicName = newChar.CharacteristicName, Characteristic = newChar };
                 foreach (JProperty diff in jChar["difficulties"].Children())
                 {
                     if (string.IsNullOrEmpty(diff.First.ToString()))
@@ -404,7 +405,7 @@ namespace BeatSaberDataProvider.DataModels
 
         public override string ToString()
         {
-            return $"{CharacteristicId}: {Characteristic.CharacteristicName}, {SongId}";
+            return $"{Characteristic.CharacteristicName}, {SongId}";
         }
     }
 
@@ -412,9 +413,9 @@ namespace BeatSaberDataProvider.DataModels
     public class SongDifficulty : DatabaseDataType
     {
         [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { DifficultyId, SongId }; } }
+        public override object[] PrimaryKey { get { return new object[] { DifficultyName, SongId }; } }
 
-        public int? DifficultyId { get; set; }
+        public string DifficultyName { get; set; }
         public virtual Difficulty Difficulty { get; set; }
 
         public string SongId { get; set; }
@@ -422,7 +423,7 @@ namespace BeatSaberDataProvider.DataModels
 
         public override string ToString()
         {
-            return $"{DifficultyId}: {Difficulty?.DifficultyName}, {SongId}";
+            return $"{DifficultyName}: {Difficulty?.DifficultyName}, {SongId}";
         }
     }
 
@@ -430,7 +431,7 @@ namespace BeatSaberDataProvider.DataModels
     public class Difficulty : DatabaseDataType
     {
         [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { DifficultyId }; } }
+        public override object[] PrimaryKey { get { return new object[] { DifficultyName }; } }
 
         /// <summary>
         /// Use a dictionary of created Difficulties so it doesn't keep creating the same ones.
@@ -452,9 +453,18 @@ namespace BeatSaberDataProvider.DataModels
             };
         }
         [Key]
-        public int? DifficultyId { get; set; }
+        public int? DifficultyLevel { get; set; }
+        [NotMapped]
+        private string _difficultyName;
         [Key]
-        public string DifficultyName { get; set; }
+        public string DifficultyName {
+            get { return _difficultyName; }
+            set
+            {
+                _difficultyName = value;
+                DifficultyLevel = GetDifficultyLevel(value);
+            }
+        }
         public virtual ICollection<SongDifficulty> SongDifficulties { get; set; }
 
 
@@ -465,18 +475,38 @@ namespace BeatSaberDataProvider.DataModels
             {
                 if (diffs.Values.ElementAt(i)) // May break with custom difficulties.
                 {
+                    difficulties.Add(new Difficulty() { DifficultyName = diffs.Keys.ElementAt(i) });
                     // DifficultyId = i, 
-                    if (!AvailableDifficulties.ContainsKey(i + 1))
-                        AvailableDifficulties.Add(i + 1, new Difficulty() { DifficultyName = diffs.Keys.ElementAt(i) });
-                    difficulties.Add(AvailableDifficulties[i + 1]);
+                    //if (!AvailableDifficulties.ContainsKey(i + 1))
+                    //AvailableDifficulties.Add(i + 1, new Difficulty() { DifficultyName = diffs.Keys.ElementAt(i) });
+                    //difficulties.Add(AvailableDifficulties[i + 1]);
+                    //difficulties.Add(new Difficulty() { DifficultyName = diffs.ElementAt(i).Key });
                 }
             }
             return difficulties;
         }
 
+        public static int GetDifficultyLevel(string diffString)
+        {
+            switch (diffString.ToLower())
+            {
+                case "easy":
+                    return 1;
+                case "normal":
+                    return 2;
+                case "hard":
+                    return 3;
+                case "expert":
+                    return 4;
+                case "expertplus":
+                    return 5;
+            }
+            return 0;
+        }
+
         public override string ToString()
         {
-            return $"{DifficultyId}: {DifficultyName}";
+            return $"{DifficultyLevel}: {DifficultyName}";
         }
     }
 
@@ -485,15 +515,11 @@ namespace BeatSaberDataProvider.DataModels
     {
         [NotMapped]
         public override object[] PrimaryKey { get { return new object[] { UploaderId }; } }
-
         [Key]
-        [JsonProperty("_id")]
         public string UploaderId { get; set; }
         [Key]
-        [JsonProperty("username")]
         public string UploaderName { get; set; }
-        [ForeignKey("UploaderRefId")]
-        [JsonIgnore]
+
         public virtual ICollection<Song> Songs { get; set; }
 
         public override string ToString()

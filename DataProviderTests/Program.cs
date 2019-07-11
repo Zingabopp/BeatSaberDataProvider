@@ -24,27 +24,31 @@ namespace DataProviderTests
             //PlayerDataProvider playerData = new PlayerDataProvider();
             //playerData.Initialize();
 
-            SongDataContext context = new SongDataContext() { EnableSensitiveDataLogging = true, UseLoggerFactory = true };
+            SongDataContext context = new SongDataContext() { EnableSensitiveDataLogging = false, UseLoggerFactory = true };
             //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
             string fileRead = File.ReadAllText("BeatSaverTestSongs.json");
-            //var songList = JsonConvert.DeserializeObject<List<Song>>(fileRead);
             var songList = JToken.Parse(fileRead)["docs"];
+            //string fileRead = File.ReadAllText("BeatSaverScrape.json");
+            //var songList = JToken.Parse(fileRead);
+
+            
             var listSongs = new List<Song>();
             int count = 0;
             foreach (var jSong in songList.Children())
             {
                 var newSong = Song.CreateFromJson(jSong);
                 listSongs.Add(newSong);
-                context.Update(newSong);
+                context.AddOrUpdate(newSong);
                 context.SaveChanges();
                 //var newSong = Song.CreateFromJson(jSong);
                 //context.Add(Song.CreateFromJson(jSong));
                 //context.SaveChanges();
                 count++;
             }
-            
+            //context.AddRange(listSongs);
+            context.SaveChanges();
             
             return;
             var songs = ScrapedDataProvider.Songs;

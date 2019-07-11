@@ -1,6 +1,599 @@
 ﻿{
   "docs": [
     {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 341,
+                "length": 111,
+                "njs": 0,
+                "bombs": 13,
+                "notes": 648,
+                "obstacles": 4
+              },
+              "expertPlus": {
+                "duration": 341,
+                "length": 111,
+                "njs": 0,
+                "bombs": 13,
+                "notes": 734,
+                "obstacles": 4
+              },
+              "hard": {
+                "duration": 341,
+                "length": 111,
+                "njs": 0,
+                "bombs": 13,
+                "notes": 387,
+                "obstacles": 3
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "hwatwhy",
+        "songAuthorName": "Seatrus",
+        "songName": "Sea of Shadows",
+        "songSubName": "",
+        "bpm": 183
+      },
+      "stats": {
+        "downloads": 34,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 3,
+        "heat": 838.8618056,
+        "rating": 0.6705937099936721
+      },
+      "description": "Would I call this my first map? Yes, in a way, *looks at my list of done WIPs* definitely my first... uploaded.\n\nBPM : 183\n\nEx+ : 6.32 NPS, 735 Notes, 22 NJS\nEx : 5.57 NPS, 648 Notes, 18 NJS\nHard : 3.33 NPS, 387 Notes, 15 NJS\n\nFeel free to DM me any feedback SmileW : hwatwhy #1815\n\nThanks to those that tested my map, much hearts for y'all <3",
+      "deletedAt": null,
+      "_id": "5d275a4e7d5fa60006799362",
+      "key": "5667",
+      "name": "Sea of Shadows - Seatrus",
+      "uploader": {
+        "_id": "5d27554cc656400006e21145",
+        "username": "hwatwhy"
+      },
+      "hash": "bf3d2b068616a09d60b4d0207518321c52c5048e",
+      "uploaded": "2019-07-11T15:48:30.796Z",
+      "downloadURL": "/api/download/key/5667",
+      "coverURL": "/cdn/5667/bf3d2b068616a09d60b4d0207518321c52c5048e.png"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 518.375,
+                "length": 248,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 734,
+                "obstacles": 1
+              },
+              "expertPlus": null,
+              "hard": {
+                "duration": 518.375,
+                "length": 248,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 605,
+                "obstacles": 1
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Tokaat",
+        "songAuthorName": "Mr. FijiWiji",
+        "songName": "Believe Her (feat. Meron Ryan)",
+        "songSubName": "",
+        "bpm": 125
+      },
+      "stats": {
+        "downloads": 126,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 2,
+        "heat": 838.5647728,
+        "rating": 0.6407951473548253
+      },
+      "description": "-An older Monstercat song from Mr. FijiWiji, from back in 2014. Heard in it my school days, liked it and thought I'd map it. Actually manually lighted something this time.\n-Thanks goes to Redmagi for testing Expert(Used to be titled Ex+, but it was too little for Ex+, thanks for the heads up and advice!)\n-Length: 4:19, BPM 125\n- Expert(NJS 16, 734 notes) and Hard(NJS 12, 605 notes) only.\n-Questions, feedback and criticisms goes to JoshuaR001#3486; You can refer to me as Tokaat as well on the BSMG discord. Do warn me of any mismaps(if any) I may have missed in my last check before upload. Enjoy!",
+      "deletedAt": null,
+      "_id": "5d27450c7d5fa60006798428",
+      "key": "5666",
+      "name": "Believe Her - Mr. FijiWiji",
+      "uploader": {
+        "_id": "5cff0b7698cc5a672c8545d6",
+        "username": "tokaat"
+      },
+      "hash": "120b6c483ec2b31e569a3ca66b858d4dbbcd50dc",
+      "uploaded": "2019-07-11T14:17:48.428Z",
+      "downloadURL": "/api/download/key/5666",
+      "coverURL": "/cdn/5666/120b6c483ec2b31e569a3ca66b858d4dbbcd50dc.jpg"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 287,
+                "length": 134,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 415,
+                "obstacles": 18
+              },
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Pixelguy",
+        "songAuthorName": "Red Velvet",
+        "songName": "Zimzalabim",
+        "songSubName": "",
+        "bpm": 127.96800231933594
+      },
+      "stats": {
+        "downloads": 46,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 1,
+        "heat": 838.2448317,
+        "rating": 0.5941636475090435
+      },
+      "description": "Here I am again! This map was requested to me by MAW X. The colors are red (duh) and white.\r\n\r\nPreview: https://youtu.be/Te3tlDhrR4E",
+      "deletedAt": null,
+      "_id": "5d2741b94d016b00065c9bc5",
+      "key": "5665",
+      "name": "Zimzalabim - Red Velvet",
+      "uploader": {
+        "_id": "5cff0b7698cc5a672c8541a8",
+        "username": "pixelguymm"
+      },
+      "hash": "d7289d46a7e5bf84bea59a62b557abf50067a864",
+      "uploaded": "2019-07-11T14:03:37.428Z",
+      "downloadURL": "/api/download/key/5665",
+      "coverURL": "/cdn/5665/d7289d46a7e5bf84bea59a62b557abf50067a864.jpg"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": true,
+          "normal": true
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 412.7268981933594,
+                "length": 165,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 807,
+                "obstacles": 12
+              },
+              "expertPlus": {
+                "duration": 412.7268981933594,
+                "length": 165,
+                "njs": 0,
+                "bombs": 64,
+                "notes": 838,
+                "obstacles": 12
+              },
+              "hard": {
+                "duration": 411.7268981933594,
+                "length": 165,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 696,
+                "obstacles": 12
+              },
+              "normal": {
+                "duration": 411.7269287109375,
+                "length": 165,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 522,
+                "obstacles": 19
+              }
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Heisenberg",
+        "songAuthorName": "Bonnie Tyler",
+        "songName": "Holding Out For A Hero",
+        "songSubName": "",
+        "bpm": 149.6300048828125
+      },
+      "stats": {
+        "downloads": 276,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 4,
+        "heat": 838.7037203,
+        "rating": 0.6919940778277485
+      },
+      "description": "Reupload",
+      "deletedAt": null,
+      "_id": "5d27288e0bfa7c0006b5cff8",
+      "key": "5664",
+      "name": "Holding Out For A Hero",
+      "uploader": {
+        "_id": "5cff0b7298cc5a672c84ec30",
+        "username": "heisenbergirl"
+      },
+      "hash": "d64f5400f932ecb1dc924b4e96d2b08918fcc5e4",
+      "uploaded": "2019-07-11T12:16:14.713Z",
+      "downloadURL": "/api/download/key/5664",
+      "coverURL": "/cdn/5664/d64f5400f932ecb1dc924b4e96d2b08918fcc5e4.jpg"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 315,
+                "length": 145,
+                "njs": 0,
+                "bombs": 8,
+                "notes": 676,
+                "obstacles": 1
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Joetastic",
+        "songAuthorName": "Roselia",
+        "songName": "Tamashii no Refrain",
+        "songSubName": "",
+        "bpm": 130
+      },
+      "stats": {
+        "downloads": 292,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 7,
+        "heat": 838.7158486,
+        "rating": 0.7326299055525074
+      },
+      "description": "Tamashii no Refrain (魂たましいのルフラン, Soul's Refrain) as covered by Roselia!\n\nOriginally sung by Yoko Takahashi and used as theme song for the anime film Evangelion: Death and Rebirth.\n\nExpert plus only. If you've been playing only hard/expert its time to challenge yourself!",
+      "deletedAt": null,
+      "_id": "5d26fff77d5fa60006795f36",
+      "key": "5663",
+      "name": "Tamashii no Refrain [BanG Dream! Soundtrack] - Roselia",
+      "uploader": {
+        "_id": "5cff0b7498cc5a672c85050e",
+        "username": "joetastic"
+      },
+      "hash": "e4920d139ac012ea912a43b224bb80b55397ce40",
+      "uploaded": "2019-07-11T09:23:03.775Z",
+      "downloadURL": "/api/download/key/5663",
+      "coverURL": "/cdn/5663/e4920d139ac012ea912a43b224bb80b55397ce40.jpg"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": true,
+          "expert": false,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": {
+                "duration": 21.125,
+                "length": 5,
+                "njs": 0,
+                "bombs": 1,
+                "notes": 2,
+                "obstacles": 1
+              },
+              "expert": null,
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "ShibeGuy",
+        "songAuthorName": "Discord",
+        "songName": "Discord Ping",
+        "songSubName": "",
+        "bpm": 240
+      },
+      "stats": {
+        "downloads": 409,
+        "plays": 0,
+        "downVotes": 1,
+        "upVotes": 12,
+        "heat": 838.6944876,
+        "rating": 0.7319154275197277
+      },
+      "description": "get pinged\nmapped and lit by me\nEasy (for rank)",
+      "deletedAt": null,
+      "_id": "5d26d9b50bfa7c0006b5b15c",
+      "key": "5662",
+      "name": "Discord Ping",
+      "uploader": {
+        "_id": "5cff0b7698cc5a672c853781",
+        "username": "shibeman"
+      },
+      "hash": "e477aa31a46802ba7c75318ba267cd2f91f6a7e2",
+      "uploaded": "2019-07-11T06:39:49.270Z",
+      "downloadURL": "/api/download/key/5662",
+      "coverURL": "/cdn/5662/e477aa31a46802ba7c75318ba267cd2f91f6a7e2.png"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 596,
+                "length": 118,
+                "njs": 0,
+                "bombs": 49,
+                "notes": 1319,
+                "obstacles": 37
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Burchase",
+        "songAuthorName": "Camellia",
+        "songName": "Xeroa",
+        "songSubName": "",
+        "bpm": 301
+      },
+      "stats": {
+        "downloads": 124,
+        "plays": 0,
+        "downVotes": 1,
+        "upVotes": 0,
+        "heat": 837.5262903,
+        "rating": 0.40583635249095656
+      },
+      "description": "301 BPM STREAMS LOOOOOOOL DUDE SO FUN",
+      "deletedAt": null,
+      "_id": "5d26c36b93d602000607e9e1",
+      "key": "5661",
+      "name": "Camellia - Xeroa",
+      "uploader": {
+        "_id": "5cff0b7398cc5a672c84f4e4",
+        "username": "burchase"
+      },
+      "hash": "ae50ec064b955740bd28b11ff28776d3a16b3ec7",
+      "uploaded": "2019-07-11T05:04:43.063Z",
+      "downloadURL": "/api/download/key/5661",
+      "coverURL": "/cdn/5661/ae50ec064b955740bd28b11ff28776d3a16b3ec7.png"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 152.10000610351562,
+                "length": 50,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 409,
+                "obstacles": 7
+              },
+              "expertPlus": {
+                "duration": 152.10000610351562,
+                "length": 50,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 436,
+                "obstacles": 5
+              },
+              "hard": {
+                "duration": 152.10000610351562,
+                "length": 50,
+                "njs": 0,
+                "bombs": 9,
+                "notes": 304,
+                "obstacles": 39
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "OreoZe",
+        "songAuthorName": "Takamori Natsumi, Sendai Eri, Asakawa Yuu, Tanezaki Atsumi",
+        "songName": "Ne! Ko!",
+        "songSubName": "",
+        "bpm": 182
+      },
+      "stats": {
+        "downloads": 270,
+        "plays": 0,
+        "downVotes": 1,
+        "upVotes": 6,
+        "heat": 838.1176001,
+        "rating": 0.666164218251791
+      },
+      "description": "Garbage  v1",
+      "deletedAt": null,
+      "_id": "5d26b07e93d602000607dd5d",
+      "key": "565f",
+      "name": "Ne! Ko!",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c855e97",
+        "username": "oreoze"
+      },
+      "hash": "7f226aa6b106c9a0dbc0e183222c70d5fe7a5cfe",
+      "uploaded": "2019-07-11T03:43:58.355Z",
+      "downloadURL": "/api/download/key/565f",
+      "coverURL": "/cdn/565f/7f226aa6b106c9a0dbc0e183222c70d5fe7a5cfe.jpg"
+
+    },
+    {
+
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 315.29278564453125,
+                "length": 98,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 913,
+                "obstacles": 4
+              },
+              "expertPlus": {
+                "duration": 315.29278564453125,
+                "length": 98,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 927,
+                "obstacles": 4
+              },
+              "hard": {
+                "duration": 315.29278564453125,
+                "length": 98,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 871,
+                "obstacles": 4
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Hoppaw",
+        "songAuthorName": "Hazuki",
+        "songName": "Legend of Millennium (Short Ver.)",
+        "songSubName": "",
+        "bpm": 192
+      },
+      "stats": {
+        "downloads": 277,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 5,
+        "heat": 838.0090281,
+        "rating": 0.7084432256108616
+      },
+      "description": "Modded by Hex and Fraies. Hopefully the last reupload. Finally a delete button. peepoPog I prey to god that this is the final version\n\nSmall spread for this one.\n\nContact Hoppaw#2891 for any feedback you have on this map. Map Preview: https://youtu.be/a4_cZoR9CJg\nMap info;\n\nSong: Legend of Millennium\nSong Link: https://youtu.be/qZUNGLxZoW4\nGenre: Metal(I think?)/Video Game\nAuthor: Hazuki\nLength: 1:46\nBPM: 192\n\n1000 Years\nNJS: 20\nNotes/Second: 8.67\nNotes: 928\n13% Top Row\n71% Bottom Row\n\nExtreme\nNJS: 17\nNotes/Second: 853\nNotes: 913\n14% Top Row\n78% Bottom Row\n\nExpert\nNJS: 15\nNotes/Second: 8.12\nNotes: 869\n2% Top Row\n90% Bottom Row\n\nThank you everyone for playing the early versions and giving me feedback\n\nAlso, Iraky is cute.",
+      "deletedAt": null,
+      "_id": "5d269d680bfa7c0006b58adc",
+      "key": "565e",
+      "name": "Legend of Millennium (Short Ver.) - Hazuki",
+      "uploader": {
+        "_id": "5cff0b7498cc5a672c850660",
+        "username": "hoppaw"
+      },
+      "hash": "5a9e8a13b6a75bf8fde9fe030d8a723d5a4491d2",
+      "uploaded": "2019-07-11T02:22:32.614Z",
+      "downloadURL": "/api/download/key/565e",
+      "coverURL": "/cdn/565e/5a9e8a13b6a75bf8fde9fe030d8a723d5a4491d2.jpg"
+
+    },
+    {
+
       "metadata": {
         "difficulties": {
           "easy": false,
@@ -10,41 +603,682 @@
           "normal": false
         },
         "characteristics": [
-          "Standard",
-          "OneSaber",
-          "Random"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 779,
+                "length": 233,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 888,
+                "obstacles": 0
+              },
+              "expertPlus": {
+                "duration": 779,
+                "length": 233,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 1066,
+                "obstacles": 0
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
         ],
-        "levelAuthorName": "OkDisplay",
-        "songAuthorName": "F-777",
-        "songName": "1UP (F-777)",
+        "levelAuthorName": "Brentastic",
+        "songAuthorName": "The Strokes",
+        "songName": "Under Cover of Darkness",
         "songSubName": "",
-        "bpm": 133
+        "bpm": 200
       },
       "stats": {
-        "downloads": 500,
-        "plays": 10,
-        "downVotes": 2,
-        "upVotes": 500,
-        "heat": 8.3673718,
-        "rating": 0.9084432256108616
+        "downloads": 176,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 1,
+        "heat": 837.2458107,
+        "rating": 0.5941636475090435
       },
-      "description": "UPDATED, removed Hard difficulty: Two different NJ and streams intensity.",
-      "deletedAt": "2019-06-24T14:51:18.082Z",
-      "_id": "5d10e3663793fc0006d1e898",
-      "key": "544c",
-      "name": "1UP (F-777)",
+      "description": "Expert - 888 notes, 13 njs, no bombs or walls\nExpert+ - 1,066 notes, 13 njs, no bombs or walls\n\nI've regularly searched for a Strokes song since the modding community has been around, and none have yet been made. So, I took it upon myself to make it happen. \n\nThis is my second attempt at making a map, and my first in over a year. I have gained hundreds of hours of experience playing since my last attempt, and I hope it shows. Just the same, feedback is appreciated. \n\nThanks for downloading and playing!",
+      "deletedAt": null,
+      "_id": "5d26921dc656400006e1a21e",
+      "key": "565d",
+      "name": "Under Cover of Darkness - The Strokes",
       "uploader": {
-        "_id": "5cff0b7398cc5a672c84eda2",
-        "username": "okdisplay"
+        "_id": "5cff0b7398cc5a672c84ed6a",
+        "username": "brentastic"
       },
-      "hash": "b169476c7323ea00e192499d02a29d10101f95a2",
-      "uploaded": "2019-06-24T14:51:18.082Z",
-      "downloadURL": "/api/download/key/544c",
-      "coverURL": "/cdn/544c/b169476c7323ea00e192499d02a29d10101f95a2.jpg"
+      "hash": "3be16c84a3c6058ba2352f778338d55294ba6992",
+      "uploaded": "2019-07-11T01:34:21.480Z",
+      "downloadURL": "/api/download/key/565d",
+      "coverURL": "/cdn/565d/3be16c84a3c6058ba2352f778338d55294ba6992.jpg"
+
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 570,
+                "obstacles": 6
+              },
+              "expertPlus": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 608,
+                "obstacles": 6
+              },
+              "hard": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 429,
+                "obstacles": 6
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          },
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 570,
+                "obstacles": 6
+              },
+              "expertPlus": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 608,
+                "obstacles": 6
+              },
+              "hard": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 429,
+                "obstacles": 6
+              },
+              "normal": null
+            },
+            "name": "OneSaber"
+          }
+        ],
+        "levelAuthorName": "Snail0fD3ath",
+        "songAuthorName": "Leat'eq",
+        "songName": "Tokyo",
+        "songSubName": "",
+        "bpm": 102
+      },
+      "stats": {
+        "downloads": 30,
+        "plays": 100,
+        "downVotes": 100,
+        "upVotes": 100,
+        "heat": 50,
+        "rating": 80
+      },
+      "description": "Expert+, Expert, and Hard difficulties with low bpm, high flow ;)\r\nMapping by Snail0fD3ath\r\nLighting by jrmuffin\r\nThis one is a lot of fun, enjoy!",
+      "deletedAt": null,
+      "_id": "5d2662f993d6020006079bf8",
+      "key": "5658",
+      "name": "Tokyo",
+      "uploader": {
+        "_id": "5cff0b7698cc5a672c8539c5",
+        "username": "snail0fd3ath"
+      },
+      "hash": "b43d94e0fc6783ef81e37219264030537f62756e",
+      "uploaded": "2019-07-10T22:13:13.739Z",
+      "downloadURL": "/api/download/key/5658",
+      "coverURL": "/cdn/5658/b43d94e0fc6783ef81e37219264030537f62756e.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 812,
+                "length": 243,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 1838,
+                "obstacles": 24
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Mysquito",
+        "songAuthorName": "Hellbinde",
+        "songName": "Grief and Malice",
+        "songSubName": "",
+        "bpm": 200
+      },
+      "stats": {
+        "downloads": 4,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 836.972828,
+        "rating": 0
+      },
+      "description": "Yeet",
+      "deletedAt": null,
+      "_id": "5d2662217d5fa6000678fa44",
+      "key": "5657",
+      "name": "Grief & Malice",
+      "uploader": {
+        "_id": "5cff0b7698cc5a672c8548dd",
+        "username": "mysquito"
+      },
+      "hash": "8a1b0335790d7659555489871f0125e44525c6ca",
+      "uploaded": "2019-07-10T22:09:37.258Z",
+      "downloadURL": "/api/download/key/5657",
+      "coverURL": "/cdn/5657/8a1b0335790d7659555489871f0125e44525c6ca.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 230.06666564941406,
+                "length": 78,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 382,
+                "obstacles": 0
+              },
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "ninu",
+        "songAuthorName": "Galneryus",
+        "songName": "Hunting For Your Dream",
+        "songSubName": "Hunter x Hunter Ending 2",
+        "bpm": 176
+      },
+      "stats": {
+        "downloads": 14,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 1,
+        "heat": 836.9386319,
+        "rating": 0.5941636475090435
+      },
+      "description": "This isn't the best map ever, but you know what? If you're a Hunter X Hunter fan, this is the best you're gonna get, kid. There's nothing else on the market for this ending hahahahaha.\n\nBest played with SFX turned off. Here I am playing it:\nhttps://youtu.be/VyStgVgnnx0\n\nLighting in large part thanks to LightMap",
+      "deletedAt": null,
+      "_id": "5d265c1e7d5fa6000678f51e",
+      "key": "5655",
+      "name": "Hunting For Your Dream (Hunter X Hunter ED 2)",
+      "uploader": {
+        "_id": "5d2634960bfa7c0006b52f01",
+        "username": "ninu"
+      },
+      "hash": "60ef2cea5026338a08bfbfc7c07633dd12caa371",
+      "uploaded": "2019-07-10T21:43:58.434Z",
+      "downloadURL": "/api/download/key/5655",
+      "coverURL": "/cdn/5655/60ef2cea5026338a08bfbfc7c07633dd12caa371.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 896.1099853515625,
+                "length": 244,
+                "njs": 0,
+                "bombs": 27,
+                "notes": 2128,
+                "obstacles": 21
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "DE125",
+        "songAuthorName": "Camellia ft. Nanahira",
+        "songName": "Energy Drink Girl Fein-chan!",
+        "songSubName": "",
+        "bpm": 220
+      },
+      "stats": {
+        "downloads": 47,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 836.8197922,
+        "rating": 0
+      },
+      "description": "Imagine naming a map the album pepeLaugh\n\nThanks for the mods Cheesy, and Hoppaw!",
+      "deletedAt": null,
+      "_id": "5d26473a93d602000607836b",
+      "key": "5652",
+      "name": "Energy Drink Girl Fein-Chan!",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c8554ba",
+        "username": "de125"
+      },
+      "hash": "33e649a2892d21b7bf00b9a0c3d094a3942d0a5b",
+      "uploaded": "2019-07-10T20:14:50.648Z",
+      "downloadURL": "/api/download/key/5652",
+      "coverURL": "/cdn/5652/33e649a2892d21b7bf00b9a0c3d094a3942d0a5b.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 1115,
+                "length": 257,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 2457,
+                "obstacles": 17
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Enbi",
+        "songAuthorName": "Nanahira",
+        "songName": "Parsley Tabero",
+        "songSubName": "",
+        "bpm": 260
+      },
+      "stats": {
+        "downloads": 39,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 1,
+        "heat": 836.7920131,
+        "rating": 0.5941636475090435
+      },
+      "description": "",
+      "deletedAt": null,
+      "_id": "5d26425893d6020006077e31",
+      "key": "5651",
+      "name": "Nanahira - Parsley Tabero",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c8557e3",
+        "username": "enbi"
+      },
+      "hash": "d8bdd5c1b8883c6b7a3d30a324a3c3ebbd979b15",
+      "uploaded": "2019-07-10T19:54:00.589Z",
+      "downloadURL": "/api/download/key/5651",
+      "coverURL": "/cdn/5651/d8bdd5c1b8883c6b7a3d30a324a3c3ebbd979b15.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": false,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": null,
+              "hard": {
+                "duration": 194.1699981689453,
+                "length": 97,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 576,
+                "obstacles": 0
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Creeel",
+        "songAuthorName": "Undertale; Ripped by SiIvaGunner",
+        "songName": "Megalovania",
+        "songSubName": "",
+        "bpm": 120
+      },
+      "stats": {
+        "downloads": 157,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 836.7914566,
+        "rating": 0
+      },
+      "description": "Thank you SiIvaGunner for the high quality rip! :)",
+      "deletedAt": null,
+      "_id": "5d26423f7d5fa6000678dd4a",
+      "key": "5650",
+      "name": "Megalovania - Undertale",
+      "uploader": {
+        "_id": "5cff0b7598cc5a672c85349c",
+        "username": "creeel"
+      },
+      "hash": "b715444e43562aefeca618313c62fb7baf72d071",
+      "uploaded": "2019-07-10T19:53:35.548Z",
+      "downloadURL": "/api/download/key/5650",
+      "coverURL": "/cdn/5650/b715444e43562aefeca618313c62fb7baf72d071.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 521.4375,
+                "length": 244,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 790,
+                "obstacles": 195
+              },
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "KikaeAeon",
+        "songAuthorName": "Snail's House × Moe Shop",
+        "songName": "Pastel",
+        "songSubName": "",
+        "bpm": 128
+      },
+      "stats": {
+        "downloads": 156,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 3,
+        "heat": 836.9993243,
+        "rating": 0.6705937099936721
+      },
+      "description": "PepeJamJam",
+      "deletedAt": null,
+      "_id": "5d2612eb7d5fa6000678b32d",
+      "key": "564d",
+      "name": "Snail's House × Moe Shop - Pastel",
+      "uploader": {
+        "_id": "5cff0b7498cc5a672c85109b",
+        "username": "kikaeaeon"
+      },
+      "hash": "453272dc87db07e26731cfbbbabead26712232e4",
+      "uploaded": "2019-07-10T16:31:39.138Z",
+      "downloadURL": "/api/download/key/564d",
+      "coverURL": "/cdn/564d/453272dc87db07e26731cfbbbabead26712232e4.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": true,
+          "expert": false,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": {
+                "duration": 71.25,
+                "length": 26,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 476,
+                "obstacles": 1
+              },
+              "expert": null,
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Leemer",
+        "songAuthorName": "Playboy Carti",
+        "songName": "They wanna be carti",
+        "songSubName": "",
+        "bpm": 160
+      },
+      "stats": {
+        "downloads": 95,
+        "plays": 0,
+        "downVotes": 3,
+        "upVotes": 1,
+        "heat": 836.2201912,
+        "rating": 0.40400296108612577
+      },
+      "description": "expert++++++++++++++++++++++++++++++++++++++++\nfirst pass without no fail gets a kiss on the cheek",
+      "deletedAt": null,
+      "_id": "5d2612be93d602000607544c",
+      "key": "564c",
+      "name": "they wanna be carti",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c8563aa",
+        "username": "leemer"
+      },
+      "hash": "ec3f31f3a8ae0344fd26a0bf635b313e2c6f8e2d",
+      "uploaded": "2019-07-10T16:30:54.956Z",
+      "downloadURL": "/api/download/key/564c",
+      "coverURL": "/cdn/564c/ec3f31f3a8ae0344fd26a0bf635b313e2c6f8e2d.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 128,
+                "length": 64,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 172,
+                "obstacles": 4
+              },
+              "expertPlus": {
+                "duration": 128,
+                "length": 64,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 219,
+                "obstacles": 4
+              },
+              "hard": {
+                "duration": 128,
+                "length": 64,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 146,
+                "obstacles": 4
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Uchytka",
+        "songAuthorName": "CZECH",
+        "songName": "Tezkej Pokondr - Raketak",
+        "songSubName": "",
+        "bpm": 120
+      },
+      "stats": {
+        "downloads": 54,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 836.5060046,
+        "rating": 0
+      },
+      "description": "Přijďte na monči stream tato písnička je pro ní https://www.twitch.tv/mooonickaa \na čekněte další moje písničky btw",
+      "deletedAt": null,
+      "_id": "5d2610127d5fa6000678b0ff",
+      "key": "564b",
+      "name": "Těžkej Pokondr - Rakeťák CZECH (Pro Mooonickaa)",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c855be3",
+        "username": "uchytka"
+      },
+      "hash": "6b7fa5daa9c61811f84233316c4538dd9380fa90",
+      "uploaded": "2019-07-10T16:19:30.207Z",
+      "downloadURL": "/api/download/key/564b",
+      "coverURL": "/cdn/564b/6b7fa5daa9c61811f84233316c4538dd9380fa90.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": false,
+          "expertPlus": true,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 389.625,
+                "length": 185,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 1023,
+                "obstacles": 35
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "xScaramouche",
+        "songAuthorName": "Skrillex & JOYRYDE",
+        "songName": "AGEN WIDA",
+        "songSubName": "",
+        "bpm": 126
+      },
+      "stats": {
+        "downloads": 108,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 2,
+        "heat": 836.758386,
+        "rating": 0.6407951473548253
+      },
+      "description": "AGEN WIDA - Skrillex & JOYRYDE\n\n'Cause I hid'em wida\n\nAGEN WIDA.\n\nA little bit odd in terms of the beat but still plenty playable, and hopefully enjoyable.",
+      "deletedAt": null,
+      "_id": "5d2607850bfa7c0006b50a08",
+      "key": "564a",
+      "name": "AGEN WIDA - Skrillex & JORYDE",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c8558ed",
+        "username": "xscaramouche"
+      },
+      "hash": "15462adb13533777f1f728510a0c4f27d357ee38",
+      "uploaded": "2019-07-10T15:43:01.022Z",
+      "downloadURL": "/api/download/key/564a",
+      "coverURL": "/cdn/564a/15462adb13533777f1f728510a0c4f27d357ee38.jpg"
     }
   ],
-  "totalDocs": 14175,
-  "lastPage": 1417,
+  "totalDocs": 14594,
+  "lastPage": 1459,
   "prevPage": null,
   "nextPage": 1
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,15 +82,15 @@ namespace BeatSaberDataProvider.DataProviders
             modelBuilder.Entity<ScoreSaberDifficulty>()
                 .HasKey(d => d.ScoreSaberDifficultyId);
             modelBuilder.Entity<Characteristic>()
-                .HasKey(c => c.CharacteristicId);
+                .HasKey(c => c.CharacteristicName);
             modelBuilder.Entity<CharacteristicDifficulty>()
                 .HasKey(cd => cd._cdId);
             modelBuilder.Entity<CharacteristicDifficulty>()
                 .HasAlternateKey(cd => new { cd.BeatmapCharacteristicId, cd.Difficulty });
+            //modelBuilder.Entity<Difficulty>()
+            //    .HasKey(d => d.DifficultyLevel);
             modelBuilder.Entity<Difficulty>()
-                .HasKey(d => d.DifficultyId);
-            modelBuilder.Entity<Difficulty>()
-                .HasAlternateKey(d => d.DifficultyName);
+                .HasKey(d => d.DifficultyName);
             modelBuilder.Entity<Uploader>()
                 .HasKey(u => u.UploaderId);
             modelBuilder.Entity<Uploader>()
@@ -100,22 +101,24 @@ namespace BeatSaberDataProvider.DataProviders
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasAlternateKey(b => new { b.BeatmapCharacteristicId, b.SongId });
             modelBuilder.Entity<SongDifficulty>()
-                .HasKey(d => new { d.DifficultyId, d.SongId });
+                .HasKey(d => new { d.DifficultyName, d.SongId });
 
             modelBuilder.Entity<ScoreSaberDifficulty>()
                 .HasOne(d => d.Song)
                 .WithMany(s => s.ScoreSaberDifficulties)
                 .HasForeignKey(d => d.SongHash)
                 .HasPrincipalKey(s => s.Hash);
-            modelBuilder.Entity<Uploader>()
-                .HasMany(u => u.Songs)
-                .WithOne(s => s.Uploader)
-                .HasForeignKey(u => u.UploaderRefId); // Is this right?
+
+            modelBuilder.Entity<Song>()
+                .HasOne(s => s.Uploader)
+                .WithMany(u => u.Songs)
+                .HasForeignKey(s => s.UploaderRefId)
+                .HasPrincipalKey(u => u.UploaderId);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Characteristic)
                 .WithMany(b => b.BeatmapCharacteristics)
-                .HasForeignKey(b => b.CharacteristicId);
+                .HasForeignKey(b => b.CharacteristicName);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Song)
@@ -130,13 +133,18 @@ namespace BeatSaberDataProvider.DataProviders
             modelBuilder.Entity<SongDifficulty>()
                 .HasOne(b => b.Difficulty)
                 .WithMany(b => b.SongDifficulties)
-                .HasForeignKey(b => b.DifficultyId);
+                .HasForeignKey(b => b.DifficultyName);
 
             modelBuilder.Entity<SongDifficulty>()
                 .HasOne(b => b.Song)
                 .WithMany(b => b.SongDifficulties)
                 .HasForeignKey(b => b.SongId);
 
+
+        }
+
+        public static void AddOrUpdate(JToken jSong)
+        {
 
         }
 

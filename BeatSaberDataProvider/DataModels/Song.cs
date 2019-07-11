@@ -20,7 +20,7 @@ namespace BeatSaberDataProvider.DataModels
         IEquatable<ScoreSaberDifficulty>,
         IEquatable<BeatSaverSong>
     {
-        
+
         [NotMapped]
         public override object[] PrimaryKey { get { return new object[] { SongId }; } }
 
@@ -179,13 +179,12 @@ namespace BeatSaberDataProvider.DataModels
             CoverUrl = jSong["coverURL"]?.Value<string>();
 
             // Metadata
-            var characteristics = JsonConvert.DeserializeObject<List<string>>(jMetadata["characteristics"]?.ToString());// Change
+            //var characteristics = JsonConvert.DeserializeObject<List<string>>(jMetadata["characteristics"]?.ToString());// Change
             var diffs = JsonConvert.DeserializeObject<Dictionary<string, bool>>(jMetadata["difficulties"]?.ToString());
             SongDifficulties = Difficulty.DictionaryToDifficulties(diffs)
                     .Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = SongId }).ToList();
 
-            BeatmapCharacteristics = Characteristic.ConvertCharacteristics(characteristics).Select(c =>
-                            new BeatmapCharacteristic() { SongId = SongId, Song = this, Characteristic = c }).ToList();
+            BeatmapCharacteristics = BeatmapCharacteristic.ConvertFromJson(jCharacteristics, SongId);
 
             SongName = jMetadata["songName"]?.Value<string>();
             SongSubName = jMetadata["songSubName"]?.Value<string>();
@@ -239,19 +238,27 @@ namespace BeatSaberDataProvider.DataModels
         {
             AvailableCharacteristics = new Dictionary<string, Characteristic>
             {
-                { "Standard", new Characteristic() { CharacteristicId = 1, CharacteristicName = "Standard" } },
-                { "NoArrows", new Characteristic() { CharacteristicId = 2, CharacteristicName = "NoArrows" } },
-                { "OneSaber", new Characteristic() { CharacteristicId = 3, CharacteristicName = "OneSaber" } },
-                { "Lightshow", new Characteristic() { CharacteristicId = 4, CharacteristicName = "Lightshow" } }
+                //{ "Standard", new Characteristic() { CharacteristicId = 1, CharacteristicName = "Standard" } },
+                //{ "NoArrows", new Characteristic() { CharacteristicId = 2, CharacteristicName = "NoArrows" } },
+                //{ "OneSaber", new Characteristic() { CharacteristicId = 3, CharacteristicName = "OneSaber" } },
+                //{ "Lightshow", new Characteristic() { CharacteristicId = 4, CharacteristicName = "Lightshow" } }
             };
         }
 
-        public static ICollection<Characteristic> ConvertCharacteristics(JToken jCharacteristics)
+        public static Characteristic GetOrAddCharacteristic(string name)
         {
-            var charList = new List<Characteristic>();
+            var existing = AvailableCharacteristics.Where(c => c.Key.ToLower() == name.ToLower())?.FirstOrDefault().Value;
+            if (existing != null)
+            {
+                return existing;
+            }
+            else
+            {
+                var newChar = new Characteristic() { CharacteristicName = name };
+                AvailableCharacteristics.Add(name, newChar);
+                return newChar;
+            }
 
-
-            return charList;
         }
 
         public static ICollection<Characteristic> ConvertCharacteristics(ICollection<JsonBeatmapCharacteristic> characteristics)
@@ -259,12 +266,8 @@ namespace BeatSaberDataProvider.DataModels
             List<Characteristic> retList = new List<Characteristic>();
             foreach (var c in characteristics)
             {
-
-                if (!AvailableCharacteristics.ContainsKey(c.name))
-                    AvailableCharacteristics.Add(c, new Characteristic() { CharacteristicName = c });
-                retList.Add(AvailableCharacteristics[c]);
+                retList.Add(GetOrAddCharacteristic(c.name));
             }
-
             return retList;
         }
 
@@ -278,7 +281,6 @@ namespace BeatSaberDataProvider.DataModels
         [Key]
         public string CharacteristicName { get; set; }
         public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
-        public virtual ICollection<CharacteristicDifficulty> CharacteristicDifficulties { get; set; }
     }
 
     [Table("CharacteristicDifficulty")]
@@ -304,21 +306,23 @@ namespace BeatSaberDataProvider.DataModels
         public int Obstacles { get; set; }
         public float NoteJumpSpeed { get; set; }
 
-        public static CharacteristicDifficulty ConvertFromJson(JToken jDifficulty)
+        public static CharacteristicDifficulty ConvertFromJson(JProperty jDifficulty)
         {
+            var diffStats = jDifficulty.First;
             return new CharacteristicDifficulty()
             {
-                Difficulty = jDifficulty.Value<string>(),
-                Duration = jDifficulty["duration"]?.Value<double>() ?? 0,
-                Length = jDifficulty["length"]?.Value<int>() ?? 0,
-                Bombs = jDifficulty["bombs"]?.Value<int>() ?? 0,
-                Notes = jDifficulty["notes"]?.Value<int>() ?? 0,
-                Obstacles = jDifficulty["obstacles"]?.Value<int>() ?? 0,
-                NoteJumpSpeed = jDifficulty["njs"]?.Value<float>() ?? 0,
+                Difficulty = jDifficulty.Name,
+                Duration = diffStats["duration"]?.Value<double>() ?? 0,
+                Length = diffStats["length"]?.Value<int>() ?? 0,
+                Bombs = diffStats["bombs"]?.Value<int>() ?? 0,
+                Notes = diffStats["notes"]?.Value<int>() ?? 0,
+                Obstacles = diffStats["obstacles"]?.Value<int>() ?? 0,
+                NoteJumpSpeed = diffStats["njs"]?.Value<float>() ?? 0,
             };
         }
 
-        public Characteristic Characteristic { get; set; }
+        public int? BeatmapCharacteristicId { get; set; }
+        public BeatmapCharacteristic BeatmapCharacteristic { get; set; }
 
         public string DifficultyToString(int level)
         {
@@ -362,7 +366,9 @@ namespace BeatSaberDataProvider.DataModels
     public class BeatmapCharacteristic : DatabaseDataType
     {
         [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { CharacteristicId, SongId }; } }
+        public override object[] PrimaryKey { get { return new object[] { BeatmapCharacteristicId}; } }
+
+        public int? BeatmapCharacteristicId { get; set; }
 
         public string SongId { get; set; }
         public virtual Song Song { get; set; }
@@ -370,8 +376,32 @@ namespace BeatSaberDataProvider.DataModels
         public int? CharacteristicId { get; set; }
         public virtual Characteristic Characteristic { get; set; }
 
-        
-        
+        public virtual ICollection<CharacteristicDifficulty> CharacteristicDifficulties { get; set; }
+
+        public static ICollection<BeatmapCharacteristic> ConvertFromJson(JToken jChars, string _songId)
+        {
+            var bcList = new List<BeatmapCharacteristic>();
+            foreach (var jChar in jChars.Children())
+            {
+                var newChar = Characteristic.GetOrAddCharacteristic(jChar["name"]?.Value<string>());
+                var charDiffs = new List<CharacteristicDifficulty>();
+                var newBChar = new BeatmapCharacteristic() { SongId = _songId, CharacteristicId = newChar.CharacteristicId, Characteristic = newChar };
+                foreach (JProperty diff in jChar["difficulties"].Children())
+                {
+                    if (string.IsNullOrEmpty(diff.First.ToString()))
+                        continue;
+                    var newCharDiff = CharacteristicDifficulty.ConvertFromJson(diff);
+                    newCharDiff.BeatmapCharacteristicId = newBChar.BeatmapCharacteristicId;
+                    newCharDiff.BeatmapCharacteristic = newBChar;
+                    charDiffs.Add(newCharDiff);
+                }
+                newBChar.CharacteristicDifficulties = charDiffs;
+                bcList.Add(newBChar);
+            }
+
+            return bcList;
+        }
+
         public override string ToString()
         {
             return $"{CharacteristicId}: {Characteristic.CharacteristicName}, {SongId}";
@@ -411,14 +441,14 @@ namespace BeatSaberDataProvider.DataModels
         /// Initialize the standard Difficulties so they have the right ID.
         /// </summary>
         static Difficulty()
-        {          
+        {
             AvailableDifficulties = new Dictionary<int, Difficulty>
             {
-                { 1, new Difficulty() { DifficultyId = 1, DifficultyName = "Easy" } },
-                { 2, new Difficulty() { DifficultyId = 2, DifficultyName = "Normal" } },
-                { 3, new Difficulty() { DifficultyId = 3, DifficultyName = "Hard" } },
-                { 4, new Difficulty() { DifficultyId = 4, DifficultyName = "Expert" } },
-                { 5, new Difficulty() { DifficultyId = 5, DifficultyName = "ExpertPlus" } }
+                //{ 1, new Difficulty() { DifficultyId = 1, DifficultyName = "Easy" } },
+                //{ 2, new Difficulty() { DifficultyId = 2, DifficultyName = "Normal" } },
+                //{ 3, new Difficulty() { DifficultyId = 3, DifficultyName = "Hard" } },
+                //{ 4, new Difficulty() { DifficultyId = 4, DifficultyName = "Expert" } },
+                //{ 5, new Difficulty() { DifficultyId = 5, DifficultyName = "ExpertPlus" } }
             };
         }
         [Key]

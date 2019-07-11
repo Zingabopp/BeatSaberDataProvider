@@ -6,80 +6,100 @@
           "easy": false,
           "expert": true,
           "expertPlus": true,
-          "hard": false,
-          "normal": false
-        },
-        "characteristics": [
-          "Standard",
-          "Random"
-        ],
-        "levelAuthorName": "OkDisplay",
-        "songAuthorName": "F-777",
-        "songName": "1UP (F-777)",
-        "songSubName": "",
-        "bpm": 133
-      },
-      "stats": {
-        "downloads": 237,
-        "plays": 0,
-        "downVotes": 0,
-        "upVotes": 5,
-        "heat": 806.3673718,
-        "rating": 0.7084432256108616
-      },
-      "description": "Two different NJ and streams intensity.",
-      "deletedAt": null,
-      "_id": "5d10e3663793fc0006d1e898",
-      "key": "544c",
-      "name": "1UP (F-777)",
-      "uploader": {
-        "_id": "5cff0b7398cc5a672c84eda2",
-        "username": "okdisplay"
-      },
-      "hash": "b169476c7323ea00e192499d02a29d10101f95a2",
-      "uploaded": "2019-06-24T14:51:18.082Z",
-      "downloadURL": "/api/download/key/544c",
-      "coverURL": "/cdn/544c/b169476c7323ea00e192499d02a29d10101f95a2.jpg"
-    },
-    {
-      "metadata": {
-        "difficulties": {
-          "easy": false,
-          "expert": true,
-          "expertPlus": false,
           "hard": true,
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 570,
+                "obstacles": 6
+              },
+              "expertPlus": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 608,
+                "obstacles": 6
+              },
+              "hard": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 429,
+                "obstacles": 6
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          },
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 570,
+                "obstacles": 6
+              },
+              "expertPlus": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 608,
+                "obstacles": 6
+              },
+              "hard": {
+                "duration": 288.1189880371094,
+                "length": 169,
+                "njs": 0,
+                "bombs": 15,
+                "notes": 429,
+                "obstacles": 6
+              },
+              "normal": null
+            },
+            "name": "OneSaber"
+          }
         ],
-        "levelAuthorName": "Majorpickle",
-        "songAuthorName": "Lost Kings (feat. Anna Clendening)",
-        "songName": "Too Far Gone ",
+        "levelAuthorName": "Snail0fD3ath",
+        "songAuthorName": "Leat'eq",
+        "songName": "Tokyo",
         "songSubName": "",
-        "bpm": 93
+        "bpm": 102
       },
       "stats": {
-        "downloads": 164,
+        "downloads": 3,
         "plays": 0,
         "downVotes": 0,
-        "upVotes": 2,
-        "heat": 806.2617844,
-        "rating": 0.6407951473548253
+        "upVotes": 0,
+        "heat": 836.9776386,
+        "rating": 0
       },
-      "description": "",
+      "description": "Expert+, Expert, and Hard difficulties with low bpm, high flow ;)\r\nMapping by Snail0fD3ath\r\nLighting by jrmuffin\r\nThis one is a lot of fun, enjoy!",
       "deletedAt": null,
-      "_id": "5d1116c9f8aa080006152d4d",
-      "key": "5451",
-      "name": "Lost Kings - Too Far Gone (ft. Anna Clendening)",
+      "_id": "5d2662f993d6020006079bf8",
+      "key": "5658",
+      "name": "Tokyo",
       "uploader": {
-        "_id": "5cff0b7398cc5a672c84f792",
-        "username": "majorpickle"
+        "_id": "5cff0b7698cc5a672c8539c5",
+        "username": "snail0fd3ath"
       },
-      "hash": "12abe1074702704f3c558b062deac4c1c67cb6f1",
-      "uploaded": "2019-06-24T18:30:33.947Z",
-      "downloadURL": "/api/download/key/5451",
-      "coverURL": "/cdn/5451/12abe1074702704f3c558b062deac4c1c67cb6f1.jpg"
+      "hash": "b43d94e0fc6783ef81e37219264030537f62756e",
+      "uploaded": "2019-07-10T22:13:13.739Z",
+      "downloadURL": "/api/download/key/5658",
+      "coverURL": "/cdn/5658/b43d94e0fc6783ef81e37219264030537f62756e.jpg"
     },
     {
       "metadata": {
@@ -91,116 +111,107 @@
           "normal": false
         },
         "characteristics": [
-          "Standard",
-          "OneSaber"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 812,
+                "length": 243,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 1838,
+                "obstacles": 24
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
         ],
-        "levelAuthorName": "Anivia",
-        "songAuthorName": "封茗囧菌",
-        "songName": "Ann's cupboard",
+        "levelAuthorName": "Mysquito",
+        "songAuthorName": "Hellbinde",
+        "songName": "Grief and Malice",
         "songSubName": "",
-        "bpm": 99
+        "bpm": 200
       },
       "stats": {
-        "downloads": 12,
+        "downloads": 4,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 836.972828,
+        "rating": 0
+      },
+      "description": "Yeet",
+      "deletedAt": null,
+      "_id": "5d2662217d5fa6000678fa44",
+      "key": "5657",
+      "name": "Grief & Malice",
+      "uploader": {
+        "_id": "5cff0b7698cc5a672c8548dd",
+        "username": "mysquito"
+      },
+      "hash": "8a1b0335790d7659555489871f0125e44525c6ca",
+      "uploaded": "2019-07-10T22:09:37.258Z",
+      "downloadURL": "/api/download/key/5657",
+      "coverURL": "/cdn/5657/8a1b0335790d7659555489871f0125e44525c6ca.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 230.06666564941406,
+                "length": 78,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 382,
+                "obstacles": 0
+              },
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "ninu",
+        "songAuthorName": "Galneryus",
+        "songName": "Hunting For Your Dream",
+        "songSubName": "Hunter x Hunter Ending 2",
+        "bpm": 176
+      },
+      "stats": {
+        "downloads": 14,
         "plays": 0,
         "downVotes": 0,
         "upVotes": 1,
-        "heat": 806.2604015,
+        "heat": 836.9386319,
         "rating": 0.5941636475090435
       },
-      "description": "hah",
+      "description": "This isn't the best map ever, but you know what? If you're a Hunter X Hunter fan, this is the best you're gonna get, kid. There's nothing else on the market for this ending hahahahaha.\n\nBest played with SFX turned off. Here I am playing it:\nhttps://youtu.be/VyStgVgnnx0\n\nLighting in large part thanks to LightMap",
       "deletedAt": null,
-      "_id": "5d114b76f8aa08000615613f",
-      "key": "5456",
-      "name": "Ann's cupboard",
+      "_id": "5d265c1e7d5fa6000678f51e",
+      "key": "5655",
+      "name": "Hunting For Your Dream (Hunter X Hunter ED 2)",
       "uploader": {
-        "_id": "5cff0b7798cc5a672c856399",
-        "username": "bowwwl"
+        "_id": "5d2634960bfa7c0006b52f01",
+        "username": "ninu"
       },
-      "hash": "0378b045acfa87150fdb076dd83041e52be5790a",
-      "uploaded": "2019-06-24T22:15:18.068Z",
-      "downloadURL": "/api/download/key/5456",
-      "coverURL": "/cdn/5456/0378b045acfa87150fdb076dd83041e52be5790a.png"
-    },
-    {
-      "metadata": {
-        "difficulties": {
-          "easy": false,
-          "expert": true,
-          "expertPlus": false,
-          "hard": false,
-          "normal": false
-        },
-        "characteristics": [
-          "Standard"
-        ],
-        "levelAuthorName": "iChristopher",
-        "songAuthorName": "LITTLE BIG",
-        "songName": "HATEFUL LOVE",
-        "songSubName": "",
-        "bpm": 170
-      },
-      "stats": {
-        "downloads": 20,
-        "plays": 0,
-        "downVotes": 0,
-        "upVotes": 0,
-        "heat": 806.2245622,
-        "rating": 0
-      },
-      "description": "Test, first map.",
-      "deletedAt": null,
-      "_id": "5d114529300fbe00062b0821",
-      "key": "5455",
-      "name": "HATEFUL LOVE - LITTLE BIG",
-      "uploader": {
-        "_id": "5d101860f8aa08000614930a",
-        "username": "ichristopher"
-      },
-      "hash": "5e0a1ff976492851c6cc6d31dc20768d66266404",
-      "uploaded": "2019-06-24T21:48:25.297Z",
-      "downloadURL": "/api/download/key/5455",
-      "coverURL": "/cdn/5455/5e0a1ff976492851c6cc6d31dc20768d66266404.jpg"
-    },
-    {
-      "metadata": {
-        "difficulties": {
-          "easy": false,
-          "expert": true,
-          "expertPlus": false,
-          "hard": false,
-          "normal": false
-        },
-        "characteristics": [
-          "Standard"
-        ],
-        "levelAuthorName": "RedBrumbler",
-        "songAuthorName": "Qumu",
-        "songName": "Flower Garden (Qumu remix)",
-        "songSubName": "",
-        "bpm": 145
-      },
-      "stats": {
-        "downloads": 37,
-        "plays": 0,
-        "downVotes": 1,
-        "upVotes": 0,
-        "heat": 806.2188311,
-        "rating": 0.40583635249095656
-      },
-      "description": "I did an oopsie and needed to adjust some things to make the map more playable, so this is a reupload\r\n\r\nFor my first map I decided to map a great remix of a great video game tune!\r\nEnjoy!",
-      "deletedAt": null,
-      "_id": "5d1144273793fc0006d23dcd",
-      "key": "5454",
-      "name": "Yoshi's Island - Flower Garden (Qumu Remix) V1.1",
-      "uploader": {
-        "_id": "5d111e333793fc0006d218ee",
-        "username": "redbrumbler"
-      },
-      "hash": "abf0bb6a285374e3fd4d5f335d762f737ff469ea",
-      "uploaded": "2019-06-24T21:44:07.401Z",
-      "downloadURL": "/api/download/key/5454",
-      "coverURL": "/cdn/5454/abf0bb6a285374e3fd4d5f335d762f737ff469ea.jpg"
+      "hash": "60ef2cea5026338a08bfbfc7c07633dd12caa371",
+      "uploaded": "2019-07-10T21:43:58.434Z",
+      "downloadURL": "/api/download/key/5655",
+      "coverURL": "/cdn/5655/60ef2cea5026338a08bfbfc7c07633dd12caa371.jpg"
     },
     {
       "metadata": {
@@ -212,75 +223,107 @@
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 896.1099853515625,
+                "length": 244,
+                "njs": 0,
+                "bombs": 27,
+                "notes": 2128,
+                "obstacles": 21
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
         ],
-        "levelAuthorName": "Vilawes",
-        "songAuthorName": "BlackYooh vs. Siromaru",
-        "songName": "BLACK or WHITE?",
+        "levelAuthorName": "DE125",
+        "songAuthorName": "Camellia ft. Nanahira",
+        "songName": "Energy Drink Girl Fein-chan!",
         "songSubName": "",
-        "bpm": 185
+        "bpm": 220
       },
       "stats": {
-        "downloads": 33,
+        "downloads": 47,
         "plays": 0,
         "downVotes": 0,
         "upVotes": 0,
-        "heat": 806.1629716,
+        "heat": 836.8197922,
         "rating": 0
       },
-      "description": "WideExunrePepega",
+      "description": "Imagine naming a map the album pepeLaugh\n\nThanks for the mods Cheesy, and Hoppaw!",
       "deletedAt": null,
-      "_id": "5d113a55300fbe00062afd3d",
-      "key": "5453",
-      "name": "BlackYooh vs. Siromaru - BLACK or WHITE?",
+      "_id": "5d26473a93d602000607836b",
+      "key": "5652",
+      "name": "Energy Drink Girl Fein-Chan!",
       "uploader": {
-        "_id": "5cff0b7598cc5a672c852aaf",
-        "username": "vipai"
+        "_id": "5cff0b7798cc5a672c8554ba",
+        "username": "de125"
       },
-      "hash": "26fa7cf72106a52f3d7937874d9fba12dbd04e22",
-      "uploaded": "2019-06-24T21:02:13.721Z",
-      "downloadURL": "/api/download/key/5453",
-      "coverURL": "/cdn/5453/26fa7cf72106a52f3d7937874d9fba12dbd04e22.png"
+      "hash": "33e649a2892d21b7bf00b9a0c3d094a3942d0a5b",
+      "uploaded": "2019-07-10T20:14:50.648Z",
+      "downloadURL": "/api/download/key/5652",
+      "coverURL": "/cdn/5652/33e649a2892d21b7bf00b9a0c3d094a3942d0a5b.jpg"
     },
     {
       "metadata": {
         "difficulties": {
           "easy": false,
-          "expert": true,
-          "expertPlus": false,
+          "expert": false,
+          "expertPlus": true,
           "hard": false,
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 1115,
+                "length": 257,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 2457,
+                "obstacles": 17
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
         ],
-        "levelAuthorName": "DJXEP",
-        "songAuthorName": "M.I.A.",
-        "songName": "Bring The Noize",
+        "levelAuthorName": "Enbi",
+        "songAuthorName": "Nanahira",
+        "songName": "Parsley Tabero",
         "songSubName": "",
-        "bpm": 125
+        "bpm": 260
       },
       "stats": {
-        "downloads": 107,
+        "downloads": 39,
         "plays": 0,
-        "downVotes": 1,
-        "upVotes": 4,
-        "heat": 806.1118478,
-        "rating": 0.625065935366517
+        "downVotes": 0,
+        "upVotes": 1,
+        "heat": 836.7920131,
+        "rating": 0.5941636475090435
       },
       "description": "",
       "deletedAt": null,
-      "_id": "5d10dd7a300fbe00062aaeb7",
-      "key": "544b",
-      "name": "M.I.A. - Bring The Noize",
+      "_id": "5d26425893d6020006077e31",
+      "key": "5651",
+      "name": "Nanahira - Parsley Tabero",
       "uploader": {
-        "_id": "5cff0b7698cc5a672c854968",
-        "username": "djxep"
+        "_id": "5cff0b7798cc5a672c8557e3",
+        "username": "enbi"
       },
-      "hash": "12f37fd19c607f0e3acb9ce8107e3da741015939",
-      "uploaded": "2019-06-24T14:26:02.693Z",
-      "downloadURL": "/api/download/key/544b",
-      "coverURL": "/cdn/544b/12f37fd19c607f0e3acb9ce8107e3da741015939.jpg"
+      "hash": "d8bdd5c1b8883c6b7a3d30a324a3c3ebbd979b15",
+      "uploaded": "2019-07-10T19:54:00.589Z",
+      "downloadURL": "/api/download/key/5651",
+      "coverURL": "/cdn/5651/d8bdd5c1b8883c6b7a3d30a324a3c3ebbd979b15.jpg"
     },
     {
       "metadata": {
@@ -292,35 +335,51 @@
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": null,
+              "hard": {
+                "duration": 194.1699981689453,
+                "length": 97,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 576,
+                "obstacles": 0
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
         ],
-        "levelAuthorName": "StarSquirrel",
-        "songAuthorName": "Iacovos Argyrides",
-        "songName": "Theme (From \"X-Men\")",
+        "levelAuthorName": "Creeel",
+        "songAuthorName": "Undertale; Ripped by SiIvaGunner",
+        "songName": "Megalovania",
         "songSubName": "",
         "bpm": 120
       },
       "stats": {
-        "downloads": 134,
+        "downloads": 157,
         "plays": 0,
         "downVotes": 0,
-        "upVotes": 2,
-        "heat": 806.0981746,
-        "rating": 0.6407951473548253
+        "upVotes": 0,
+        "heat": 836.7914566,
+        "rating": 0
       },
-      "description": "The 90's cartoon theme, covered by Iacovos Argyrides.  120 bpm.  Hard difficulty.  ",
+      "description": "Thank you SiIvaGunner for the high quality rip! :)",
       "deletedAt": null,
-      "_id": "5d10fa071aea5f00063fd79d",
-      "key": "544e",
-      "name": "Theme (From \"X-Men\") - Iacovos Argyrides",
+      "_id": "5d26423f7d5fa6000678dd4a",
+      "key": "5650",
+      "name": "Megalovania - Undertale",
       "uploader": {
-        "_id": "5cff0b7898cc5a672c856ffd",
-        "username": "starsquirrel"
+        "_id": "5cff0b7598cc5a672c85349c",
+        "username": "creeel"
       },
-      "hash": "02e7b2fa3de5a7ac9a8324482fad3353ae204188",
-      "uploaded": "2019-06-24T16:27:51.506Z",
-      "downloadURL": "/api/download/key/544e",
-      "coverURL": "/cdn/544e/02e7b2fa3de5a7ac9a8324482fad3353ae204188.jpg"
+      "hash": "b715444e43562aefeca618313c62fb7baf72d071",
+      "uploaded": "2019-07-10T19:53:35.548Z",
+      "downloadURL": "/api/download/key/5650",
+      "coverURL": "/cdn/5650/b715444e43562aefeca618313c62fb7baf72d071.jpg"
     },
     {
       "metadata": {
@@ -332,79 +391,237 @@
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 521.4375,
+                "length": 244,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 790,
+                "obstacles": 195
+              },
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
         ],
-        "levelAuthorName": "RedBrumbler",
-        "songAuthorName": "Qumu",
-        "songName": "Flower Garden (Qumu Remix)",
+        "levelAuthorName": "KikaeAeon",
+        "songAuthorName": "Snail's House × Moe Shop",
+        "songName": "Pastel",
         "songSubName": "",
-        "bpm": 145
+        "bpm": 128
       },
       "stats": {
-        "downloads": 91,
+        "downloads": 156,
         "plays": 0,
-        "downVotes": 1,
-        "upVotes": 2,
-        "heat": 806.0494849,
-        "rating": 0.5568645699978907
+        "downVotes": 0,
+        "upVotes": 3,
+        "heat": 836.9993243,
+        "rating": 0.6705937099936721
       },
-      "description": "For my first map I decided to map a great remix of a great video game tune!\r\nEnjoy!",
+      "description": "PepeJamJam",
       "deletedAt": null,
-      "_id": "5d112662300fbe00062aea9a",
-      "key": "5452",
-      "name": "Yoshi's Island - Flower Garden (Qumu remix)",
+      "_id": "5d2612eb7d5fa6000678b32d",
+      "key": "564d",
+      "name": "Snail's House × Moe Shop - Pastel",
       "uploader": {
-        "_id": "5d111e333793fc0006d218ee",
-        "username": "redbrumbler"
+        "_id": "5cff0b7498cc5a672c85109b",
+        "username": "kikaeaeon"
       },
-      "hash": "4f4087e1cce3ce26227fe5ee6f1e4e292582b31c",
-      "uploaded": "2019-06-24T19:37:06.821Z",
-      "downloadURL": "/api/download/key/5452",
-      "coverURL": "/cdn/5452/4f4087e1cce3ce26227fe5ee6f1e4e292582b31c.jpg"
+      "hash": "453272dc87db07e26731cfbbbabead26712232e4",
+      "uploaded": "2019-07-10T16:31:39.138Z",
+      "downloadURL": "/api/download/key/564d",
+      "coverURL": "/cdn/564d/453272dc87db07e26731cfbbbabead26712232e4.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": true,
+          "expert": false,
+          "expertPlus": false,
+          "hard": false,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": {
+                "duration": 71.25,
+                "length": 26,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 476,
+                "obstacles": 1
+              },
+              "expert": null,
+              "expertPlus": null,
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Leemer",
+        "songAuthorName": "Playboy Carti",
+        "songName": "They wanna be carti",
+        "songSubName": "",
+        "bpm": 160
+      },
+      "stats": {
+        "downloads": 95,
+        "plays": 0,
+        "downVotes": 3,
+        "upVotes": 1,
+        "heat": 836.2201912,
+        "rating": 0.40400296108612577
+      },
+      "description": "expert++++++++++++++++++++++++++++++++++++++++\nfirst pass without no fail gets a kiss on the cheek",
+      "deletedAt": null,
+      "_id": "5d2612be93d602000607544c",
+      "key": "564c",
+      "name": "they wanna be carti",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c8563aa",
+        "username": "leemer"
+      },
+      "hash": "ec3f31f3a8ae0344fd26a0bf635b313e2c6f8e2d",
+      "uploaded": "2019-07-10T16:30:54.956Z",
+      "downloadURL": "/api/download/key/564c",
+      "coverURL": "/cdn/564c/ec3f31f3a8ae0344fd26a0bf635b313e2c6f8e2d.jpg"
+    },
+    {
+      "metadata": {
+        "difficulties": {
+          "easy": false,
+          "expert": true,
+          "expertPlus": true,
+          "hard": true,
+          "normal": false
+        },
+        "characteristics": [
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": {
+                "duration": 128,
+                "length": 64,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 172,
+                "obstacles": 4
+              },
+              "expertPlus": {
+                "duration": 128,
+                "length": 64,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 219,
+                "obstacles": 4
+              },
+              "hard": {
+                "duration": 128,
+                "length": 64,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 146,
+                "obstacles": 4
+              },
+              "normal": null
+            },
+            "name": "Standard"
+          }
+        ],
+        "levelAuthorName": "Uchytka",
+        "songAuthorName": "CZECH",
+        "songName": "Tezkej Pokondr - Raketak",
+        "songSubName": "",
+        "bpm": 120
+      },
+      "stats": {
+        "downloads": 54,
+        "plays": 0,
+        "downVotes": 0,
+        "upVotes": 0,
+        "heat": 836.5060046,
+        "rating": 0
+      },
+      "description": "Přijďte na monči stream tato písnička je pro ní https://www.twitch.tv/mooonickaa \na čekněte další moje písničky btw",
+      "deletedAt": null,
+      "_id": "5d2610127d5fa6000678b0ff",
+      "key": "564b",
+      "name": "Těžkej Pokondr - Rakeťák CZECH (Pro Mooonickaa)",
+      "uploader": {
+        "_id": "5cff0b7798cc5a672c855be3",
+        "username": "uchytka"
+      },
+      "hash": "6b7fa5daa9c61811f84233316c4538dd9380fa90",
+      "uploaded": "2019-07-10T16:19:30.207Z",
+      "downloadURL": "/api/download/key/564b",
+      "coverURL": "/cdn/564b/6b7fa5daa9c61811f84233316c4538dd9380fa90.jpg"
     },
     {
       "metadata": {
         "difficulties": {
           "easy": false,
           "expert": false,
-          "expertPlus": false,
-          "hard": true,
+          "expertPlus": true,
+          "hard": false,
           "normal": false
         },
         "characteristics": [
-          "Standard"
+          {
+            "difficulties": {
+              "easy": null,
+              "expert": null,
+              "expertPlus": {
+                "duration": 389.625,
+                "length": 185,
+                "njs": 0,
+                "bombs": 0,
+                "notes": 1023,
+                "obstacles": 35
+              },
+              "hard": null,
+              "normal": null
+            },
+            "name": "Standard"
+          }
         ],
-        "levelAuthorName": "Joetastic",
-        "songAuthorName": "Jinny Ng",
-        "songName": "Do Not Remember Anymore",
+        "levelAuthorName": "xScaramouche",
+        "songAuthorName": "Skrillex & JOYRYDE",
+        "songName": "AGEN WIDA",
         "songSubName": "",
-        "bpm": 117
+        "bpm": 126
       },
       "stats": {
-        "downloads": 143,
+        "downloads": 108,
         "plays": 0,
         "downVotes": 0,
-        "upVotes": 1,
-        "heat": 805.8685624,
-        "rating": 0.5941636475090435
+        "upVotes": 2,
+        "heat": 836.758386,
+        "rating": 0.6407951473548253
       },
-      "description": "Do Not Remember Anymore (別再記起) is the single by Jinny Ng which was used as the Interlude song from the Hong Kong TV Drama \"My Ages Apart\".\n\nThis map was commissioned by Ronald Lam.",
+      "description": "AGEN WIDA - Skrillex & JOYRYDE\n\n'Cause I hid'em wida\n\nAGEN WIDA.\n\nA little bit odd in terms of the beat but still plenty playable, and hopefully enjoyable.",
       "deletedAt": null,
-      "_id": "5d110695300fbe00062aca1c",
-      "key": "5450",
-      "name": "Do Not Remember Anymore (別再記起) - Jinny Ng",
+      "_id": "5d2607850bfa7c0006b50a08",
+      "key": "564a",
+      "name": "AGEN WIDA - Skrillex & JORYDE",
       "uploader": {
-        "_id": "5cff0b7498cc5a672c85050e",
-        "username": "joetastic"
+        "_id": "5cff0b7798cc5a672c8558ed",
+        "username": "xscaramouche"
       },
-      "hash": "3d38db8eca745a197daac4b90daf8882c59aa997",
-      "uploaded": "2019-06-24T17:21:25.309Z",
-      "downloadURL": "/api/download/key/5450",
-      "coverURL": "/cdn/5450/3d38db8eca745a197daac4b90daf8882c59aa997.jpg"
+      "hash": "15462adb13533777f1f728510a0c4f27d357ee38",
+      "uploaded": "2019-07-10T15:43:01.022Z",
+      "downloadURL": "/api/download/key/564a",
+      "coverURL": "/cdn/564a/15462adb13533777f1f728510a0c4f27d357ee38.jpg"
     }
   ],
-  "totalDocs": 14175,
-  "lastPage": 1417,
+  "totalDocs": 14594,
+  "lastPage": 1459,
   "prevPage": null,
   "nextPage": 1
 }

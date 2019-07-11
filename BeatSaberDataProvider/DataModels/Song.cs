@@ -153,6 +153,7 @@ namespace BeatSaberDataProvider.DataModels
         public Song(JToken jSong)
         {
             JToken jMetadata = jSong["metadata"];
+            JToken jCharacteristics = jMetadata["characteristics"];
             JToken jStats = jSong["stats"];
             JToken jUploader = jSong["uploader"];
             if (jMetadata == null || jStats == null || jUploader == null)
@@ -178,7 +179,7 @@ namespace BeatSaberDataProvider.DataModels
             CoverUrl = jSong["coverURL"]?.Value<string>();
 
             // Metadata
-            var characteristics = JsonConvert.DeserializeObject<List<string>>(jMetadata["characteristics"]?.ToString());
+            var characteristics = JsonConvert.DeserializeObject<List<string>>(jMetadata["characteristics"]?.ToString());// Change
             var diffs = JsonConvert.DeserializeObject<Dictionary<string, bool>>(jMetadata["difficulties"]?.ToString());
             SongDifficulties = Difficulty.DictionaryToDifficulties(diffs)
                     .Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = SongId }).ToList();
@@ -245,13 +246,21 @@ namespace BeatSaberDataProvider.DataModels
             };
         }
 
-        public static ICollection<Characteristic> ConvertCharacteristics(ICollection<string> characteristics)
+        public static ICollection<Characteristic> ConvertCharacteristics(JToken jCharacteristics)
+        {
+            var charList = new List<Characteristic>();
+
+
+            return charList;
+        }
+
+        public static ICollection<Characteristic> ConvertCharacteristics(ICollection<JsonBeatmapCharacteristic> characteristics)
         {
             List<Characteristic> retList = new List<Characteristic>();
             foreach (var c in characteristics)
             {
 
-                if (!AvailableCharacteristics.ContainsKey(c))
+                if (!AvailableCharacteristics.ContainsKey(c.name))
                     AvailableCharacteristics.Add(c, new Characteristic() { CharacteristicName = c });
                 retList.Add(AvailableCharacteristics[c]);
             }
@@ -294,6 +303,20 @@ namespace BeatSaberDataProvider.DataModels
         public int Notes { get; set; }
         public int Obstacles { get; set; }
         public float NoteJumpSpeed { get; set; }
+
+        public static CharacteristicDifficulty ConvertFromJson(JToken jDifficulty)
+        {
+            return new CharacteristicDifficulty()
+            {
+                Difficulty = jDifficulty.Value<string>(),
+                Duration = jDifficulty["duration"]?.Value<double>() ?? 0,
+                Length = jDifficulty["length"]?.Value<int>() ?? 0,
+                Bombs = jDifficulty["bombs"]?.Value<int>() ?? 0,
+                Notes = jDifficulty["notes"]?.Value<int>() ?? 0,
+                Obstacles = jDifficulty["obstacles"]?.Value<int>() ?? 0,
+                NoteJumpSpeed = jDifficulty["njs"]?.Value<float>() ?? 0,
+            };
+        }
 
         public Characteristic Characteristic { get; set; }
 

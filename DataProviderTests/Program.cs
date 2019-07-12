@@ -27,7 +27,7 @@ namespace DataProviderTests
             SongDataContext context = new SongDataContext() { EnableSensitiveDataLogging = false, UseLoggerFactory = true };
             //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-
+            context.LoadQuery(context.Songs.Where(s => true)).Load();
             string fileRead = File.ReadAllText("BeatSaverTestSongs.json");
             var songList = JToken.Parse(fileRead)["docs"];
             //string fileRead = File.ReadAllText("BeatSaverScrape.json");

@@ -1,6 +1,7 @@
 ﻿using BeatSaberDataProvider.DataModels;
 using BeatSaberDataProvider.DataProviders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace BeatSaberDataProvider.Util
 
             if (entity == null)
             {
-                entity = AddIfMissing<TEntity>(context, updatedEntity);
+                entity = AddIfMissing(context, updatedEntity);
 
             }
             var existingEntity = context.Entry(entity);
@@ -74,32 +75,35 @@ namespace BeatSaberDataProvider.Util
             if (searchPredicate == null)
             {
                 entity = context.Find<TEntity>(entityToAdd.PrimaryKey);
+
             }
             else
             {
                 entity = context.Set<TEntity>().Where(searchPredicate).FirstOrDefault();
             }
-            if (entity == null)
-            {
-                var newEntity = context.Attach<TEntity>(entityToAdd);
-                newEntity.State = EntityState.Added;
-                refChain.Add(newEntity);
-                foreach (var nav in newEntity.Navigations)
-                {
-                    if (nav.CurrentValue is IEnumerable<DatabaseDataType> collection)
-                    {
-                        foreach (var item in collection)
-                        {
-                            context.AddIfMissing(item);
-                        }
-                    }
-                    else
-                        context.AddIfMissing(nav.CurrentValue);
-                }
+            EntityEntry newEntity = context.Attach(entity ?? entityToAdd);
 
-                context.Add(entity);
+            if (entity == null)
+                newEntity.State = EntityState.Added;
+
+            refChain.Add(newEntity);
+            foreach (var nav in newEntity.Navigations)
+            {
+                if (nav.CurrentValue == null)
+                    continue;
+                if (nav.CurrentValue is IEnumerable<DatabaseDataType> collection)
+                {
+                    foreach (var item in collection)
+                    {
+                        context.AddIfMissing(((object)item));
+                    }
+                }
+                else
+                    context.AddIfMissing(nav.CurrentValue);
             }
-            return entity;
+            return (TEntity)newEntity.Entity;
+
+
         }
 
         public static DatabaseDataType AddIfMissing(this SongDataContext context, object entityToAdd, List<object> refChain = null, Func<DatabaseDataType, bool> searchPredicate = null)
@@ -108,6 +112,8 @@ namespace BeatSaberDataProvider.Util
                 throw new ArgumentException("EntityToAdd is not a DatabaseDataType");
 
             DatabaseDataType retVal = entityToAdd as DatabaseDataType;
+            if (refChain == null)
+                refChain = new List<object>();
             if (refChain.Contains(entityToAdd))
                 return retVal;
 
@@ -122,6 +128,8 @@ namespace BeatSaberDataProvider.Util
                 retVal = context.AddIfMissing<BeatmapCharacteristic>(bmChar, refChain);
             else if (entityToAdd is CharacteristicDifficulty charDiff)
                 retVal = context.AddIfMissing<CharacteristicDifficulty>(charDiff, refChain);
+            else if (entityToAdd is SongDifficulty songDiff)
+                retVal = context.AddIfMissing<SongDifficulty>(songDiff, refChain);
             else if (entityToAdd is Difficulty difficulty)
                 retVal = context.AddIfMissing<Difficulty>(difficulty, refChain);
             else if (entityToAdd is Uploader uploader)

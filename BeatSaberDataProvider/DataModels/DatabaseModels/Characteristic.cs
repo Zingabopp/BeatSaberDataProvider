@@ -31,6 +31,13 @@ namespace BeatSaberDataProvider.DataModels
             };
         }
 
+        public Characteristic() { }
+
+        public Characteristic(JsonBeatmapCharacteristic c)
+        {
+            CharacteristicName = c.name;
+        }
+
         public static Characteristic GetOrAddCharacteristic(string name)
         {
             var existing = AvailableCharacteristics.Where(c => c.Key.ToLower() == name.ToLower())?.FirstOrDefault().Value;
@@ -45,16 +52,6 @@ namespace BeatSaberDataProvider.DataModels
                 return newChar;
             }
 
-        }
-
-        public static ICollection<Characteristic> ConvertCharacteristics(ICollection<JsonBeatmapCharacteristic> characteristics)
-        {
-            List<Characteristic> retList = new List<Characteristic>();
-            foreach (var c in characteristics)
-            {
-                retList.Add(GetOrAddCharacteristic(c.name));
-            }
-            return retList;
         }
 
         public override string ToString()

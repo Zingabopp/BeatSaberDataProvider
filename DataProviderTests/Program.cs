@@ -25,9 +25,10 @@ namespace DataProviderTests
             //playerData.Initialize();
             //ScrapedDataProvider.ScoreSaberSongs.Initialize("ScoreSaberScrape.json");
             var songs = ScrapedDataProvider.Songs.SelectMany(s => s.Value.ScoreSaberDifficulties).GroupBy(d => d.DifficultyName);
-            foreach (var item in songs)
+            foreach (var item in ScrapedDataProvider.BeatSaverSongs.Data)
             {
-                Console.WriteLine($"{item.Key}: {item.Count()}");
+                var test = new Song(item, ScrapedDataProvider.ScoreSaberSongs.Data.Where(d => d.SongHash == item.hash));
+                //Console.WriteLine($"{item.Key}: {item.Count()}");
             }
             //var rankedMaul = ssScrape.Where(d => d.Ranked && d.DifficultyName.ToLower().Contains("dm")).ToList();
             SongDataContext context = new SongDataContext() { EnableSensitiveDataLogging = false, UseLoggerFactory = false };

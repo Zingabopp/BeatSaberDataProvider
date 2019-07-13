@@ -16,20 +16,36 @@ namespace BeatSaberDataProvider.DataModels
     [Table("BeatmapCharacteristics")]
     public class BeatmapCharacteristic : DatabaseDataType
     {
+        #region Properties
         [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { BeatmapCharacteristicId }; } }
-
-        public int? BeatmapCharacteristicId { get; set; }
+        public override object[] PrimaryKey { get { return new object[] { SongId, CharacteristicName }; } }
 
         public string SongId { get; set; }
         public virtual Song Song { get; set; }
 
-        public string CharacteristicName { get; set; }
-        public virtual Characteristic Characteristic { get; set; }
-
         public virtual ICollection<CharacteristicDifficulty> CharacteristicDifficulties { get; set; }
 
-        public static ICollection<BeatmapCharacteristic> ConvertFromJson(JToken jChars, string _songId)
+        public string CharacteristicName { get; set; }
+        public virtual Characteristic Characteristic { get; set; }
+        #endregion
+
+        public static ICollection<BeatmapCharacteristic> ConvertFrom(ICollection<JsonBeatmapCharacteristic> chars, Song song)
+        {
+            var bcList = new List<BeatmapCharacteristic>();
+            foreach (var c in chars)
+            {
+                bcList.Add(new BeatmapCharacteristic()
+                {
+                    Song = song,
+                    Characteristic = new Characteristic(c),
+                    CharacteristicDifficulties = c.difficulties.Where(d => d.Value != null).Select(pair => new CharacteristicDifficulty(pair.Value, pair.Key, c.name, song.SongId)).ToList()
+                });
+            }
+
+            return bcList;
+        }
+
+        public static ICollection<BeatmapCharacteristic> ConvertFrom(JToken jChars, string _songId)
         {
             var bcList = new List<BeatmapCharacteristic>();
             foreach (var jChar in jChars.Children())
@@ -42,7 +58,7 @@ namespace BeatSaberDataProvider.DataModels
                     if (string.IsNullOrEmpty(diff.First.ToString()))
                         continue;
                     var newCharDiff = CharacteristicDifficulty.ConvertFromJson(diff);
-                    newCharDiff.BeatmapCharacteristicId = newBChar.BeatmapCharacteristicId;
+                    //newCharDiff.BeatmapCharacteristicId = newBChar.BeatmapCharacteristicId;
                     newCharDiff.BeatmapCharacteristic = newBChar;
                     charDiffs.Add(newCharDiff);
                 }

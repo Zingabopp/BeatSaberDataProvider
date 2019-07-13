@@ -86,9 +86,9 @@ namespace BeatSaberDataProvider.DataProviders
             modelBuilder.Entity<Characteristic>()
                 .HasKey(c => c.CharacteristicName);
             modelBuilder.Entity<CharacteristicDifficulty>()
-                .HasKey(cd => cd._cdId);
-            modelBuilder.Entity<CharacteristicDifficulty>()
-                .HasAlternateKey(cd => new { cd.BeatmapCharacteristicId, cd.Difficulty });
+                .HasKey(cd => new { cd.Difficulty, cd.BeatmapCharacteristicKey });
+            //modelBuilder.Entity<CharacteristicDifficulty>()
+            //    .HasAlternateKey(cd => new { cd.BeatmapCharacteristicKey, cd.Difficulty });
             //modelBuilder.Entity<Difficulty>()
             //    .HasKey(d => d.DifficultyLevel);
             modelBuilder.Entity<Difficulty>()
@@ -99,9 +99,7 @@ namespace BeatSaberDataProvider.DataProviders
                 .HasAlternateKey(u => u.UploaderName);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
-                .HasKey(b => b.BeatmapCharacteristicId);
-            modelBuilder.Entity<BeatmapCharacteristic>()
-                .HasAlternateKey(b => new { b.BeatmapCharacteristicId, b.SongId });
+                .HasKey(b => new { b.SongId, b.CharacteristicName });
             modelBuilder.Entity<SongDifficulty>()
                 .HasKey(d => new { d.DifficultyName, d.SongId });
 
@@ -130,7 +128,7 @@ namespace BeatSaberDataProvider.DataProviders
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasMany(bc => bc.CharacteristicDifficulties)
                 .WithOne(cd => cd.BeatmapCharacteristic)
-                .HasForeignKey(cd => cd.BeatmapCharacteristicId);
+                .HasForeignKey(cd => cd.BeatmapCharacteristicKey);
 
             modelBuilder.Entity<SongDifficulty>()
                 .HasOne(b => b.Difficulty)

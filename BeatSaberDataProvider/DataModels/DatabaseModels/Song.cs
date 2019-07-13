@@ -134,8 +134,7 @@ namespace BeatSaberDataProvider.DataModels
 
             SongDifficulties = Difficulty.DictionaryToDifficulties(s.metadata.difficulties).
                 Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = s._id }).ToList();
-            BeatmapCharacteristics = Characteristic.ConvertCharacteristics(s.metadata.characteristics).
-                Select(c => new BeatmapCharacteristic() { SongId = s._id, Song = this, Characteristic = c }).ToList();
+            BeatmapCharacteristics = BeatmapCharacteristic.ConvertFrom(s.metadata.characteristics, this);
             UploaderRefId = s.uploader.id;
             Uploader = new Uploader() { UploaderId = UploaderRefId, UploaderName = s.uploader.username };
             if (scoreSaberDifficulties != null)
@@ -185,7 +184,7 @@ namespace BeatSaberDataProvider.DataModels
             SongDifficulties = Difficulty.DictionaryToDifficulties(diffs)
                     .Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = SongId }).ToList();
 
-            BeatmapCharacteristics = BeatmapCharacteristic.ConvertFromJson(jCharacteristics, SongId);
+            BeatmapCharacteristics = BeatmapCharacteristic.ConvertFrom(jCharacteristics, SongId);
 
             SongName = jMetadata["songName"]?.Value<string>();
             SongSubName = jMetadata["songSubName"]?.Value<string>();

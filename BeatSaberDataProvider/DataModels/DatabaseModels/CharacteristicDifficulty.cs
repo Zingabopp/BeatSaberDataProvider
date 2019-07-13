@@ -16,11 +16,12 @@ namespace BeatSaberDataProvider.DataModels
     [Table("CharacteristicDifficulty")]
     public class CharacteristicDifficulty : DatabaseDataType
     {
+        #region Properties
         [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { _cdId }; } }
+        public override object[] PrimaryKey { get { return new object[] { Difficulty, BeatmapCharacteristicKey }; } }
 
-        [Key]
-        public int? _cdId { get; set; }
+        //[Key]
+        //public int? _cdId { get; set; }
 
 
         public string Difficulty
@@ -36,23 +37,57 @@ namespace BeatSaberDataProvider.DataModels
         public int Obstacles { get; set; }
         public float NoteJumpSpeed { get; set; }
 
-        public static CharacteristicDifficulty ConvertFromJson(JProperty jDifficulty)
+        [NotMapped]
+        private object[] _nonnulledCharacteristicKey
         {
-            var diffStats = jDifficulty.First;
-            return new CharacteristicDifficulty()
+            get
             {
-                Difficulty = jDifficulty.Name,
-                Duration = diffStats["duration"]?.Value<double>() ?? 0,
-                Length = diffStats["length"]?.Value<int>() ?? 0,
-                Bombs = diffStats["bombs"]?.Value<int>() ?? 0,
-                Notes = diffStats["notes"]?.Value<int>() ?? 0,
-                Obstacles = diffStats["obstacles"]?.Value<int>() ?? 0,
-                NoteJumpSpeed = diffStats["njs"]?.Value<float>() ?? 0,
-            };
+                if (BeatmapCharacteristicKey == null)
+                    Console.WriteLine("BeatmapCharacteristicKey is null. Probably should never see this.");
+                return BeatmapCharacteristicKey ?? new object[] { null, null };
+            }
+        }
+        public object[] BeatmapCharacteristicKey { get; set; }
+        [NotMapped]
+        private BeatmapCharacteristic _beatmapCharacteristic;
+        public BeatmapCharacteristic BeatmapCharacteristic
+        {
+            get { return _beatmapCharacteristic; }
+            set
+            {
+                _beatmapCharacteristic = value;
+                BeatmapCharacteristicKey = new object[] { value.SongId, value.CharacteristicName };
+            }
+        }
+        #endregion
+
+        public CharacteristicDifficulty() { }
+
+        public CharacteristicDifficulty(DifficultyCharacteristic diff, string diffName, BeatmapCharacteristic bmChar)
+        {
+            Difficulty = diffName;
+            Duration = diff.duration;
+            Length = diff.length;
+            Bombs = diff.bombs;
+            Notes = diff.notes;
+            Obstacles = diff.obstacles;
+            NoteJumpSpeed = diff.njs;
+
+            BeatmapCharacteristic = bmChar;
         }
 
-        public int? BeatmapCharacteristicId { get; set; }
-        public BeatmapCharacteristic BeatmapCharacteristic { get; set; }
+        public CharacteristicDifficulty(DifficultyCharacteristic diff, string diffName, string charName, string songId)
+        {
+            Difficulty = diffName;
+            Duration = diff.duration;
+            Length = diff.length;
+            Bombs = diff.bombs;
+            Notes = diff.notes;
+            Obstacles = diff.obstacles;
+            NoteJumpSpeed = diff.njs;
+
+            BeatmapCharacteristicKey = new object[] { songId, charName };
+        }
 
         public string DifficultyToString(int level)
         {
@@ -90,6 +125,20 @@ namespace BeatSaberDataProvider.DataModels
             return -1;
         }
 
+        public static CharacteristicDifficulty ConvertFromJson(JProperty jDifficulty)
+        {
+            var diffStats = jDifficulty.First;
+            return new CharacteristicDifficulty()
+            {
+                Difficulty = jDifficulty.Name,
+                Duration = diffStats["duration"]?.Value<double>() ?? 0,
+                Length = diffStats["length"]?.Value<int>() ?? 0,
+                Bombs = diffStats["bombs"]?.Value<int>() ?? 0,
+                Notes = diffStats["notes"]?.Value<int>() ?? 0,
+                Obstacles = diffStats["obstacles"]?.Value<int>() ?? 0,
+                NoteJumpSpeed = diffStats["njs"]?.Value<float>() ?? 0,
+            };
+        }
     }
 
 }

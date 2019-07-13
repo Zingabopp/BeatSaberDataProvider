@@ -131,9 +131,9 @@ namespace BeatSaberDataProvider.Util
             else if (entityToAdd is Characteristic characteristic)
                 retVal = context.AddIfMissing<Characteristic>(characteristic, refChain);
             else if (entityToAdd is BeatmapCharacteristic bmChar)
-                retVal = context.AddIfMissing<BeatmapCharacteristic>(bmChar, refChain, bc => (bc.CharacteristicName == bmChar.CharacteristicName && bc.SongId == bmChar.SongId));
+                retVal = context.AddIfMissing<BeatmapCharacteristic>(bmChar, refChain);//, bc => (bc.CharacteristicName == bmChar.CharacteristicName && bc.SongId == bmChar.SongId));
             else if (entityToAdd is CharacteristicDifficulty charDiff)
-                retVal = context.AddIfMissing<CharacteristicDifficulty>(charDiff, refChain, cd => (cd.Difficulty == charDiff.Difficulty && cd.BeatmapCharacteristic.SongId == charDiff.BeatmapCharacteristic.SongId));
+                retVal = context.AddIfMissing<CharacteristicDifficulty>(charDiff, refChain);//, cd => (cd.Difficulty == charDiff.Difficulty && cd.BeatmapCharacteristic.SongId == charDiff.BeatmapCharacteristic.SongId));
             else if (entityToAdd is SongDifficulty songDiff)
                 retVal = context.AddIfMissing<SongDifficulty>(songDiff, refChain);
             else if (entityToAdd is Difficulty difficulty)

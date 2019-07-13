@@ -379,25 +379,25 @@ namespace BeatSaberDataProvider.DataModels
     public class SongMetadata
     {
         [JsonProperty("difficulties")]
-        public Dictionary<string, bool> difficulties;
+        public Dictionary<string, bool> difficulties { get; set; }
 
         [JsonProperty("characteristics")]
-        public List<JsonBeatmapCharacteristic> characteristics;
+        public List<JsonBeatmapCharacteristic> characteristics { get; set; }
 
         [JsonProperty("songName")]
-        public string songName;
+        public string songName { get; set; }
 
         [JsonProperty("songSubName")]
-        public string songSubName;
+        public string songSubName { get; set; }
 
         [JsonProperty("songAuthorName")]
-        public string songAuthorName;
+        public string songAuthorName { get; set; }
 
         [JsonProperty("levelAuthorName")]
-        public string levelAuthorName;
+        public string levelAuthorName { get; set; }
 
         [JsonProperty("bpm")]
-        public float bpm;
+        public float bpm { get; set; }
     }
 
     public class JsonBeatmapCharacteristic
@@ -405,11 +405,11 @@ namespace BeatSaberDataProvider.DataModels
         [JsonProperty("name")]
         public string name { get; set; }
         [JsonProperty("difficulties")]
-        public Dictionary<string, DifficultyCharacteristics> difficulties { get; set; }
+        public Dictionary<string, DifficultyCharacteristic> difficulties { get; set; }
     }
 
     [Serializable]
-    public class DifficultyCharacteristics
+    public class DifficultyCharacteristic
     {
         [JsonProperty("duration")]
         public double duration { get; set; }
@@ -428,25 +428,25 @@ namespace BeatSaberDataProvider.DataModels
     public class SongStats
     {
         [JsonProperty("downloads")]
-        public int downloads;
+        public int downloads { get; set; }
         [JsonProperty("plays")]
-        public int plays;
+        public int plays { get; set; }
         [JsonProperty("downVotes")]
-        public int downVotes;
+        public int downVotes { get; set; }
         [JsonProperty("upVotes")]
-        public int upVotes;
+        public int upVotes { get; set; }
         [JsonProperty("heat")]
-        public double heat;
+        public double heat { get; set; }
         [JsonProperty("rating")]
-        public double rating;
+        public double rating { get; set; }
     }
 
     public class SongUploader
     {
         [JsonProperty("_id")]
-        public string id;
+        public string id { get; set; }
         [JsonProperty("username")]
-        public string username;
+        public string username { get; set; }
     }
 
 

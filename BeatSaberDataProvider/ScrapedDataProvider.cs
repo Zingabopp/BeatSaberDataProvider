@@ -44,13 +44,19 @@ namespace BeatSaberDataProvider
             {
                 if (diff.SongHash.Count() < 40)
                     continue; // Using the old hash, skip
+                
                 if (Songs.ContainsKey(diff.SongHash))
                     Songs[diff.SongHash].ScoreSaberDifficulties.AddOrUpdate(diff);
                 else
                 {
-                    //var newSong = new Song(diff.SongHash);
-                    //newSong.ScoreSaberDifficulties.AddOrUpdate(diff.ScoreSaberDifficultyId, diff);
-                    //Songs.AddOrUpdate(diff.SongHash, newSong);
+                    var songMatch = BeatSaverSongs.Data.Where(s => s.hash == diff.SongHash).FirstOrDefault();
+                    if (songMatch != null)
+                    {
+                        var newSong = new Song(songMatch) { ScoreSaberDifficulties = new List<ScoreSaberDifficulty>() };
+                        diff.Song = newSong;
+                        newSong.ScoreSaberDifficulties.AddOrUpdate(diff);
+                        Songs.Add(diff.SongHash, newSong);
+                    }
                 }
             }
             Initialized = true;

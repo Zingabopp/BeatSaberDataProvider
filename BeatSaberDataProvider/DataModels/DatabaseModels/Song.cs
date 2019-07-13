@@ -103,7 +103,7 @@ namespace BeatSaberDataProvider.DataModels
             //Stats = new JsonStats() { Song = this };
             //ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
         }
-
+        [Obsolete("Need to fix this for new BeatSaver metadata")]
         public Song(BeatSaverSong s, IEnumerable<ScoreSaberDifficulty> scoreSaberDifficulties = null)
             : this()
         {

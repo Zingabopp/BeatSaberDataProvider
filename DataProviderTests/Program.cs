@@ -23,44 +23,55 @@ namespace DataProviderTests
             //songHashes.Initialize();
             //PlayerDataProvider playerData = new PlayerDataProvider();
             //playerData.Initialize();
-
-            SongDataContext context = new SongDataContext() { EnableSensitiveDataLogging = false, UseLoggerFactory = true };
+            //ScrapedDataProvider.ScoreSaberSongs.Initialize("ScoreSaberScrape.json");
+            var songs = ScrapedDataProvider.Songs.SelectMany(s => s.Value.ScoreSaberDifficulties).GroupBy(d => d.DifficultyName);
+            foreach (var item in songs)
+            {
+                Console.WriteLine($"{item.Key}: {item.Count()}");
+            }
+            //var rankedMaul = ssScrape.Where(d => d.Ranked && d.DifficultyName.ToLower().Contains("dm")).ToList();
+            SongDataContext context = new SongDataContext() { EnableSensitiveDataLogging = false, UseLoggerFactory = false };
             //context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             context.LoadQuery(context.Songs.Where(s => true)).Load();
-            string fileRead = File.ReadAllText("BeatSaverTestSongs.json");
-            var songList = JToken.Parse(fileRead)["docs"];
-            //string fileRead = File.ReadAllText("BeatSaverScrape.json");
-            //var songList = JToken.Parse(fileRead);
+            //string fileRead = File.ReadAllText("BeatSaverTestSongs.json");
+            //string fileRead = File.ReadAllText("BeatSaverTestSongsUpdate.json");
+            //var songList = JToken.Parse(fileRead)["docs"];
+            string fileRead = File.ReadAllText("BeatSaverScrape.json");
+            var songList = JToken.Parse(fileRead);
 
-            
+
             var listSongs = new List<Song>();
             int count = 0;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             foreach (var jSong in songList.Children())
             {
                 var newSong = Song.CreateFromJson(jSong);
-                listSongs.Add(newSong);
+                //listSongs.Add(newSong);
                 context.AddOrUpdate(newSong);
-                context.SaveChanges();
+                //context.SaveChanges();
                 //var newSong = Song.CreateFromJson(jSong);
                 //context.Add(Song.CreateFromJson(jSong));
                 //context.SaveChanges();
                 count++;
             }
+            Console.WriteLine($"-----Song processing took {sw.Elapsed.TotalSeconds}");
+            sw.Restart();
             //context.AddRange(listSongs);
             context.SaveChanges();
-            
+            Console.WriteLine($"-----Database save took {sw.Elapsed.TotalSeconds}");
             return;
-            var songs = ScrapedDataProvider.Songs;
+            //var songs = ScrapedDataProvider.Songs;
 
 
-            context.Songs.UpdateRange(listSongs);
-            context.SaveChanges();
+            //context.Songs.UpdateRange(listSongs);
+            //context.SaveChanges();
 
-            ScrapedDataProvider.TryGetSongByHash("2FDDB136BDA7F9E29B4CB6621D6D8E0F8A43B126", out Song song);
-            ScrapedDataProvider.TryGetSongByKey("b", out Song believer);
-            string hash = believer.Hash.ToLower();
-            ScrapedDataProvider.BeatSaverSongs.WriteFile();
+            //ScrapedDataProvider.TryGetSongByHash("2FDDB136BDA7F9E29B4CB6621D6D8E0F8A43B126", out Song song);
+            //ScrapedDataProvider.TryGetSongByKey("b", out Song believer);
+            //string hash = believer.Hash.ToLower();
+            //ScrapedDataProvider.BeatSaverSongs.WriteFile();
         }
     }
 }

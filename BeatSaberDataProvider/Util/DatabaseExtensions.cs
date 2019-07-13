@@ -33,7 +33,7 @@ namespace BeatSaberDataProvider.Util
             {
                 if (Attribute.IsDefined(oldProp.Metadata.PropertyInfo, typeof(Updatable)))
                 {
-                    Console.WriteLine($"Checking property: {oldProp.Metadata.Name}");
+                    //Console.WriteLine($"Checking property: {oldProp.Metadata.Name}");
                     object newVal = updatedEntity[$"{oldProp.Metadata.Name}"];
                     if (newVal != null && !newVal.Equals(oldProp.CurrentValue))
                     {
@@ -68,25 +68,31 @@ namespace BeatSaberDataProvider.Util
                 refChain = new List<object>();
             if (refChain.Contains(entityToAdd))
                 return entityToAdd;
-            refChain.Add(entityToAdd);
             if (context == null)
                 context = new SongDataContext();
             TEntity entity = null;
             if (searchPredicate == null)
             {
                 entity = context.Find<TEntity>(entityToAdd.PrimaryKey);
-
+                //entity = context.Set<TEntity>().Where(e => e.PrimaryKey == entityToAdd.PrimaryKey).Take(1).FirstOrDefault();
             }
             else
             {
-                entity = context.Set<TEntity>().Where(searchPredicate).FirstOrDefault();
+                entity = context.Set<TEntity>().Where(searchPredicate).Take(1).FirstOrDefault();
             }
-            EntityEntry newEntity = context.Attach(entity ?? entityToAdd);
+            EntityEntry newEntity;
+            if (entity == null)
+            {
+                newEntity = context.Add(entityToAdd);
+                
+            }
+            else
+                newEntity = context.Entry(entity);
 
             if (entity == null)
                 newEntity.State = EntityState.Added;
 
-            refChain.Add(newEntity);
+            refChain.Add(newEntity.Entity);
             foreach (var nav in newEntity.Navigations)
             {
                 if (nav.CurrentValue == null)
@@ -95,11 +101,11 @@ namespace BeatSaberDataProvider.Util
                 {
                     foreach (var item in collection)
                     {
-                        context.AddIfMissing(((object)item));
+                        context.AddIfMissing(((object)item), refChain);
                     }
                 }
                 else
-                    context.AddIfMissing(nav.CurrentValue);
+                    context.AddIfMissing(nav.CurrentValue, refChain);
             }
             return (TEntity)newEntity.Entity;
 
@@ -125,9 +131,9 @@ namespace BeatSaberDataProvider.Util
             else if (entityToAdd is Characteristic characteristic)
                 retVal = context.AddIfMissing<Characteristic>(characteristic, refChain);
             else if (entityToAdd is BeatmapCharacteristic bmChar)
-                retVal = context.AddIfMissing<BeatmapCharacteristic>(bmChar, refChain);
+                retVal = context.AddIfMissing<BeatmapCharacteristic>(bmChar, refChain, bc => (bc.CharacteristicName == bmChar.CharacteristicName && bc.SongId == bmChar.SongId));
             else if (entityToAdd is CharacteristicDifficulty charDiff)
-                retVal = context.AddIfMissing<CharacteristicDifficulty>(charDiff, refChain);
+                retVal = context.AddIfMissing<CharacteristicDifficulty>(charDiff, refChain, cd => (cd.Difficulty == charDiff.Difficulty && cd.BeatmapCharacteristic.SongId == charDiff.BeatmapCharacteristic.SongId));
             else if (entityToAdd is SongDifficulty songDiff)
                 retVal = context.AddIfMissing<SongDifficulty>(songDiff, refChain);
             else if (entityToAdd is Difficulty difficulty)

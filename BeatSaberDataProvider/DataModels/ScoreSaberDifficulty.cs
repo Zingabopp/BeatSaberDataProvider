@@ -137,6 +137,11 @@ namespace BeatSaberDataProvider.DataModels
         {
             return SongHash == other.Hash;
         }
+
+        public override string ToString()
+        {
+            return $"{SongName}: {DifficultyName}";
+        }
     }
 }
 

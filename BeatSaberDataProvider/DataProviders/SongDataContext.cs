@@ -48,6 +48,8 @@ namespace BeatSaberDataProvider.DataProviders
                         .ThenInclude(sd => sd.Difficulty)
                     .Include(s => s.BeatmapCharacteristics)
                         .ThenInclude(bc => bc.Characteristic)
+                    .Include(s => s.BeatmapCharacteristics)
+                        .ThenInclude(bc => bc.CharacteristicDifficulties)
                     .Include(s => s.Uploader)
                     .Include(s => s.ScoreSaberDifficulties);
         }

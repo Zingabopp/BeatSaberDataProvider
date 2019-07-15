@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +21,22 @@ namespace BeatSaberDataProvider.DataModels
         IEquatable<ScoreSaberDifficulty>,
         IEquatable<BeatSaverSong>
     {
-
+        private static readonly Regex _digitRegex = new Regex("^(?:0[xX])?([0-9a-fA-F]+)$", RegexOptions.Compiled);
         [NotMapped]
         public override object[] PrimaryKey { get { return new object[] { SongId }; } }
-
+        [NotMapped]
+        private int _keyAsInt;
+        [NotMapped]
+        public int KeyAsInt {
+            get
+            {
+                var match = _digitRegex.Match(Key);
+                if(_keyAsInt == 0)
+                    _keyAsInt = match.Success ? int.Parse(match.Groups[1].Value, System.Globalization.NumberStyles.HexNumber) : 0;
+                return _keyAsInt;
+            }
+                
+        }
 
 
         #region Main
@@ -51,7 +64,7 @@ namespace BeatSaberDataProvider.DataModels
         public DateTime ScrapedAt { get; set; }
         #endregion
         #region Metadata
-        public virtual ICollection<SongDifficulty> SongDifficulties { get; set; }
+        //public virtual ICollection<SongDifficulty> SongDifficulties { get; set; }
         public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
         public string SongName { get; set; }
         public string SongSubName { get; set; }
@@ -132,8 +145,8 @@ namespace BeatSaberDataProvider.DataModels
 
             ScrapedAt = s.ScrapedAt;
 
-            SongDifficulties = Difficulty.DictionaryToDifficulties(s.metadata.difficulties).
-                Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = s._id }).ToList();
+            //SongDifficulties = Difficulty.DictionaryToDifficulties(s.metadata.difficulties).
+            //    Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = s._id }).ToList();
             BeatmapCharacteristics = BeatmapCharacteristic.ConvertFrom(s.metadata.characteristics, this);
             UploaderRefId = s.uploader.id;
             Uploader = new Uploader() { UploaderId = UploaderRefId, UploaderName = s.uploader.username };
@@ -181,8 +194,8 @@ namespace BeatSaberDataProvider.DataModels
             // Metadata
             //var characteristics = JsonConvert.DeserializeObject<List<string>>(jMetadata["characteristics"]?.ToString());// Change
             var diffs = JsonConvert.DeserializeObject<Dictionary<string, bool>>(jMetadata["difficulties"]?.ToString());
-            SongDifficulties = Difficulty.DictionaryToDifficulties(diffs)
-                    .Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = SongId }).ToList();
+            //SongDifficulties = Difficulty.DictionaryToDifficulties(diffs)
+            //        .Select(d => new SongDifficulty() { Difficulty = d, Song = this, SongId = SongId }).ToList();
 
             BeatmapCharacteristics = BeatmapCharacteristic.ConvertFrom(jCharacteristics, SongId);
 
@@ -222,6 +235,11 @@ namespace BeatSaberDataProvider.DataModels
         public static Song CreateFromJson(JToken token)
         {
             return new Song(token);
+        }
+
+        public override string ToString()
+        {
+            return $"{KeyAsInt} {SongName}";
         }
 
 

@@ -26,7 +26,6 @@ namespace BeatSaberDataProvider.DataModels
         public virtual ICollection<CharacteristicDifficulty> CharacteristicDifficulties { get; set; }
 
         public string CharacteristicName { get; set; }
-        public virtual Characteristic Characteristic { get; set; }
         #endregion
 
         public static ICollection<BeatmapCharacteristic> ConvertFrom(ICollection<JsonBeatmapCharacteristic> chars, Song song)
@@ -37,8 +36,10 @@ namespace BeatSaberDataProvider.DataModels
                 bcList.Add(new BeatmapCharacteristic()
                 {
                     Song = song,
-                    Characteristic = new Characteristic(c),
-                    CharacteristicDifficulties = c.difficulties.Where(d => d.Value != null).Select(pair => new CharacteristicDifficulty(pair.Value, pair.Key, c.name, song.SongId)).ToList()
+                    //Characteristic = new Characteristic(c),
+                    CharacteristicName = c.name,
+                    CharacteristicDifficulties = c.difficulties.Where(d => d.Value != null)
+                        .Select(pair => new CharacteristicDifficulty(pair.Value, pair.Key, c.name, song.SongId)).ToList()
                 });
             }
 
@@ -50,9 +51,10 @@ namespace BeatSaberDataProvider.DataModels
             var bcList = new List<BeatmapCharacteristic>();
             foreach (var jChar in jChars.Children())
             {
-                var newChar = Characteristic.GetOrAddCharacteristic(jChar["name"]?.Value<string>());
+                //var newChar = Characteristic.GetOrAddCharacteristic(jChar["name"]?.Value<string>());
+                var charName = jChar["name"]?.Value<string>();
                 var charDiffs = new List<CharacteristicDifficulty>();
-                var newBChar = new BeatmapCharacteristic() { SongId = _songId, CharacteristicName = newChar.CharacteristicName, Characteristic = newChar };
+                var newBChar = new BeatmapCharacteristic() { SongId = _songId, CharacteristicName = charName };
                 foreach (JProperty diff in jChar["difficulties"].Children())
                 {
                     if (string.IsNullOrEmpty(diff.First.ToString()))
@@ -71,7 +73,7 @@ namespace BeatSaberDataProvider.DataModels
 
         public override string ToString()
         {
-            return $"{Characteristic.CharacteristicName}, {SongId}";
+            return $"{CharacteristicName}, {SongId}";
         }
     }
 

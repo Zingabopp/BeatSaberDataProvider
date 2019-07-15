@@ -15,16 +15,17 @@ namespace BeatSaberDataProvider.DataProviders
     {
         public DbSet<Song> Songs { get; set; }
         public DbSet<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
-        public DbSet<Characteristic> Characteristics { get; set; }
+        //public DbSet<Characteristic> Characteristics { get; set; }
         public DbSet<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
         public DbSet<CharacteristicDifficulty> CharacteristicDifficulties { get; set; }
-        public DbSet<Difficulty> Difficulties { get; set; }
+        //public DbSet<Difficulty> Difficulties { get; set; }
         public DbSet<Uploader> Uploaders { get; set; }
         public string DataSourcePath { get; set; }
         private bool ReadOnlyMode { get; set; }
         public bool UseLoggerFactory { get; set; }
         public bool UseLazyLoadingProxies { get; set; }
         public bool EnableSensitiveDataLogging { get; set; }
+        public string DatabaseFilePath { get; set; }
         public static readonly LoggerFactory MyLoggerFactory
     = new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) });
 
@@ -33,10 +34,13 @@ namespace BeatSaberDataProvider.DataProviders
             return new SongDataContext(true);
         }
 
-        public SongDataContext()
-            : base() { }
-        public SongDataContext(bool readOnly)
+        public SongDataContext(string dbPath = "songs.db")
             : base()
+        {
+            DatabaseFilePath = dbPath;
+        }
+        public SongDataContext(bool readOnly, string dbPath = "songs.db")
+            : this(dbPath)
         {
             ReadOnlyMode = readOnly;
         }
@@ -44,10 +48,10 @@ namespace BeatSaberDataProvider.DataProviders
         public IIncludableQueryable<Song, ICollection<ScoreSaberDifficulty>> LoadQuery(IQueryable<Song> query)
         {
             return query
-                    .Include(s => s.SongDifficulties)
-                        .ThenInclude(sd => sd.Difficulty)
-                    .Include(s => s.BeatmapCharacteristics)
-                        .ThenInclude(bc => bc.Characteristic)
+                    //.Include(s => s.SongDifficulties)
+                    //    .ThenInclude(sd => sd.Difficulty)
+                    //.Include(s => s.BeatmapCharacteristics)
+                        //.ThenInclude(bc => bc.Characteristic)
                     .Include(s => s.BeatmapCharacteristics)
                         .ThenInclude(bc => bc.CharacteristicDifficulties)
                     .Include(s => s.Uploader)
@@ -58,9 +62,9 @@ namespace BeatSaberDataProvider.DataProviders
         {
             Console.WriteLine("OnConfiguring");
             if (string.IsNullOrEmpty(DataSourcePath))
-                DataSourcePath = "songs.db";
+                DataSourcePath = DatabaseFilePath;
             optionsBuilder
-                .UseSqlite($"Data Source={DataSourcePath}", x => x.SuppressForeignKeyEnforcement());
+                .UseSqlite($"Data Source={DataSourcePath}");
 
             if (ReadOnlyMode)
             {
@@ -83,16 +87,16 @@ namespace BeatSaberDataProvider.DataProviders
                 .HasAlternateKey(s => s.Hash);
             modelBuilder.Entity<ScoreSaberDifficulty>()
                 .HasKey(d => d.ScoreSaberDifficultyId);
-            modelBuilder.Entity<Characteristic>()
-                .HasKey(c => c.CharacteristicName);
+            //modelBuilder.Entity<Characteristic>()
+            //    .HasKey(c => c.CharacteristicName);
             modelBuilder.Entity<CharacteristicDifficulty>()
-                .HasKey(cd => new { cd.Difficulty, cd.BeatmapCharacteristicKey });
+                .HasKey(cd => new { cd.Difficulty, cd.SongId, cd.CharacteristicName });
             //modelBuilder.Entity<CharacteristicDifficulty>()
             //    .HasAlternateKey(cd => new { cd.BeatmapCharacteristicKey, cd.Difficulty });
             //modelBuilder.Entity<Difficulty>()
             //    .HasKey(d => d.DifficultyLevel);
-            modelBuilder.Entity<Difficulty>()
-                .HasKey(d => d.DifficultyName);
+            //modelBuilder.Entity<Difficulty>()
+            //    .HasKey(d => d.DifficultyName);
             modelBuilder.Entity<Uploader>()
                 .HasKey(u => u.UploaderId);
             modelBuilder.Entity<Uploader>()
@@ -100,8 +104,8 @@ namespace BeatSaberDataProvider.DataProviders
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasKey(b => new { b.SongId, b.CharacteristicName });
-            modelBuilder.Entity<SongDifficulty>()
-                .HasKey(d => new { d.DifficultyName, d.SongId });
+            //modelBuilder.Entity<SongDifficulty>()
+            //    .HasKey(d => new { d.DifficultyName, d.SongId });
 
             modelBuilder.Entity<ScoreSaberDifficulty>()
                 .HasOne(d => d.Song)
@@ -115,10 +119,10 @@ namespace BeatSaberDataProvider.DataProviders
                 .HasForeignKey(s => s.UploaderRefId)
                 .HasPrincipalKey(u => u.UploaderId);
 
-            modelBuilder.Entity<BeatmapCharacteristic>()
-                .HasOne(b => b.Characteristic)
-                .WithMany(b => b.BeatmapCharacteristics)
-                .HasForeignKey(b => b.CharacteristicName);
+            //modelBuilder.Entity<BeatmapCharacteristic>()
+            //    .HasOne(b => b.Characteristic)
+            //    .WithMany(b => b.BeatmapCharacteristics)
+            //    .HasForeignKey(b => b.CharacteristicName);
 
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasOne(b => b.Song)
@@ -128,17 +132,17 @@ namespace BeatSaberDataProvider.DataProviders
             modelBuilder.Entity<BeatmapCharacteristic>()
                 .HasMany(bc => bc.CharacteristicDifficulties)
                 .WithOne(cd => cd.BeatmapCharacteristic)
-                .HasForeignKey(cd => cd.BeatmapCharacteristicKey);
+                .HasForeignKey(cd => new { cd.SongId, cd.CharacteristicName });
 
-            modelBuilder.Entity<SongDifficulty>()
-                .HasOne(b => b.Difficulty)
-                .WithMany(b => b.SongDifficulties)
-                .HasForeignKey(b => b.DifficultyName);
+            //modelBuilder.Entity<SongDifficulty>()
+            //    .HasOne(b => b.Difficulty)
+            //    .WithMany(b => b.SongDifficulties)
+            //    .HasForeignKey(b => b.DifficultyName);
 
-            modelBuilder.Entity<SongDifficulty>()
-                .HasOne(b => b.Song)
-                .WithMany(b => b.SongDifficulties)
-                .HasForeignKey(b => b.SongId);
+            //modelBuilder.Entity<SongDifficulty>()
+            //    .HasOne(b => b.Song)
+            //    .WithMany(b => b.SongDifficulties)
+            //    .HasForeignKey(b => b.SongId);
 
 
         }

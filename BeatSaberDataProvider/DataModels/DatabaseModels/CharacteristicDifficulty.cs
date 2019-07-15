@@ -18,7 +18,7 @@ namespace BeatSaberDataProvider.DataModels
     {
         #region Properties
         [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { Difficulty, BeatmapCharacteristicKey }; } }
+        public override object[] PrimaryKey { get { return new object[] { Difficulty, SongId, CharacteristicName }; } }
 
         //[Key]
         //public int? _cdId { get; set; }
@@ -37,17 +37,8 @@ namespace BeatSaberDataProvider.DataModels
         public int Obstacles { get; set; }
         public float NoteJumpSpeed { get; set; }
 
-        [NotMapped]
-        private object[] _nonnulledCharacteristicKey
-        {
-            get
-            {
-                if (BeatmapCharacteristicKey == null)
-                    Console.WriteLine("BeatmapCharacteristicKey is null. Probably should never see this.");
-                return BeatmapCharacteristicKey ?? new object[] { null, null };
-            }
-        }
-        public object[] BeatmapCharacteristicKey { get; set; }
+        public string SongId { get; set; }
+        public string CharacteristicName { get; set; }
         [NotMapped]
         private BeatmapCharacteristic _beatmapCharacteristic;
         public BeatmapCharacteristic BeatmapCharacteristic
@@ -56,7 +47,8 @@ namespace BeatSaberDataProvider.DataModels
             set
             {
                 _beatmapCharacteristic = value;
-                BeatmapCharacteristicKey = new object[] { value.SongId, value.CharacteristicName };
+                SongId = value.SongId;
+                CharacteristicName = value.CharacteristicName;
             }
         }
         #endregion
@@ -86,7 +78,8 @@ namespace BeatSaberDataProvider.DataModels
             Obstacles = diff.obstacles;
             NoteJumpSpeed = diff.njs;
 
-            BeatmapCharacteristicKey = new object[] { songId, charName };
+            SongId = songId;
+            CharacteristicName = charName;
         }
 
         public string DifficultyToString(int level)
@@ -138,6 +131,10 @@ namespace BeatSaberDataProvider.DataModels
                 Obstacles = diffStats["obstacles"]?.Value<int>() ?? 0,
                 NoteJumpSpeed = diffStats["njs"]?.Value<float>() ?? 0,
             };
+        }
+        public override string ToString()
+        {
+            return $"{Difficulty} {CharacteristicName}: {SongId}";
         }
     }
 

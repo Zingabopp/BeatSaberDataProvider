@@ -13,22 +13,22 @@ using BeatSaberDataProvider.Util;
 
 namespace BeatSaberDataProvider.DataModels
 {
-    [Table("songdifficulties")]
-    public class SongDifficulty : DatabaseDataType
-    {
-        [NotMapped]
-        public override object[] PrimaryKey { get { return new object[] { DifficultyName, SongId }; } }
+    //[Table("songdifficulties")]
+    //public class SongDifficulty : DatabaseDataType
+    //{
+    //    [NotMapped]
+    //    public override object[] PrimaryKey { get { return new object[] { DifficultyName, SongId }; } }
 
-        public string DifficultyName { get; set; }
-        public virtual Difficulty Difficulty { get; set; }
+    //    public string DifficultyName { get; set; }
+    //    public virtual Difficulty Difficulty { get; set; }
 
-        public string SongId { get; set; }
-        public virtual Song Song { get; set; }
+    //    public string SongId { get; set; }
+    //    public virtual Song Song { get; set; }
 
-        public override string ToString()
-        {
-            return $"{DifficultyName}: {Difficulty?.DifficultyName}, {SongId}";
-        }
-    }
+    //    public override string ToString()
+    //    {
+    //        return $"{DifficultyName}: {Difficulty?.DifficultyName}, {SongId}";
+    //    }
+    //}
 
 }

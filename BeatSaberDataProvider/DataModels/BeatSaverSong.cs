@@ -356,6 +356,8 @@ namespace BeatSaberDataProvider.DataModels
         /// </summary>
         [JsonProperty("hash")]
         public string hash { get { return _hash; } set { _hash = value.ToUpper(); } }
+        [JsonProperty("converted")]
+        public string converted { get; set; }
         [JsonProperty("downloadURL")]
         public string downloadURL { get; set; }
         [JsonProperty("coverURL")]
@@ -423,6 +425,8 @@ namespace BeatSaberDataProvider.DataModels
         public int obstacles { get; set; }
         [JsonProperty("njs")]
         public float njs { get; set; }
+        [JsonProperty("njsOffset")]
+        public float njsOffset { get; set; }
     }
 
     public class SongStats

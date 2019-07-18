@@ -36,6 +36,7 @@ namespace BeatSaberDataProvider.DataModels
         public int Notes { get; set; }
         public int Obstacles { get; set; }
         public float NoteJumpSpeed { get; set; }
+        public float NoteJumpSpeedOffset { get; set; }
 
         public string SongId { get; set; }
         public string CharacteristicName { get; set; }
@@ -64,6 +65,7 @@ namespace BeatSaberDataProvider.DataModels
             Notes = diff.notes;
             Obstacles = diff.obstacles;
             NoteJumpSpeed = diff.njs;
+            NoteJumpSpeedOffset = diff.njsOffset;
 
             BeatmapCharacteristic = bmChar;
         }
@@ -77,6 +79,7 @@ namespace BeatSaberDataProvider.DataModels
             Notes = diff.notes;
             Obstacles = diff.obstacles;
             NoteJumpSpeed = diff.njs;
+            NoteJumpSpeedOffset = diff.njsOffset;
 
             SongId = songId;
             CharacteristicName = charName;
@@ -130,6 +133,7 @@ namespace BeatSaberDataProvider.DataModels
                 Notes = diffStats["notes"]?.Value<int>() ?? 0,
                 Obstacles = diffStats["obstacles"]?.Value<int>() ?? 0,
                 NoteJumpSpeed = diffStats["njs"]?.Value<float>() ?? 0,
+                NoteJumpSpeedOffset = diffStats["njsOffset"]?.Value<float>() ?? 0
             };
         }
         public override string ToString()

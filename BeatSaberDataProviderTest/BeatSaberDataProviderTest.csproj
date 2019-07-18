@@ -17,6 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestData\BeatSaverListWithConverted.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\BeatSaverScrape.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

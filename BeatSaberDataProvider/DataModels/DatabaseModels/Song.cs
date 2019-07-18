@@ -56,6 +56,7 @@ namespace BeatSaberDataProvider.DataModels
         public string Hash { get; set; }
         [Updatable]
         public DateTime Uploaded { get; set; }
+        public string Converted { get; set; }
         [Updatable]
         public string DownloadUrl { get; set; }
         [Updatable]
@@ -127,6 +128,7 @@ namespace BeatSaberDataProvider.DataModels
             DeletedAt = s.deletedAt;
             Hash = s.hash.ToUpper();
             Uploaded = s.uploaded;
+            Converted = s.converted;
             DownloadUrl = s.downloadURL;
             CoverUrl = s.coverURL;
 
@@ -188,6 +190,7 @@ namespace BeatSaberDataProvider.DataModels
             DeletedAt = jSong["deletedAt"]?.Value<DateTime?>();
             Hash = jSong["hash"]?.Value<string>().ToUpper();
             Uploaded = jSong["uploaded"]?.Value<DateTime?>() ?? DateTime.MinValue;
+            Converted = jSong["converted"]?.Value<string>();
             DownloadUrl = jSong["downloadURL"]?.Value<string>();
             CoverUrl = jSong["coverURL"]?.Value<string>();
 
@@ -244,111 +247,5 @@ namespace BeatSaberDataProvider.DataModels
 
 
     }
-
-    
-    
-   
-   
-   
-    
-    #region Old Json Stuff
-
-    //[OnDeserialized]
-    //private void OnDeserialized(StreamingContext context)
-    //{
-    //    if (Uploader != null)
-    //        UploaderRefId = Uploader.UploaderId;
-    //    Metadata.SongId = SongId;
-    //    Stats.SongId = SongId;
-    //}
-    //[NotMapped]
-    //[JsonProperty("metadata")]
-    //public JsonMetaData Metadata { get; set; }
-    //[NotMapped]
-    //[JsonProperty("stats")]
-    //public JsonStats Stats { get; set; }
-    //[Serializable]
-    //public class JsonMetaData
-    //{
-    //    public virtual ICollection<SongDifficulty> Difficulties { get; set; }
-
-    //    [JsonProperty("difficulties")]
-    //    private Dictionary<string, bool> JsonDiffs
-    //    {
-    //        get
-    //        {
-    //            return Difficulties?.Select(d => d.Difficulty.DifficultyName).ToDictionary(d => d, d => true);
-    //        }
-    //        set
-    //        {
-    //            Difficulties = Difficulty.DictionaryToDifficulties(value).
-    //                Select(d => new SongDifficulty() { Difficulty = d, Song = Song, SongId = Song.SongId }).ToList();
-    //        }
-    //    }
-
-    //    [JsonIgnore]
-    //    public virtual ICollection<BeatmapCharacteristic> BeatmapCharacteristics { get; set; }
-
-    //    [NotMapped]
-    //    [JsonProperty("characteristics")]
-    //    private List<string> Characteristics
-    //    {
-    //        get { return BeatmapCharacteristics?.Select(c => c.Characteristic.CharacteristicName).ToList(); }
-    //        set
-    //        {
-    //            Characteristic.ConvertCharacteristics(value).
-    //            Select(c => new BeatmapCharacteristic() { SongId = Song.SongId, Song = Song, Characteristic = c }).ToList();
-    //        }
-    //    }
-
-    //    [JsonProperty("songName")]
-    //    public string SongName { get; set; }
-
-    //    [JsonProperty("songSubName")]
-    //    public string SongSubName { get; set; }
-
-    //    [JsonProperty("songAuthorName")]
-    //    public string SongAuthorName { get; set; }
-
-    //    [JsonProperty("levelAuthorName")]
-    //    public string LevelAuthorName { get; set; }
-
-    //    [JsonProperty("bpm")]
-    //    public float BeatsPerMinute { get; set; }
-
-    //    [JsonIgnore]
-    //    public string SongId { get; set; }
-    //    [JsonIgnore]
-    //    public Song Song { get; set; }
-    //}
-
-    //[Serializable]
-    //public class JsonStats
-    //{
-    //    [JsonIgnore]
-    //    public string SongId { get; set; }
-    //    [JsonIgnore]
-    //    public Song Song { get; set; }
-
-
-    //    [JsonProperty("downloads")]
-    //    public int Downloads { get; set; }
-
-    //    [JsonProperty("plays")]
-    //    public int Plays { get; set; }
-
-    //    [JsonProperty("downVotes")]
-    //    public int DownVotes { get; set; }
-
-    //    [JsonProperty("upVotes")]
-    //    public int UpVotes { get; set; }
-
-    //    [JsonProperty("heat")]
-    //    public double Heat { get; set; }
-
-    //    [JsonProperty("rating")]
-    //    public double Rating { get; set; }
-    //}
-    #endregion
 
 }

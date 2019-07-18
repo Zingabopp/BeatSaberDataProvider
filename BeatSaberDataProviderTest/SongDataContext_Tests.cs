@@ -56,7 +56,7 @@ namespace BeatSaberDataProviderTest
             SongDataContext context = new SongDataContext("songUpdateTest.db");
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-            string json = File.ReadAllText(@"TestData\BeatSaverTestSongs.json");
+            string json = File.ReadAllText(@"TestData\BeatSaverListWithConverted.json");
             var songList = JToken.Parse(json);
             foreach (var jSong in songList["docs"].Children())
             {
@@ -64,6 +64,7 @@ namespace BeatSaberDataProviderTest
                 context.AddOrUpdate(newSong);
             }
             context.SaveChanges();
+            var convertedGroup = context.Songs.Local.GroupBy(s => s.Converted);
         }
     }
 }

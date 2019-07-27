@@ -77,5 +77,51 @@ namespace BeatSaberDataProvider.DataModels
                 return BitConverter.ToString(hashBytes).Replace("-", string.Empty);
             }
         }
+
+        public void GenerateDirectoryHash()
+        {
+            DirectoryHash = GenerateDirectoryHash(Directory);
+        }
+
+        /// <summary>
+        /// Generates a quick hash of a directory's contents. Does NOT match SongCore.
+        /// Uses most of Kylemc1413's implementation from SongCore.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <exception cref="ArgumentNullException">Thrown when path is null or empty.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown when path's directory doesn't exist.</exception>
+        /// <returns></returns>
+        public static long GenerateDirectoryHash(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                throw new ArgumentNullException(nameof(path), "Path cannot be null or empty for GenerateDirectoryHash");
+            
+            DirectoryInfo directoryInfo = new DirectoryInfo(path);
+            if (!directoryInfo.Exists)
+                throw new DirectoryNotFoundException($"GenerateDirectoryHash couldn't find {path}");
+            long dirHash = 0L;
+            foreach (var file in directoryInfo.GetFiles())
+            {
+                dirHash ^= file.CreationTimeUtc.ToFileTimeUtc();
+                dirHash ^= file.LastWriteTimeUtc.ToFileTimeUtc();
+                dirHash ^= SumCharacters(file.Name);
+                dirHash ^= file.Length;
+            }
+            return dirHash;
+        }
+
+        private static int SumCharacters(string str)
+        {
+            unchecked
+            {
+                int charSum = 0;
+                for(int i = 0; i < str.Count(); i++)
+                {
+                    charSum += str[i];
+                }
+                return charSum;
+            }
+        }
+
     }
 }

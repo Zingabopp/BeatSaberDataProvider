@@ -11,9 +11,11 @@ namespace BeatSaberDataProvider.DataProviders
     public class SongHashDataProvider
     {
         public FileInfo CurrentFile;
-        public static readonly string DEFAULT_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low", @"Hyperbolic Magnetism\Beat Saber");
+        public static readonly string DEFAULT_SONGCORE_DATA_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low", @"Hyperbolic Magnetism\Beat Saber");
+        public const string DEFAULT_SONGCORE_DATA_FILENAME = "SongHashData.dat";
+        public const string DEFAULT_FOLDER = "SongHashData";
+        public const string DEFAULT_FILE_NAME = "SongHashData.json";
         //public static readonly string BACKUP_FOLDER = Path.Combine(DEFAULT_FOLDER, "SongHashDataBackups");
-        public const string DEFAULT_FILE_NAME = "SongHashData.dat";
         public Dictionary<string, SongHashData> Data;
         public SongHashDataProvider()
         {
@@ -24,7 +26,7 @@ namespace BeatSaberDataProvider.DataProviders
         /// Parse the SongHashData file into the 'Data' Dictionary. If no file path is provided it uses the default path.
         /// </summary>
         /// <param name="filePath"></param>
-        public void Initialize(string filePath = "")
+        public void Initialize(string filePath = "", string songCoreDataPath = "")
         {
             if (string.IsNullOrEmpty(filePath))
                 filePath = Path.Combine(DEFAULT_FOLDER, DEFAULT_FILE_NAME);

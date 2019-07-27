@@ -75,10 +75,10 @@ namespace SongFeedReaders
             Ready = true;
         }
 
-        public static Uri GetPageUrl(int feedIndex, int pageIndex = 0, Dictionary<string, string> replacements = null)
+        public static Uri GetPageUrl(BeatSaverFeed feed, int pageIndex = 0, Dictionary<string, string> replacements = null)
         {
             string mapperId = string.Empty;
-            StringBuilder url = new StringBuilder(Feeds[(BeatSaverFeed)feedIndex].BaseUrl);
+            StringBuilder url = new StringBuilder(Feeds[feed].BaseUrl);
             //if (!string.IsNullOrEmpty(author) && author.Length > 3)
             //    mapperId = GetAuthorID(author);
             if (replacements != null)
@@ -87,6 +87,7 @@ namespace SongFeedReaders
                     url.Replace(key, replacements[key]);
                 }
             return Util.GetUriFromString(url.Replace(PAGEKEY, pageIndex.ToString()).ToString());
+            
         }
 
         public static List<ScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl)
@@ -259,10 +260,6 @@ namespace SongFeedReaders
             }
             return retDict;
         }
-        public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings)
-        {
-            return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
-        }
         public static async Task<List<ScrapedSong>> GetBeatSaverSongsAsync(BeatSaverFeedSettings settings)
         {
             if (settings == null)
@@ -339,7 +336,6 @@ namespace SongFeedReaders
             }
             return songs;
         }
-
         public static async Task<List<string>> GetAuthorNamesByIDAsync(string mapperId)
         {
             List<string> authorNames = new List<string>();
@@ -348,7 +344,6 @@ namespace SongFeedReaders
             //authorNames.ForEach(n => Logger.Warning($"Found authorName: {n}"));
             return authorNames;
         }
-
         public static async Task<string> GetAuthorIDAsync(string authorName)
         {
             if (_authors.ContainsKey(authorName))
@@ -408,11 +403,6 @@ namespace SongFeedReaders
 
             return mapperId;
         }
-        public static Task<List<ScrapedSong>> GetSongsFromPageAsync(string url)
-        {
-            return GetSongsFromPageAsync(Util.GetUriFromString(url));
-        }
-
         public static async Task<List<ScrapedSong>> GetSongsFromPageAsync(Uri uri)
         {
             if (uri == null)
@@ -658,6 +648,39 @@ namespace SongFeedReaders
 
             return songs;
         }
+        public static async Task<List<JToken>> ScrapeBeatSaver(int timeBetweenRequests, DateTime? stopAtDate = null)
+        {
+            List<JToken> songs = null;
+            string pageText = string.Empty;
+            using (var response = await WebUtils.WebClient.GetAsync(GetPageUrl(BeatSaverFeed.Latest)).ConfigureAwait(false))
+            {
+                if (response.IsSuccessStatusCode)
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                else
+                    return songs;
+            }
+
+            JObject result = new JObject();
+            try
+            {
+                result = JObject.Parse(pageText);
+            }
+            catch (JsonReaderException ex)
+            {
+                Logger.Exception("Unable to parse JSON from text", ex);
+            }
+            int? totalSongs = result["totalDocs"]?.Value<int>();
+            int? lastPage = result["lastPage"]?.Value<int>();
+            if (totalSongs == null || lastPage == null || totalSongs == 0)
+            {
+                Logger.Warning($"Error scraping Beat Saver.");
+                return songs;
+            }
+
+            return songs;
+
+        }
+
         #endregion
 
         #region Sync
@@ -721,6 +744,23 @@ namespace SongFeedReaders
 
 
         #endregion
+        #endregion
+
+        #region Overloads
+        public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings)
+        {
+            return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        public static Task<List<ScrapedSong>> GetSongsFromPageAsync(string url)
+        {
+            return GetSongsFromPageAsync(Util.GetUriFromString(url));
+        }
+
+        public static Uri GetPageUrl(int feedIndex, int pageIndex = 0, Dictionary<string, string> replacements = null)
+        {
+            return GetPageUrl((BeatSaverFeed)feedIndex, pageIndex, replacements);
+        }
 
         #endregion
 
@@ -749,9 +789,9 @@ namespace SongFeedReaders
 #pragma warning disable CA1819 // Properties should not return arrays
 
 
-                              /// <summary>
-                              /// List of authors, only used for the AUTHOR feed
-                              /// </summary>
+        /// <summary>
+        /// List of authors, only used for the AUTHOR feed
+        /// </summary>
         public string[] Authors { get; set; }
 #pragma warning restore CA1819 // Properties should not return arrays
 

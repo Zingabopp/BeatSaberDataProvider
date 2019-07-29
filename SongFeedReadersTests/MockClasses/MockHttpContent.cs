@@ -21,8 +21,11 @@ namespace SongFeedReadersTests.MockClasses
             if (headers == null)
                 _headers = new Dictionary<string, IEnumerable<string>>();
             FileSourcePath = filePath;
+            
             if (!string.IsNullOrEmpty(filePath) && File.Exists(FileSourcePath))
             {
+                var file = new FileInfo(FileSourcePath);
+                ContentLength = file.Length;
                 if (FileSourcePath.EndsWith("json"))
                     _contentType = @"application/json";
                 else if (FileSourcePath.EndsWith("xml"))
@@ -42,6 +45,8 @@ namespace SongFeedReadersTests.MockClasses
         public string ContentType { get { return _contentType; } }
 
         public ReadOnlyDictionary<string, IEnumerable<string>> Headers { get; private set; }
+
+        public long? ContentLength { get; protected set; }
 
         public async Task<byte[]> ReadAsByteArrayAsync()
         {

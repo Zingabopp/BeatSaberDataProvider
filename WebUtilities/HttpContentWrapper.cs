@@ -15,6 +15,7 @@ namespace WebUtilities
         public HttpContentWrapper(HttpContent content)
         {
             _content = content;
+            ContentLength = content.Headers.ContentLength;
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_content?.Headers != null)
             {
@@ -32,6 +33,8 @@ namespace WebUtilities
         }
 
         public string ContentType { get { return _content?.Headers?.ContentType?.MediaType; } }
+
+        public long? ContentLength { get; protected set; }
 
         public Task<byte[]> ReadAsByteArrayAsync()
         {

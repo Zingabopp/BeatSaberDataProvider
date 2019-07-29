@@ -29,6 +29,7 @@ namespace WebUtilities
         Task ReadAsFileAsync(string filePath, bool overwrite);
 
         string ContentType { get; }
+        long? ContentLength { get; }
         ReadOnlyDictionary<string, IEnumerable<string>> Headers { get; }
 
     }

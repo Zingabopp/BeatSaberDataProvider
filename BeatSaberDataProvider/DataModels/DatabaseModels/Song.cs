@@ -88,9 +88,19 @@ namespace BeatSaberDataProvider.DataModels
         public double Rating { get; set; }
         #endregion
 
-
+        [NotMapped]
+        private ICollection<ScoreSaberDifficulty> _scoreSaberDifficulties;
         [ForeignKey("SongHash")]
-        public virtual ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties { get; set; }
+        public virtual ICollection<ScoreSaberDifficulty> ScoreSaberDifficulties
+        {
+            get
+            {
+                if (_scoreSaberDifficulties == null)
+                    _scoreSaberDifficulties = new List<ScoreSaberDifficulty>();
+                return _scoreSaberDifficulties;
+            }
+            set { _scoreSaberDifficulties = value; }
+        }
         public string UploaderRefId { get; set; }
         [ForeignKey("UploaderRefId")]
         public virtual Uploader Uploader { get; set; }

@@ -4,6 +4,7 @@ using BeatSaberDataProvider.DataProviders;
 using BeatSaberDataProvider.Util;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,27 +43,76 @@ namespace DataProviderTests
             //string fileRead = File.ReadAllText("BeatSaverTestSongs.json");
             //string fileRead = File.ReadAllText("BeatSaverTestSongsUpdate.json");
             //var songList = JToken.Parse(fileRead)["docs"];
-            string fileRead = File.ReadAllText(@"ScrapedData\BeatSaverScrape.json");
-            var songList = JToken.Parse(fileRead);
-
-
+            //string fileRead = File.ReadAllText(@"ScrapedData\BeatSaverScrape.json");
+            JToken songList = null;
+            var serializer = new JsonSerializer();
             var listSongs = new List<Song>();
             int count = 0;
             Stopwatch sw = new Stopwatch();
-            sw.Start();
-            foreach (var jSong in songList.Children())
+
+            List<ScoreSaberDifficulty> ssDiffs = null;
+            using (var fs = new FileStream(@"ScrapedData\ScoreSaberScrape.json", FileMode.Open))
+            using (var sr = new StreamReader(fs))
+            using (var jsonTextReader = new JsonTextReader(sr))
             {
-                var newSong = Song.CreateFromJson(jSong);
-                //listSongs.Add(newSong);
-                context.Add(newSong);
-                //context.SaveChanges();
-                //var newSong = Song.CreateFromJson(jSong);
-                //context.Add(Song.CreateFromJson(jSong));
-                //context.SaveChanges();
-                count++;
+
+                //songList = JToken.Parse(sr);
+                ssDiffs = serializer.Deserialize<List<ScoreSaberDifficulty>>(jsonTextReader);
             }
-            Console.WriteLine($"-----Song processing took {sw.Elapsed.TotalSeconds}");
+
+            if (count == 0)
+            {
+                using (var fs = new FileStream(@"ScrapedData\BeatSaverScrape.json", FileMode.Open))
+                using (var sr = new StreamReader(fs))
+                using (var jsonTextReader = new JsonTextReader(sr))
+                {
+
+                    //songList = JToken.Parse(sr);
+                    songList = serializer.Deserialize<JToken>(jsonTextReader);
+                }
+                sw.Start();
+                foreach (var jSong in songList.Children())
+                {
+                    var newSong = Song.CreateFromJson(jSong);
+                    newSong.ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
+                    var matchedSSdiffs = ssDiffs.Where(d => d.SongHash == newSong.Hash);
+                    foreach (var diff in matchedSSdiffs)
+                    {
+                        newSong.ScoreSaberDifficulties.Add(diff);
+                    }
+                    //listSongs.Add(newSong);
+                    context.Add(newSong);
+                    //context.SaveChanges();
+                    //var newSong = Song.CreateFromJson(jSong);
+                    //context.Add(Song.CreateFromJson(jSong));
+                    //context.SaveChanges();
+                    count++;
+                }
+                Console.WriteLine($"-----Song processing took {sw.Elapsed.TotalSeconds}");
+                sw.Restart();
+                //context.AddRange(listSongs);
+                //context.SaveChanges();
+                Console.WriteLine($"-----Database save took {sw.Elapsed.TotalSeconds}");
+            }
+            
+
+
+            count = 0;
             sw.Restart();
+            //foreach (var jSong in songList.Children())
+            //{
+            //    var newSong = Song.CreateFromJson(jSong);
+            //    //listSongs.Add(newSong);
+            //    context.Add(newSong);
+            //    //context.SaveChanges();
+            //    //var newSong = Song.CreateFromJson(jSong);
+            //    //context.Add(Song.CreateFromJson(jSong));
+            //    //context.SaveChanges();
+            //    count++;
+            //}
+            //context.AddRange(ssDiffs);
+            //Console.WriteLine($"-----Song processing took {sw.Elapsed.TotalSeconds}");
+            //sw.Restart();
             //context.AddRange(listSongs);
             context.SaveChanges();
             Console.WriteLine($"-----Database save took {sw.Elapsed.TotalSeconds}");

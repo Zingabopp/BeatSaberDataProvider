@@ -29,7 +29,7 @@ namespace BeatSaberDataProvider.DataProviders
         public void Initialize(string filePath = "", string songCoreDataPath = "")
         {
             if (string.IsNullOrEmpty(filePath))
-                filePath = Path.Combine(DEFAULT_FOLDER, DEFAULT_FILE_NAME);
+                filePath = Path.Combine(DEFAULT_SONGCORE_DATA_FOLDER, DEFAULT_FILE_NAME);
             if (File.Exists(filePath))
             {
                 var str = File.ReadAllText(filePath);

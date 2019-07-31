@@ -51,7 +51,8 @@ namespace BeatSaberDataProvider.Web
             var readCount = 0L;
             var buffer = new byte[8192];
             var isMoreToRead = true;
-
+            var file = new FileInfo(_destinationFilePath);
+            file.Directory.Create();
             using (var fileStream = new FileStream(_destinationFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
             {
                 do

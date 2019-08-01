@@ -29,6 +29,9 @@
     <None Update="TestData\BeatSaverTestSongsUpdate.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestData\ScoreSaberScrape.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestData\ScoreSaberTestDifficulties.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

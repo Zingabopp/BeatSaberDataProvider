@@ -17,6 +17,7 @@ namespace WebUtilities
         bool IsSuccessStatusCode { get; }
         IWebResponseContent Content { get; }
 
+        IWebResponseMessage EnsureSuccessStatusCode();
         ReadOnlyDictionary<string, IEnumerable<string>> Headers { get; }
     }
 

@@ -14,6 +14,12 @@ namespace WebUtilities
 
         public bool IsSuccessStatusCode { get { return _response.IsSuccessStatusCode; } }
 
+        public IWebResponseMessage EnsureSuccessStatusCode()
+        {
+            _response.EnsureSuccessStatusCode();
+            return this;
+        }
+
         public IWebResponseContent Content { get; protected set; }
 
         private Dictionary<string, IEnumerable<string>> _headers;

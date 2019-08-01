@@ -26,8 +26,12 @@ namespace BeatSaberDataProvider.DataProviders
         public bool UseLazyLoadingProxies { get; set; }
         public bool EnableSensitiveDataLogging { get; set; }
         public string DatabaseFilePath { get; set; }
-        public static readonly LoggerFactory MyLoggerFactory
-    = new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) });
+        public static readonly ILoggerFactory MyLoggerFactory
+    = LoggerFactory.Create(builder =>
+    {
+        builder.AddConsole();
+    });
+        //new LoggerFactory(new[] { new ConsoleLoggerProvider((category, level) => level => LogLevel.Information, true) });
 
         public static SongDataContext AsReadOnly()
         {
@@ -51,7 +55,7 @@ namespace BeatSaberDataProvider.DataProviders
                     //.Include(s => s.SongDifficulties)
                     //    .ThenInclude(sd => sd.Difficulty)
                     //.Include(s => s.BeatmapCharacteristics)
-                        //.ThenInclude(bc => bc.Characteristic)
+                    //.ThenInclude(bc => bc.Characteristic)
                     .Include(s => s.BeatmapCharacteristics)
                         .ThenInclude(bc => bc.CharacteristicDifficulties)
                     .Include(s => s.Uploader)

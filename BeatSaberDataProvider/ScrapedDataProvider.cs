@@ -3,8 +3,10 @@ using BeatSaberDataProvider.DataProviders;
 using BeatSaberDataProvider.Util;
 using BeatSaberDataProvider.Web;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -202,6 +204,65 @@ namespace BeatSaberDataProvider
             return songInfo;
         }
 
+        public static void BuildDatabaseFromJson(string databasePath, string beatSaverScrapePath, string scoreSaberPath)
+        {
+            var dbFile = new FileInfo(databasePath);
+            var bsScrapeFile = new FileInfo(beatSaverScrapePath);
+            var ssScrapeFile = new FileInfo(scoreSaberPath);
+            dbFile.Directory.Create();
+            using (var context = new SongDataContext(dbFile.FullName))
+            {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+                JToken songList = null;
+                var serializer = new JsonSerializer();
+                var listSongs = new List<Song>();
+                int count = 0;
+                Stopwatch sw = new Stopwatch();
+
+                List<ScoreSaberDifficulty> ssDiffs = null;
+                using (var fs = new FileStream(ssScrapeFile.FullName, FileMode.Open))
+                using (var sr = new StreamReader(fs))
+                using (var jsonTextReader = new JsonTextReader(sr))
+                {
+
+                    //songList = JToken.Parse(sr);
+                    ssDiffs = serializer.Deserialize<List<ScoreSaberDifficulty>>(jsonTextReader);
+                }
+
+                if (count == 0)
+                {
+                    using (var fs = new FileStream(bsScrapeFile.FullName, FileMode.Open))
+                    using (var sr = new StreamReader(fs))
+                    using (var jsonTextReader = new JsonTextReader(sr))
+                    {
+
+                        //songList = JToken.Parse(sr);
+                        songList = serializer.Deserialize<JToken>(jsonTextReader);
+                    }
+                    sw.Start();
+                    foreach (var jSong in songList.Children())
+                    {
+                        var newSong = Song.CreateFromJson(jSong);
+                        newSong.ScoreSaberDifficulties = new List<ScoreSaberDifficulty>();
+                        var matchedSSdiffs = ssDiffs.Where(d => d.SongHash == newSong.Hash);
+                        foreach (var diff in matchedSSdiffs)
+                        {
+                            newSong.ScoreSaberDifficulties.Add(diff);
+                        }
+                        //listSongs.Add(newSong);
+                        context.Add(newSong);
+                        //context.SaveChanges();
+                        //var newSong = Song.CreateFromJson(jSong);
+                        //context.Add(Song.CreateFromJson(jSong));
+                        //context.SaveChanges();
+                        count++;
+                    }
+                }
+                context.SaveChanges();
+            }
+
+        }
     }
     // From: https://stackoverflow.com/questions/43747477/how-to-parse-huge-json-file-as-stream-in-json-net?rq=1
     public static class JsonReaderExtensions

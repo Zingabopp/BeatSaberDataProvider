@@ -85,7 +85,7 @@ namespace BeatSaberDataProvider.DataModels
             CharacteristicName = charName;
         }
 
-        public string DifficultyToString(int level)
+        public static string DifficultyToString(int level)
         {
             switch (level)
             {
@@ -103,7 +103,7 @@ namespace BeatSaberDataProvider.DataModels
             return "Other";
         }
 
-        public int StringToDifficulty(string difficulty)
+        public static int StringToDifficulty(string difficulty)
         {
             switch (difficulty.ToLower())
             {

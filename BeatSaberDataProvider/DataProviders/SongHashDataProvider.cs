@@ -1,35 +1,82 @@
 ﻿using BeatSaberDataProvider.DataModels;
+using System.Collections.Concurrent;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace BeatSaberDataProvider.DataProviders
 {
-    [Serializable]
     public class SongHashDataProvider
     {
-        public FileInfo CurrentFile;
+        private static readonly object _saveLock = new object();
         public static readonly string DEFAULT_SONGCORE_DATA_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "Low", @"Hyperbolic Magnetism\Beat Saber");
         public const string DEFAULT_SONGCORE_DATA_FILENAME = "SongHashData.dat";
         public const string DEFAULT_FOLDER = "SongHashData";
         public const string DEFAULT_FILE_NAME = "SongHashData.json";
         //public static readonly string BACKUP_FOLDER = Path.Combine(DEFAULT_FOLDER, "SongHashDataBackups");
-        public Dictionary<string, SongHashData> Data;
-        public SongHashDataProvider()
+        public static FileInfo SongHashFile { get; private set; }
+        public static readonly ConcurrentDictionary<string, SongHashDataProvider> DataProviders = new ConcurrentDictionary<string, SongHashDataProvider>();
+
+        public Dictionary<string, SongHashData> Data { get; private set; }
+
+        public static void SetDataFile(string filePath)
         {
-            Data = new Dictionary<string, SongHashData>();
+            lock (_saveLock)
+            {
+                var temp = new FileInfo(filePath);
+                if (!temp.Exists)
+                    temp.Create();
+                SongHashFile = temp;
+            }
         }
+
+        public static async Task SaveChanges()
+        {
+            if (SongHashFile == null)
+                throw new InvalidOperationException("Unable to save SongHashFile, data file not set.");
+            bool writeFinished = false;
+            var dataList = new Dictionary<string, SongHashData>();
+            var keys = DataProviders.Keys.ToList();
+            foreach (var key in keys)
+            {
+                var pairs = DataProviders[key].Data.ToList();
+                foreach (var pair in pairs)
+                {
+                    dataList.Add(pair.Key, pair.Value);
+                }
+            }
+            var json = JsonConvert.SerializeObject(dataList);
+
+            var timeout = Task.Delay(3000);
+            do
+            {
+                if (!Utilities.IsFileLocked(SongHashFile.FullName))
+                {
+                    File.WriteAllText(SongHashFile.FullName, json);
+                    writeFinished = true;
+                }
+                if(!writeFinished)
+                    await Task.Delay(100).ConfigureAwait(false);
+            } while (!writeFinished || timeout.IsCompleted);
+        }
+
+        public DirectoryInfo SongsDirectory { get; set; }
+        private bool IsDirty { get; set; }
 
         /// <summary>
         /// Parse the SongHashData file into the 'Data' Dictionary. If no file path is provided it uses the default path.
         /// </summary>
         /// <param name="filePath"></param>
-        public void Initialize(string filePath = "", string songCoreDataPath = "")
+        public void Initialize(string songsFolder, string filePath = "", string songCoreDataPath = "")
         {
+
             if (string.IsNullOrEmpty(filePath))
-                filePath = Path.Combine(DEFAULT_SONGCORE_DATA_FOLDER, DEFAULT_FILE_NAME);
+                filePath = Path.Combine(DEFAULT_FOLDER, DEFAULT_FILE_NAME);
             if (File.Exists(filePath))
             {
                 var str = File.ReadAllText(filePath);
@@ -40,12 +87,16 @@ namespace BeatSaberDataProvider.DataProviders
                     var directory = item.Name;
                     Data.Add(directory, new SongHashData(item, directory));
                 }
-                CurrentFile = new FileInfo(filePath);
             }
             foreach (var item in Data.Keys)
             {
                 Data[item].Directory = item;
             }
+        }
+
+        public void LoadSongCoreHashes(string songCoreHashPath = "")
+        {
+
         }
 
         public void AddMissingHashes(string CustomLevelsFolder = "")
@@ -66,7 +117,7 @@ namespace BeatSaberDataProvider.DataProviders
             {
                 if (Data.Keys.Any(k => k == folder.FullName))
                     continue;
-                if(folder.GetFiles().Any(f => f.Name.ToLower() == "info.dat"))
+                if (folder.GetFiles().Any(f => f.Name.ToLower() == "info.dat"))
                 {
                     missingHashData.Add(folder.FullName, new SongHashData() { Directory = folder.FullName });
                 }

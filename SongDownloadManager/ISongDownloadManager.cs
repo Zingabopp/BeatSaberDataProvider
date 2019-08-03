@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SongDownloadManager
 {
@@ -14,11 +15,25 @@ namespace SongDownloadManager
         /// </summary>
         /// <param name="target"></param>
         void RegisterDownloadTarget(ISongDownloadTarget target);
-        
-        void DownloadSong(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken);
-        void DownloadSong(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress);
-        void DownloadSong(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, CancellationToken cancellationToken);
-        void DownloadSong(string songIdentifier, IEnumerable<ISongDownloadTarget> targets);
-       
+
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken);
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress);
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, CancellationToken cancellationToken);
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets);
+
+    }
+
+    public class DownloadResult
+    {
+        public bool Successful { get; private set; }
+        public string Reason { get; private set; }
+        public Exception Exception { get; private set; }
+
+        public DownloadResult(bool successful, string reason = "", Exception ex = null)
+        {
+            Successful = successful;
+            Reason = reason;
+            Exception = ex;
+        }
     }
 }

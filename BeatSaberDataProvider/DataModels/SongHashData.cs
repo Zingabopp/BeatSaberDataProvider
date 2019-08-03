@@ -20,9 +20,16 @@ namespace BeatSaberDataProvider.DataModels
 
         public SongHashData() { }
 
-        public SongHashData(JProperty token, string directory)
+        public SongHashData(string directory)
         {
             Directory = directory;
+        }
+
+        public SongHashData(JProperty token, string directory)
+            : this(directory)
+        {
+            if (token == null)
+                throw new ArgumentNullException(nameof(token), "JProperty token cannot be null when included in SongHashData's constructor.");
             token.Value.Populate(this);
         }
 
@@ -34,7 +41,7 @@ namespace BeatSaberDataProvider.DataModels
         /// <returns>Hash of the song files.</returns>
         public string GenerateHash()
         {
-            byte[] combinedBytes = new byte[0];
+            byte[] combinedBytes = Array.Empty<byte>();
             string infoFile = Path.Combine(Directory, "info.dat");
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(infoFile)).ToArray();
             var token = JToken.Parse(File.ReadAllText(infoFile));
@@ -95,7 +102,7 @@ namespace BeatSaberDataProvider.DataModels
         {
             if (string.IsNullOrEmpty(path))
                 throw new ArgumentNullException(nameof(path), "Path cannot be null or empty for GenerateDirectoryHash");
-            
+
             DirectoryInfo directoryInfo = new DirectoryInfo(path);
             if (!directoryInfo.Exists)
                 throw new DirectoryNotFoundException($"GenerateDirectoryHash couldn't find {path}");
@@ -115,7 +122,7 @@ namespace BeatSaberDataProvider.DataModels
             unchecked
             {
                 int charSum = 0;
-                for(int i = 0; i < str.Count(); i++)
+                for (int i = 0; i < str.Count(); i++)
                 {
                     charSum += str[i];
                 }
@@ -124,7 +131,7 @@ namespace BeatSaberDataProvider.DataModels
         }
 
         /// <summary>
-        /// Returns true if the folder patch matches.
+        /// Returns true if the folder path matches. Case sensitive
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
@@ -132,7 +139,7 @@ namespace BeatSaberDataProvider.DataModels
         {
             if (other == null)
                 return false;
-            return Directory.Equals(other.Directory);
+            return Directory.Equals(other.Directory, StringComparison.CurrentCulture);
         }
     }
 }

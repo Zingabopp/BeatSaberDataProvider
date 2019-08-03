@@ -12,6 +12,10 @@ namespace SongDownloadManager
     public interface ISongDownloadTarget
     {
         /// <summary>
+        /// Unique ID of the ISongDownloadTarget. There should only be one ISongDownloadTarget to a path.
+        /// </summary>
+        string ID { get; }
+        /// <summary>
         /// Name of the download target.
         /// </summary>
         string Name { get; }

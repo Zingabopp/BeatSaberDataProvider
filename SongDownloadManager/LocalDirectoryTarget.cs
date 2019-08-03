@@ -12,9 +12,12 @@ namespace SongDownloadManager
 {
     public class LocalDirectoryTarget : ISongDownloadTarget
     {
+        private const string IdPrefix = "localdirectory:";
         public DirectoryInfo TargetDirectory { get; private set; }
         public ConcurrentDictionary<string, string> Songs { get; private set; }
         private Dictionary<string, SongHashData> ExistingHashes { get; set; }
+
+        public string ID { get; protected set; }
 
         public string Name { get; protected set; }
 
@@ -45,6 +48,7 @@ namespace SongDownloadManager
             }
             Name = string.IsNullOrEmpty(targetName) ? TargetDirectory.Name : targetName;
             Description = string.IsNullOrEmpty(targetName) ? TargetDirectory.FullName : targetDescription;
+            ID = IdPrefix + TargetDirectory.FullName;
         }
 
         public LocalDirectoryTarget(string directory, bool createIfMissing = true)

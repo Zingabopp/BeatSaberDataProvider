@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 namespace BeatSaberDataProvider.DataModels
 {
     [Serializable]
-    public class SongHashData
+    public class SongHashData : IEquatable<SongHashData>
     {
         [JsonIgnore]
         public string Directory { get; set; }
@@ -123,5 +123,16 @@ namespace BeatSaberDataProvider.DataModels
             }
         }
 
+        /// <summary>
+        /// Returns true if the folder patch matches.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public bool Equals(SongHashData other)
+        {
+            if (other == null)
+                return false;
+            return Directory.Equals(other.Directory);
+        }
     }
 }

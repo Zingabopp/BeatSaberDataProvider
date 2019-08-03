@@ -94,7 +94,10 @@ namespace SongDownloadManager
             if (!sourceDir.Exists)
                 throw new ArgumentException(string.Format("source directory does not exist: {0}", source), nameof(source));
             bool success = true;
-            foreach (string sourceFile in sourceDir.EnumerateFiles().Select(f => f.FullName))
+            var files = sourceDir.EnumerateFiles().Select(f => f.FullName);
+            int fileCount = files.Count();
+            int fileNum = 1;
+            foreach (string sourceFile in files)
             {
 
                 if (!success || cancellationToken.IsCancellationRequested)
@@ -102,7 +105,10 @@ namespace SongDownloadManager
                     success = false;
                     break;
                 }
+
                 var destFile = new FileInfo(Path.Combine(targetDir.FullName, sourceFile.Substring(sourceFile.LastIndexOf('\\') + 1)));
+                if (!overwrite && destFile.Exists)
+                    continue;
                 using (FileStream SourceStream = File.Open(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
 
@@ -120,6 +126,8 @@ namespace SongDownloadManager
                     destFile.CreationTimeUtc = File.GetCreationTimeUtc(sourceFile);
                     destFile.LastWriteTimeUtc = File.GetLastWriteTimeUtc(sourceFile);
                 }
+                ProgressPercent?.Invoke(fileNum * 100 / fileCount);
+                fileNum++;
             }
             if (success)
             {
@@ -128,6 +136,7 @@ namespace SongDownloadManager
             }
             else // Copy failed, clean up
             {
+                ProgressPercent?.Invoke(100);
                 if (targetDirCreated)
                 {
                     targetDir.Delete(true);
@@ -149,17 +158,21 @@ namespace SongDownloadManager
         {
             var retDict = new Dictionary<string, bool>();
             var dir = new DirectoryInfo(sourceDirectory);
-            foreach (var songDir in dir.EnumerateDirectories(sourceDirectory))
-            {
+            foreach (var songDir in dir.EnumerateDirectories())
+            {                
+                if (cancellationToken.IsCancellationRequested)
+                    break;
                 if (!songDir.EnumerateFiles("info.dat", SearchOption.TopDirectoryOnly).Any())
-                    continue;
+                    continue; // Not a valid song folder, skip
                 Action<int> songProgress = null;
-                if(SongProgressPercent != null)
+                if (SongProgressPercent != null)
                 {
-                    songProgress = 
+                    songProgress = new Action<int>(p => SongProgressPercent(songDir.FullName, p));
                 }
-                retDict.Add(songDir.FullName, await TransferSong(songDir.FullName, overwrite, SongProgressPercent, cancellationToken));
+
+                retDict.Add(songDir.FullName, await TransferSong(songDir.FullName, overwrite, songProgress, cancellationToken).ConfigureAwait(false));
             }
+            return retDict;
         }
 
         #region TransferSong Overloads

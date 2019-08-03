@@ -80,6 +80,9 @@
     <None Update="TestSourceSongs\5381-4803 Moon Pluck\Moon.egg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="TestSourceSongs\NotASongDir\NotASongFile.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

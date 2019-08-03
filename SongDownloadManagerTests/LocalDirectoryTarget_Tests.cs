@@ -16,6 +16,13 @@ namespace SongDownloadManagerTests
         }
 
         [TestMethod]
+        public void TransferSong_SourceOnly_Cancelled()
+        {
+            var target = new LocalDirectoryTarget("TestDestSongs");
+            ISongDownloadTarget_TestTemplates.TransferSong_Cancelled(target);
+        }
+
+        [TestMethod]
         public void TransferSongs_SourceOnly()
         {
             var target = new LocalDirectoryTarget("TestDestSongs");

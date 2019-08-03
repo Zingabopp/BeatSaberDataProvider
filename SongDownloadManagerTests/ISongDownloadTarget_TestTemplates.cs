@@ -2,7 +2,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SongDownloadManager;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SongDownloadManagerTests
 {
@@ -26,8 +28,27 @@ namespace SongDownloadManagerTests
             var sourceSong = @"TestSourceSongs\5381-4803 Moon Pluck";
             var cancelSource = new CancellationTokenSource();
             var transferTask = downloadTarget.TransferSong(sourceSong, true, cancelSource.Token);
-            cancelSource.Cancel();
             var result = transferTask.Result;
+            Assert.IsTrue(result);
+        }
+
+        public static void TransferSong_Cancelled(ISongDownloadTarget downloadTarget)
+        {
+            Directory.CreateDirectory(@"TestSourceSongs");
+            Directory.CreateDirectory(@"TestSourceSongs\5381-4803 Moon Pluck");
+            var sourceSong = @"TestSourceSongs\5381-4803 Moon Pluck";
+            var cancelSource = new CancellationTokenSource();
+            var transferTask = downloadTarget.TransferSong(sourceSong, true, cancelSource.Token);
+            cancelSource.Cancel();
+            try
+            {
+                var result = transferTask.Result;
+            } catch(AggregateException ex)
+            {
+                Assert.IsTrue(ex.InnerExceptions.First().GetType() == typeof(TaskCanceledException));
+            }
+            
+
         }
 
         public static void TransferSongs_Test(ISongDownloadTarget downloadTarget)

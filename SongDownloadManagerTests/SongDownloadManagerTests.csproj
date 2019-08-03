@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -15,6 +15,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TestDestinationSongs - Copy\**" />
+    <Compile Remove="TestSourceSongs - Copy\**" />
+    <EmbeddedResource Remove="TestDestinationSongs - Copy\**" />
+    <EmbeddedResource Remove="TestSourceSongs - Copy\**" />
+    <None Remove="TestDestinationSongs - Copy\**" />
+    <None Remove="TestSourceSongs - Copy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
@@ -22,6 +31,55 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SongDownloadManager\SongDownloadManager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestDestSongs\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestSourceSongs\13911-15003 Sun Pluck\cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\13911-15003 Sun Pluck\ExpertPlus.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\13911-15003 Sun Pluck\ExpertPlus.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\13911-15003 Sun Pluck\info.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\13911-15003 Sun Pluck\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\13911-15003 Sun Pluck\metadata.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\13911-15003 Sun Pluck\song.egg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\5381-4803 Moon Pluck\cover.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\5381-4803 Moon Pluck\ExpertPlus.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\5381-4803 Moon Pluck\ExpertPlus.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\5381-4803 Moon Pluck\info.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\5381-4803 Moon Pluck\info.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\5381-4803 Moon Pluck\metadata.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestSourceSongs\5381-4803 Moon Pluck\Moon.egg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

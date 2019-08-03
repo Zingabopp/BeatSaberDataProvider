@@ -21,7 +21,14 @@ namespace SongDownloadManager
         string Description { get; }
 
         /// <summary>
-        /// Asynchronously retrieves a list of existing song hashes from the target. Return null if not supported.
+        /// Asynchronously retrieves a list of existing song hashes from the target. If hashExisting is true, hash songs that have been previously hashed.
+        /// Returns null if not supported.
+        /// </summary>
+        /// <returns></returns>
+        Task<List<string>> GetExistingSongHashesAsync(bool hashExisting);
+
+        /// <summary>
+        /// Asynchronously retrieves a list of existing song hashes from the target. Returns null if not supported.
         /// </summary>
         /// <returns></returns>
         Task<List<string>> GetExistingSongHashesAsync();

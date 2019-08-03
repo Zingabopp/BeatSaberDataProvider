@@ -34,6 +34,19 @@ namespace SongDownloadManager
         Task<List<string>> GetExistingSongHashesAsync();
 
         /// <summary>
+        /// Throws an exception if the target is invalid.
+        /// </summary>
+        /// <param name="createIfMissing"></param>
+        void EnsureValidTarget(bool createIfMissing = true);
+
+        /// <summary>
+        /// Returns true if the target is valid. If createIfMissing is true, attempt to make the target valid.
+        /// </summary>
+        /// <param name="createIfMissing"></param>
+        /// <returns></returns>
+        bool IsValidTarget(bool createIfMissing = true);
+
+        /// <summary>
         /// Asynchronously transfers the specified source to the target. Return true if transfer was successful.
         /// </summary>
         /// <param name="source">Song source path</param>

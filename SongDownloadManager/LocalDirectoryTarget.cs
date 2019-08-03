@@ -78,9 +78,58 @@ namespace SongDownloadManager
             return GetExistingSongHashesAsync(false);
         }
 
+        public void EnsureValidTarget(bool createIfMissing = true)
+        {
+            if(!IsValidTarget(createIfMissing))
+            {
+
+            }
+        }
+
+        public bool IsValidTarget(bool createIfMissing = true)
+        {
+            TargetDirectory.Refresh();
+            if (!TargetDirectory.Exists)
+            {
+                if (createIfMissing)
+                {
+                    try
+                    {
+                        TargetDirectory.Create();
+                        return true; // If we were able to create the directory, it should be valid
+                    }
+#pragma warning disable CA1031 // Do not catch general exception types
+                    catch (IOException)
+                    { return false; }
+#pragma warning restore CA1031 // Do not catch general exception types
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            try
+            {
+                var testDir = TargetDirectory.CreateSubdirectory("dirTest");
+                testDir.Refresh();
+                if (testDir.Exists)
+                {
+                    testDir.Delete();
+                    return true;
+                }
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            return false;
+
+        }
+
         public async Task<bool> TransferSong(string source, bool overwrite, Action<int> ProgressPercent, CancellationToken cancellationToken)
         {
             var createdFiles = new List<FileInfo>();
+            bool cancelled = false;
             bool targetDirCreated = false;
             if (string.IsNullOrEmpty(source))
                 throw new ArgumentNullException(nameof(source), "source directory cannot be null for LocalDirectoryTarget.TransferSong");
@@ -100,8 +149,14 @@ namespace SongDownloadManager
             foreach (string sourceFile in files)
             {
 
-                if (!success || cancellationToken.IsCancellationRequested)
+                if (!success)
                 {
+                    success = false;
+                    break;
+                }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    cancelled = true;
                     success = false;
                     break;
                 }
@@ -150,7 +205,8 @@ namespace SongDownloadManager
                 }
 
             }
-
+            if (cancelled)
+                cancellationToken.ThrowIfCancellationRequested();
             return success;
         }
 
@@ -159,9 +215,11 @@ namespace SongDownloadManager
             var retDict = new Dictionary<string, bool>();
             var dir = new DirectoryInfo(sourceDirectory);
             foreach (var songDir in dir.EnumerateDirectories())
-            {                
+            {
                 if (cancellationToken.IsCancellationRequested)
+                {
                     break;
+                }
                 if (!songDir.EnumerateFiles("info.dat", SearchOption.TopDirectoryOnly).Any())
                     continue; // Not a valid song folder, skip
                 Action<int> songProgress = null;

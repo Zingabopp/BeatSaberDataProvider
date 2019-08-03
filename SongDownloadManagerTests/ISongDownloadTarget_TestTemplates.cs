@@ -27,6 +27,7 @@ namespace SongDownloadManagerTests
             var cancelSource = new CancellationTokenSource();
             var transferTask = downloadTarget.TransferSong(sourceSong, true, cancelSource.Token);
             cancelSource.Cancel();
+            var result = transferTask.Result;
         }
 
         public static void TransferSongs_Test(ISongDownloadTarget downloadTarget)
@@ -36,15 +37,41 @@ namespace SongDownloadManagerTests
             var progressTest = new Action<string, int>((dir, progress) =>
             {
                 Console.WriteLine($"{progress}% for {dir}");
+                if (progress == 100)
+                    cancelSource.Cancel();
             });
             var transferTask = downloadTarget.TransferSongs(sourceSong, true, progressTest, cancelSource.Token);
             var test = transferTask.Result;
             var hashes = downloadTarget.GetExistingSongHashesAsync().Result;
-            Assert.IsTrue(hashes.Contains("C8A4070B20E7B4DE3C4561297FF04C96CEBB991F")); // Moon Pluck
+            
             Assert.IsTrue(hashes.Contains("63F2998EDBCE2D1AD31917E4F4D4F8D66348105D")); // Sun Pluck
+            Assert.IsFalse(hashes.Contains("C8A4070B20E7B4DE3C4561297FF04C96CEBB991F")); // Moon Pluck
             //cancelSource.Cancel();
         }
 
+        public static void IsValidTarget_IsValid_CreateIfMissing(ISongDownloadTarget downloadTarget)
+        {
+            var validTarget = downloadTarget.IsValidTarget();
+            Assert.IsTrue(validTarget);
+        }
+
+        public static void IsValidTarget_IsValid_NoCreate(ISongDownloadTarget downloadTarget)
+        {
+            var validTarget = downloadTarget.IsValidTarget(false);
+            Assert.IsTrue(validTarget);
+        }
+
+        public static void IsValidTarget_IsNotValid_CreateIfMissing(ISongDownloadTarget downloadTarget)
+        {
+            var validTarget = downloadTarget.IsValidTarget();
+            Assert.IsFalse(validTarget);
+        }
+
+        public static void IsValidTarget_IsNotValid_NoCreate(ISongDownloadTarget downloadTarget)
+        {
+            var validTarget = downloadTarget.IsValidTarget(false);
+            Assert.IsFalse(validTarget);
+        }
 
         #region Invalid Input
 

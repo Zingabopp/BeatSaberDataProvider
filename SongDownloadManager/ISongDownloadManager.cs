@@ -8,6 +8,9 @@ namespace SongDownloadManager
 {
     public interface ISongDownloadManager
     {
+        /// <summary>
+        /// Dictionary of available ISongDownloadTargets. Key is ISongDownloadTarget.ID.
+        /// </summary>
         Dictionary<string, ISongDownloadTarget> DownloadTargets { get; }
 
         string TempDirectory { get; set; }
@@ -18,10 +21,13 @@ namespace SongDownloadManager
         /// <param name="target"></param>
         void RegisterDownloadTarget(ISongDownloadTarget target);
 
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken);
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress);
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, CancellationToken cancellationToken);
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets);
+        void DeregisterDownloadTarget(ISongDownloadTarget target);
+        void DeregisterDownloadTarget(string targetId);
+
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken);
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress);
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, CancellationToken cancellationToken);
+        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets);
 
     }
 

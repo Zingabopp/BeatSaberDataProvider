@@ -15,7 +15,7 @@ namespace SongDownloadManager
         /// </summary>
         public const string BeatSaver_Hash_Download_Url_Base = "https://beatsaver.com/api/download/hash/";
         public const string BeatSaver_Key_Download_Url_Base = "https://beatsaver.com/api/download/key/";
-
+        
         public virtual string DefaultSongDirectory { get; protected set; }
         public string TempDirectory { get; set; }
         private DirectoryInfo _defaultSongDirectory;
@@ -25,8 +25,8 @@ namespace SongDownloadManager
         /// </summary>
         public ConcurrentDictionary<string, string> DownloadedSongs { get; protected set; }
 
-        public Dictionary<string, ISongDownloadTarget> DownloadTargets => throw new NotImplementedException();
-
+        public Dictionary<string, ISongDownloadTarget> DownloadTargets => new Dictionary<string, ISongDownloadTarget>();
+        private object _downloadTargetsLock = new object();
         private ActionBlock<DownloadJob> DownloadQueue;
 
         
@@ -58,25 +58,51 @@ namespace SongDownloadManager
 
         public void RegisterDownloadTarget(ISongDownloadTarget target)
         {
-            throw new NotImplementedException();
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), "target cannot be null for RegisterDownloadTarget");
+            if (string.IsNullOrEmpty(target.ID))
+                throw new ArgumentException(nameof(target), "ISongDownloadTarget's ID cannot be null or empty.");
+            lock (_downloadTargetsLock)
+            {
+                if (!DownloadTargets.ContainsKey(target.ID))
+                {
+                    DownloadTargets.Add(target.ID, target);
+                }
+            }
+        }
+        public void DeregisterDownloadTarget(string targetId)
+        {
+            lock (_downloadTargetsLock)
+            {
+                if(DownloadTargets.ContainsKey(targetId))
+                    DownloadTargets.Remove(targetId);
+            }
         }
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken)
+        public void DeregisterDownloadTarget(ISongDownloadTarget target)
+        {
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), "target cannot be null for DeregisterDownloadTarget");
+            DeregisterDownloadTarget(target.ID);
+        }
+        
+
+        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, Action<int> Progress)
+        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets, CancellationToken cancellationToken)
+        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, IEnumerable<ISongDownloadTarget> targets)
+        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets)
         {
             throw new NotImplementedException();
         }

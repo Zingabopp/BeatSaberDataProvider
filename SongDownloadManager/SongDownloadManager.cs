@@ -72,6 +72,8 @@ namespace SongDownloadManager
         }
         public void DeregisterDownloadTarget(string targetId)
         {
+            if (string.IsNullOrEmpty(targetId))
+                throw new ArgumentNullException(nameof(targetId), "targetId cannot be null or empty for DeregisterDownloadTarget");
             lock (_downloadTargetsLock)
             {
                 if(DownloadTargets.ContainsKey(targetId))

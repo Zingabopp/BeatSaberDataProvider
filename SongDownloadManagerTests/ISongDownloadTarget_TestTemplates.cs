@@ -68,14 +68,16 @@ namespace SongDownloadManagerTests
             var progressTest = new Action<string, int>((dir, progress) =>
             {
                 Console.WriteLine($"{progress}% for {dir}");
-                if (progress == 100)
-                    cancelSource.Cancel();
+                //if (progress == 100)
+                    //cancelSource.Cancel();
             });
             var transferTask = downloadTarget.TransferSongs(sourceDir.FullName, true, progressTest, cancelSource.Token);
             var test = transferTask.Result;
             var hashes = downloadTarget.GetExistingSongHashesAsync().Result;
-            Assert.IsTrue(hashes.Count == 1);
-            Assert.IsTrue(sourceHashes.Contains(hashes.First()));
+            foreach (var sourceHash in sourceHashes)
+            {
+                Assert.IsTrue(hashes.Contains(sourceHash));
+            }
             //cancelSource.Cancel();
         }
 

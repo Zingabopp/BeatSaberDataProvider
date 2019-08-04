@@ -40,6 +40,12 @@ namespace SongDownloadManager
         Task<List<string>> GetExistingSongHashesAsync();
 
         /// <summary>
+        /// Copy existing hashes into the ISongDownloadTarget. Key is the song's full directory path, value is the hash.
+        /// </summary>
+        /// <param name="hashes"></param>
+        void LoadExistingSongHashes(Dictionary<string, string> hashes);
+
+        /// <summary>
         /// Throws an exception if the target is invalid.
         /// </summary>
         /// <param name="createIfMissing"></param>

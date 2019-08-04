@@ -6,16 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatSaberDataProvider.DataModels;
+using static SongDownloadManager.Util.Util;
 
 namespace SongDownloadManager
 {
     public class LocalDirectoryTarget : ISongDownloadTarget
     {
+        private object _existingHashesLock = new object();
         private const string IdPrefix = "localdirectory:";
         public DirectoryInfo TargetDirectory { get; private set; }
         public ConcurrentDictionary<string, string> Songs { get; private set; }
-        private Dictionary<string, SongHashData> ExistingHashes { get; set; }
+        private Dictionary<string, string> ExistingHashes { get; set; }
 
         public string ID { get; protected set; }
 
@@ -39,7 +40,7 @@ namespace SongDownloadManager
         {
             if (string.IsNullOrEmpty(directory?.Trim()))
                 throw new ArgumentNullException(nameof(directory), "directory cannot be null when creating a SongDirectory.");
-            ExistingHashes = new Dictionary<string, SongHashData>();
+            ExistingHashes = new Dictionary<string, string>();
             Songs = new ConcurrentDictionary<string, string>();
             TargetDirectory = new DirectoryInfo(directory);
             if (!TargetDirectory.Exists)
@@ -61,22 +62,33 @@ namespace SongDownloadManager
         {
             foreach (var songDir in TargetDirectory.GetDirectories())
             {
+                // Add missing directories to the Dictionary with an empty string for the hash value.
                 if (!ExistingHashes.ContainsKey(songDir.FullName))
                 {
-                    ExistingHashes.Add(songDir.FullName, new SongHashData(songDir.FullName));
+                    ExistingHashes.Add(songDir.FullName, string.Empty);
                 }
             }
-            List<SongHashData> songsToHash;
+            List<string> songsToHash;
             if (hashExisting)
-                songsToHash = ExistingHashes.Values.ToList();
+            {
+                songsToHash = ExistingHashes.Keys.ToList();
+            }
             else
-                songsToHash = ExistingHashes.Values.Where(hashData => string.IsNullOrEmpty(hashData.SongHash)).ToList();
+                songsToHash = ExistingHashes.Values.Where(hashData => string.IsNullOrEmpty(hashData)).ToList();
+
+
             await Task.Run(() => songsToHash.AsParallel().ForAll(h =>
             {
-                h.GenerateDirectoryHash();
-                h.GenerateHash();
+                lock (_existingHashesLock)
+                {
+                    if (ExistingHashes.ContainsKey(h))
+                        ExistingHashes[h] = GenerateHash(h);
+                    else
+                        ExistingHashes.Add(h, GenerateHash(h));
+                }
             })).ConfigureAwait(false);
-            return ExistingHashes.Values.Select(h => h.SongHash).ToList();
+
+            return ExistingHashes.Values.ToList();
         }
 
         public Task<List<string>> GetExistingSongHashesAsync()
@@ -84,9 +96,26 @@ namespace SongDownloadManager
             return GetExistingSongHashesAsync(false);
         }
 
+        public void LoadExistingSongHashes(Dictionary<string, string> hashes)
+        {
+            if (hashes == null)
+                throw new ArgumentNullException(nameof(hashes), "hashes Dictionary cannot be null for LoadExistingSongHashes");
+            foreach (var pair in hashes)
+            {
+                if(ExistingHashes.ContainsKey(pair.Key))
+                {
+                    ExistingHashes[pair.Key] = pair.Value;
+                }
+                else
+                {
+                    ExistingHashes.Add(pair.Key, pair.Value);
+                }
+            }
+        }
+
         public void EnsureValidTarget(bool createIfMissing = true)
         {
-            if(!IsValidTarget(createIfMissing))
+            if (!IsValidTarget(createIfMissing))
             {
 
             }
@@ -282,6 +311,7 @@ namespace SongDownloadManager
         {
             return TransferSongs(sourceDirectory, false, null, CancellationToken.None);
         }
+
         #endregion
     }
 }

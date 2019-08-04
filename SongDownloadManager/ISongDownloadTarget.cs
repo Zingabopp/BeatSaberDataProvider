@@ -66,11 +66,11 @@ namespace SongDownloadManager
         /// <param name="ProgressPercent">Song transfer progress as a percentage</param>
         /// <param name="cancellationToken">Token to trigger a cancellation for an in-progress transfer.</param>
         /// <returns></returns>
-        Task<bool> TransferSong(string source, bool overwrite, Action<int> ProgressPercent, CancellationToken cancellationToken);
-        Task<bool> TransferSong(string source, Action<int> ProgressPercent, CancellationToken cancellationToken);
-        Task<bool> TransferSong(string source, bool overwrite, CancellationToken cancellationToken);
-        Task<bool> TransferSong(string source, bool overwrite);
-        Task<bool> TransferSong(string source);
+        Task<bool> TransferSong(SongDownload song, bool overwrite, Action<int> ProgressPercent, CancellationToken cancellationToken);
+        Task<bool> TransferSong(SongDownload song, Action<int> ProgressPercent, CancellationToken cancellationToken);
+        Task<bool> TransferSong(SongDownload song, bool overwrite, CancellationToken cancellationToken);
+        Task<bool> TransferSong(SongDownload song, bool overwrite);
+        Task<bool> TransferSong(SongDownload song);
 
 
         /// <summary>
@@ -82,11 +82,11 @@ namespace SongDownloadManager
         /// <param name="SongProgressPercent">Individual song progress: string is the song hash, int is the song progress percentage</param>
         /// <param name="cancellationToken">Token to trigger a cancellation all remaining transfers.</param>
         /// <returns></returns>
-        Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, bool overwrite, Action<string, int> SongProgressPercent, CancellationToken cancellationToken);
-        Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, Action<string, int> SongProgressPercent, CancellationToken cancellationToken);
-        Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, bool overwrite, CancellationToken cancellationToken);
-        Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, bool overwrite);
-        Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory);
+        Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, bool overwrite, Action<string, int> SongProgressPercent, CancellationToken cancellationToken);
+        Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, Action<string, int> SongProgressPercent, CancellationToken cancellationToken);
+        Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, bool overwrite, CancellationToken cancellationToken);
+        Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, bool overwrite);
+        Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs);
 
     }
 

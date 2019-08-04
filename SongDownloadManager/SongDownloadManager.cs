@@ -47,14 +47,14 @@ namespace SongDownloadManager
 
         }
 
-        public Task<DownloadJob> QueueSongAsync(string songHash)
+        public Task<DownloadJob> QueueSongAsync(SongDownload song)
         {
-            if (string.IsNullOrEmpty(songHash?.Trim()))
-                throw new ArgumentNullException(nameof(songHash), "songHash cannot be null for SongDownloadManager.QueueSongAsync.");
+            if (song == null)
+                throw new ArgumentNullException(nameof(song), "song cannot be null for SongDownloadManager.QueueSongAsync.");
             //if (downloadUri == null)
             //    throw new ArgumentNullException(nameof(downloadUri), "downloadUri cannot be null for SongDownloadManager.QueueSongAsync.");
-            var downloadUri = new Uri(BeatSaver_Hash_Download_Url_Base + songHash.ToLower());
-            var newJob = new DownloadJob(songHash, downloadUri, TempDirectory);
+            var downloadUri = new Uri(BeatSaver_Hash_Download_Url_Base + song.Hash.ToLower());
+            var newJob = new DownloadJob(song, downloadUri, TempDirectory);
 
             return QueueJobAsync(newJob);
         }
@@ -106,22 +106,22 @@ namespace SongDownloadManager
         }
 
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken)
+        public Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress)
+        public Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets, Action<int> Progress)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, CancellationToken cancellationToken)
+        public Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets)
+        public Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets)
         {
             throw new NotImplementedException();
         }

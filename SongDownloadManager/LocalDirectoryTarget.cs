@@ -161,14 +161,16 @@ namespace SongDownloadManager
 
         }
 
-        public async Task<bool> TransferSong(string source, bool overwrite, Action<int> ProgressPercent, CancellationToken cancellationToken)
+        public async Task<bool> TransferSong(SongDownload song, bool overwrite, Action<int> ProgressPercent, CancellationToken cancellationToken)
         {
+            if (song == null)
+                throw new ArgumentNullException(nameof(song), "song cannot be null for LocalDirectoryTarget.TransferSong");
             var createdFiles = new List<FileInfo>();
             bool cancelled = false;
             bool targetDirCreated = false;
-            if (string.IsNullOrEmpty(source))
-                throw new ArgumentNullException(nameof(source), "source directory cannot be null for LocalDirectoryTarget.TransferSong");
-            var sourceDir = new DirectoryInfo(source);
+            if (string.IsNullOrEmpty(song.LocalDirectory))
+                throw new ArgumentException("song's LocalDirectory directory cannot be null for LocalDirectoryTarget.TransferSong", nameof(song));
+            var sourceDir = new DirectoryInfo(song.LocalDirectory);
             var targetDir = new DirectoryInfo(Path.Combine(TargetDirectory.FullName, sourceDir.Name));
             if (!targetDir.Exists)
             {
@@ -176,7 +178,7 @@ namespace SongDownloadManager
                 targetDirCreated = true;
             }
             if (!sourceDir.Exists)
-                throw new ArgumentException(string.Format("source directory does not exist: {0}", source), nameof(source));
+                throw new ArgumentException(string.Format("source directory does not exist: {0}", song), nameof(song));
             bool success = true;
             var files = sourceDir.EnumerateFiles().Select(f => f.FullName);
             int fileCount = files.Count();
@@ -245,22 +247,23 @@ namespace SongDownloadManager
             return success;
         }
 
-        public async Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, bool overwrite, Action<string, int> SongProgressPercent, CancellationToken cancellationToken)
+        public async Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, bool overwrite, Action<string, int> SongProgressPercent, CancellationToken cancellationToken)
         {
             var retDict = new Dictionary<string, bool>();
-            var dir = new DirectoryInfo(sourceDirectory);
-            foreach (var songDir in dir.EnumerateDirectories())
+            //var dir = new DirectoryInfo(songs);
+            foreach (var song in songs)
             {
+                
                 if (cancellationToken.IsCancellationRequested)
                 {
                     break;
                 }
-                if (!songDir.EnumerateFiles("info.dat", SearchOption.TopDirectoryOnly).Any())
+                if (!Directory.EnumerateFiles(song.LocalDirectory, "info.dat", SearchOption.TopDirectoryOnly).Any())
                     continue; // Not a valid song folder, skip
                 Action<int> songProgress = null;
                 if (SongProgressPercent != null)
                 {
-                    songProgress = new Action<int>(p => SongProgressPercent(songDir.FullName, p));
+                    songProgress = new Action<int>(p => SongProgressPercent(Path.GetFullPath(song.LocalDirectory), p));
                 }
 
                 retDict.Add(songDir.FullName, await TransferSong(songDir.FullName, overwrite, songProgress, cancellationToken).ConfigureAwait(false));
@@ -269,47 +272,47 @@ namespace SongDownloadManager
         }
 
         #region TransferSong Overloads
-        public Task<bool> TransferSong(string source, Action<int> SongProgressPercent, CancellationToken cancellationToken)
+        public Task<bool> TransferSong(SongDownload songs, Action<int> SongProgressPercent, CancellationToken cancellationToken)
         {
-            return TransferSong(source, false, SongProgressPercent, cancellationToken);
+            return TransferSong(songs, false, SongProgressPercent, cancellationToken);
         }
 
-        public Task<bool> TransferSong(string source, bool overwrite, CancellationToken cancellationToken)
+        public Task<bool> TransferSong(SongDownload songs, bool overwrite, CancellationToken cancellationToken)
         {
-            return TransferSong(source, overwrite, null, cancellationToken);
+            return TransferSong(songs, overwrite, null, cancellationToken);
         }
 
-        public Task<bool> TransferSong(string source, bool overwrite)
+        public Task<bool> TransferSong(SongDownload songs, bool overwrite)
         {
-            return TransferSong(source, overwrite, null, CancellationToken.None);
+            return TransferSong(songs, overwrite, null, CancellationToken.None);
         }
 
-        public async Task<bool> TransferSong(string source)
+        public async Task<bool> TransferSong(SongDownload songs)
         {
-            var test = await TransferSong(source, false, null, CancellationToken.None).ConfigureAwait(false);
+            var test = await TransferSong(songs, false, null, CancellationToken.None).ConfigureAwait(false);
             return test;
         }
         #endregion
 
         #region TransferSongs Overloads
-        public Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, Action<string, int> SongProgressPercent, CancellationToken cancellationToken)
+        public Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, Action<string, int> SongProgressPercent, CancellationToken cancellationToken)
         {
-            return TransferSongs(sourceDirectory, false, SongProgressPercent, cancellationToken);
+            return TransferSongs(songs, false, SongProgressPercent, cancellationToken);
         }
 
-        public Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, bool overwrite, CancellationToken cancellationToken)
+        public Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, bool overwrite, CancellationToken cancellationToken)
         {
-            return TransferSongs(sourceDirectory, overwrite, null, cancellationToken);
+            return TransferSongs(songs, overwrite, null, cancellationToken);
         }
 
-        public Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory, bool overwrite)
+        public Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs, bool overwrite)
         {
-            return TransferSongs(sourceDirectory, overwrite, null, CancellationToken.None);
+            return TransferSongs(songs, overwrite, null, CancellationToken.None);
         }
 
-        public Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory)
+        public Task<Dictionary<string, bool>> TransferSongs(IEnumerable<SongDownload> songs)
         {
-            return TransferSongs(sourceDirectory, false, null, CancellationToken.None);
+            return TransferSongs(songs, false, null, CancellationToken.None);
         }
 
         #endregion

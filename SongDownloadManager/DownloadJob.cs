@@ -14,17 +14,16 @@ namespace SongDownloadManager
         public const string NOTFOUNDERROR = "The remote server returned an error: (404) Not Found.";
         private const string TIMEOUTERROR = "The request was aborted: The request was canceled.";
 
-        public DownloadJob(string songHash, Uri downloadUri, string tempDirectory)
+        public DownloadJob(SongDownload song, Uri downloadUri, string tempDirectory)
         {
-            
-            if (string.IsNullOrEmpty(songHash?.Trim()))
-                throw new ArgumentNullException(nameof(songHash), "songHash cannot be null for SongDownloadManager.QueueSongAsync.");
+            if (song == null)
+                throw new ArgumentNullException(nameof(song), "song cannot be null for SongDownloadManager.QueueSongAsync.");
             if (string.IsNullOrEmpty(tempDirectory?.Trim()))
                 throw new ArgumentNullException(nameof(tempDirectory), "tempDirectory cannot be null for SongDownloadManager.QueueSongAsync.");
             DownloadUri = downloadUri ?? throw new ArgumentNullException(nameof(downloadUri), "downloadUri cannot be null for SongDownloadManager.QueueSongAsync.");
-            SongHash = songHash;
+            Song = song;
             TempDirectory = tempDirectory;
-            SongDirectory = Path.Combine(TempDirectory, SongHash);
+            SongDirectory = Path.Combine(TempDirectory, Song.Hash);
             
         }
 
@@ -32,7 +31,7 @@ namespace SongDownloadManager
 
         public Uri DownloadUri { get; protected set; }
 
-        public string SongHash { get; protected set; }
+        public SongDownload Song { get; protected set; }
 
         /// <summary>
         /// Temp root folder the zip is extracted to

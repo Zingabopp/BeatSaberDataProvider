@@ -24,10 +24,10 @@ namespace SongDownloadManager
         void DeregisterDownloadTarget(ISongDownloadTarget target);
         void DeregisterDownloadTarget(string targetId);
 
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken);
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress);
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, CancellationToken cancellationToken);
-        Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets);
+        Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken);
+        Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets, Action<int> Progress);
+        Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets, CancellationToken cancellationToken);
+        Task<DownloadResult> DownloadSongAsync(SongDownload song, ICollection<ISongDownloadTarget> targets);
 
     }
 

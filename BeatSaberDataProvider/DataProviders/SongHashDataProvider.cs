@@ -161,11 +161,13 @@ namespace BeatSaberDataProvider.DataProviders
         /// TODO: Handle/document exceptions (such as if the files no longer exist when this is called).
         /// https://github.com/Kylemc1413/SongCore
         /// </summary>
-        /// <returns>Hash of the song files.</returns>
+        /// <returns>Hash of the song files. Null if the info.dat file doesn't exist</returns>
         public static string GenerateHash(string songDirectory, string existingHash = "")
         {
             byte[] combinedBytes = Array.Empty<byte>();
             string infoFile = Path.Combine(songDirectory, "info.dat");
+            if (!File.Exists(infoFile))
+                return null;
             combinedBytes = combinedBytes.Concat(File.ReadAllBytes(infoFile)).ToArray();
             var token = JToken.Parse(File.ReadAllText(infoFile));
             var beatMapSets = token["_difficultyBeatmapSets"];

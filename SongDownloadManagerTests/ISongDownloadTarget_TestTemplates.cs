@@ -1,6 +1,8 @@
+using BeatSaberDataProvider.DataProviders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SongDownloadManager;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -53,7 +55,15 @@ namespace SongDownloadManagerTests
 
         public static void TransferSongs_Test(ISongDownloadTarget downloadTarget)
         {
-            var sourceSong = @"TestSourceSongs";
+            //var sourceSong = @"TestSourceSongs";
+            var sourceDir = new DirectoryInfo(@"TestSourceSongs");
+            var sourceHashes = new List<string>();
+            foreach (var songDir in sourceDir.GetDirectories())
+            {
+                if(songDir.EnumerateFiles("info.dat").Any())
+                    sourceHashes.Add(SongHashDataProvider.GenerateHash(songDir.FullName));
+            }
+            
             var cancelSource = new CancellationTokenSource();
             var progressTest = new Action<string, int>((dir, progress) =>
             {
@@ -61,12 +71,11 @@ namespace SongDownloadManagerTests
                 if (progress == 100)
                     cancelSource.Cancel();
             });
-            var transferTask = downloadTarget.TransferSongs(sourceSong, true, progressTest, cancelSource.Token);
+            var transferTask = downloadTarget.TransferSongs(sourceDir.FullName, true, progressTest, cancelSource.Token);
             var test = transferTask.Result;
             var hashes = downloadTarget.GetExistingSongHashesAsync().Result;
-            
-            Assert.IsTrue(hashes.Contains("63F2998EDBCE2D1AD31917E4F4D4F8D66348105D")); // Sun Pluck
-            Assert.IsFalse(hashes.Contains("C8A4070B20E7B4DE3C4561297FF04C96CEBB991F")); // Moon Pluck
+            Assert.IsTrue(hashes.Count == 1);
+            Assert.IsTrue(sourceHashes.Contains(hashes.First()));
             //cancelSource.Cancel();
         }
 

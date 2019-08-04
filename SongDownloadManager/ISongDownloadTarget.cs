@@ -24,6 +24,8 @@ namespace SongDownloadManager
         /// </summary>
         string Description { get; }
 
+        SongFormat ReceivingFormat { get; }
+
         /// <summary>
         /// Asynchronously retrieves a list of existing song hashes from the target. If hashExisting is true, hash songs that have been previously hashed.
         /// Returns null if not supported.
@@ -81,4 +83,11 @@ namespace SongDownloadManager
         Task<Dictionary<string, bool>> TransferSongs(string sourceDirectory);
 
     }
+
+    public enum SongFormat
+    {
+        Extracted,
+        Zipped
+    }
+
 }

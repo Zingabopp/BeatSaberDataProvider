@@ -23,6 +23,8 @@ namespace SongDownloadManager
 
         public string Description { get; protected set; }
 
+        public SongFormat ReceivingFormat => SongFormat.Extracted;
+
         /// <summary>
         /// 
         /// </summary>

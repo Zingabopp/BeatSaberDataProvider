@@ -16,10 +16,13 @@
 
   <ItemGroup>
     <Compile Remove="TestDestinationSongs - Copy\**" />
+    <Compile Remove="TestDestSongs\**" />
     <Compile Remove="TestSourceSongs - Copy\**" />
     <EmbeddedResource Remove="TestDestinationSongs - Copy\**" />
+    <EmbeddedResource Remove="TestDestSongs\**" />
     <EmbeddedResource Remove="TestSourceSongs - Copy\**" />
     <None Remove="TestDestinationSongs - Copy\**" />
+    <None Remove="TestDestSongs\**" />
     <None Remove="TestSourceSongs - Copy\**" />
   </ItemGroup>
 
@@ -31,10 +34,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SongDownloadManager\SongDownloadManager.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="TestDestSongs\" />
   </ItemGroup>
 
   <ItemGroup>

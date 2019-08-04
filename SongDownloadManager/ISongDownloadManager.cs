@@ -10,6 +10,8 @@ namespace SongDownloadManager
     {
         Dictionary<string, ISongDownloadTarget> DownloadTargets { get; }
 
+        string TempDirectory { get; set; }
+
         /// <summary>
         /// Attempts to add an ISongDownloadTarget to the DownloadTargets Dictionary.
         /// </summary>

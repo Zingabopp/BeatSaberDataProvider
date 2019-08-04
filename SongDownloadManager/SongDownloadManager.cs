@@ -6,7 +6,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace SongDownloadManager
 {
-    public class SongDownloadManager
+    public class SongDownloadManager : ISongDownloadManager
     {
         public virtual string DefaultSongDirectory { get; protected set; }
         public string TempDirectory { get; set; }

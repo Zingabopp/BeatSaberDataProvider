@@ -31,17 +31,5 @@ namespace SongDownloadManager
 
     }
 
-    public class DownloadResult
-    {
-        public bool Successful { get; private set; }
-        public string Reason { get; private set; }
-        public Exception Exception { get; private set; }
-
-        public DownloadResult(bool successful, string reason = "", Exception ex = null)
-        {
-            Successful = successful;
-            Reason = reason;
-            Exception = ex;
-        }
-    }
+    
 }

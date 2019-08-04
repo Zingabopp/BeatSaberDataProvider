@@ -15,7 +15,7 @@ namespace SongDownloadManager
         /// </summary>
         public const string BeatSaver_Hash_Download_Url_Base = "https://beatsaver.com/api/download/hash/";
         public const string BeatSaver_Key_Download_Url_Base = "https://beatsaver.com/api/download/key/";
-        
+
         public virtual string DefaultSongDirectory { get; protected set; }
         public string TempDirectory { get; set; }
         private DirectoryInfo _defaultSongDirectory;
@@ -28,8 +28,24 @@ namespace SongDownloadManager
         public Dictionary<string, ISongDownloadTarget> DownloadTargets => new Dictionary<string, ISongDownloadTarget>();
         private object _downloadTargetsLock = new object();
         private ActionBlock<DownloadJob> DownloadQueue;
+        private ActionBlock<DownloadJob> ExtractQueue;
 
-        
+        public SongDownloadManager()
+        {
+            DownloadQueue = new ActionBlock<DownloadJob>(async job =>
+            {
+                try
+                {
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+            });
+
+
+        }
 
         public Task<DownloadJob> QueueSongAsync(string songHash)
         {
@@ -39,7 +55,7 @@ namespace SongDownloadManager
             //    throw new ArgumentNullException(nameof(downloadUri), "downloadUri cannot be null for SongDownloadManager.QueueSongAsync.");
             var downloadUri = new Uri(BeatSaver_Hash_Download_Url_Base + songHash.ToLower());
             var newJob = new DownloadJob(songHash, downloadUri, TempDirectory);
-            
+
             return QueueJobAsync(newJob);
         }
 
@@ -70,13 +86,14 @@ namespace SongDownloadManager
                 }
             }
         }
+
         public void DeregisterDownloadTarget(string targetId)
         {
             if (string.IsNullOrEmpty(targetId))
                 throw new ArgumentNullException(nameof(targetId), "targetId cannot be null or empty for DeregisterDownloadTarget");
             lock (_downloadTargetsLock)
             {
-                if(DownloadTargets.ContainsKey(targetId))
+                if (DownloadTargets.ContainsKey(targetId))
                     DownloadTargets.Remove(targetId);
             }
         }
@@ -87,7 +104,7 @@ namespace SongDownloadManager
                 throw new ArgumentNullException(nameof(target), "target cannot be null for DeregisterDownloadTarget");
             DeregisterDownloadTarget(target.ID);
         }
-        
+
 
         public Task<DownloadResult> DownloadSongAsync(string songIdentifier, ICollection<ISongDownloadTarget> targets, Action<int> Progress, CancellationToken cancellationToken)
         {
@@ -109,7 +126,7 @@ namespace SongDownloadManager
             throw new NotImplementedException();
         }
 
-        
+
 
     }
 }

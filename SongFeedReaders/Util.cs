@@ -5,10 +5,15 @@ using SongFeedReaders.Logging;
 
 namespace SongFeedReaders
 {
-    static class Util
+    public static class Util
     {
-        public static FeedReaderLoggerBase Logger = new FeedReaderLogger(LoggingController.DefaultLogController);
-        public static int MaxAggregateExceptionDepth = 10;
+        static Util()
+        {
+            Logger = new FeedReaderLogger(LoggingController.DefaultLogController);
+            MaxAggregateExceptionDepth = 10;
+        }
+        public static FeedReaderLoggerBase Logger { get; set; } 
+        public static int MaxAggregateExceptionDepth { get; set; }
 
         public static void WriteExceptions(this AggregateException ae, string message)
         {

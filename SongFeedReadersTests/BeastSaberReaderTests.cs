@@ -13,8 +13,7 @@ namespace SongFeedReadersTests
     {
         static BeastSaberReaderTests()
         {
-            if (!WebUtils.IsInitialized)
-                WebUtils.Initialize();
+            TestSetup.Initialize();
         }
 
         private int DefaultMaxConcurrency = 5;

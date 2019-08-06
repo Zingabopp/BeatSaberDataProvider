@@ -36,4 +36,20 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
+  <Choose>
+    <When Condition="'$(TargetFramework)' != 'netstandard2.0'">
+      <ItemGroup>
+        <Reference Include="System.Net.Http" />
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
+      <ItemGroup>
+        <PackageReference Include="System.Net.Http" Version="4.3.4" />
+
+      </ItemGroup>
+    </When>
+  </Choose>
+
 </Project>

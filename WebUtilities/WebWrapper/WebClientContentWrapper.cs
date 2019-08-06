@@ -31,7 +31,18 @@ namespace WebUtilities.WebWrapper
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
 
-        public string ContentType { get { return _response?.ContentType; } }
+        public string ContentType
+        {
+            get
+            {
+                if (_response == null)
+                    return string.Empty;
+                var cType = _response.ContentType;
+                if (cType.Contains(";"))
+                    cType = cType.Substring(0, cType.IndexOf(";"));
+                return cType;
+            }
+        }
 
         public long? ContentLength { get; protected set; }
 

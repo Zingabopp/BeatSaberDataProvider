@@ -13,8 +13,7 @@ namespace SongFeedReadersTests
     {
         static ScoreSaberReaderTests()
         {
-            if (!WebUtils.IsInitialized)
-                WebUtils.Initialize();
+            TestSetup.Initialize();
         }
 
         [TestMethod]

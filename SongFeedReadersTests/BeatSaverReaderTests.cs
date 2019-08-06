@@ -13,8 +13,7 @@ namespace SongFeedReadersTests
     {
         static BeatSaverReaderTests()
         {
-            if (!WebUtils.IsInitialized)
-                WebUtils.Initialize();
+            TestSetup.Initialize();
         }
         #region Web
         [TestMethod]

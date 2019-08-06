@@ -17,9 +17,26 @@ namespace WebUtilities.WebWrapper
             //else
             //    webClient = client;
             ErrorHandling = ErrorHandling.ThrowOnException;
+            MaxConcurrentConnections = int.MaxValue;
+        }
+
+        public WebClientWrapper(int maxConnectionsPerServer)
+            : this()
+        {
+            MaxConcurrentConnections = maxConnectionsPerServer > 0 ? maxConnectionsPerServer : 1;
         }
 
         public int Timeout { get; set; }
+        private int _maxConcurrentConnections;
+        public int MaxConcurrentConnections
+        {
+            get { return _maxConcurrentConnections; }
+            set
+            {
+                _maxConcurrentConnections = value;
+                ServicePointManager.DefaultConnectionLimit = value;
+            }
+        }
         public ErrorHandling ErrorHandling { get; set; }
 
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
@@ -29,11 +46,19 @@ namespace WebUtilities.WebWrapper
                 return null;
             try
             {
-                var response = request.GetResponse() as HttpWebResponse;
+                var getTask = request.GetResponseAsync();
+                if (cancellationToken != CancellationToken.None)
+                {
+                    var cancelTask = cancellationToken.AsTask();
+                    await Task.WhenAny(getTask, cancelTask);
+                    if (!getTask.IsCompleted)
+                        return null;
+                }
+                var response = await getTask.ConfigureAwait(false) as HttpWebResponse;
                 //TODO: Need testing for cancellation token
                 return new WebClientResponseWrapper(response, request);
             }
-            catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 if (ErrorHandling != ErrorHandling.ReturnEmptyContent)
                     throw;
@@ -43,7 +68,7 @@ namespace WebUtilities.WebWrapper
                     return new WebClientResponseWrapper(null, null);
                 }
             }
-            catch(WebException ex)
+            catch (WebException ex)
             {
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                     throw;
@@ -56,7 +81,7 @@ namespace WebUtilities.WebWrapper
 
         }
 
-#region GetAsyncOverloads
+        #region GetAsyncOverloads
 
         public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders, CancellationToken cancellationToken)
         {
@@ -88,9 +113,9 @@ namespace WebUtilities.WebWrapper
         {
             return GetAsync(uri, false, cancellationToken);
         }
-#endregion
+        #endregion
 
-#region IDisposable Support
+        #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -99,7 +124,7 @@ namespace WebUtilities.WebWrapper
             {
                 if (disposing)
                 {
-                    
+
                 }
                 disposedValue = true;
             }
@@ -109,7 +134,7 @@ namespace WebUtilities.WebWrapper
         {
             Dispose(true);
         }
-#endregion
+        #endregion
 
     }
 }

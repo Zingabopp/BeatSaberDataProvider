@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 
-namespace WebUtilities
+namespace WebUtilities.HttpClientWrapper
 {
     public class HttpResponseWrapper : IWebResponseMessage
     {

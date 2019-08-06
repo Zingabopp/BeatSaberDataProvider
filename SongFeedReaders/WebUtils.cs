@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Net.Http;
 using System.Net;
 using SongFeedReaders.Logging;
 using WebUtilities;
@@ -38,8 +37,6 @@ namespace SongFeedReaders
         {
             get
             {
-                if (_webClient == null)
-                    _webClient = new HttpClientWrapper();
                 return _webClient;
             }
 
@@ -63,7 +60,7 @@ namespace SongFeedReaders
         private static readonly string[] RateLimitKeys = new string[] { RATE_LIMIT_REMAINING_KEY, RATE_LIMIT_RESET_KEY, RATE_LIMIT_TOTAL_KEY };
         public static RateLimit ParseRateLimit(Dictionary<string, string> headers)
         {
-            if(headers == null)
+            if (headers == null)
                 throw new ArgumentNullException(nameof(headers), "headers cannot be null for WebUtils.ParseRateLimit");
             if (RateLimitKeys.All(k => headers.Keys.Contains(k)))
                 return new RateLimit()
@@ -76,42 +73,16 @@ namespace SongFeedReaders
                 return null;
         }
 
-        public static void Initialize()
-        {
-            if (!IsInitialized)
-            {
-                _webClient = new HttpClientWrapper();
-                IsInitialized = true;
-            }
-        }
-
-        public static void Initialize(HttpClient client)
-        {
-            if (!IsInitialized)
-            {
-                if (client == null)
-                {
-                    _webClient = new HttpClientWrapper();
-                }
-                else
-                {
-                    _webClient = new HttpClientWrapper(client);
-                }
-                IsInitialized = true;
-            }
-        }
         public static void Initialize(IWebClient client)
         {
-            if (!IsInitialized)
+            if (client == null)
             {
-                if (client == null)
-                {
-                    _webClient = new HttpClientWrapper();
-                }
-                else
-                {
-                    _webClient = client;
-                }
+                throw new ArgumentNullException(nameof(client), "client cannot be null for WebUtils.Initialize");
+                //_webClient = new HttpClientWrapper();
+            }
+            if (!IsInitialized || _webClient == null)
+            {
+                _webClient = client;
                 IsInitialized = true;
             }
         }
@@ -182,7 +153,7 @@ namespace SongFeedReaders
         /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
         /// <returns></returns>
-        public static async Task ReadAsFileAsync(this HttpContent content, string filename, bool overwrite)
+        public static async Task ReadAsFileAsync(this IWebResponseContent content, string filename, bool overwrite)
         {
             if (content == null)
                 throw new ArgumentNullException(nameof(content), "content cannot be null for HttpContent.ReadAsFileAsync");

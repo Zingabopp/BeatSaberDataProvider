@@ -47,7 +47,7 @@ namespace WebUtilities.WebWrapper
             try
             {
                 var getTask = request.GetResponseAsync();
-                if (cancellationToken != CancellationToken.None)
+                if (cancellationToken.CanBeCanceled)
                 {
                     var cancelTask = cancellationToken.AsTask();
                     await Task.WhenAny(getTask, cancelTask);

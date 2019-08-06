@@ -12,8 +12,8 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
-using System.Net.Http;
+//using System.Threading.Tasks.Dataflow;
+using SongFeedReaders.DataflowAlternative;
 using SongFeedReaders.Logging;
 using System.Diagnostics;
 using WebUtilities;
@@ -41,11 +41,6 @@ namespace SongFeedReaders
         private const string XML_SONGKEY_KEY = "SongKey";
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeastSaberFeedSettings.";
         #endregion
-
-        public static void TestCreateActionBlock()
-        {
-            var block = new ActionBlock<string>(s => s = s.ToLower());
-        }
 
         private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
         public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
@@ -334,7 +329,7 @@ namespace SongFeedReaders
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     }
                 }
-                catch (HttpRequestException ex)
+                catch (WebException ex)
                 {
                     Logger.Exception($"Error downloading {feedUrl} in TransformBlock.", ex);
                     return new List<ScrapedSong>();

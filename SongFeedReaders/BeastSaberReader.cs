@@ -42,6 +42,11 @@ namespace SongFeedReaders
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeastSaberFeedSettings.";
         #endregion
 
+        public static void TestCreateActionBlock()
+        {
+            var block = new ActionBlock<string>(s => s = s.ToLower());
+        }
+
         private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
         public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
         public string Name { get { return NameKey; } }
@@ -203,7 +208,7 @@ namespace SongFeedReaders
 
                             songsOnPage.Add(new ScrapedSong(hash)
                             {
-                                DownloadUri = Util.GetUriFromString(downloadUrl),
+                                DownloadUri = Utilities.GetUriFromString(downloadUrl),
                                 SourceUri = sourceUrl,
                                 SongName = songName,
                                 MapperName = authorName,
@@ -247,7 +252,7 @@ namespace SongFeedReaders
                 {
                     songsOnPage.Add(new ScrapedSong(songHash)
                     {
-                        DownloadUri = Util.GetUriFromString(downloadUrl),
+                        DownloadUri = Utilities.GetUriFromString(downloadUrl),
                         SourceUri = sourceUri,
                         SongName = songName,
                         MapperName = mapperName,
@@ -273,7 +278,7 @@ namespace SongFeedReaders
                 throw new ArgumentNullException(nameof(feedUrlBase), "feedUrlBase cannot be null or empty for GetPageUrl");
             string feedUrl = feedUrlBase.Replace(USERNAMEKEY, _username).Replace(PAGENUMKEY, page.ToString());
             //Logger.Debug($"Replacing {USERNAMEKEY} with {_username} in base URL:\n   {feedUrlBase}");
-            return Util.GetUriFromString(feedUrl);
+            return Utilities.GetUriFromString(feedUrl);
         }
 
         #region Web Requests
@@ -342,8 +347,10 @@ namespace SongFeedReaders
             }, new ExecutionDataflowBlockOptions
             {
                 MaxDegreeOfParallelism = MaxConcurrency,
-                BoundedCapacity = MaxConcurrency,
-                EnsureOrdered = true
+                BoundedCapacity = MaxConcurrency
+#if NETSTANDARD
+                , EnsureOrdered = true
+#endif
             });
             bool continueLooping = true;
             int itemsInBlock = 0;
@@ -408,9 +415,9 @@ namespace SongFeedReaders
             return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
         }
 
-        #endregion
+#endregion
 
-        #region Sync
+#region Sync
         public Dictionary<string, ScrapedSong> GetSongsFromFeed(IFeedSettings settings)
         {
             // Pointless to have these checks here?
@@ -426,17 +433,17 @@ namespace SongFeedReaders
 
             return retDict;
         }
-        #endregion
-        #endregion
+#endregion
+#endregion
 
-        #region Overloads
+#region Overloads
         public List<ScrapedSong> ParseJsonPage(string pageText, string sourceUrl)
         {
-            return ParseJsonPage(pageText, Util.GetUriFromString(sourceUrl));
+            return ParseJsonPage(pageText, Utilities.GetUriFromString(sourceUrl));
         }
         public List<ScrapedSong> ParseXMLPage(string pageText, string sourceUrl)
         {
-            return ParseXMLPage(pageText, Util.GetUriFromString(sourceUrl));
+            return ParseXMLPage(pageText, Utilities.GetUriFromString(sourceUrl));
         }
         public Uri GetPageUrl(int feedIndex, int page)
         {
@@ -450,11 +457,11 @@ namespace SongFeedReaders
         /// <returns></returns>
         public List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, ContentType contentType)
         {
-            return GetSongsFromPageText(pageText, Util.GetUriFromString(sourceUrl), contentType);
+            return GetSongsFromPageText(pageText, Utilities.GetUriFromString(sourceUrl), contentType);
         }
 
 
-        #endregion
+#endregion
 
 
         public enum ContentType

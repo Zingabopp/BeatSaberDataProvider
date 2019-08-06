@@ -86,7 +86,21 @@ namespace SongFeedReaders
             return !feedInfo1.Equals(feedInfo2);
         }
 
-        public override int GetHashCode() => (Name, BaseUrl).GetHashCode();
+        public override int GetHashCode()
+        {
+            return new HashablePair(Name, BaseUrl).GetHashCode();
+        }
+
+        struct HashablePair
+        {
+            public HashablePair(string name, string baseUrl)
+            {
+                Name = name;
+                BaseUrl = baseUrl;
+            }
+            string Name;
+            string BaseUrl;
+        }
         #endregion
     }
 

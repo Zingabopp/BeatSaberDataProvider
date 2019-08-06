@@ -16,7 +16,6 @@ namespace BeatSaberDataProvider.Web
         private readonly string _destinationFilePath;
 
         private HttpClient _httpClient { get { return WebUtils.HttpClient; } }
-
         public delegate void ProgressChangedHandler(long? totalFileSize, long totalBytesDownloaded, double? progressPercentage);
 
         public event ProgressChangedHandler ProgressChanged;

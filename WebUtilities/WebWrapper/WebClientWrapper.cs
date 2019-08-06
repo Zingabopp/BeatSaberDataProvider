@@ -1,22 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Net.Http;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net;
+using WebUtilities;
 
-namespace WebUtilities
+namespace WebUtilities.WebWrapper
 {
-    public class HttpClientWrapper : IWebClient
+    public class WebClientWrapper : IWebClient, IDisposable
     {
-        private HttpClient httpClient;
-        public ILogger Logger;
+        //public ILogger Logger;
 
-        public HttpClientWrapper(HttpClient client = null)
+        public WebClientWrapper()
         {
-            if (client == null)
-                httpClient = new HttpClient();
-            else
-                httpClient = client;
+            //if (client == null)
+            //    client = new WebClient();
+            //else
+            //    webClient = client;
             ErrorHandling = ErrorHandling.ThrowOnException;
         }
 
@@ -25,12 +24,14 @@ namespace WebUtilities
 
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
         {
-            HttpCompletionOption completionOption = 
-                completeOnHeaders ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
+            var request = HttpWebRequest.CreateHttp(uri);
+            if (cancellationToken.IsCancellationRequested)
+                return null;
             try
             {
+                var response = request.GetResponse() as HttpWebResponse;
                 //TODO: Need testing for cancellation token
-                return new HttpResponseWrapper(await httpClient.GetAsync(uri, completionOption, cancellationToken).ConfigureAwait(false));
+                return new WebClientResponseWrapper(response, request);
             }
             catch(ArgumentException ex)
             {
@@ -38,24 +39,24 @@ namespace WebUtilities
                     throw;
                 else
                 {
-                    Logger?.Log(LogLevel.Error, $"Invalid URL, {uri?.ToString()}, passed to GetAsync()\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null);
+                    //Logger?.Log(LogLevel.Error, $"Invalid URL, {uri?.ToString()}, passed to GetAsync()\n{ex.Message}\n{ex.StackTrace}");
+                    return new WebClientResponseWrapper(null, null);
                 }
             }
-            catch(HttpRequestException ex)
+            catch(WebException ex)
             {
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                     throw;
                 else
                 {
-                    Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null);
+                    //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
+                    return new WebClientResponseWrapper(null, null);
                 }
             }
 
         }
 
-        #region GetAsyncOverloads
+#region GetAsyncOverloads
 
         public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders, CancellationToken cancellationToken)
         {
@@ -87,9 +88,9 @@ namespace WebUtilities
         {
             return GetAsync(uri, false, cancellationToken);
         }
-        #endregion
+#endregion
 
-        #region IDisposable Support
+#region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -98,11 +99,7 @@ namespace WebUtilities
             {
                 if (disposing)
                 {
-                    if (httpClient != null)
-                    {
-                        httpClient.Dispose();
-                        httpClient = null;
-                    }
+                    
                 }
                 disposedValue = true;
             }
@@ -112,7 +109,7 @@ namespace WebUtilities
         {
             Dispose(true);
         }
-        #endregion
+#endregion
 
     }
 }

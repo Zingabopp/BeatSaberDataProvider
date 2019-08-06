@@ -86,13 +86,13 @@ namespace SongFeedReaders
                 {
                     url.Replace(key, replacements[key]);
                 }
-            return Util.GetUriFromString(url.Replace(PAGEKEY, pageIndex.ToString()).ToString());
+            return Utilities.GetUriFromString(url.Replace(PAGEKEY, pageIndex.ToString()).ToString());
             
         }
 
         public static List<ScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl)
         {
-            return ParseSongsFromPage(pageText, Util.GetUriFromString(sourceUrl));
+            return ParseSongsFromPage(pageText, Utilities.GetUriFromString(sourceUrl));
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace SongFeedReaders
 
         public static ScrapedSong ParseSongFromJson(JObject song, string sourceUrl)
         {
-            return ParseSongFromJson(song, Util.GetUriFromString(sourceUrl));
+            return ParseSongFromJson(song, Utilities.GetUriFromString(sourceUrl));
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace SongFeedReaders
             string downloadUri = !string.IsNullOrEmpty(songKey) ? BEATSAVER_DOWNLOAD_URL_BASE + songKey : string.Empty;
             var newSong = new ScrapedSong(songHash)
             {
-                DownloadUri = Util.GetUriFromString(downloadUri),
+                DownloadUri = Utilities.GetUriFromString(downloadUri),
                 SourceUri = sourceUrl,
                 SongName = songName,
                 MapperName = mapperName,
@@ -713,7 +713,7 @@ namespace SongFeedReaders
         }
         public static List<ScrapedSong> GetSongsFromPage(string url)
         {
-            return GetSongsFromPageAsync(Util.GetUriFromString(url)).Result;
+            return GetSongsFromPageAsync(Utilities.GetUriFromString(url)).Result;
         }
         [Obsolete("Check this")]
         public static List<ScrapedSong> GetSongsByUploaderId(string authorId)
@@ -754,7 +754,7 @@ namespace SongFeedReaders
 
         public static Task<List<ScrapedSong>> GetSongsFromPageAsync(string url)
         {
-            return GetSongsFromPageAsync(Util.GetUriFromString(url));
+            return GetSongsFromPageAsync(Utilities.GetUriFromString(url));
         }
 
         public static Uri GetPageUrl(int feedIndex, int pageIndex = 0, Dictionary<string, string> replacements = null)

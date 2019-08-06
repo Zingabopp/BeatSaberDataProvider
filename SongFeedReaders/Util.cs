@@ -5,9 +5,9 @@ using SongFeedReaders.Logging;
 
 namespace SongFeedReaders
 {
-    public static class Util
+    public static class Utilities
     {
-        static Util()
+        static Utilities()
         {
             Logger = new FeedReaderLogger(LoggingController.DefaultLogController);
             MaxAggregateExceptionDepth = 10;

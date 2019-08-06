@@ -114,7 +114,7 @@ namespace SongFeedReaders
                 if (!string.IsNullOrEmpty(hash))
                     songs.Add(new ScrapedSong(hash)
                     {
-                        DownloadUri = Util.GetUriFromString(BEATSAVER_DOWNLOAD_URL_BASE + hash),
+                        DownloadUri = Utilities.GetUriFromString(BEATSAVER_DOWNLOAD_URL_BASE + hash),
                         SourceUri = sourceUri,
                         SongName = songName,
                         MapperName = mapperName,
@@ -266,12 +266,12 @@ namespace SongFeedReaders
 
         public Task<List<ScrapedSong>> GetSongsFromPageAsync(string url)
         {
-            return GetSongsFromPageAsync(Util.GetUriFromString(url));
+            return GetSongsFromPageAsync(Utilities.GetUriFromString(url));
         }
 
         public List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl)
         {
-            return GetSongsFromPageText(pageText, Util.GetUriFromString(sourceUrl));
+            return GetSongsFromPageText(pageText, Utilities.GetUriFromString(sourceUrl));
         }
 
         #endregion

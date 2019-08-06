@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SongFeedReaders.DataflowAlternative
@@ -31,6 +32,8 @@ namespace SongFeedReaders.DataflowAlternative
             }
         }
 
+        public int InputCount { get; private set; }
+
         public TransformBlock(Func<TInput, Task<TOutput>> function)
         {
             taskQueue = new ConcurrentQueue<Task<TOutput>>();
@@ -40,6 +43,8 @@ namespace SongFeedReaders.DataflowAlternative
             MaxDegreeOfParallelism = 1;
             EnsureOrdered = true;
         }
+
+
 
         public TransformBlock(Func<TInput, Task<TOutput>> function, ExecutionDataflowBlockOptions options)
             : this(function)
@@ -53,29 +58,85 @@ namespace SongFeedReaders.DataflowAlternative
             MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
         }
 
-        public async Task<bool> SendAsync(TInput input)
+        private void QueueNext()
         {
-            bool wasAdded = false;
-            if(taskQueue.Count() < MaxDegreeOfParallelism)
-            {
-                taskQueue.Enqueue(Task.Run(() => blockFunction(input)));
-            }
-            return input != null;
+            if (waitQueue.Any())
+                lock (taskQueueLock)
+                {
+                    if (waitQueue.TryDequeue(out var input))
+                        taskQueue.Enqueue(Worker(blockFunction(input)));
+                }
         }
 
+        private async Task<TOutput> Worker(Task<TOutput> function)
+        {
+
+            TOutput result = await function.ConfigureAwait(false);
+            Console.WriteLine($"Finished worker with result {result}");
+            InputCount--;
+            if (waitQueue.Count > 0)
+                QueueNext();
+            return result;
+        }
+
+        /// <summary>
+        /// TODO: Make it respect BoundedCapacity
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public async Task<bool> SendAsync(TInput input)
+        {
+            if (waitQueue.Count + taskQueue.Count > BoundedCapacity)
+                return false;
+            // Check if anything's in the waitQueue so this input doesn't jump the line.
+            if (!waitQueue.Any() && taskQueue.Count() < MaxDegreeOfParallelism)
+            {
+                lock (taskQueueLock)
+                {
+                    taskQueue.Enqueue(Worker(blockFunction(input)));
+                }
+            }
+            else
+                waitQueue.Enqueue(input);
+            InputCount++;
+            return true;
+        }
+
+        /// <summary>
+        /// Waits for an output to become available and returns true.
+        /// If there are no workers in the queue, returns false.
+        /// </summary>
+        /// <returns></returns>
         public async Task<bool> OutputAvailableAsync()
         {
-            while (taskQueue.Count > 0)
+            if (!(taskQueue.Any() || waitQueue.Any()))
+                return false;
+            while (taskQueue.Count > 0 || waitQueue.Any())
             {
                 if (taskQueue.TryPeek(out var firstTask))
                 {
-                    await firstTask.ConfigureAwait(false);
+                    try
+                    {
+                        await firstTask.ConfigureAwait(false);
+                    }
+                    catch (Exception)
+                    {
+                        return true;
+                    }
                     return true;
                 }
+                if (!taskQueue.Any() && waitQueue.Any())
+                    QueueNext(); // Just in case, probably no reason to have this
             }
             return false;
         }
 
+        /// <summary>
+        /// Attempts to retreive a completed worker's result.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <exception cref="Exception">Throws exceptions from the worker.</exception>
+        /// <returns></returns>
         public bool TryReceive(out TOutput output)
         {
             output = default(TOutput);
@@ -89,6 +150,11 @@ namespace SongFeedReaders.DataflowAlternative
                     {
                         if (taskQueue.TryDequeue(out var retTask))
                         {
+                            if (retTask.IsFaulted)
+                                if (retTask.Exception.InnerExceptions.Count == 1)
+                                    throw retTask.Exception.InnerException;
+                                else
+                                    throw retTask.Exception;
                             output = retTask.Result;
                             return true;
                         }
@@ -117,6 +183,15 @@ namespace SongFeedReaders.DataflowAlternative
         public void Complete()
         {
 
+        }
+
+        public async Task Completion()
+        {
+            await Task.Run( async () =>
+            {
+                while (InputCount > 0) await Task.Delay(25).ConfigureAwait(false);
+            }).ConfigureAwait(false);
+            return;
         }
     }
 }

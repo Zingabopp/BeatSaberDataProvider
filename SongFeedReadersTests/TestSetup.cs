@@ -14,7 +14,11 @@ namespace SongFeedReadersTests
                 return;
             IsInitialized = true;
             if (!WebUtils.IsInitialized)
+            {
                 WebUtils.Initialize(new WebUtilities.WebWrapper.WebClientWrapper());
+                // WebUtils.Initialize(new WebUtilities.HttpClientWrapper.HttpClientWrapper());
+            }
+
         }
     }
 }

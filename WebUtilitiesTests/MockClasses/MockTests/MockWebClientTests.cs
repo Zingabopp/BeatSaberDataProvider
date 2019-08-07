@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using SongFeedReaders;
 using WebUtilities;
+using WebUtilities.HttpClientWrapper;
 using Newtonsoft.Json.Linq;
 using System;
 
@@ -19,7 +20,7 @@ namespace SongFeedReadersTests.MockClasses.MockTests
             using (var realClient = new HttpClientWrapper())
             {
                 var testUrl = new Uri("https://bsaber.com/wp-jsoasdfn/bsabasdfer-api/songs/");
-                WebUtils.Initialize();
+                //WebUtils.Initialize(realClient);
                 using (var realResponse = realClient.GetAsync(testUrl).Result)
                 using (var mockResponse = mockClient.GetAsync(testUrl).Result)
                 {

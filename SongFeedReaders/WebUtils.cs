@@ -59,11 +59,17 @@ namespace SongFeedReaders
         /// <summary>
         /// Maybe have to move to WebUtils and use url.LastIndexOf("/")
         /// </summary>
-        public static ConcurrentDictionary<string, TimeSpan> WaitForRateLimitDict = new ConcurrentDictionary<string, TimeSpan>();
+        public static ConcurrentDictionary<string, DateTime> WaitForRateLimitDict = new ConcurrentDictionary<string, DateTime>();
 
         public static async Task WaitForRateLimit(string baseUrl)
         {
-            TimeSpan delay = WaitForRateLimitDict.GetOrAdd(baseUrl, (f) => new TimeSpan(0));
+            TimeSpan delay = WaitForRateLimitDict.GetOrAdd(baseUrl, (f) => DateTime.Now) - DateTime.Now;
+            if (delay <= TimeSpan.Zero) // Make sure the delay is > 0
+                delay = TimeSpan.Zero;
+            else
+            {
+                Logger.Debug($"Preemptively waiting {delay.Seconds} seconds for rate limit.");
+            }
             await Task.Delay(delay).ConfigureAwait(false);
             return;
         }
@@ -74,24 +80,29 @@ namespace SongFeedReaders
             int tries = 0;
             IWebResponseMessage response;
             string baseUrl = uri.OriginalString.Substring(0, uri.OriginalString.LastIndexOf("/"));
-            await WaitForRateLimit(baseUrl).ConfigureAwait(false);
+            await WaitForRateLimit(baseUrl).ConfigureAwait(false); // Wait for an existing rate limit if it exists
             do
             {
-                
+
                 rateLimitExceeded = false;
                 response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
-                if(!response.IsSuccessStatusCode)
-                {
-                    Logger.Warning("Not successful");
-                }
-                if (response.StatusCode == 429 &&  tries < retries)
+                if (response.StatusCode == 429 && tries < retries)
                 {
                     rateLimitExceeded = true;
-                    
+
                     var rateLimit = ParseBeatSaverRateLimit(response.Headers);
+                    WaitForRateLimitDict.AddOrUpdate(baseUrl, rateLimit.TimeToReset, (url, resetTime) =>
+                    {
+                        resetTime = rateLimit.TimeToReset;
+                        return resetTime;
+                    });
                     if (rateLimit != null)
                     {
-                        var delay = rateLimit.TimeToReset.Add(RateLimitPadding);
+                        TimeSpan delay = new TimeSpan(0);
+                        var calcDelay = rateLimit.TimeToReset.Add(RateLimitPadding) - DateTime.Now;
+                        if (calcDelay > TimeSpan.Zero) // Make sure the delay is > 0
+                            delay = calcDelay;
+
                         Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {delay.TotalSeconds} seconds");
                         await Task.Delay(delay).ConfigureAwait(false);
                         response.Dispose();

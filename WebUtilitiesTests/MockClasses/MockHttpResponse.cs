@@ -132,7 +132,7 @@ namespace SongFeedReadersTests.MockClasses
             
             if (!File.Exists(FileSourcePath))
             {
-                StatusCode = HttpStatusCode.NotFound;
+                StatusCode = (int)HttpStatusCode.NotFound;
                 ReasonPhrase = "Not Found";
             }
         }
@@ -142,7 +142,7 @@ namespace SongFeedReadersTests.MockClasses
 
         public Uri OriginalUri { get; set; }
 
-        public HttpStatusCode StatusCode { get; set; }
+        public int StatusCode { get; set; }
 
         public string ReasonPhrase { get; set; }
 

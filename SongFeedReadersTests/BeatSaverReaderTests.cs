@@ -50,7 +50,7 @@ namespace SongFeedReadersTests
         public void GetSongsFromFeed_Newest_Test()
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Latest) { MaxSongs = 50 };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Latest) { MaxPages = 95 };
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count == settings.MaxSongs);
             foreach (var song in songList.Values)

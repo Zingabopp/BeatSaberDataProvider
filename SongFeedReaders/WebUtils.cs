@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using SongFeedReaders.Logging;
 using WebUtilities;
+using System.Collections.Concurrent;
 
 namespace SongFeedReaders
 {
@@ -55,11 +56,25 @@ namespace SongFeedReaders
                 : "WebClient is null, WebUtils was never initialized.");
         }
 
+        /// <summary>
+        /// Maybe have to move to WebUtils and use url.LastIndexOf("/")
+        /// </summary>
+        public static ConcurrentDictionary<string, TimeSpan> WaitForRateLimitDict = new ConcurrentDictionary<string, TimeSpan>();
+
+        public static async Task WaitForRateLimit(string baseUrl)
+        {
+            TimeSpan delay = WaitForRateLimitDict.GetOrAdd(baseUrl, (f) => new TimeSpan(0));
+            await Task.Delay(delay).ConfigureAwait(false);
+            return;
+        }
+
         public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
         {
             bool rateLimitExceeded = false;
             int tries = 0;
             IWebResponseMessage response;
+            string baseUrl = uri.OriginalString.Substring(0, uri.OriginalString.LastIndexOf("/"));
+            await WaitForRateLimit(baseUrl).ConfigureAwait(false);
             do
             {
                 
@@ -73,7 +88,7 @@ namespace SongFeedReaders
                 {
                     rateLimitExceeded = true;
                     
-                    var rateLimit = ParseRateLimit(response.Headers);
+                    var rateLimit = ParseBeatSaverRateLimit(response.Headers);
                     if (rateLimit != null)
                     {
                         var delay = rateLimit.TimeToReset.Add(RateLimitPadding);
@@ -111,18 +126,27 @@ namespace SongFeedReaders
 #pragma warning restore CA1823 // Remove unused private members
 #pragma warning restore IDE0051 // Remove unused private members
         private static readonly string[] RateLimitKeys = new string[] { RATE_LIMIT_REMAINING_KEY, RATE_LIMIT_RESET_KEY, RATE_LIMIT_TOTAL_KEY };
-        public static RateLimit ParseRateLimit(IDictionary<string, IEnumerable<string>> headers)
+
+        /// <summary>
+        /// Parse the rate limit from Beat Saver's response headers.
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <returns></returns>
+        public static RateLimit ParseBeatSaverRateLimit(IDictionary<string, IEnumerable<string>> headers)
         {
             if (headers == null)
-                throw new ArgumentNullException(nameof(headers), "headers cannot be null for WebUtils.ParseRateLimit");
+            {
+                return null;
+                //throw new ArgumentNullException(nameof(headers), "headers cannot be null for WebUtils.ParseRateLimit");
+            }
             if (RateLimitKeys.All(k => headers.Keys.Contains(k)))
             {
                 try
                 {
                     return new RateLimit()
                     {
-                        CallsRemaining = int.Parse(headers[RATE_LIMIT_REMAINING_KEY].FirstOrDefault() ?? "-1"),
-                        TimeToReset = UnixTimeStampToDateTime(double.Parse(headers[RATE_LIMIT_RESET_KEY].FirstOrDefault())) - DateTime.Now,
+                        CallsRemaining = int.Parse(headers[RATE_LIMIT_REMAINING_KEY].FirstOrDefault()),
+                        TimeToReset = UnixTimeStampToDateTime(double.Parse(headers[RATE_LIMIT_RESET_KEY].FirstOrDefault())),
                         CallsPerReset = int.Parse(headers[RATE_LIMIT_TOTAL_KEY].FirstOrDefault())
                     };
                 }
@@ -155,7 +179,7 @@ namespace SongFeedReaders
     public class RateLimit
     {
         public int CallsRemaining { get; set; }
-        public TimeSpan TimeToReset { get; set; }
+        public DateTime TimeToReset { get; set; }
         public int CallsPerReset { get; set; }
     }
 

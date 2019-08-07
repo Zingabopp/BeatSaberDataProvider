@@ -15,6 +15,7 @@ namespace SongFeedReaders
         private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
         public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
         public static bool IsInitialized { get; private set; }
+        private static readonly TimeSpan RateLimitPadding = new TimeSpan(0, 0, 0, 0, 100);
         //private static readonly object lockObject = new object();
         //private static HttpClientHandler _httpClientHandler;
         //public static HttpClientHandler HttpClientHandler
@@ -42,6 +43,58 @@ namespace SongFeedReaders
 
         }
 
+        /// <summary>
+        /// Returns the WebClient, throws an exception if WebClient is null (makes debugging easier).
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException">Thrown if WebClient is null.</exception>
+        public static IWebClient GetWebClientSafe()
+        {
+            return WebClient ?? throw new NullReferenceException(IsInitialized ?
+                "WebClient is null, even though WebUtils was initialized."
+                : "WebClient is null, WebUtils was never initialized.");
+        }
+
+        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
+        {
+            bool rateLimitExceeded = false;
+            int tries = 0;
+            IWebResponseMessage response;
+            do
+            {
+                
+                rateLimitExceeded = false;
+                response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
+                if(!response.IsSuccessStatusCode)
+                {
+                    Logger.Warning("Not successful");
+                }
+                if (response.StatusCode == 429 &&  tries < retries)
+                {
+                    rateLimitExceeded = true;
+                    
+                    var rateLimit = ParseRateLimit(response.Headers);
+                    if (rateLimit != null)
+                    {
+                        var delay = rateLimit.TimeToReset.Add(RateLimitPadding);
+                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {delay.TotalSeconds} seconds");
+                        await Task.Delay(delay).ConfigureAwait(false);
+                        response.Dispose();
+                        tries++;
+                        continue;
+                    }
+                    else
+                    {
+                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, could not parse rate limit, not retrying.");
+                        return response;
+                    }
+                }
+                else
+                    return response;
+            } while (rateLimitExceeded);
+            return response;
+        }
+
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
@@ -58,17 +111,28 @@ namespace SongFeedReaders
 #pragma warning restore CA1823 // Remove unused private members
 #pragma warning restore IDE0051 // Remove unused private members
         private static readonly string[] RateLimitKeys = new string[] { RATE_LIMIT_REMAINING_KEY, RATE_LIMIT_RESET_KEY, RATE_LIMIT_TOTAL_KEY };
-        public static RateLimit ParseRateLimit(Dictionary<string, string> headers)
+        public static RateLimit ParseRateLimit(IDictionary<string, IEnumerable<string>> headers)
         {
             if (headers == null)
                 throw new ArgumentNullException(nameof(headers), "headers cannot be null for WebUtils.ParseRateLimit");
             if (RateLimitKeys.All(k => headers.Keys.Contains(k)))
-                return new RateLimit()
+            {
+                try
                 {
-                    CallsRemaining = int.Parse(headers[RATE_LIMIT_REMAINING_KEY]),
-                    TimeToReset = UnixTimeStampToDateTime(double.Parse(headers[RATE_LIMIT_RESET_KEY])) - DateTime.Now,
-                    CallsPerReset = int.Parse(headers[RATE_LIMIT_TOTAL_KEY])
-                };
+                    return new RateLimit()
+                    {
+                        CallsRemaining = int.Parse(headers[RATE_LIMIT_REMAINING_KEY].FirstOrDefault() ?? "-1"),
+                        TimeToReset = UnixTimeStampToDateTime(double.Parse(headers[RATE_LIMIT_RESET_KEY].FirstOrDefault())) - DateTime.Now,
+                        CallsPerReset = int.Parse(headers[RATE_LIMIT_TOTAL_KEY].FirstOrDefault())
+                    };
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Exception("Unable to parse RateLimit from header.", ex);
+                    return null;
+                }
+
+            }
             else
                 return null;
         }

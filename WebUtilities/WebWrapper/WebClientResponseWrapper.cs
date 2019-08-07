@@ -11,11 +11,11 @@ namespace WebUtilities.WebWrapper
         private HttpWebResponse _response;
         private HttpWebRequest _request;
 
-        public HttpStatusCode StatusCode { get { return _response.StatusCode; } }
+        public int StatusCode { get { return (int)_response.StatusCode; } }
 
         public bool IsSuccessStatusCode
         {
-            get { return ((int)StatusCode >= 200) && ((int)StatusCode <= 299); }
+            get { return (StatusCode >= 200) && (StatusCode <= 299); }
         }
 
         public IWebResponseMessage EnsureSuccessStatusCode()

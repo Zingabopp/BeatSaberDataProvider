@@ -151,7 +151,7 @@ namespace SongFeedReaders
             GetPageUrl(ref url, urlReplacements);
             var uri = new Uri(url.ToString());
             string pageText = "";
-            using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+            using (var response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -231,7 +231,7 @@ namespace SongFeedReaders
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in ScoreSaberReader.GetSongsFromPageAsync");
             List<ScrapedSong> songs = null;
-            using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+            using (var response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                 {

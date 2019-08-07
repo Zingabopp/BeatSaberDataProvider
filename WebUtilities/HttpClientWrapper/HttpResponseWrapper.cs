@@ -10,7 +10,7 @@ namespace WebUtilities.HttpClientWrapper
     public class HttpResponseWrapper : IWebResponseMessage
     {
         private HttpResponseMessage _response;
-        public HttpStatusCode StatusCode { get { return _response.StatusCode; } }
+        public int StatusCode { get { return (int)_response.StatusCode; } }
 
         public bool IsSuccessStatusCode { get { return _response.IsSuccessStatusCode; } }
 

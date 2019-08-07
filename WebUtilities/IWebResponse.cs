@@ -10,7 +10,7 @@ namespace WebUtilities
 {
     public interface IWebResponseMessage : IDisposable
     {
-        HttpStatusCode StatusCode { get; }
+        int StatusCode { get; }
         string ReasonPhrase { get; }
         bool IsSuccessStatusCode { get; }
         IWebResponseContent Content { get; }

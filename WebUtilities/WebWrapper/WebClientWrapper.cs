@@ -39,6 +39,13 @@ namespace WebUtilities.WebWrapper
         }
         public ErrorHandling ErrorHandling { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="completeOnHeaders"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
         {
             var request = HttpWebRequest.CreateHttp(uri);
@@ -47,15 +54,17 @@ namespace WebUtilities.WebWrapper
             try
             {
                 var getTask = request.GetResponseAsync();
+                //TODO: Need testing for cancellation token
                 if (cancellationToken.CanBeCanceled)
                 {
                     var cancelTask = cancellationToken.AsTask();
-                    await Task.WhenAny(getTask, cancelTask);
-                    if (!getTask.IsCompleted)
+                    await Task.WhenAny(getTask, cancelTask).ConfigureAwait(false);
+                    if (!getTask.IsCompleted) // either getTask completed or cancelTask was triggered
+                    {
                         return null;
+                    }
                 }
-                var response = await getTask.ConfigureAwait(false) as HttpWebResponse;
-                //TODO: Need testing for cancellation token
+                var response = await getTask.ConfigureAwait(false) as HttpWebResponse; // either there's no cancellationToken or it's already completed
                 return new WebClientResponseWrapper(response, request);
             }
             catch (ArgumentException ex)
@@ -70,12 +79,13 @@ namespace WebUtilities.WebWrapper
             }
             catch (WebException ex)
             {
-                if (ErrorHandling == ErrorHandling.ThrowOnException)
-                    throw;
-                else
+                // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
+                //if (ErrorHandling == ErrorHandling.ThrowOnException)
+                //    throw;
+                //else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new WebClientResponseWrapper(null, null);
+                    return new WebClientResponseWrapper(ex.Response as HttpWebResponse, request);
                 }
             }
 

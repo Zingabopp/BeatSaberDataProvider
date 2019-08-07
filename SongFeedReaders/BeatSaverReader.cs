@@ -86,7 +86,7 @@ namespace SongFeedReaders
                     url.Replace(key, replacements[key]);
                 }
             return Utilities.GetUriFromString(url.Replace(PAGEKEY, pageIndex.ToString()).ToString());
-            
+
         }
 
         public static List<ScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl)
@@ -259,6 +259,7 @@ namespace SongFeedReaders
             }
             return retDict;
         }
+
         public static async Task<List<ScrapedSong>> GetBeatSaverSongsAsync(BeatSaverFeedSettings settings)
         {
             if (settings == null)
@@ -269,7 +270,7 @@ namespace SongFeedReaders
             bool useMaxSongs = settings.MaxSongs != 0;
             List<ScrapedSong> songs = new List<ScrapedSong>();
             string pageText = string.Empty;
-            using (var response = await WebUtils.WebClient.GetAsync(GetPageUrl(feedIndex)).ConfigureAwait(false))
+            using (var response = await WebUtils.GetBeatSaverAsync(GetPageUrl(feedIndex)).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -361,7 +362,7 @@ namespace SongFeedReaders
                 Logger.Debug($"Checking page {page + 1} for the author ID.");
                 searchURL = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHKEY, authorName).Replace(PAGEKEY, (page * SONGS_PER_PAGE).ToString()));
 
-                using (var response = await WebUtils.WebClient.GetAsync(searchURL).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(searchURL).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -408,7 +409,7 @@ namespace SongFeedReaders
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in BeatSaverReader.GetSongsFromPageAsync.");
             string pageText = string.Empty;
             var songs = new List<ScrapedSong>();
-            using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+            using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -438,7 +439,7 @@ namespace SongFeedReaders
             Uri uri = GetPageUrl(feedIndex, 0, new Dictionary<string, string>() { { AUTHORIDKEY, authorId } });
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -502,7 +503,7 @@ namespace SongFeedReaders
             ScrapedSong song = null;
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -542,7 +543,7 @@ namespace SongFeedReaders
             ScrapedSong song = null;
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -619,7 +620,7 @@ namespace SongFeedReaders
                 url.Replace(PAGEKEY, pageIndex.ToString());
                 var uri = new Uri(url.ToString());
                 string pageText = string.Empty;
-                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
                 {
                     Logger.Debug($"Checking {uri} for songs.");
                     if (response.IsSuccessStatusCode)
@@ -647,11 +648,14 @@ namespace SongFeedReaders
 
             return songs;
         }
+
+        [Obsolete("This isn't even finished.")]
         public static async Task<List<JToken>> ScrapeBeatSaver(int timeBetweenRequests, DateTime? stopAtDate = null)
         {
+            throw new NotImplementedException("Not finished");
             List<JToken> songs = null;
             string pageText = string.Empty;
-            using (var response = await WebUtils.WebClient.GetAsync(GetPageUrl(BeatSaverFeed.Latest)).ConfigureAwait(false))
+            using (var response = await WebUtils.GetBeatSaverAsync(GetPageUrl(BeatSaverFeed.Latest)).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

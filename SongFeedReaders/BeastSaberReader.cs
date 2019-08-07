@@ -319,7 +319,7 @@ namespace SongFeedReaders
                 string contentTypeStr = string.Empty;
                 try
                 {
-                    using (var response = await WebUtils.WebClient.GetAsync(feedUrl).ConfigureAwait(false))
+                    using (var response = await WebUtils.GetWebClientSafe().GetAsync(feedUrl).ConfigureAwait(false))
                     {
                         contentTypeStr = response.Content.ContentType.ToLower();
                         if (ContentDictionary.ContainsKey(contentTypeStr))

@@ -58,8 +58,8 @@ namespace WebUtilities.HttpClientWrapper
         /// <param name="overwrite"></param>
         /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
-        /// <returns></returns>
-        public Task ReadAsFileAsync(string filePath, bool overwrite)
+        /// <returns>Full path to the downloaded file</returns>
+        public Task<string> ReadAsFileAsync(string filePath, bool overwrite)
         {
             if (_content == null)
                 throw new ArgumentNullException(nameof(_content), "content cannot be null for HttpContent.ReadAsFileAsync");
@@ -79,6 +79,7 @@ namespace WebUtilities.HttpClientWrapper
                     (copyTask) =>
                     {
                         fileStream.Close();
+                        return pathname;
                     });
             }
             catch

@@ -71,8 +71,9 @@ namespace SongFeedReadersTests.MockClasses.MockTests
                 var expectedString = File.ReadAllText(mockContent.FileSourcePath);
                 var dirPath = new DirectoryInfo(DownloadPath);
                 var destPath = Path.Combine(dirPath.FullName, Path.GetFileName(mockContent.FileSourcePath));
-                mockContent.ReadAsFileAsync(destPath, true).Wait();
+                var actualPath = mockContent.ReadAsFileAsync(destPath, true).Result;
                 var actualString = mockContent.ReadAsStringAsync().Result;
+                Assert.AreEqual(destPath, actualPath);
                 Assert.AreEqual(expectedString, actualString);
                 AssertAsync.ThrowsExceptionAsync<InvalidOperationException>(async () => await mockContent.ReadAsFileAsync(destPath, false).ConfigureAwait(false)).Wait();
             }

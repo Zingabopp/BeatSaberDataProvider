@@ -25,7 +25,7 @@ namespace WebUtilities
         Task<string> ReadAsStringAsync();
         Task<Stream> ReadAsStreamAsync();
         Task<byte[]> ReadAsByteArrayAsync();
-        Task ReadAsFileAsync(string filePath, bool overwrite);
+        Task<string> ReadAsFileAsync(string filePath, bool overwrite);
 
         string ContentType { get; }
         long? ContentLength { get; }

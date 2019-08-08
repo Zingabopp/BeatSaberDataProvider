@@ -61,11 +61,17 @@ namespace SongFeedReaders.DataflowAlternative
         private void QueueNext()
         {
             if (waitQueue.Any())
-                lock (taskQueueLock)
+            {
+                // While waitQueue has inputs and running tasks < MaxDegreeOfParallelism
+                while (waitQueue.Any() && (taskQueue.Count - OutputCount < MaxDegreeOfParallelism))
                 {
-                    if (waitQueue.TryDequeue(out var input))
-                        taskQueue.Enqueue(Worker(blockFunction(input)));
+                    lock (taskQueueLock)
+                    {
+                        if (waitQueue.TryDequeue(out var input))
+                            taskQueue.Enqueue(Worker(blockFunction(input)));
+                    }
                 }
+            }
         }
 
         private async Task<TOutput> Worker(Task<TOutput> function)
@@ -80,7 +86,7 @@ namespace SongFeedReaders.DataflowAlternative
         }
 
         /// <summary>
-        /// TODO: Make it respect BoundedCapacity
+        /// TODO: Make it respect BoundedCapacity (better). Right now if you wait for SendAsync without 
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
@@ -88,11 +94,11 @@ namespace SongFeedReaders.DataflowAlternative
         {
             await Utilities.WaitUntil(() =>
             {
-                return (waitQueue.Count + taskQueue.Count) > BoundedCapacity;
+                return (waitQueue.Count + taskQueue.Count) < BoundedCapacity;
             }, cancellationToken).ConfigureAwait(false);
-            
+            QueueNext();
             // Check if anything's in the waitQueue so this input doesn't jump the line.
-            if (!waitQueue.Any() && taskQueue.Count() < MaxDegreeOfParallelism)
+            if (!waitQueue.Any() && taskQueue.Count - OutputCount < MaxDegreeOfParallelism)
             {
                 lock (taskQueueLock)
                 {
@@ -119,21 +125,23 @@ namespace SongFeedReaders.DataflowAlternative
         {
             if (!(taskQueue.Any() || waitQueue.Any()))
                 return false;
+
+            // Finished task is not ready, if there are tasks running or waiting, wait for a finished task
             while (taskQueue.Count > 0 || waitQueue.Any())
             {
                 if (taskQueue.TryPeek(out var firstTask))
                 {
+                    // Wait until first task in the taskQueue is finished
                     try
                     {
                         await firstTask.ConfigureAwait(false);
                     }
-                    catch (Exception)
-                    {
-                        return true;
-                    }
+#pragma warning disable CA1031 // Do not catch general exception types
+                    catch (Exception) { }
+#pragma warning restore CA1031 // Do not catch general exception types
                     return true;
                 }
-                if (!taskQueue.Any() && waitQueue.Any())
+                if (waitQueue.Any())
                     QueueNext(); // Just in case, probably no reason to have this
             }
             return false;
@@ -195,10 +203,10 @@ namespace SongFeedReaders.DataflowAlternative
 
         public async Task Completion()
         {
-            await Task.Run( async () =>
-            {
-                while (InputCount > 0) await Task.Delay(25).ConfigureAwait(false);
-            }).ConfigureAwait(false);
+            await Task.Run(async () =>
+           {
+               while (InputCount > 0) await Task.Delay(25).ConfigureAwait(false);
+           }).ConfigureAwait(false);
             return;
         }
     }

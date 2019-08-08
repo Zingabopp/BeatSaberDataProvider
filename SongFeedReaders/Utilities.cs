@@ -58,6 +58,7 @@ namespace SongFeedReaders
         /// <summary>
         /// Waits until the provided condition function returns true or the cancellationToken is triggered.
         /// Poll rate is in milliseconds. Returns false if cancellationToken is triggered.
+        /// WARNING: If this task doesn't complete or get cancelled it will run until the program ends.
         /// </summary>
         /// <param name="condition"></param>
         /// <param name="milliseconds"></param>
@@ -76,6 +77,7 @@ namespace SongFeedReaders
 
         /// <summary>
         /// Waits until the provided condition function returns true. Poll rate is in milliseconds.
+        /// WARNING: If this task doesn't complete it will run until the program ends.
         /// </summary>
         /// <param name="condition"></param>
         /// <param name="milliseconds"></param>
@@ -86,8 +88,21 @@ namespace SongFeedReaders
         }
 
         /// <summary>
+        /// Waits until the provided condition function returns true. Poll rate is in milliseconds.
+        /// WARNING: If this task doesn't complete it will run until the program ends.
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="milliseconds"></param>
+        /// <returns></returns>
+        public static Task<bool> WaitUntil(Func<bool> condition)
+        {
+            return WaitUntil(condition, 25, CancellationToken.None);
+        }
+
+        /// <summary>
         /// Waits until the provided condition function returns true or the cancellationToken is triggered.
         /// Default poll rate is 25ms. Returns false if cancellationToken is triggered.
+        /// WARNING: If this task doesn't complete or get cancelled it will run until the program ends.
         /// </summary>
         /// <param name="condition"></param>
         /// <param name="cancellationToken"></param>

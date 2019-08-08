@@ -69,18 +69,6 @@ namespace SongFeedReaders
             }
         }
 
-        /// <summary>
-        /// Maybe have to move to WebUtils and use url.LastIndexOf("/")
-        /// </summary>
-        public static ConcurrentDictionary<BeatSaverFeed, TimeSpan> WaitForRateLimitDict = new ConcurrentDictionary<BeatSaverFeed, TimeSpan>();
-
-        public static async Task WaitForRateLimit(BeatSaverFeed feed)
-        {
-            TimeSpan delay = WaitForRateLimitDict.GetOrAdd(feed, (f) => new TimeSpan(0));
-            await Task.Delay(delay).ConfigureAwait(false);
-            return;
-        }
-
         public void PrepareReader()
         {
             Ready = true;

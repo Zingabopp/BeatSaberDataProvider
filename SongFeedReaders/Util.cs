@@ -96,5 +96,13 @@ namespace SongFeedReaders
         {
             return WaitUntil(condition, 25, cancellationToken);
         }
+
+        public static Task<TResult> GetCancelledTask<TResult>(this CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+                throw new ArgumentOutOfRangeException(nameof(cancellationToken), "cancellationToken must be cancelled");
+            cancellationToken.ThrowIfCancellationRequested();
+            return null;
+        }
     }
 }

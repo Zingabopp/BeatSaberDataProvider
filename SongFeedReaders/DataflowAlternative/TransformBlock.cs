@@ -84,10 +84,13 @@ namespace SongFeedReaders.DataflowAlternative
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<bool> SendAsync(TInput input)
+        public async Task<bool> SendAsync(TInput input, CancellationToken cancellationToken)
         {
-            if (waitQueue.Count + taskQueue.Count > BoundedCapacity)
-                return false;
+            await Utilities.WaitUntil(() =>
+            {
+                return (waitQueue.Count + taskQueue.Count) > BoundedCapacity;
+            }, cancellationToken).ConfigureAwait(false);
+            
             // Check if anything's in the waitQueue so this input doesn't jump the line.
             if (!waitQueue.Any() && taskQueue.Count() < MaxDegreeOfParallelism)
             {
@@ -100,6 +103,11 @@ namespace SongFeedReaders.DataflowAlternative
                 waitQueue.Enqueue(input);
             InputCount++;
             return true;
+        }
+
+        public Task<bool> SendAsync(TInput input)
+        {
+            return SendAsync(input, CancellationToken.None);
         }
 
         /// <summary>

@@ -317,6 +317,7 @@ namespace SongFeedReaders
             } while (continueLooping);
             try
             {
+                // TODO: Won't hit max songs if a song is added while reading the pages. (It'll bump all the songs down and we'll get a repeat)
                 await Task.WhenAll(pageReadTasks.ToArray()).ConfigureAwait(false);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -327,10 +328,9 @@ namespace SongFeedReaders
             }
             foreach (var job in pageReadTasks)
             {
-                songs.AddRange(await job.ConfigureAwait(false));
                 foreach (var song in await job.ConfigureAwait(false))
                 {
-                    if (!useMaxSongs || songs.Count <= settings.MaxSongs)
+                    if (!useMaxSongs || songs.Count < settings.MaxSongs)
                         songs.Add(song);
                 }
             }

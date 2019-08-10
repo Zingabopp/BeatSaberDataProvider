@@ -17,7 +17,7 @@ namespace SongFeedReaders
 
         public static bool IsPaused { get; internal set; }
 
-        public static FeedReaderLoggerBase Logger { get; set; } 
+        public static FeedReaderLoggerBase Logger { get; set; }
         public static int MaxAggregateExceptionDepth { get; set; }
 
         public static void WriteExceptions(this AggregateException ae, string message)
@@ -48,7 +48,7 @@ namespace SongFeedReaders
         public static Uri GetUriFromString(string uriString)
         {
             Uri retVal = null;
-            if(!string.IsNullOrEmpty(uriString))
+            if (!string.IsNullOrEmpty(uriString))
             {
                 retVal = new Uri(uriString);
             }
@@ -66,7 +66,7 @@ namespace SongFeedReaders
         /// <returns></returns>
         public static async Task<bool> WaitUntil(Func<bool> condition, int milliseconds, CancellationToken cancellationToken)
         {
-            while(!(condition?.Invoke() ?? true))
+            while (!(condition?.Invoke() ?? true))
             {
                 if (cancellationToken.CanBeCanceled && cancellationToken.IsCancellationRequested)
                     return false;
@@ -85,6 +85,21 @@ namespace SongFeedReaders
         public static Task<bool> WaitUntil(Func<bool> condition, int milliseconds)
         {
             return WaitUntil(condition, milliseconds, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Waits until the provided condition function returns true. Poll rate and timeout is in milliseconds.
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="milliseconds"></param>
+        /// <param name="timeoutMilliseconds"></param>
+        /// <returns>The value of the condition function or false if a timeout occurred.</returns>
+        public static async Task<bool> WaitUntil(Func<bool> condition, int milliseconds, int timeoutMilliseconds)
+        {
+            using (var tcs = new CancellationTokenSource(timeoutMilliseconds))
+            {
+                return await WaitUntil(condition, milliseconds, tcs.Token).ConfigureAwait(false);
+            }
         }
 
         /// <summary>

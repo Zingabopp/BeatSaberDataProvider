@@ -52,5 +52,8 @@
   <ItemGroup>
     <ProjectReference Include="..\WebUtilities\WebUtilities.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
 
 </Project>

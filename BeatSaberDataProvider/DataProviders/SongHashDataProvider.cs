@@ -26,6 +26,11 @@ namespace BeatSaberDataProvider.DataProviders
 
         public Dictionary<string, SongHashData> Data { get; private set; }
 
+        public SongHashDataProvider()
+        {
+            Data = new Dictionary<string, SongHashData>();
+        }
+
         public static void SetDataFile(string filePath)
         {
             lock (_saveLock)

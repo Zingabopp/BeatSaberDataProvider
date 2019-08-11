@@ -85,7 +85,7 @@ namespace WebUtilities
             {
                 do
                 {
-                    var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+                    var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
                     if (bytesRead == 0)
                     {
                         isMoreToRead = false;
@@ -93,7 +93,7 @@ namespace WebUtilities
                         continue;
                     }
 
-                    await fileStream.WriteAsync(buffer, 0, bytesRead);
+                    await fileStream.WriteAsync(buffer, 0, bytesRead).ConfigureAwait(false);
 
                     totalBytesRead += bytesRead;
                     readCount += 1;

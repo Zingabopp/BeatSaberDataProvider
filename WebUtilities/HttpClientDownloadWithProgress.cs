@@ -13,6 +13,7 @@ namespace WebUtilities
     {
         private readonly Uri _downloadUri;
         private readonly string _destinationFilePath;
+        private readonly int ReportRate;
 
         private IWebClient _httpClient;
         public IWebClient WebClient
@@ -28,8 +29,9 @@ namespace WebUtilities
 
         public event ProgressChangedHandler ProgressChanged;
 
-        public HttpClientDownloadWithProgress(IWebClient client, Uri downloadUri, string destinationFilePath)
+        public HttpClientDownloadWithProgress(IWebClient client, Uri downloadUri, string destinationFilePath, int reportRate = 50)
         {
+            ReportRate = Math.Min(reportRate, 1);
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "client cannot be null for HttpClientDownloadWithProgress.");
             if (string.IsNullOrEmpty(destinationFilePath?.Trim()))
@@ -39,8 +41,9 @@ namespace WebUtilities
             _destinationFilePath = destinationFilePath;
         }
 
-        public HttpClientDownloadWithProgress(IWebClient client, string downloadUrl, string destinationFilePath)
+        public HttpClientDownloadWithProgress(IWebClient client, string downloadUrl, string destinationFilePath, int reportRate = 50)
         {
+            ReportRate = Math.Min(reportRate, 1);
             if (string.IsNullOrEmpty(destinationFilePath?.Trim()))
                 throw new ArgumentNullException(nameof(destinationFilePath), "destinationFilePath cannot be null or empty for HttpClientDownloadWithProgress.");
             if (string.IsNullOrEmpty(downloadUrl?.Trim()))
@@ -81,7 +84,7 @@ namespace WebUtilities
             {
                 do
                 {
-                    var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+                    var bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
                     if (bytesRead == 0)
                     {
                         isMoreToRead = false;
@@ -89,12 +92,12 @@ namespace WebUtilities
                         continue;
                     }
 
-                    await fileStream.WriteAsync(buffer, 0, bytesRead);
+                    await fileStream.WriteAsync(buffer, 0, bytesRead).ConfigureAwait(false);
 
                     totalBytesRead += bytesRead;
                     readCount += 1;
 
-                    if (readCount % 100 == 0)
+                    if (ReportRate == 1 || readCount % ReportRate == 0)
                         TriggerProgressChanged(totalDownloadSize, totalBytesRead);
                 }
                 while (isMoreToRead);

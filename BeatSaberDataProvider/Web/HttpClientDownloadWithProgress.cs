@@ -69,8 +69,8 @@ namespace BeatSaberDataProvider.Web
                     totalBytesRead += bytesRead;
                     readCount += 1;
 
-                    if (readCount % 100 == 0)
-                        TriggerProgressChanged(totalDownloadSize, totalBytesRead);
+                    //if (readCount % 1 == 0)
+                    TriggerProgressChanged(totalDownloadSize, totalBytesRead);
                 }
                 while (isMoreToRead);
             }

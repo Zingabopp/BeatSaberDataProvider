@@ -11,17 +11,17 @@ namespace BeatSaberDataProvider.DataModels
     [Serializable]
     public class PlayerData
     {
-        public string playerId;
-        public string playerName;
-        public bool shouldShowTutorialPrompt;
-        public bool agreedToEula;
-        public PlayerGameplayModifiers gameplayModifiers;
-        public PlayerSpecificSettings playerSpecificSettings;
-        public Dictionary<string, PlayModeOverallStatsData> playerAllOverallStatsData;
-        public List<LevelStatsData> levelsStatsData;
-        public List<MissionStatsData> missionStatsData;
-        public List<string> showedMissionHelpIds;
-        public AchievementsData achievementsData;
+        public string playerId { get; set; }
+        public string playerName { get; set; }
+        public bool shouldShowTutorialPrompt { get; set; }
+        public bool agreedToEula { get; set; }
+        public PlayerGameplayModifiers gameplayModifiers { get; set; }
+        public PlayerSpecificSettings playerSpecificSettings { get; set; }
+        public Dictionary<string, PlayModeOverallStatsData> playerAllOverallStatsData { get; set; }
+        public List<LevelStatsData> levelsStatsData { get; set; }
+        public List<MissionStatsData> missionStatsData { get; set; }
+        public List<string> showedMissionHelpIds { get; set; }
+        public AchievementsData achievementsData { get; set; }
 
     }
     [Serializable]
@@ -29,13 +29,13 @@ namespace BeatSaberDataProvider.DataModels
     {
         public static readonly Regex NewIDPattern = new Regex(@"^custom_level_([0-9a-fA-f]{40})_?(.+)?", RegexOptions.Compiled);
         [JsonIgnore]
-        public string directory;
+        public string Directory { get; set; }
         [JsonIgnore]
-        public string hash;
+        public string Hash { get; set; }
         [JsonIgnore]
-        public string songName;
+        public string SongName { get; set; }
         [JsonIgnore]
-        public string authorName;
+        public string AuthorName { get; set; }
         [JsonIgnore]
         private string _levelId;
         public string levelId
@@ -46,33 +46,36 @@ namespace BeatSaberDataProvider.DataModels
             }
             set
             {
-                directory = hash = songName = authorName = string.Empty;
+                Directory = Hash = SongName = AuthorName = string.Empty;
                 _levelId = value;
                 var match = NewIDPattern.Match(value);
                 if (match.Success)
                 {
-                    hash = match.Groups[1].Value;
-                    directory = match.Groups[2].Value;
+                    Hash = match.Groups[1].Value;
+                    Directory = match.Groups[2].Value;
                 }
-                string[] parts = value.Split('∎');
-                if (parts.Count() > 3)
+                else
                 {
-                    hash = parts[0];
-                    songName = parts[1];
-                    authorName = parts[3];
+                    string[] parts = value.Split('∎');
+                    if (parts.Count() > 3)
+                    {
+                        Hash = parts[0];
+                        SongName = parts[1];
+                        AuthorName = parts[3];
+                    }
                 }
 
 
             }
         }
-        public int difficulty;
-        public string beatmapCharacteristicName;
-        public int highScore;
-        public int maxCombo;
-        public bool fullCombo;
-        public int maxRank;
-        public bool validScore;
-        public int playCount;
+        public int difficulty { get; set; }
+        public string beatmapCharacteristicName { get; set; }
+        public int highScore { get; set; }
+        public int maxCombo { get; set; }
+        public bool fullCombo { get; set; }
+        public int maxRank { get; set; }
+        public bool validScore { get; set; }
+        public int playCount { get; set; }
 
         public override string ToString()
         {
@@ -82,63 +85,63 @@ namespace BeatSaberDataProvider.DataModels
     [Serializable]
     public class PlayerGameplayModifiers
     {
-        public bool energyType;
-        public bool noFail;
-        public bool instaFail;
-        public bool failOnSaberClash;
-        public int enabledObstacleType;
-        public bool fastNotes;
-        public bool strictAngles;
-        public bool disappearingArrows;
-        public bool ghostNotes;
-        public bool noBombs;
-        public int songSpeed;
+        public bool energyType { get; set; }
+        public bool noFail { get; set; }
+        public bool instaFail { get; set; }
+        public bool failOnSaberClash { get; set; }
+        public int enabledObstacleType { get; set; }
+        public bool fastNotes { get; set; }
+        public bool strictAngles { get; set; }
+        public bool disappearingArrows { get; set; }
+        public bool ghostNotes { get; set; }
+        public bool noBombs { get; set; }
+        public int songSpeed { get; set; }
     }
     [Serializable]
     public class PlayerSpecificSettings
     {
-        public bool staticLights;
-        public bool leftHanded;
-        public bool swapColors;
-        public double playerHeight;
-        public bool disableSFX;
-        public bool reduceDebris;
-        public bool noTextsAndHuds;
-        public bool advancedHud;
+        public bool staticLights { get; set; }
+        public bool leftHanded { get; set; }
+        public bool swapColors { get; set; }
+        public double playerHeight { get; set; }
+        public bool disableSFX { get; set; }
+        public bool reduceDebris { get; set; }
+        public bool noTextsAndHuds { get; set; }
+        public bool advancedHud { get; set; }
     }
 
     [Serializable]
     public class PlayModeOverallStatsData
     {
-        public int goodCutsCount;
-        public int badCutsCount;
-        public int missedCutsCount;
-        public long totalScore;
-        public int playedLevelsCount;
-        public int cleardLevelsCount;
-        public int failedLevelsCount;
-        public int fullComboCount;
-        public float timePlayed;
-        public int handDistanceTravelled;
-        public long cummulativeCutScoreWithoutMultiplier;
+        public int goodCutsCount { get; set; }
+        public int badCutsCount { get; set; }
+        public int missedCutsCount { get; set; }
+        public long totalScore { get; set; }
+        public int playedLevelsCount { get; set; }
+        public int cleardLevelsCount { get; set; }
+        public int failedLevelsCount { get; set; }
+        public int fullComboCount { get; set; }
+        public float timePlayed { get; set; }
+        public int handDistanceTravelled { get; set; }
+        public long cummulativeCutScoreWithoutMultiplier { get; set; }
     }
     [Serializable]
     public class MissionStatsData
     {
-        public string missionId;
-        public bool cleared;
+        public string missionId { get; set; }
+        public bool cleared { get; set; }
     }
     [Serializable]
     public class AchievementsData
     {
-        public List<string> unlockedAchievements;
+        public List<string> unlockedAchievements { get; set; }
 
-        public List<string> unlockedAchievementsToUpload;
+        public List<string> unlockedAchievementsToUpload { get; set; }
     }
     [Serializable]
     public class GuestPlayer
     {
-        public string playerName;
-        public PlayerSpecificSettings playerSpecificSettings;
-    }
+        public string playerName { get; set; }
+        public PlayerSpecificSettings playerSpecificSettings { get; set; }
+}
 }

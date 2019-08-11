@@ -42,7 +42,7 @@ namespace SongFeedReaders
         private const string BEATSAVER_GETBYHASH_BASE_URL = "https://beatsaver.com/api/maps/by-hash/";
 #pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable CA1823 // Remove unused private members
-        private const string BEATSAVER_NIGHTLYDUMP_URL = "https://beatsaver.com/api/download/dumps/maps";
+        private const string BEATSAVER_NIGHTLYDUMP_URL = "https://beatsaver.com/api/download/dump/maps";
 #pragma warning restore CA1823 // Remove unused private members
 #pragma warning restore IDE0051 // Remove unused private members
         #endregion

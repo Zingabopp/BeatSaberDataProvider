@@ -51,10 +51,20 @@ namespace WebUtilities
             return _content?.ReadAsStringAsync();
         }
 
+        /// <summary>
+        /// Downloads the provided HttpContent to the specified file.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="overwrite"></param>
+        /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
+        /// <returns></returns>
         public Task ReadAsFileAsync(string filePath, bool overwrite)
         {
             if (_content == null)
-                return null;
+                throw new ArgumentNullException(nameof(_content), "content cannot be null for HttpContent.ReadAsFileAsync");
+            if (string.IsNullOrEmpty(filePath?.Trim()))
+                throw new ArgumentNullException(nameof(filePath), "filename cannot be null or empty for HttpContent.ReadAsFileAsync");
             string pathname = Path.GetFullPath(filePath);
             if (!overwrite && File.Exists(filePath))
             {

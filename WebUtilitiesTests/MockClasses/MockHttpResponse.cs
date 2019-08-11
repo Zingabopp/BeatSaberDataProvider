@@ -148,6 +148,13 @@ namespace SongFeedReadersTests.MockClasses
 
         public bool IsSuccessStatusCode { get; set; }
 
+        public IWebResponseMessage EnsureSuccessStatusCode()
+        {
+            if (!IsSuccessStatusCode)
+                throw new HttpListenerException((int)StatusCode, ReasonPhrase);
+            return this;
+        }
+
         private IWebResponseContent _content;
         public IWebResponseContent Content
         {

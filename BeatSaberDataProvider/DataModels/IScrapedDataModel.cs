@@ -66,9 +66,9 @@ namespace BeatSaberDataProvider.DataModels
             {
                 File.Delete(backupPath);
             }
-                               
+            
         }
-        public abstract void Initialize(string filePath = "");
+        public abstract void Initialize(string filePath);
 
 
         public virtual bool AddOrUpdate(DataType item, bool exceptionOnNull = false)

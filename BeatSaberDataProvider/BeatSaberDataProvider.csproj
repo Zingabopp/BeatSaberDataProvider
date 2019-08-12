@@ -36,6 +36,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WebUtilities\WebUtilities.csproj" />
+  </ItemGroup>
+
   <Choose>
     <When Condition="'$(TargetFramework)' != 'netstandard2.0'">
       <ItemGroup>

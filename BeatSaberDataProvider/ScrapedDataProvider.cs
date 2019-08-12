@@ -94,7 +94,7 @@ namespace BeatSaberDataProvider
             if (song == null && searchOnline)
             {
                 Logger.Info($"Song with hash: {hash}, not in scraped data, searching Beat Saver...");
-                song = OnlineSongSearch.GetSongByHash(hash);
+                song = OnlineSongSearch.GetSongByHashAsync(hash);
                 if (song != null)
                 {
                     song.ScrapedAt = DateTime.Now;
@@ -123,7 +123,7 @@ namespace BeatSaberDataProvider
             if (song == null && searchOnline)
             {
                 Logger.Info($"Song with key: {key}, not in scraped data, searching Beat Saver...");
-                song = OnlineSongSearch.GetSongByKey(key);
+                song = OnlineSongSearch.GetSongByKeyAsync(key);
                 if (song != null)
                 {
                     

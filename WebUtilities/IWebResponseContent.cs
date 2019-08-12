@@ -1,24 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using System.Threading.Tasks;
-using System.IO;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace WebUtilities
 {
-    public interface IWebResponseMessage : IDisposable
-    {
-        int StatusCode { get; }
-        string ReasonPhrase { get; }
-        bool IsSuccessStatusCode { get; }
-        IWebResponseContent Content { get; }
-
-        IWebResponseMessage EnsureSuccessStatusCode();
-        ReadOnlyDictionary<string, IEnumerable<string>> Headers { get; }
-    }
-
     public interface IWebResponseContent : IDisposable
     {
 

@@ -98,7 +98,13 @@ namespace SongFeedReaders
             }
         }
 
-        public BeastSaberReader(string username, int maxConcurrency = 0)
+        /// <summary>
+        /// Creates a new BeastSaberReader.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="maxConcurrency"></param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if maxConcurrency is less than 1.</exception>
+        public BeastSaberReader(string username, int maxConcurrency = 1)
         {
             Ready = false;
             Username = username;
@@ -307,7 +313,7 @@ namespace SongFeedReaders
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             if (_settings.FeedIndex != 2 && string.IsNullOrEmpty(_username?.Trim()))
             {
-                Logger.Error($"Can't access feed without a valid username in the config file");
+                //Logger.Error($"Can't access feed without a valid username in the config file");
                 throw new ArgumentException("Cannot access this feed without a valid username.");
             }
             int pageIndex = settings.StartingPage;

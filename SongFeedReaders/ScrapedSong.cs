@@ -33,5 +33,26 @@ namespace SongFeedReaders
         {
             Hash = hash;
         }
+
+        /// <summary>
+        /// Copies the values from another ScrapedSong into this one.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown when the other song is null.</exception>
+        public ScrapedSong UpdateFrom(ScrapedSong other, bool changeSourceUri = true)
+        {
+            if (other == null)
+                throw new ArgumentNullException(nameof(other), "Other song cannot be null for ScrapedSong.UpdateFrom.");
+            Hash = other.Hash;
+            DownloadUri = other.DownloadUri;
+            if(changeSourceUri)
+                SourceUri = other.SourceUri;
+            SongName = other.SongName;
+            SongKey = other.SongKey;
+            MapperName = other.MapperName;
+            RawData = other.RawData;
+            return this;
+        }
     }
 }

@@ -21,6 +21,7 @@ namespace SongFeedReaders
         /// </summary>
         public Uri SourceUri { get; set; }
         public string SongName { get; set; }
+        public string SongKey { get; set; }
         public string MapperName { get; set; }
         /// <summary>
         /// Data this song was scraped from in JSON form.

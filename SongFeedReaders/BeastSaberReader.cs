@@ -206,6 +206,7 @@ namespace SongFeedReaders
                                 DownloadUri = Utilities.GetUriFromString(downloadUrl),
                                 SourceUri = sourceUrl,
                                 SongName = songName,
+                                SongKey = songIndex,
                                 MapperName = authorName,
                                 RawData = jObject != null ? jObject.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
                             });
@@ -250,6 +251,7 @@ namespace SongFeedReaders
                         DownloadUri = Utilities.GetUriFromString(downloadUrl),
                         SourceUri = sourceUri,
                         SongName = songName,
+                        SongKey = songKey,
                         MapperName = mapperName,
                         RawData = StoreRawData ? bSong.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
                     });

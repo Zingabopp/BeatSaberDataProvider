@@ -177,6 +177,7 @@ namespace SongFeedReaders
                 DownloadUri = Utilities.GetUriFromString(downloadUri),
                 SourceUri = sourceUrl,
                 SongName = songName,
+                SongKey = songKey,
                 MapperName = mapperName,
                 RawData = song.ToString()
             };

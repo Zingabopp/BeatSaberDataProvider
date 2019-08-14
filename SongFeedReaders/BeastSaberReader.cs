@@ -139,12 +139,17 @@ namespace SongFeedReaders
                 return new List<ScrapedSong>();
             bool retry = false;
             var songsOnPage = new List<ScrapedSong>();
-            XmlDocument xmlDocument = new XmlDocument();
+            XmlDocument xmlDocument = null;
             do
             {
                 try
                 {
-                    xmlDocument.LoadXml(pageText);
+                    xmlDocument = new XmlDocument() { XmlResolver = null };
+                    var sr = new StringReader(pageText);
+                    using (var reader = XmlReader.Create(sr, new XmlReaderSettings() { XmlResolver = null }))
+                    {
+                        xmlDocument.Load(reader);
+                    }
                     retry = false;
                 }
                 catch (XmlException ex)
@@ -153,6 +158,7 @@ namespace SongFeedReaders
                     {
                         Logger.Exception("Exception parsing XML.", ex);
                         retry = false;
+                        return songsOnPage;
                     }
                     else
                     {
@@ -412,9 +418,9 @@ namespace SongFeedReaders
             return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
         }
 
-#endregion
+        #endregion
 
-#region Sync
+        #region Sync
         public Dictionary<string, ScrapedSong> GetSongsFromFeed(IFeedSettings settings)
         {
             // Pointless to have these checks here?
@@ -430,10 +436,10 @@ namespace SongFeedReaders
 
             return retDict;
         }
-#endregion
-#endregion
+        #endregion
+        #endregion
 
-#region Overloads
+        #region Overloads
         public List<ScrapedSong> ParseJsonPage(string pageText, string sourceUrl)
         {
             return ParseJsonPage(pageText, Utilities.GetUriFromString(sourceUrl));
@@ -458,7 +464,7 @@ namespace SongFeedReaders
         }
 
 
-#endregion
+        #endregion
 
 
         public enum ContentType

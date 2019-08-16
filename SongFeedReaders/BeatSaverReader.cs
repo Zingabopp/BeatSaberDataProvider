@@ -57,12 +57,12 @@ namespace SongFeedReaders
                 {
                     _feeds = new Dictionary<BeatSaverFeed, FeedInfo>()
                     {
-                        { (BeatSaverFeed)0, new FeedInfo("author", "https://beatsaver.com/api/maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY)},
-                        { (BeatSaverFeed)1, new FeedInfo("latest", "https://beatsaver.com/api/maps/latest/" + PAGEKEY) },
-                        { (BeatSaverFeed)2, new FeedInfo("hot", "https://beatsaver.com/api/maps/hot/" + PAGEKEY) },
-                        { (BeatSaverFeed)3, new FeedInfo("plays", "https://beatsaver.com/api/maps/plays/" + PAGEKEY) },
-                        { (BeatSaverFeed)4, new FeedInfo("downloads", "https://beatsaver.com/api/maps/downloads/" + PAGEKEY) },
-                        { (BeatSaverFeed)98, new FeedInfo("search", $"https://beatsaver.com/api/search/text/{PAGEKEY}?q={SEARCHKEY}") },
+                        { (BeatSaverFeed)0, new FeedInfo("author", "BeatSaver Authors", "https://beatsaver.com/api/maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY)},
+                        { (BeatSaverFeed)1, new FeedInfo("latest", "BeatSaver Latest", "https://beatsaver.com/api/maps/latest/" + PAGEKEY) },
+                        { (BeatSaverFeed)2, new FeedInfo("hot", "BeatSaver Hot", "https://beatsaver.com/api/maps/hot/" + PAGEKEY) },
+                        { (BeatSaverFeed)3, new FeedInfo("plays", "BeatSaver Plays", "https://beatsaver.com/api/maps/plays/" + PAGEKEY) },
+                        { (BeatSaverFeed)4, new FeedInfo("downloads", "BeatSaver Downloads", "https://beatsaver.com/api/maps/downloads/" + PAGEKEY) },
+                        { (BeatSaverFeed)98, new FeedInfo("search", "BeatSaver Search", $"https://beatsaver.com/api/search/text/{PAGEKEY}?q={SEARCHKEY}") },
                     };
                 }
                 return _feeds;
@@ -72,6 +72,13 @@ namespace SongFeedReaders
         public void PrepareReader()
         {
             Ready = true;
+        }
+
+        public string GetFeedName(IFeedSettings settings)
+        {
+            if (!(settings is BeatSaverFeedSettings ssSettings))
+                throw new ArgumentException("Settings is not BeatSaverFeedSettings", nameof(settings));
+            return Feeds[ssSettings.Feed].DisplayName;
         }
 
         public static Uri GetPageUrl(BeatSaverFeed feed, int pageIndex = 0, Dictionary<string, string> replacements = null)

@@ -81,9 +81,9 @@ namespace SongFeedReaders
                 {
                     _feeds = new Dictionary<BeastSaberFeed, FeedInfo>()
                     {
-                        { (BeastSaberFeed)0, new FeedInfo("followings", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY) },
-                        { (BeastSaberFeed)1, new FeedInfo("bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage)},
-                        { (BeastSaberFeed)2, new FeedInfo("curator recommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage) }
+                        { (BeastSaberFeed)0, new FeedInfo("followings", "BeastSaber Follows", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY) },
+                        { (BeastSaberFeed)1, new FeedInfo("bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage)},
+                        { (BeastSaberFeed)2, new FeedInfo("curator recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage) }
                     };
                 }
                 return _feeds;
@@ -96,6 +96,13 @@ namespace SongFeedReaders
             {
                 Ready = true;
             }
+        }
+
+        public string GetFeedName(IFeedSettings settings)
+        {
+            if (!(settings is BeastSaberFeedSettings ssSettings))
+                throw new ArgumentException("Settings is not BeastSaberFeedSettings", nameof(settings));
+            return Feeds[ssSettings.Feed].DisplayName;
         }
 
         /// <summary>

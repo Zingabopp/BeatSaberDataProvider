@@ -19,6 +19,8 @@ namespace SongFeedReaders
         /// </summary>
         void PrepareReader();
 
+        string GetFeedName(IFeedSettings settings);
+
         /// <summary>
         /// Retrieves the songs from a feed and returns them as a Dictionary. Key is the song hash.
         /// </summary>
@@ -52,16 +54,18 @@ namespace SongFeedReaders
     public struct FeedInfo : IEquatable<FeedInfo>
     {
 #pragma warning disable CA1054 // Uri parameters should not be strings
-        public FeedInfo(string name, string baseUrl)
+        public FeedInfo(string name, string displayName, string baseUrl)
 #pragma warning restore CA1054 // Uri parameters should not be strings
         {
             Name = name;
+            DisplayName = displayName;
             BaseUrl = baseUrl;
         }
 #pragma warning disable CA1056 // Uri properties should not be strings
         public string BaseUrl { get; set; } // Base URL for the feed, has string keys to replace with things like page number/bsaber username
 #pragma warning restore CA1056 // Uri properties should not be strings
         public string Name { get; set; } // Name of the feed
+        public string DisplayName { get; set; }
 
         #region EqualsOperators
         public override bool Equals(object obj)

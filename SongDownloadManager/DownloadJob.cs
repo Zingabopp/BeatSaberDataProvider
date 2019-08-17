@@ -24,7 +24,7 @@ namespace SongDownloadManager
             Song = song;
             TempDirectory = tempDirectory;
             SongDirectory = Path.Combine(TempDirectory, Song.Hash);
-            
+
         }
 
         private DownloadResultBuilder resultBuilder = new DownloadResultBuilder();
@@ -59,19 +59,16 @@ namespace SongDownloadManager
 
             //var token = _tokenSource.Token;
 
-            Task downloadAsync = WebUtils.DownloadFileAsync(url, path, true);
+
+            Task downloadAsync = null;
             try
             {
-                await downloadAsync.ConfigureAwait(false);
+                var dwnlResponse = await WebUtils.WebClient.GetAsync(url).ConfigureAwait(false);
+                dwnlResponse.EnsureSuccessStatusCode();
+                downloadAsync = dwnlResponse.Content.ReadAsFileAsync(zipFile.FullName, true);
             }
             catch (Exception ex)
             {
-                
-            }
-
-            if (downloadAsync.IsFaulted || !File.Exists(path))
-            {
-                successful = false;
                 if (downloadAsync.Exception != null)
                 {
                     if (downloadAsync.Exception.InnerException.Message.Contains("404"))
@@ -101,6 +98,14 @@ namespace SongDownloadManager
                 {
                     ResultCode = JobResultCode.OTHERERROR;
                 }
+            }
+
+            if (!File.Exists(path))
+            {
+                successful = false;
+                resultBuilder.Reason = $"Error downloading {url}, file wasn't created.";
+                resultBuilder.Aborted = true;
+                ResultCode = JobResultCode.OTHERERROR;
             }
 
             zipFile.Refresh();

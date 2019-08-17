@@ -36,6 +36,7 @@ namespace BeatSaberDataProviderTest
                 parameter);
 
             var context = new SongDataContext();
+            context.Database.EnsureCreated();
             //context.Songs.Where(finalExpression).OrderByDescending(s => s.Uploaded).Load();
             context.Songs.Where(finalExpression).OrderByDescending(orderByPropertyExp).Load();
             var test = context.Songs.Local.Select(s => new { s.SongName, s.Uploaded }).ToList();

@@ -74,10 +74,19 @@ namespace SongFeedReaders
             Ready = true;
         }
 
+        /// <summary>
+        /// Gets the DisplayName of the feed specified in settings.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null</exception>
+        /// <exception cref="InvalidCastException">Thrown when settings is not a BeatSaverFeedSettings.</exception>
         public string GetFeedName(IFeedSettings settings)
         {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings), "settings cannot be null for BeatSaverReader.GetFeedName");
             if (!(settings is BeatSaverFeedSettings ssSettings))
-                throw new ArgumentException("Settings is not BeatSaverFeedSettings", nameof(settings));
+                throw new InvalidCastException("Settings is not BeatSaverFeedSettings in BeatSaverReader.GetFeedName");
             return Feeds[ssSettings.Feed].DisplayName;
         }
 
@@ -225,9 +234,19 @@ namespace SongFeedReaders
         #region Web Requests
 
         #region Async
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_settings"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidCastException">Throw when the provided settings object isn't a BeatSaverFeedSettings</exception>
+        /// <exception cref="ArgumentNullException">Thrown when _setting is null.</exception>
         public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings _settings, CancellationToken cancellationToken)
         {
             PrepareReader();
+            if (_settings == null)
+                throw new ArgumentNullException(nameof(_settings), "Settings cannot be null for BeatSaverReader.GetSongsFromFeedAsync");
             if (!(_settings is BeatSaverFeedSettings settings))
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             List<ScrapedSong> songs = null;
@@ -268,6 +287,12 @@ namespace SongFeedReaders
             return retDict;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
         public static async Task<List<ScrapedSong>> GetBeatSaverSongsAsync(BeatSaverFeedSettings settings)
         {
             if (settings == null)
@@ -313,7 +338,7 @@ namespace SongFeedReaders
             do
             {
                 uri = GetPageUrl(feedIndex, pageNum);
-                Logger.Debug($"Creating task for {uri.ToString()}");
+                Logger.Trace($"Creating task for {uri.ToString()}");
                 pageReadTasks.Add(GetSongsFromPageAsync(uri));
                 pageNum++;
                 if ((pageNum > lastPage))
@@ -485,7 +510,7 @@ namespace SongFeedReaders
             do
             {
                 uri = GetPageUrl(feedIndex, pageNum, new Dictionary<string, string>() { { AUTHORIDKEY, authorId } });
-                Logger.Debug($"Creating task for {uri}");
+                //Logger.Trace($"Creating task for {uri}");
                 pageReadTasks.Add(GetSongsFromPageAsync(uri));
                 pageNum++;
             } while (pageNum <= lastPage);
@@ -497,6 +522,7 @@ namespace SongFeedReaders
             }
             return songs;
         }
+
         public static async Task<List<ScrapedSong>> GetSongsByAuthorAsync(string uploader, int maxPages = 0)
         {
             string mapperId = await GetAuthorIDAsync(uploader).ConfigureAwait(false);
@@ -544,6 +570,7 @@ namespace SongFeedReaders
             song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
             return song;
         }
+
         public static async Task<ScrapedSong> GetSongByKeyAsync(string key)
         {
             var uri = new Uri(BEATSAVER_DETAILS_BASE_URL + key);

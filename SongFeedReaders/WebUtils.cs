@@ -64,6 +64,7 @@ namespace SongFeedReaders
         /// <param name="uri"></param>
         /// <param name="retries"></param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Thrown when Uri is null.</exception>
         public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
         {
             

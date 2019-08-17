@@ -132,6 +132,14 @@ namespace SongFeedReaders
             return songs;
         }
 
+        public static bool IsValidSearchQuery(string query)
+        {
+            var valid = false;
+            if (!string.IsNullOrEmpty(query))
+                valid = true;
+            return valid;
+        }
+
         #region Web Requests
 
         #region Async
@@ -155,6 +163,10 @@ namespace SongFeedReaders
                 {PAGENUMKEY, pageNum.ToString()},
                 {RANKEDKEY, settings.RankedOnly ? "1" : "0" }
             };
+            if (settings.Feed == ScoreSaberFeed.Search)
+            {
+                urlReplacements.Add(QUERYKEY, settings.SearchQuery);
+            }
             GetPageUrl(ref url, urlReplacements);
             var uri = new Uri(url.ToString());
             string pageText = "";
@@ -205,32 +217,35 @@ namespace SongFeedReaders
             return songs;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_settings"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidCastException">Thrown when the provided IFeedSettings isn't a ScoreSaberFeedSettings.</exception>
+        /// <exception cref="ArgumentException">Thrown when the Search feed is selected and the query in settings isn't valid.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the feed specified in the settings isn't valid.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
         public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings _settings, CancellationToken cancellationToken)
         {
             PrepareReader();
+            if (_settings == null)
+                throw new ArgumentNullException(nameof(_settings), "settings cannot be null for ScoreSaberReader.GetSongsFromFeedAsync");
             if (!(_settings is ScoreSaberFeedSettings settings))
                 throw new InvalidCastException(INVALID_FEED_SETTINGS_MESSAGE);
+            if (!((settings.FeedIndex >= 0 && settings.FeedIndex <= 3) || settings.FeedIndex == 99)) // Validate FeedIndex
+                throw new ArgumentOutOfRangeException(nameof(_settings), "_settings contains an invalid FeedIndex value for ScoreSaberReader");
             Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
             int maxSongs = settings.MaxSongs > 0 ? settings.MaxSongs : settings.SongsPerPage * settings.SongsPerPage;
-            switch (settings.Feed)
+            if (settings.Feed == ScoreSaberFeed.TopRanked || settings.Feed == ScoreSaberFeed.LatestRanked)
+                settings.RankedOnly = true;
+            if(settings.Feed == ScoreSaberFeed.Search)
             {
-                case ScoreSaberFeed.Trending:
-                    retDict = await GetSongsFromScoreSaberAsync(settings).ConfigureAwait(false);
-                    break;
-                case ScoreSaberFeed.LatestRanked:
-                    settings.RankedOnly = true;
-                    retDict = await GetSongsFromScoreSaberAsync(settings).ConfigureAwait(false);
-                    break;
-                case ScoreSaberFeed.TopPlayed:
-                    retDict = await GetSongsFromScoreSaberAsync(settings).ConfigureAwait(false);
-                    break;
-                case ScoreSaberFeed.TopRanked:
-                    settings.RankedOnly = true;
-                    retDict = await GetSongsFromScoreSaberAsync(settings).ConfigureAwait(false);
-                    break;
-                default:
-                    break;
+                if (!IsValidSearchQuery(settings.SearchQuery))
+                    throw new ArgumentException($"Search query '{settings.SearchQuery ?? "<nul>"}' is not a valid query.");
             }
+            retDict = await GetSongsFromScoreSaberAsync(settings).ConfigureAwait(false);
             return retDict;
         }
         public async Task<List<ScrapedSong>> GetSongsFromPageAsync(Uri uri)
@@ -316,6 +331,11 @@ namespace SongFeedReaders
         /// Page of the feed to start on, default is 1. For all feeds, setting '1' here is the same as starting on the first page.
         /// </summary>
         public int StartingPage { get; set; }
+
+        /// <summary>
+        /// String to search ScoreSaber with (only used for the Search feed).
+        /// </summary>
+        public string SearchQuery { get; set; }
 
         public ScoreSaberFeedSettings(int feedIndex)
         {

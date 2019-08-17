@@ -83,9 +83,7 @@ namespace SongFeedReaders
                 }catch(WebClientException ex)
                 {
                     Logger.Warning($"WebClientException getting {uri.ToString()}. {((tries < retries) ? "Retrying." : "")}");
-                    if(tries < retries)
-                        retry = true;
-                    continue;
+                    response = ex.Response;
                 }
                 var errorCode = response?.StatusCode ?? 0;
                 if (errorCode == 429 && tries < retries)

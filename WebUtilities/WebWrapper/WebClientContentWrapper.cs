@@ -14,7 +14,7 @@ namespace WebUtilities.WebWrapper
         public WebClientContent(HttpWebResponse response)
         {
             _response = response;
-            ContentLength = _response.ContentLength;
+            ContentLength = _response?.ContentLength ?? 0;
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)
             {

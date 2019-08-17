@@ -67,21 +67,30 @@ namespace SongFeedReaders
         public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
         {
             
-            bool rateLimitExceeded = false;
+            bool retry = false;
             int tries = 0;
-            IWebResponseMessage response;
+            IWebResponseMessage response = null;
             string baseUrl = uri?.OriginalString.Substring(0, uri.OriginalString.LastIndexOf("/")) 
                 ?? throw new ArgumentNullException(nameof(uri), "uri cannot be null for WebUtils.GetBeatSaverAsync");
             await WaitForRateLimit(baseUrl).ConfigureAwait(false); // Wait for an existing rate limit if it exists
             do
             {
 
-                rateLimitExceeded = false;
-                response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
-                if (response.StatusCode == 429 && tries < retries)
+                retry = false;
+                try
                 {
-                    rateLimitExceeded = true;
-
+                    response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
+                }catch(WebClientException ex)
+                {
+                    Logger.Warning($"WebClientException getting {uri.ToString()}. {((tries < retries) ? "Retrying." : "")}");
+                    if(tries < retries)
+                        retry = true;
+                    continue;
+                }
+                var errorCode = response?.StatusCode ?? 0;
+                if (errorCode == 429 && tries < retries)
+                {
+                    retry = true;
                     var rateLimit = ParseBeatSaverRateLimit(response.Headers);
                     WaitForRateLimitDict.AddOrUpdate(baseUrl, rateLimit.TimeToReset, (url, resetTime) =>
                     {
@@ -107,9 +116,15 @@ namespace SongFeedReaders
                         return response;
                     }
                 }
+                else if(errorCode == 0 && tries < retries)
+                {
+                    Logger.Warning($"Error getting {uri.ToString()}, retrying...");
+                    await Task.Delay(500).ConfigureAwait(false);
+                    retry = true;
+                }
                 else
                     return response;
-            } while (rateLimitExceeded);
+            } while (retry);
             return response;
         }
 

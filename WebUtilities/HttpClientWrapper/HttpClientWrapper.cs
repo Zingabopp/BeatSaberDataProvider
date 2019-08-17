@@ -50,7 +50,9 @@ namespace WebUtilities.HttpClientWrapper
             catch (HttpRequestException ex)
             {
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
-                    throw new System.Net.WebException(ex.Message, ex);
+                {
+                    throw new WebClientException(ex.Message, ex, uri, null);
+                }
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");

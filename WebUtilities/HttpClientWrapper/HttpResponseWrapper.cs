@@ -10,13 +10,25 @@ namespace WebUtilities.HttpClientWrapper
     public class HttpResponseWrapper : IWebResponseMessage
     {
         private HttpResponseMessage _response;
-        public int StatusCode { get { return (int)_response.StatusCode; } }
+        /// <summary>
+        /// Returns 0 if response was null.
+        /// </summary>
+        public int StatusCode { get { return (int)(_response?.StatusCode ?? 0); } }
 
-        public bool IsSuccessStatusCode { get { return _response.IsSuccessStatusCode; } }
+        public bool IsSuccessStatusCode { get { return _response?.IsSuccessStatusCode ?? false; } }
+
+        public string ReasonPhrase { get { return _response.ReasonPhrase; } }
 
         public IWebResponseMessage EnsureSuccessStatusCode()
         {
-            _response.EnsureSuccessStatusCode();
+            try
+            {
+                var _ = _response?.EnsureSuccessStatusCode() ?? throw new WebClientException("Response is null.");
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new WebClientException(ex.Message, ex);
+            }
             return this;
         }
 
@@ -27,8 +39,6 @@ namespace WebUtilities.HttpClientWrapper
         {
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
-
-        public string ReasonPhrase { get { return _response.ReasonPhrase; } }
 
         public HttpResponseWrapper(HttpResponseMessage response)
         {

@@ -11,7 +11,7 @@ namespace WebUtilities.WebWrapper
         private HttpWebResponse _response;
         private HttpWebRequest _request;
 
-        public int StatusCode { get { return (int)_response.StatusCode; } }
+        public int StatusCode { get { return (int)(_response?.StatusCode ?? 0); } }
 
         public bool IsSuccessStatusCode
         {

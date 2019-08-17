@@ -78,7 +78,7 @@ namespace SongFeedReaders.DataflowAlternative
         {
 
             TOutput result = await function.ConfigureAwait(false);
-            Console.WriteLine($"Finished worker with result {result}");
+            //Console.WriteLine($"Finished worker with result {result}");
             InputCount--;
             if (waitQueue.Count > 0)
                 QueueNext();

@@ -200,6 +200,8 @@ namespace SongFeedReaders
                     urlReplacements[PAGENUMKEY] = pageNum.ToString();
                 GetPageUrl(ref url, urlReplacements);
                 uri = new Uri(url.ToString());
+                if (Utilities.IsPaused)
+                    await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                 foreach (var song in await GetSongsFromPageAsync(uri).ConfigureAwait(false))
                 {
                     diffCount++;

@@ -17,6 +17,16 @@ namespace SongFeedReaders
 
         public static bool IsPaused { get; internal set; }
 
+        public static void Pause()
+        {
+            IsPaused = true;
+        }
+
+        public static void UnPause()
+        {
+            IsPaused = false;
+        }
+
         public static FeedReaderLoggerBase Logger { get; set; }
         public static int MaxAggregateExceptionDepth { get; set; }
 

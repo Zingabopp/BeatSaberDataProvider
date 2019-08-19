@@ -374,7 +374,8 @@ namespace SongFeedReaders
             {
                 while (continueLooping)
                 {
-
+                    if (Utilities.IsPaused)
+                        await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                     var feedUrl = GetPageUri(Feeds[_settings.Feed].BaseUrl, pageIndex);
                     await ProcessPageBlock.SendAsync(feedUrl).ConfigureAwait(false); // TODO: Need check with SongsPerPage
                     itemsInBlock++;
@@ -390,6 +391,8 @@ namespace SongFeedReaders
                         await ProcessPageBlock.OutputAvailableAsync().ConfigureAwait(false);
                         while (ProcessPageBlock.TryReceive(out List<ScrapedSong> newSongs))
                         {
+                            if (Utilities.IsPaused)
+                                await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                             itemsInBlock--;
                             if (newSongs == null)
                             {

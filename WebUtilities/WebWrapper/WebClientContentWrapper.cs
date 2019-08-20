@@ -81,6 +81,8 @@ namespace WebUtilities.WebWrapper
         /// <param name="overwrite"></param>
         /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
+        /// <exception cref="IOException">Thrown when there's a problem writing the file.</exception>
         /// <returns>Full path to the downloaded file</returns>
         public Task<string> ReadAsFileAsync(string filePath, bool overwrite)
         {

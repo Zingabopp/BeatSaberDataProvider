@@ -59,13 +59,13 @@ namespace SongFeedReaders
         }
 
         /// <summary>
-        /// Use to get web responses from Beat Saver. If the rate limit is reached, it waits for the limit to expire before trying again.
+        /// Use to get web responses from Beat Saver. If the rate limit is reached, it waits for the limit to expire before trying again unless the wait is longer than maxSecondsToWait.
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="retries"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown when Uri is null.</exception>
-        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
+        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int maxSecondsToWait = 0,  int retries = 5)
         {
             
             bool retry = false;
@@ -83,14 +83,16 @@ namespace SongFeedReaders
                     response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
                 }catch(WebClientException ex)
                 {
-                    Logger.Warning($"WebClientException getting {uri.ToString()}. {((tries < retries) ? "Retrying." : "")}");
+                    
                     response = ex.Response;
                 }
                 var errorCode = response?.StatusCode ?? 0;
                 if (errorCode == 429 && tries < retries)
                 {
+
                     retry = true;
                     var rateLimit = ParseBeatSaverRateLimit(response.Headers);
+
                     WaitForRateLimitDict.AddOrUpdate(baseUrl, rateLimit.TimeToReset, (url, resetTime) =>
                     {
                         resetTime = rateLimit.TimeToReset;
@@ -102,8 +104,12 @@ namespace SongFeedReaders
                         var calcDelay = rateLimit.TimeToReset.Add(RateLimitPadding) - DateTime.Now;
                         if (calcDelay > TimeSpan.Zero) // Make sure the delay is > 0
                             delay = calcDelay;
-
-                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {delay.TotalSeconds} seconds");
+                        if (maxSecondsToWait != 0 && delay.TotalSeconds > maxSecondsToWait)
+                        {
+                            Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, delay of {(int)delay.TotalSeconds} seconds is too long, cancelling...");
+                            return response;
+                        }
+                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {(int)delay.TotalSeconds} seconds");
                         await Task.Delay(delay).ConfigureAwait(false);
                         response.Dispose();
                         tries++;
@@ -115,14 +121,17 @@ namespace SongFeedReaders
                         return response;
                     }
                 }
-                else if(errorCode == 0 && tries < retries)
+                else if (errorCode == 0 && tries < retries)
                 {
                     Logger.Warning($"Error getting {uri.ToString()}, retrying...");
                     await Task.Delay(500).ConfigureAwait(false);
                     retry = true;
                 }
                 else
+                {
+                    Logger.Warning($"Error getting {uri.ToString()}, {errorCode} : {response?.ReasonPhrase}. Skipping...");
                     return response;
+                }
             } while (retry);
             return response;
         }

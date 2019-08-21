@@ -129,7 +129,8 @@ namespace SongFeedReaders
                 }
                 else
                 {
-                    Logger.Warning($"Error getting {uri.ToString()}, {errorCode} : {response?.ReasonPhrase}. Skipping...");
+                    if(!(response?.IsSuccessStatusCode ?? true))
+                        Logger.Warning($"Error getting {uri.ToString()}, {errorCode} : {response?.ReasonPhrase}. Skipping...");
                     return response;
                 }
             } while (retry);

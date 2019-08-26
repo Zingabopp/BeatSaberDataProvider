@@ -100,20 +100,8 @@ namespace SongFeedReaders.DataflowAlternative
             {
                 return (waitQueue.Count + taskQueue.Count) < BoundedCapacity;
             }, cancellationToken).ConfigureAwait(false);
-            //QueueNext();
-            // Check if anything's in the waitQueue so this input doesn't jump the line.
             waitQueue.Enqueue(input);
             QueueNext();
-            //if (!waitQueue.Any() && taskQueue.Count - OutputCount < MaxDegreeOfParallelism)
-            //{
-            //    lock (taskQueueLock)
-            //    {
-            //        taskQueue.Enqueue(Worker(blockFunction(input)));
-            //    }
-            //}
-            //else
-            //    waitQueue.Enqueue(input);
-            //InputCount++;
             return true;
         }
 

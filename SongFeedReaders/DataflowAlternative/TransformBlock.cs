@@ -32,7 +32,13 @@ namespace SongFeedReaders.DataflowAlternative
             }
         }
 
-        public int InputCount { get; private set; }
+        public int InputCount
+        {
+            get
+            {
+                return waitQueue.Count;
+            }
+        }
 
         public TransformBlock(Func<TInput, Task<TOutput>> function)
         {
@@ -68,21 +74,19 @@ namespace SongFeedReaders.DataflowAlternative
                     lock (taskQueueLock)
                     {
                         if (waitQueue.TryDequeue(out var input))
-                            taskQueue.Enqueue(Worker(blockFunction(input)));
+                        {
+                            var task = blockFunction(input);
+                            task.ContinueWith(OnTaskFinished);
+                            taskQueue.Enqueue(task);
+                        }
                     }
                 }
             }
         }
 
-        private async Task<TOutput> Worker(Task<TOutput> function)
+        private void OnTaskFinished(Task<TOutput> taskResult)
         {
-
-            TOutput result = await function.ConfigureAwait(false);
-            //Console.WriteLine($"Finished worker with result {result}");
-            InputCount--;
-            if (waitQueue.Count > 0)
-                QueueNext();
-            return result;
+            Task.Run(() => QueueNext());
         }
 
         /// <summary>
@@ -96,18 +100,20 @@ namespace SongFeedReaders.DataflowAlternative
             {
                 return (waitQueue.Count + taskQueue.Count) < BoundedCapacity;
             }, cancellationToken).ConfigureAwait(false);
-            QueueNext();
+            //QueueNext();
             // Check if anything's in the waitQueue so this input doesn't jump the line.
-            if (!waitQueue.Any() && taskQueue.Count - OutputCount < MaxDegreeOfParallelism)
-            {
-                lock (taskQueueLock)
-                {
-                    taskQueue.Enqueue(Worker(blockFunction(input)));
-                }
-            }
-            else
-                waitQueue.Enqueue(input);
-            InputCount++;
+            waitQueue.Enqueue(input);
+            QueueNext();
+            //if (!waitQueue.Any() && taskQueue.Count - OutputCount < MaxDegreeOfParallelism)
+            //{
+            //    lock (taskQueueLock)
+            //    {
+            //        taskQueue.Enqueue(Worker(blockFunction(input)));
+            //    }
+            //}
+            //else
+            //    waitQueue.Enqueue(input);
+            //InputCount++;
             return true;
         }
 
@@ -201,11 +207,16 @@ namespace SongFeedReaders.DataflowAlternative
 
         }
 
+        /// <summary>
+        /// Gets a task that will complete after all tasks in the block have finished.
+        /// </summary>
+        /// <returns></returns>
         public async Task Completion()
         {
             await Task.Run(async () =>
            {
                while (InputCount > 0) await Task.Delay(25).ConfigureAwait(false);
+               while (OutputCount != taskQueue.Count) await Task.Delay(25).ConfigureAwait(false);
            }).ConfigureAwait(false);
             return;
         }

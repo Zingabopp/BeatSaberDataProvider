@@ -25,27 +25,31 @@ namespace SongFeedReadersTests
             var block = new TransformBlock<int, string>(async i =>
             {
                 Console.WriteLine("Starting block with input: " + i);
-                await Task.Delay(1000).ConfigureAwait(false);
+                await Task.Delay(100).ConfigureAwait(false);
                 if (i == 2)
                     throw new ArgumentException("i == 2", nameof(i));
                 else
-                    await Task.Delay(1000 / (i * 2 + 1)).ConfigureAwait(false);
+                    await Task.Delay(500 / (i * 2 + 1)).ConfigureAwait(false);
                 return $"{i} completed";
+            }, new ExecutionDataflowBlockOptions()
+            {
+                BoundedCapacity = 10,
+                MaxDegreeOfParallelism = 1
             });
 
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 block.SendAsync(i).Wait();
             }
             int received = 0;
             var outputs = new List<string>();
-            while(received < 5)
+            while (received < 5)
             {
                 block.OutputAvailableAsync().Wait();
-                if(block.TryReceive(out var output))
+                if (block.TryReceive(out var output))
                 {
                     received++;
-                    if(received == 2)
+                    if (received == 2)
                     {
                         Console.WriteLine("this should've errored");
                     }
@@ -60,17 +64,19 @@ namespace SongFeedReadersTests
         public void SingleThreaded_CorrectOrder()
         {
             var numInputs = 50;
+            var boundedCapacity = numInputs;
+            var maxDegreeParallelism = 1;
             var block = new TransformBlock<int, string>(async i =>
             {
                 Console.WriteLine("Starting block with input: " + i);
-                await Task.Delay(1000).ConfigureAwait(false);
+                await Task.Delay(100).ConfigureAwait(false);
 
-                await Task.Delay(1000 / (i * 2 + 1)).ConfigureAwait(false);
+                await Task.Delay(100 / (i * 2 + 1)).ConfigureAwait(false);
                 return $"{i} completed";
             }, new ExecutionDataflowBlockOptions()
             {
-                BoundedCapacity = numInputs,
-                MaxDegreeOfParallelism = numInputs
+                BoundedCapacity = boundedCapacity,
+                MaxDegreeOfParallelism = maxDegreeParallelism
             }
             );
 

@@ -35,10 +35,8 @@
   </ItemGroup>
 
   <Choose>
-    <When Condition="'$(TargetFramework)' != 'netstandard2.0'">
-      <ItemGroup>
-        <Reference Include="System.IO.Compression" />
-      </ItemGroup>
+    <When Condition="'$(TargetFramework)' != 'netstandard2.0'" >
+
     </When>
   </Choose>
   <Choose>
@@ -51,6 +49,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WebUtilities\WebUtilities.csproj" />
   </ItemGroup>
+  
 
 
 </Project>

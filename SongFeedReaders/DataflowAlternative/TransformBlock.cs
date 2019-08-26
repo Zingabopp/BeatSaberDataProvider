@@ -187,6 +187,7 @@ namespace SongFeedReaders.DataflowAlternative
             return false;
         }
 
+        [Obsolete("Exceptions thrown by TryReceive will break this.")]
         public bool TryReceiveAll(out IList<TOutput> outputs)
         {
             outputs = new List<TOutput>();

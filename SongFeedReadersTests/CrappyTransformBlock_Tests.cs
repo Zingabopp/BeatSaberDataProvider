@@ -96,7 +96,7 @@ namespace SongFeedReadersTests
                 block.SendAsync(item.Value);
             }
             block.Complete();
-            block.Completion().Wait();
+            block.Completion.Wait();
             var outputList = new List<BlockTestOutput>();
             while (block.TryReceive(out var output))
             {
@@ -143,7 +143,7 @@ namespace SongFeedReadersTests
                 block.SendAsync(item.Value);
             }
             block.Complete();
-            block.Completion().Wait();
+            block.Completion.Wait();
             var outputList = new List<BlockTestOutput>();
             for (int i = 0; i < numInputs; i++)
             {
@@ -165,7 +165,140 @@ namespace SongFeedReadersTests
                 lastId++;
             }
         }
+
+        [TestMethod]
+        public void SingleThreaded_TryReceiveAll()
+        {
+            var numInputs = 10;
+            var boundedCapacity = numInputs;
+            var maxDegreeParallelism = 1;
+            var block = new TransformBlock<BlockTestInput, BlockTestOutput>(async i =>
+            {
+                var startTime = DateTime.Now;
+                await Task.Delay(i.TaskDuration);
+                return new BlockTestOutput(i, startTime, DateTime.Now);
+            }, new ExecutionDataflowBlockOptions()
+            {
+                BoundedCapacity = boundedCapacity,
+                MaxDegreeOfParallelism = maxDegreeParallelism
+            });
+            var inputList = new Dictionary<int, BlockTestInput>();
+            for (int i = 0; i < numInputs; i++)
+            {
+                inputList.Add(i, new BlockTestInput(i, new TimeSpan(0, 0, 0, 0, 1)));
+            }
+            foreach (var item in inputList)
+            {
+                block.SendAsync(item.Value);
+            }
+            block.Complete();
+            block.Completion.Wait();
+            var received = block.TryReceiveAll(out var results);
+            Assert.IsTrue(received);
+
+            var outputList = results.Select(r =>
+             {
+                 if (r.Exception != null)
+                     return new BlockTestOutput() { Exception = r.Exception };
+                 return r.Output;
+             }).ToList();
+            Assert.AreEqual(numInputs, outputList.Count);
+            var lastId = -1;
+            var lastStart = DateTime.MinValue;
+            var lastCompletion = DateTime.MinValue;
+            foreach (var output in outputList)
+            {
+                Assert.AreEqual(lastId + 1, output.Input.Id);
+                Assert.IsTrue(lastStart < output.TaskStart);
+                Assert.IsTrue(lastCompletion < output.TaskFinished);
+                lastStart = output.TaskStart;
+                lastCompletion = output.TaskFinished;
+                lastId++;
+            }
+        }
+
+        [TestMethod]
+        public void SingleThreaded_TryReceiveAllWithException()
+        {
+            var numInputs = 10;
+            var boundedCapacity = numInputs;
+            var maxDegreeParallelism = 1;
+            var block = new TransformBlock<BlockTestInput, BlockTestOutput>(async i =>
+            {
+                var startTime = DateTime.Now;
+                await Task.Delay(i.TaskDuration);
+                if (i.Id == 2)
+                    throw new ArgumentException("Error");
+                return new BlockTestOutput(i, startTime, DateTime.Now);
+            }, new ExecutionDataflowBlockOptions()
+            {
+                BoundedCapacity = boundedCapacity,
+                MaxDegreeOfParallelism = maxDegreeParallelism
+            });
+            var inputList = new Dictionary<int, BlockTestInput>();
+            for (int i = 0; i < numInputs; i++)
+            {
+                inputList.Add(i, new BlockTestInput(i, new TimeSpan(0, 0, 0, 0, 1)));
+            }
+            foreach (var item in inputList)
+            {
+                block.SendAsync(item.Value);
+            }
+            block.Complete();
+            block.Completion.Wait();
+            var received = block.TryReceiveAll(out var results);
+            Assert.IsTrue(received);
+
+            var outputList = results.Select(r =>
+            {
+                if (r.Exception != null)
+                    return new BlockTestOutput() { Exception = r.Exception };
+                return r.Output;
+            }).ToList();
+            Assert.AreEqual(numInputs, outputList.Count);
+            var lastId = -1;
+            var lastStart = DateTime.MinValue;
+            var lastCompletion = DateTime.MinValue;
+            for (int i = 0; i < numInputs; i++)
+            {
+                if (i == 2)
+                {
+                    Assert.AreEqual(typeof(ArgumentException), outputList[i].Exception.GetType());
+                }
+                else
+                {
+                    Assert.AreEqual(lastId + 1, outputList[i].Input.Id);
+                    Assert.IsTrue(lastStart < outputList[i].TaskStart);
+                    Assert.IsTrue(lastCompletion < outputList[i].TaskFinished);
+                }
+                lastStart = outputList[i].TaskStart;
+                lastCompletion = outputList[i].TaskFinished;
+                lastId++;
+            }
+        }
+
+        [TestMethod]
+        public void TryReceiveAll_EmptyBlock()
+        {
+            var boundedCapacity = 10;
+            var maxDegreeParallelism = 1;
+            var block = new TransformBlock<BlockTestInput, BlockTestOutput>(async i =>
+            {
+                var startTime = DateTime.Now;
+                await Task.Delay(i.TaskDuration);
+                return new BlockTestOutput(i, startTime, DateTime.Now);
+            }, new ExecutionDataflowBlockOptions()
+            {
+                BoundedCapacity = boundedCapacity,
+                MaxDegreeOfParallelism = maxDegreeParallelism
+            });
+
+            Assert.IsFalse(block.TryReceiveAll(out var outputs));
+            Assert.AreEqual(0, outputs.Count);
+        }
     }
+
+
 
     public class BlockTestInput
     {
@@ -193,5 +326,6 @@ namespace SongFeedReadersTests
         public BlockTestInput Input { get; set; }
         public DateTime TaskStart { get; set; }
         public DateTime TaskFinished { get; set; }
+        public Exception Exception { get; set; }
     }
 }

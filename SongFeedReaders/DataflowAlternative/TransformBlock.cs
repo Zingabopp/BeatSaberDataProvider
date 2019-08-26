@@ -16,6 +16,8 @@ namespace SongFeedReaders.DataflowAlternative
         public int BoundedCapacity { get; private set; }
         public int MaxDegreeOfParallelism { get; private set; }
         public bool EnsureOrdered { get; set; }
+        private bool Completed { get; set; }
+        public Task Completion { get; private set; }
 
         private Func<TInput, Task<TOutput>> blockFunction;
 
@@ -96,6 +98,8 @@ namespace SongFeedReaders.DataflowAlternative
         /// <returns></returns>
         public async Task<bool> SendAsync(TInput input, CancellationToken cancellationToken)
         {
+            if (Completed)
+                return false;
             await Utilities.WaitUntil(() =>
             {
                 return (waitQueue.Count + taskQueue.Count) < BoundedCapacity;
@@ -168,23 +172,41 @@ namespace SongFeedReaders.DataflowAlternative
                             output = retTask.Result;
                             return true;
                         }
-
                     }
                 }
             }
             return false;
         }
 
-        [Obsolete("Exceptions thrown by TryReceive will break this.")]
-        public bool TryReceiveAll(out IList<TOutput> outputs)
+        /// <summary>
+        /// If outputs are available, returns them as a list of BlockResult<<see cref="TOutput"/>>. If an uncaught exception was thrown, it is stored in BlockResult and the Output is null.
+        /// </summary>
+        /// <param name="outputs"></param>
+        /// <returns></returns>
+        public bool TryReceiveAll(out IList<BlockResult<TOutput>> outputs)
         {
-            outputs = new List<TOutput>();
+            outputs = new List<BlockResult<TOutput>>();
             bool hasResult = false;
-            while (TryReceive(out var output))
+            bool wasReceived = false;
+            do
             {
-                hasResult = true;
-                outputs.Add(output);
-            }
+                wasReceived = false;
+                try
+                {
+                    wasReceived = TryReceive(out var output);
+                    if (wasReceived)
+                    {
+                        hasResult = true;
+                        outputs.Add(new BlockResult<TOutput>(output));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    wasReceived = true;
+                    hasResult = true;
+                    outputs.Add(new BlockResult<TOutput>(default(TOutput), ex));
+                }
+            } while (wasReceived);
             return hasResult;
         }
 
@@ -193,21 +215,13 @@ namespace SongFeedReaders.DataflowAlternative
         /// </summary>
         public void Complete()
         {
-
-        }
-
-        /// <summary>
-        /// Gets a task that will complete after all tasks in the block have finished.
-        /// </summary>
-        /// <returns></returns>
-        public async Task Completion()
-        {
-            await Task.Run(async () =>
-           {
-               while (InputCount > 0) await Task.Delay(25).ConfigureAwait(false);
-               while (OutputCount != taskQueue.Count) await Task.Delay(25).ConfigureAwait(false);
-           }).ConfigureAwait(false);
-            return;
+            if (Completed)
+                return;
+            Completion = Task.Run(async () =>
+            {
+                while (InputCount > 0) await Task.Delay(25).ConfigureAwait(false);
+                while (OutputCount != taskQueue.Count) await Task.Delay(25).ConfigureAwait(false);
+            });
         }
     }
 }

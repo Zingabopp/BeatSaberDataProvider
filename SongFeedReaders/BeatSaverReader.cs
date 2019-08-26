@@ -264,7 +264,10 @@ namespace SongFeedReaders
                             await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                         newSongs = await GetSongsByAuthorAsync(author, CalcMaxPages(settings.MaxPages, settings.MaxSongs)).ConfigureAwait(false);
                         songSource = "Beat Saver";
-                        songs.AddRange(newSongs.Take(settings.MaxSongs));
+                        if (settings.MaxSongs > 0)
+                            songs.AddRange(newSongs.Take(settings.MaxSongs));
+                        else
+                            songs.AddRange(newSongs);
 
                         Logger.Info($"Found {newSongs.Count} songs uploaded by {author} from {songSource}");
                     }

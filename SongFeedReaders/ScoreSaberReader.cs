@@ -149,6 +149,8 @@ namespace SongFeedReaders
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for ScoreSaberReader.GetSongsFromScoreSaberAsync");
             // "https://scoresaber.com/api.php?function=get-leaderboards&cat={CATKEY}&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}"
             int songsPerPage = settings.SongsPerPage;
+            if (songsPerPage == 0)
+                songsPerPage = 100;
             int pageNum = settings.StartingPage;
             //int maxPages = (int)Math.Ceiling(settings.MaxSongs / ((float)songsPerPage));
             int maxPages = settings.MaxPages;
@@ -183,7 +185,9 @@ namespace SongFeedReaders
             foreach (var song in GetSongsFromPageText(pageText, uri))
             {
                 if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
+                {
                     songs.Add(song.Hash, song);
+                }
             }
             bool continueLooping = true;
             do
@@ -202,17 +206,26 @@ namespace SongFeedReaders
                 uri = new Uri(url.ToString());
                 if (Utilities.IsPaused)
                     await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
-                foreach (var song in await GetSongsFromPageAsync(uri).ConfigureAwait(false))
+                
+                var scrapedDiffs = await GetSongsFromPageAsync(uri).ConfigureAwait(false);
+                foreach (var song in scrapedDiffs)
                 {
                     diffCount++;
                     if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
+                    {
                         songs.Add(song.Hash, song);
+                    }
                 }
                 if (diffCount == 0)
+                {
+                    Logger?.Debug($"No diffs found on {uri.ToString()}, should be after last page.");
                     continueLooping = false;
+                }
                 //pageReadTasks.Add(GetSongsFromPageAsync(url.ToString()));
-                if ((maxPages > 0 && pageNum >= maxPages) || (settings.MaxSongs > 0 && songs.Count >= settings.MaxSongs ))
+                if ((maxPages > 0 && pageNum >= maxPages) || (settings.MaxSongs > 0 && songs.Count >= settings.MaxSongs))
+                {
                     continueLooping = false;
+                }
             } while (continueLooping);
 
 

@@ -42,10 +42,11 @@ namespace SongFeedReadersTests
         public void GetSongsFromFeed_TopRanked()
         {
             var reader = new ScoreSaberReader();
-            int maxSongs = 40;
+            int maxSongs = 0;
             var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeed.TopRanked) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
             var songList = reader.GetSongsFromFeed(settings);
-            Assert.IsTrue(songList.Count == maxSongs);
+            Console.WriteLine($"{songList.Count} songs.");
+            Assert.IsTrue(songList.Count >= 367);
             Assert.IsFalse(songList.Keys.Any(k => string.IsNullOrEmpty(k)));
         }
 

@@ -182,7 +182,7 @@ namespace SongFeedReaders
 
             foreach (var song in GetSongsFromPageText(pageText, uri))
             {
-                if (!songs.ContainsKey(song.Hash) && songs.Count < settings.MaxSongs)
+                if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
                     songs.Add(song.Hash, song);
             }
             bool continueLooping = true;
@@ -190,7 +190,7 @@ namespace SongFeedReaders
             {
                 pageNum++;
                 int diffCount = 0;
-                if ((maxPages > 0 && pageNum > maxPages) || songs.Count >= settings.MaxSongs)
+                if ((maxPages > 0 && pageNum > maxPages) || (settings.MaxSongs > 0 && songs.Count >= settings.MaxSongs))
                     break;
                 url.Clear();
                 url.Append(Feeds[settings.Feed].BaseUrl);
@@ -205,13 +205,13 @@ namespace SongFeedReaders
                 foreach (var song in await GetSongsFromPageAsync(uri).ConfigureAwait(false))
                 {
                     diffCount++;
-                    if (!songs.ContainsKey(song.Hash) && songs.Count < settings.MaxSongs)
+                    if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
                         songs.Add(song.Hash, song);
                 }
                 if (diffCount == 0)
                     continueLooping = false;
                 //pageReadTasks.Add(GetSongsFromPageAsync(url.ToString()));
-                if ((maxPages > 0 && pageNum >= maxPages) || (songs.Count >= settings.MaxSongs && settings.MaxSongs > 0))
+                if ((maxPages > 0 && pageNum >= maxPages) || (settings.MaxSongs > 0 && songs.Count >= settings.MaxSongs ))
                     continueLooping = false;
             } while (continueLooping);
 
@@ -239,7 +239,6 @@ namespace SongFeedReaders
             if (!((settings.FeedIndex >= 0 && settings.FeedIndex <= 3) || settings.FeedIndex == 99)) // Validate FeedIndex
                 throw new ArgumentOutOfRangeException(nameof(_settings), "_settings contains an invalid FeedIndex value for ScoreSaberReader");
             Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
-            int maxSongs = settings.MaxSongs > 0 ? settings.MaxSongs : settings.SongsPerPage * settings.SongsPerPage;
             if (settings.Feed == ScoreSaberFeed.TopRanked || settings.Feed == ScoreSaberFeed.LatestRanked)
                 settings.RankedOnly = true;
             if(settings.Feed == ScoreSaberFeed.Search)

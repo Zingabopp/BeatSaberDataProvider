@@ -8,7 +8,13 @@ namespace WebUtilities
 {
     public interface IWebClient : IDisposable
     {
+        /// <summary>
+        /// Timeout for requests in milliseconds.
+        /// </summary>
         int Timeout { get; set; }
+        /// <summary>
+        /// How the WebClient handles errors. TODO: May not be fully implemented.
+        /// </summary>
         ErrorHandling ErrorHandling { get; set; }
         /// <summary>
         /// 

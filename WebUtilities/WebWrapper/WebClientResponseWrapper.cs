@@ -18,6 +18,8 @@ namespace WebUtilities.WebWrapper
             get { return (StatusCode >= 200) && (StatusCode <= 299); }
         }
 
+        public Exception Exception { get; protected set; }
+
         public IWebResponseMessage EnsureSuccessStatusCode()
         {
             if (!IsSuccessStatusCode)
@@ -33,12 +35,13 @@ namespace WebUtilities.WebWrapper
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
 
-        public string ReasonPhrase { get { return _response.StatusDescription; } }
+        public string ReasonPhrase { get { return _response?.StatusDescription ?? Exception?.Message; } }
 
-        public WebClientResponseWrapper(HttpWebResponse response, HttpWebRequest request)
+        public WebClientResponseWrapper(HttpWebResponse response, HttpWebRequest request, Exception exception = null)
         {
             _response = response;
             _request = request;
+            Exception = exception;
             Content = new WebClientContent(_response);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)

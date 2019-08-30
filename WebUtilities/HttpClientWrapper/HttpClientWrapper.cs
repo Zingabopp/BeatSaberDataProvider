@@ -23,9 +23,27 @@ namespace WebUtilities.HttpClientWrapper
             else
                 httpClient = client;
             ErrorHandling = ErrorHandling.ThrowOnException;
+            httpClient.Timeout = _timeout;
+        }
+        private TimeSpan _timeout;
+        /// <summary>
+        /// Timeout for the HttpClient in milliseconds. Default is 100,000 milliseconds.
+        /// </summary>
+        public int Timeout
+        {
+            get { return (int)_timeout.TotalMilliseconds; }
+            set
+            {
+                if (value <= 0)
+                    value = 1;
+                if ((int)_timeout.TotalMilliseconds == value)
+                    return;
+                _timeout = new TimeSpan(0, 0, 0, 0, value);
+                if (httpClient != null)
+                    httpClient.Timeout = _timeout;
+            }
         }
 
-        public int Timeout { get; set; }
         public ErrorHandling ErrorHandling { get; set; }
 
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
@@ -44,19 +62,19 @@ namespace WebUtilities.HttpClientWrapper
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Invalid URL, {uri?.ToString()}, passed to GetAsync()\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null);
+                    return new HttpResponseWrapper(null, ex);
                 }
             }
             catch (HttpRequestException ex)
             {
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                 {
-                    throw new WebClientException(ex.Message, ex, uri, null);
+                    throw new WebClientException(ex.Message, ex, uri, new HttpResponseWrapper(null, ex));
                 }
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null);
+                    return new HttpResponseWrapper(null, ex);
                 }
             }
 

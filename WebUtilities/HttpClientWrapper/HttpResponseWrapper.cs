@@ -17,7 +17,9 @@ namespace WebUtilities.HttpClientWrapper
 
         public bool IsSuccessStatusCode { get { return _response?.IsSuccessStatusCode ?? false; } }
 
-        public string ReasonPhrase { get { return _response.ReasonPhrase; } }
+        public string ReasonPhrase { get { return _response?.ReasonPhrase ?? Exception?.Message; } }
+
+        public Exception Exception { get; protected set; }
 
         public IWebResponseMessage EnsureSuccessStatusCode()
         {
@@ -40,9 +42,10 @@ namespace WebUtilities.HttpClientWrapper
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
 
-        public HttpResponseWrapper(HttpResponseMessage response)
+        public HttpResponseWrapper(HttpResponseMessage response, Exception exception = null)
         {
             _response = response;
+            Exception = exception;
             Content = new HttpContentWrapper(response?.Content);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)

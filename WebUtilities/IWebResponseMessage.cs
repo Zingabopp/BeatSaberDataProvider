@@ -17,6 +17,11 @@ namespace WebUtilities
         string ReasonPhrase { get; }
 
         /// <summary>
+        /// If an exception is thrown getting the response, store it here.
+        /// </summary>
+        Exception Exception { get; }
+
+        /// <summary>
         /// Returns true if the Http Status Code indicates success.
         /// </summary>
         bool IsSuccessStatusCode { get; }

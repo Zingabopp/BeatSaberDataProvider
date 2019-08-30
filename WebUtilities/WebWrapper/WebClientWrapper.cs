@@ -25,8 +25,20 @@ namespace WebUtilities.WebWrapper
         {
             MaxConcurrentConnections = maxConnectionsPerServer > 0 ? maxConnectionsPerServer : 1;
         }
+        private int _timeout;
+        public int Timeout
+        {
+            get { return _timeout; }
+            set
+            {
+                if (value <= 0)
+                    value = 1;
+                if (_timeout == value)
+                    return;
+                _timeout = value;
+            }
+        }
 
-        public int Timeout { get; set; }
         private int _maxConcurrentConnections;
         public int MaxConcurrentConnections
         {
@@ -50,6 +62,13 @@ namespace WebUtilities.WebWrapper
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
         {
             var request = HttpWebRequest.CreateHttp(uri);
+            if (Timeout != 0)
+            {
+                // TODO: This doesn't seem to do anything.
+                request.ContinueTimeout = Timeout;
+                request.Timeout = Timeout;
+                request.ReadWriteTimeout = Timeout;
+            }
             if (cancellationToken.IsCancellationRequested)
                 return null;
             try
@@ -66,6 +85,7 @@ namespace WebUtilities.WebWrapper
                     }
                 }
                 var response = await getTask.ConfigureAwait(false); // either there's no cancellationToken or it's already completed
+                
                 return new WebClientResponseWrapper(response as HttpWebResponse, request);
             }
             catch (ArgumentException ex)
@@ -74,7 +94,7 @@ namespace WebUtilities.WebWrapper
                     throw;
                 else
                 {
-                    return new WebClientResponseWrapper(null, null);
+                    return new WebClientResponseWrapper(null, null, ex);
                 }
             }
             catch (WebException ex)
@@ -83,11 +103,11 @@ namespace WebUtilities.WebWrapper
 
                 // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
-                    throw new WebClientException(ex.Message, ex, uri, new WebClientResponseWrapper(resp, request));
+                    throw new WebClientException(ex.Message, ex, uri, new WebClientResponseWrapper(resp, request, ex));
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new WebClientResponseWrapper(resp, request);
+                    return new WebClientResponseWrapper(resp, request, ex);
                 }
             }
 

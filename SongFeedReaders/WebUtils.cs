@@ -125,6 +125,7 @@ namespace SongFeedReaders
                 {
                     Logger.Warning($"Error getting {uri.ToString()}, retrying...");
                     await Task.Delay(500).ConfigureAwait(false);
+                    tries++;
                     retry = true;
                 }
                 else

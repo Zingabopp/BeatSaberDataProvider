@@ -21,6 +21,7 @@ namespace WebUtilities
         /// <exception cref="ArgumentNullException">Thrown when the filename or response content are empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and the file already exists.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
+        /// <exception cref="EndOfStreamException">Thrown when ContentLength is reported by the server and the file doesn't match it.</exception>
         /// <exception cref="IOException">Thrown when there's a problem writing the file.</exception>
         Task<string> ReadAsFileAsync(string filePath, bool overwrite);
 

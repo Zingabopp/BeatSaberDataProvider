@@ -84,7 +84,7 @@ namespace WebUtilities.WebWrapper
         /// <exception cref="DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
         /// <exception cref="IOException">Thrown when there's a problem writing the file.</exception>
         /// <returns>Full path to the downloaded file</returns>
-        public Task<string> ReadAsFileAsync(string filePath, bool overwrite)
+        public async Task<string> ReadAsFileAsync(string filePath, bool overwrite)
         {
             if (_response == null)
                 throw new ArgumentNullException(nameof(_response), "content cannot be null for HttpContent.ReadAsFileAsync");
@@ -100,12 +100,23 @@ namespace WebUtilities.WebWrapper
             try
             {
                 fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
-                return _response.GetResponseStream().CopyToAsync(fileStream).ContinueWith(
+                var responseStream = _response.GetResponseStream();
+                long expectedLength = 0;
+                if (_response.ContentLength > 0)
+                    expectedLength = _response.ContentLength;
+                // TODO: Timeouts don't seem to do anything.
+                responseStream.ReadTimeout = 5000;
+                responseStream.WriteTimeout = 5000;
+                return await _response.GetResponseStream().CopyToAsync(fileStream).ContinueWith(
                     (copyTask) =>
                     {
+                        long fileStreamLength = fileStream.Length;
+                        
                         fileStream.Close();
+                        if (expectedLength != 0 && fileStreamLength != ContentLength)
+                            throw new EndOfStreamException($"File content length of {fileStreamLength} didn't match expected size {expectedLength}");
                         return pathname;
-                    });
+                    }).ConfigureAwait(false);
             }
             catch
             {

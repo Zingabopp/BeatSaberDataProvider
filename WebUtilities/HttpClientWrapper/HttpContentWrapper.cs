@@ -12,6 +12,7 @@ namespace WebUtilities.HttpClientWrapper
     public class HttpContentWrapper : IWebResponseContent
     {
         private HttpContent _content;
+
         public HttpContentWrapper(HttpContent content)
         {
             _content = content;
@@ -37,7 +38,7 @@ namespace WebUtilities.HttpClientWrapper
         public long? ContentLength { get; protected set; }
 
         public Task<byte[]> ReadAsByteArrayAsync()
-        {
+        { 
             return _content?.ReadAsByteArrayAsync();
         }
 
@@ -75,10 +76,18 @@ namespace WebUtilities.HttpClientWrapper
             try
             {
                 fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
+                long expectedLength = 0;
+                if ((_content?.Headers?.ContentLength ?? 0) > 0)
+                    expectedLength = _content.Headers.ContentLength ?? 0;
+                // TODO: Should this be awaited?
                 return _content.CopyToAsync(fileStream).ContinueWith(
                     (copyTask) =>
                     {
+                        long fileStreamLength = fileStream.Length;
+
                         fileStream.Close();
+                        if (expectedLength != 0 && fileStreamLength != ContentLength)
+                            throw new EndOfStreamException($"File content length of {fileStreamLength} didn't match expected size {expectedLength}");
                         return pathname;
                     });
             }

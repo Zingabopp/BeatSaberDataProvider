@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace WebUtilities.WebWrapper
 {
@@ -105,9 +106,9 @@ namespace WebUtilities.WebWrapper
                 if (_response.ContentLength > 0)
                     expectedLength = _response.ContentLength;
                 // TODO: Timeouts don't seem to do anything.
-                responseStream.ReadTimeout = 5000;
-                responseStream.WriteTimeout = 5000;
-                return await _response.GetResponseStream().CopyToAsync(fileStream).ContinueWith(
+                //responseStream.ReadTimeout = 1;
+                //responseStream.WriteTimeout = 1;
+                return await _response.GetResponseStream().CopyToAsync(fileStream, 81920, CancellationToken.None).ContinueWith(
                     (copyTask) =>
                     {
                         long fileStreamLength = fileStream.Length;

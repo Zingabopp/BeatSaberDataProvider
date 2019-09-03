@@ -13,9 +13,19 @@ namespace WebUtilities
         /// </summary>
         int Timeout { get; set; }
         /// <summary>
+        /// The UserAgent string the client sends with request headers.
+        /// </summary>
+        string UserAgent { get; }
+        /// <summary>
         /// How the WebClient handles errors. TODO: May not be fully implemented.
         /// </summary>
         ErrorHandling ErrorHandling { get; set; }
+        /// <summary>
+        /// Sets the UserAgent the client sends in the request headers.
+        /// Should be in the format: Product/Version.
+        /// </summary>
+        /// <param name="userAgent"></param>
+        void SetUserAgent(string userAgent);
         /// <summary>
         /// 
         /// </summary>

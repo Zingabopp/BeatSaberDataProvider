@@ -9,6 +9,7 @@ namespace WebUtilities.WebWrapper
     public class WebClientWrapper : IWebClient, IDisposable
     {
         //public ILogger Logger;
+        public string UserAgent { get; private set; }
 
         public WebClientWrapper()
         {
@@ -25,6 +26,12 @@ namespace WebUtilities.WebWrapper
         {
             MaxConcurrentConnections = maxConnectionsPerServer > 0 ? maxConnectionsPerServer : 1;
         }
+
+        public void SetUserAgent(string userAgent)
+        {
+            UserAgent = userAgent;
+        }
+
         private int _timeout;
         public int Timeout
         {
@@ -62,6 +69,8 @@ namespace WebUtilities.WebWrapper
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
         {
             var request = HttpWebRequest.CreateHttp(uri);
+            if(!string.IsNullOrEmpty(UserAgent))
+                request.UserAgent = UserAgent;
             if (Timeout != 0)
             {
                 // TODO: This doesn't seem to do anything.

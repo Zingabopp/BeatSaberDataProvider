@@ -8,11 +8,17 @@ namespace WebUtilities.HttpClientWrapper
     public class HttpClientWrapper : IWebClient
     {
         private HttpClient httpClient;
+        public string UserAgent { get; private set; }
         //public ILogger Logger;
         public HttpClientWrapper()
         {
             if (httpClient == null)
                 httpClient = new HttpClient();
+            if(!string.IsNullOrEmpty(UserAgent))
+            {
+                httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd(UserAgent);
+            }
+
             ErrorHandling = ErrorHandling.ThrowOnException;
         }
 
@@ -25,6 +31,22 @@ namespace WebUtilities.HttpClientWrapper
             ErrorHandling = ErrorHandling.ThrowOnException;
             httpClient.Timeout = _timeout;
         }
+
+        public void SetUserAgent(string userAgent)
+        {
+            
+            if (httpClient != null)
+            {
+                httpClient.DefaultRequestHeaders.UserAgent.Clear();
+                if (httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd(userAgent))
+                    UserAgent = userAgent;
+            }
+            else
+            {
+                UserAgent = userAgent;
+            }
+        }
+
         private TimeSpan _timeout;
         /// <summary>
         /// Timeout for the HttpClient in milliseconds. Default is 100,000 milliseconds.

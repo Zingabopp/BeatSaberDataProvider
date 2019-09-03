@@ -258,22 +258,29 @@ namespace SongFeedReaders
                     string songSource = string.Empty;
                     List<ScrapedSong> newSongs = null;
                     songs = new List<ScrapedSong>();
-                    foreach (var author in settings.Authors)
+                    if ((settings.Authors?.Count() ?? 0) > 0)
                     {
-                        if(Utilities.IsPaused)
-                            await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
-                        newSongs = await GetSongsByAuthorAsync(author, CalcMaxPages(settings.MaxPages, settings.MaxSongs)).ConfigureAwait(false);
-                        songSource = "Beat Saver";
-                        if (settings.MaxSongs > 0)
-                            songs.AddRange(newSongs.Take(settings.MaxSongs));
-                        else
-                            songs.AddRange(newSongs);
+                        foreach (var author in settings.Authors)
+                        {
+                            if (Utilities.IsPaused)
+                                await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
+                            newSongs = await GetSongsByAuthorAsync(author, CalcMaxSongs(settings.MaxPages, settings.MaxSongs)).ConfigureAwait(false);
+                            songSource = "Beat Saver";
+                            if (settings.MaxSongs > 0)
+                                songs.AddRange(newSongs.Take(settings.MaxSongs));
+                            else
+                                songs.AddRange(newSongs);
 
-                        Logger.Info($"Found {newSongs.Count} songs uploaded by {author} from {songSource}");
+                            Logger.Info($"Found {newSongs.Count} songs uploaded by {author} from {songSource}");
+                        }
+                    }
+                    else
+                    {
+                        songs = await GetSongsByAuthorAsync(settings.Criteria, CalcMaxSongs(settings.MaxPages, settings.MaxSongs)).ConfigureAwait(false);
                     }
                     break;
                 case BeatSaverFeed.Search:
-                    songs = await SearchAsync(settings.SearchCriteria, settings.SearchType).ConfigureAwait(false);
+                    songs = await SearchAsync(settings.Criteria, settings.SearchType).ConfigureAwait(false);
                     break;
                 // Latest/Hot/Plays/Downloads
                 default:
@@ -469,10 +476,10 @@ namespace SongFeedReaders
         /// </summary>
         /// <param name="authorId"></param>
         /// <returns></returns>
-        public static async Task<List<ScrapedSong>> GetSongsByUploaderIdAsync(string authorId, int maxPages = 0)
+        public static async Task<List<ScrapedSong>> GetSongsByUploaderIdAsync(string authorId, int maxSongs = 0)
         {
             int feedIndex = 0;
-            List<ScrapedSong> songs = new List<ScrapedSong>();
+            var songDict = new Dictionary<string, ScrapedSong>();
             string pageText = string.Empty;
             Uri uri = GetPageUrl(feedIndex, 0, new Dictionary<string, string>() { { AUTHORIDKEY, authorId } });
             try
@@ -484,17 +491,17 @@ namespace SongFeedReaders
                     else
                     {
                         Logger.Error($"Error getting songs by UploaderId, {uri?.ToString()} responded with {response.StatusCode}:{response.ReasonPhrase}");
-                        return songs;
+                        return new List<ScrapedSong>();
                     }
                 }
             }
             catch (Exception ex)
             {
                 Logger.Exception($"Error getting songs by UploaderId, {authorId}, from {uri}", ex);
-                return songs;
+                return new List<ScrapedSong>();
             }
 
-            JObject result = new JObject();
+            JObject result;
             try
             {
                 result = JObject.Parse(pageText);
@@ -502,13 +509,14 @@ namespace SongFeedReaders
             catch (JsonReaderException ex)
             {
                 Logger.Exception("Unable to parse JSON from text", ex);
-                return songs;
+                return new List<ScrapedSong>();
             }
 
             int numSongs = result["totalDocs"]?.Value<int>() ?? 0; // Check this
             int lastPage = result["lastPage"]?.Value<int>() ?? 0;
-            if (maxPages > 0)
-                lastPage = Math.Min(lastPage, maxPages);
+            // TODO: Redo this using TransformBlock
+            if (maxSongs > 0)
+                lastPage = Math.Min(lastPage, maxSongs / SONGS_PER_PAGE + 1);
             Logger.Debug($"{numSongs} songs by {authorId} available on Beat Saver");
             int pageNum = 0;
             List<Task<List<ScrapedSong>>> pageReadTasks = new List<Task<List<ScrapedSong>>>();
@@ -523,17 +531,22 @@ namespace SongFeedReaders
             await Task.WhenAll(pageReadTasks.ToArray()).ConfigureAwait(false);
             foreach (var job in pageReadTasks)
             {
-                songs.AddRange(await job.ConfigureAwait(false));
+                foreach(var song in await job.ConfigureAwait(false))
+                {
+                    if (songDict.Count < maxSongs && !songDict.ContainsKey(song.Hash))
+                        songDict.Add(song.Hash, song);
+                }
+                //songs.AddRange(await job.ConfigureAwait(false));
             }
-            return songs;
+            return songDict.Values.ToList();
         }
 
-        public static async Task<List<ScrapedSong>> GetSongsByAuthorAsync(string uploader, int maxPages = 0)
+        public static async Task<List<ScrapedSong>> GetSongsByAuthorAsync(string uploader, int maxSongs = 0)
         {
             string mapperId = await GetAuthorIDAsync(uploader).ConfigureAwait(false);
             if (string.IsNullOrEmpty(mapperId))
                 return new List<ScrapedSong>();
-            return await GetSongsByUploaderIdAsync(mapperId, maxPages).ConfigureAwait(false);
+            return await GetSongsByUploaderIdAsync(mapperId, maxSongs).ConfigureAwait(false);
         }
         public static async Task<ScrapedSong> GetSongByHashAsync(string hash)
         {
@@ -835,13 +848,14 @@ namespace SongFeedReaders
         /// <summary>
         /// List of authors, only used for the AUTHOR feed
         /// </summary>
+        [Obsolete("Being removed, use the author feed with the mapper name in Criteria for each author individually.")]
         public string[] Authors { get; set; }
 #pragma warning restore CA1819 // Properties should not return arrays
 
         /// <summary>
-        /// Criteria for search, only used for SEARCH feed.
+        /// Additional feed criteria, used for Search and Author feed.
         /// </summary>
-        public string SearchCriteria { get; set; }
+        public string Criteria { get; set; }
 
         /// <summary>
         /// Type of search to perform, only used for SEARCH feed.

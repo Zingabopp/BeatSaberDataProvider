@@ -10,7 +10,14 @@ namespace SongFeedReadersTests.MockClasses
     public class MockWebClient : IWebClient
     {
         public int Timeout { get; set; }
+        public string UserAgent { get; private set; }
+
         public ErrorHandling ErrorHandling { get; set; }
+
+        public void SetUserAgent(string userAgent)
+        {
+            UserAgent = userAgent;
+        }
 
         public Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
         {

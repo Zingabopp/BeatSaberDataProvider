@@ -5,6 +5,7 @@ using System.IO;
 using SongFeedReaders;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 
 namespace SongFeedReadersTests
 {
@@ -17,11 +18,12 @@ namespace SongFeedReadersTests
         }
         #region Web
         [TestMethod]
-        public void GetSongsFromFeed_Authors_Test()
+        public void GetSongsFromFeed_ObsoleteAuthors_Test()
         {
+            var maxSongs = 26;
             var reader = new BeatSaverReader() { StoreRawData = true };
             var authorList = new string[] { "BlackBlazon", "greatyazer" };
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Author) { Authors = authorList, MaxSongs = 59 };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Author) { Authors = authorList, MaxSongs = maxSongs };
             var songsByAuthor = reader.GetSongsFromFeed(settings);
             var detectedAuthors = songsByAuthor.Values.Select(s => s.MapperName.ToLower()).Distinct();
             foreach (var song in songsByAuthor)
@@ -34,6 +36,14 @@ namespace SongFeedReadersTests
                 Assert.IsTrue(songsByAuthor.Any(s => s.Value.MapperName.ToLower() == author.ToLower()));
             }
 
+            var authorGroups = songsByAuthor.Values.GroupBy(s => s.MapperName);
+            foreach(var author in authorGroups)
+            {
+                Assert.IsTrue(author.Count() <= maxSongs);
+                Assert.IsTrue(author.Count() > 0);
+            }
+            
+
             // BlackBlazon check
             var blazonHash = "58de2d709a45b68fdb1dbbfefb187f59f629bfc5".ToUpper();
             var blazonSong = songsByAuthor[blazonHash];
@@ -42,6 +52,46 @@ namespace SongFeedReadersTests
             // GreatYazer check
             var songHash = "bf8c016dc6b9832ece3030f05277bbbe67db790d".ToUpper();
             var yazerSong = songsByAuthor[songHash];
+            Assert.IsTrue(yazerSong != null);
+            Assert.IsTrue(yazerSong.DownloadUri != null);
+        }
+
+        [TestMethod]
+        public void GetSongsFromFeed_Authors_Test()
+        {
+            var reader = new BeatSaverReader() { StoreRawData = true };
+            var authorList = new string[] { "BlackBlazon", "greatyazer", "joetastic" };
+            var songList = new Dictionary<string, ScrapedSong>();
+            foreach (var author in authorList)
+            {
+                var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Author) { Criteria = author, MaxSongs = 59 };
+                var songsByAuthor = reader.GetSongsFromFeed(settings);
+                Assert.IsTrue(songsByAuthor.Count > 0);
+                Assert.IsTrue(songsByAuthor.Count <= 59);
+                foreach(var song in songsByAuthor)
+                {
+                    songList.TryAdd(song.Key, song.Value);
+                }
+            }
+            var detectedAuthors = songList.Values.Select(s => s.MapperName.ToLower()).Distinct();
+            foreach (var song in songList)
+            {
+                Assert.IsTrue(song.Value.DownloadUri != null);
+                Assert.IsTrue(authorList.Any(a => a.ToLower() == song.Value.MapperName.ToLower()));
+            }
+            foreach (var author in authorList)
+            {
+                Assert.IsTrue(songList.Any(s => s.Value.MapperName.ToLower() == author.ToLower()));
+            }
+
+            // BlackBlazon check
+            var blazonHash = "58de2d709a45b68fdb1dbbfefb187f59f629bfc5".ToUpper();
+            var blazonSong = songList[blazonHash];
+            Assert.IsTrue(blazonSong != null);
+            Assert.IsTrue(blazonSong.DownloadUri != null);
+            // GreatYazer check
+            var songHash = "bf8c016dc6b9832ece3030f05277bbbe67db790d".ToUpper();
+            var yazerSong = songList[songHash];
             Assert.IsTrue(yazerSong != null);
             Assert.IsTrue(yazerSong.DownloadUri != null);
         }
@@ -100,7 +150,7 @@ namespace SongFeedReadersTests
         public void GetSongsFromFeed_Search_Test()
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Search) { MaxSongs = 50, SearchCriteria = "Believer" };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Search) { MaxSongs = 50, Criteria = "Believer" };
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count > 0);
             foreach (var song in songList.Values)

@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SongFeedReaders.Logging;
 using static SongFeedReaders.WebUtils;
+using WebUtilities;
 
 namespace SongFeedReaders
 {
@@ -571,9 +572,9 @@ namespace SongFeedReaders
                     return null;
                 }
             }
-            catch (WebException)
+            catch (WebClientException)
             {
-                Logger.Error($"HttpRequestException while trying to populate fields for {hash}");
+                Logger.Error($"Exception while trying to populate fields for {hash}");
                 return null;
             }
             catch (AggregateException ae)
@@ -612,9 +613,9 @@ namespace SongFeedReaders
                     return null;
                 }
             }
-            catch (WebException)
+            catch (WebClientException)
             {
-                Logger.Error($"HttpRequestException while trying to populate fields for {key}");
+                Logger.Error($"Exception while trying to populate fields for {key}");
                 return null;
             }
             catch (AggregateException ae)

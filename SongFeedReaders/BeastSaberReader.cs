@@ -350,9 +350,14 @@ namespace SongFeedReaders
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     }
                 }
-                catch (WebException ex)
+                catch (WebClientException ex)
                 {
                     Logger.Exception($"Error downloading {feedUrl} in TransformBlock.", ex);
+                    return new List<ScrapedSong>();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Exception($"Uncaught Error downloading {feedUrl} in TransformBlock.", ex);
                     return new List<ScrapedSong>();
                 }
 
@@ -383,7 +388,7 @@ namespace SongFeedReaders
 
                     if (pageIndex > maxPages && useMaxPages)
                         continueLooping = false;
-
+                    // TODO: Better http error handling, what if only a single page is broken and returns 0 songs?
                     while (ProcessPageBlock.OutputCount > 0 || itemsInBlock == MaxConcurrency || !continueLooping)
                     {
                         if (itemsInBlock <= 0)
@@ -394,7 +399,7 @@ namespace SongFeedReaders
                             if (Utilities.IsPaused)
                                 await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                             itemsInBlock--;
-                            if (newSongs == null)
+                            if (newSongs == null || newSongs.Count == 0)
                             {
                                 Logger.Debug("Received no new songs, last page reached.");
                                 ProcessPageBlock.Complete();
@@ -402,7 +407,10 @@ namespace SongFeedReaders
                                 continueLooping = false;
                                 break;
                             }
-                            Logger.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.First().SourceUri}");
+                            if(newSongs.Count > 0)
+                                Logger.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.First().SourceUri}");
+                            else
+                                Logger.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
                             foreach (var song in newSongs)
                             {
                                 if (retDict.ContainsKey(song.Hash))

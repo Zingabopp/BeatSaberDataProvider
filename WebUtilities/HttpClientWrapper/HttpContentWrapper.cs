@@ -16,7 +16,7 @@ namespace WebUtilities.HttpClientWrapper
         public HttpContentWrapper(HttpContent content)
         {
             _content = content;
-            ContentLength = content.Headers.ContentLength;
+            ContentLength = content?.Headers?.ContentLength;
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_content?.Headers != null)
             {

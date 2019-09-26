@@ -10,8 +10,20 @@ namespace WebUtilities.WebWrapper
     {
         private HttpWebResponse _response;
         private HttpWebRequest _request;
+        /// <summary>
+        /// Returns 0 if response was null and no status override was provided.
+        /// </summary>
+        private int? _statusCodeOverride;
 
-        public int StatusCode { get { return (int)(_response?.StatusCode ?? 0); } }
+        public int StatusCode
+        {
+            get
+            {
+                if (_statusCodeOverride != null)
+                    return _statusCodeOverride ?? 0;
+                return (int)(_response?.StatusCode ?? 0);
+            }
+        }
 
         public bool IsSuccessStatusCode
         {
@@ -20,10 +32,12 @@ namespace WebUtilities.WebWrapper
 
         public Exception Exception { get; protected set; }
 
+        public Uri RequestUri { get; protected set; }
+
         public IWebResponseMessage EnsureSuccessStatusCode()
         {
             if (!IsSuccessStatusCode)
-                throw new WebException($"HttpStatus: {StatusCode.ToString()}, {ReasonPhrase} getting {_request?.RequestUri.ToString()}.");
+                throw new WebClientException($"HttpStatus: {StatusCode.ToString()}, {ReasonPhrase} getting {_request?.RequestUri.ToString()}.", null, this);
             return this;
         }
 
@@ -37,11 +51,13 @@ namespace WebUtilities.WebWrapper
 
         public string ReasonPhrase { get { return _response?.StatusDescription ?? Exception?.Message; } }
 
-        public WebClientResponseWrapper(HttpWebResponse response, HttpWebRequest request, Exception exception = null)
+        public WebClientResponseWrapper(HttpWebResponse response, HttpWebRequest request, Exception exception = null, int? statusCodeOverride = null)
         {
             _response = response;
             _request = request;
+            _statusCodeOverride = statusCodeOverride;
             Exception = exception;
+            RequestUri = request?.RequestUri;
             Content = new WebClientContent(_response);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)

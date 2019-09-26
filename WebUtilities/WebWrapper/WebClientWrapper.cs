@@ -33,6 +33,9 @@ namespace WebUtilities.WebWrapper
         }
 
         private int _timeout;
+        /// <summary>
+        /// Timeout in milliseconds
+        /// </summary>
         public int Timeout
         {
             get { return _timeout; }
@@ -65,7 +68,7 @@ namespace WebUtilities.WebWrapper
         /// <param name="completeOnHeaders"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="WebException">Thrown when there's a WebException.</exception>
+        /// <exception cref="WebClientException">Thrown when there's a WebException.</exception>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
         {
             var request = HttpWebRequest.CreateHttp(uri);
@@ -74,7 +77,7 @@ namespace WebUtilities.WebWrapper
             if (Timeout != 0)
             {
                 // TODO: This doesn't seem to do anything.
-                request.ContinueTimeout = Timeout;
+                //request.ContinueTimeout = Timeout;
                 request.Timeout = Timeout;
                 request.ReadWriteTimeout = Timeout;
             }
@@ -82,7 +85,11 @@ namespace WebUtilities.WebWrapper
                 return null;
             try
             {
-                var getTask = request.GetResponseAsync();
+                //var getTask = request.GetResponseAsync();
+                var getTask = Task.Run(() =>
+                {
+                    return request.GetResponse(); // Have to use synchronous call because GetResponseAsync() doesn't respect Timeout
+                });
                 //TODO: Need testing for cancellation token
                 if (cancellationToken.CanBeCanceled)
                 {
@@ -94,7 +101,7 @@ namespace WebUtilities.WebWrapper
                     }
                 }
                 var response = await getTask.ConfigureAwait(false); // either there's no cancellationToken or it's already completed
-                
+
                 return new WebClientResponseWrapper(response as HttpWebResponse, request);
             }
             catch (ArgumentException ex)
@@ -109,17 +116,70 @@ namespace WebUtilities.WebWrapper
             catch (WebException ex)
             {
                 HttpWebResponse resp = ex.Response as HttpWebResponse;
-
+                var statusOverride = WebExceptionStatusToHttpStatus(ex.Status);
                 // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
+                
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
-                    throw new WebClientException(ex.Message, ex, uri, new WebClientResponseWrapper(resp, request, ex));
+                    throw new WebClientException(ex.Message, ex, new WebClientResponseWrapper(resp, request, ex, statusOverride));
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new WebClientResponseWrapper(resp, request, ex);
+                    return new WebClientResponseWrapper(resp, request, ex, statusOverride);
                 }
             }
 
+        }
+
+        private static int? WebExceptionStatusToHttpStatus(WebExceptionStatus status)
+        {
+            switch (status)
+            {
+                case WebExceptionStatus.Success:
+                    return 200;
+                case WebExceptionStatus.NameResolutionFailure:
+                    break;
+                case WebExceptionStatus.ConnectFailure:
+                    break;
+                case WebExceptionStatus.ReceiveFailure:
+                    break;
+                case WebExceptionStatus.SendFailure:
+                    break;
+                case WebExceptionStatus.PipelineFailure:
+                    break;
+                case WebExceptionStatus.RequestCanceled:
+                    break;
+                case WebExceptionStatus.ProtocolError:
+                    break;
+                case WebExceptionStatus.ConnectionClosed:
+                    break;
+                case WebExceptionStatus.TrustFailure:
+                    break;
+                case WebExceptionStatus.SecureChannelFailure:
+                    break;
+                case WebExceptionStatus.ServerProtocolViolation:
+                    break;
+                case WebExceptionStatus.KeepAliveFailure:
+                    break;
+                case WebExceptionStatus.Pending:
+                    break;
+                case WebExceptionStatus.Timeout:
+                    return 408;
+                case WebExceptionStatus.ProxyNameResolutionFailure:
+                    break;
+                case WebExceptionStatus.UnknownError:
+                    break;
+                case WebExceptionStatus.MessageLengthLimitExceeded:
+                    break;
+                case WebExceptionStatus.CacheEntryNotFound:
+                    break;
+                case WebExceptionStatus.RequestProhibitedByCachePolicy:
+                    break;
+                case WebExceptionStatus.RequestProhibitedByProxy:
+                    break;
+                default:
+                    return null;
+            }
+            return null;
         }
 
         #region GetAsyncOverloads

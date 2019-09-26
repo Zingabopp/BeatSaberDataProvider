@@ -19,6 +19,8 @@ namespace SongFeedReadersTests.MockClasses.MockTests
             using (var mockClient = new MockWebClient())
             using (var realClient = new HttpClientWrapper())
             {
+                mockClient.Timeout = 500;
+                realClient.Timeout = 500;
                 var testUrl = new Uri("https://bsaber.com/wp-jsoasdfn/bsabasdfer-api/songs/");
                 //WebUtils.Initialize(realClient);
                 using (var realResponse = realClient.GetAsync(testUrl).Result)

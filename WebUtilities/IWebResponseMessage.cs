@@ -27,6 +27,11 @@ namespace WebUtilities
         bool IsSuccessStatusCode { get; }
 
         /// <summary>
+        /// URI of the request.
+        /// </summary>
+        Uri RequestUri { get; }
+
+        /// <summary>
         /// Content of the response.
         /// </summary>
         IWebResponseContent Content { get; }

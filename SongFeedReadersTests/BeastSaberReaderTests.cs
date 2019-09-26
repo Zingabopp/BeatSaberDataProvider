@@ -5,6 +5,8 @@ using System.IO;
 using SongFeedReaders;
 using Newtonsoft.Json.Linq;
 using System;
+using WebUtilities;
+using System.Threading.Tasks;
 
 namespace SongFeedReadersTests
 {
@@ -17,6 +19,59 @@ namespace SongFeedReadersTests
         }
 
         private int DefaultMaxConcurrency = 5;
+
+        private async Task<IWebResponseMessage> GetResponseSafeAsync(Uri uri)
+        {
+            try
+            {
+                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                {
+                    return response;
+                }
+            }
+            catch (WebClientException ex)
+            {
+                Console.WriteLine($"WebClientException\n{ex}");
+                Assert.AreEqual(408, ex.Response?.StatusCode ?? 0);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception\n{ex}");
+                Assert.Fail("Wrong exception");
+                return null;
+            }
+        }
+
+        [TestMethod]
+        public void SingleRequest()
+        {
+            var uri = new Uri("https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=2&count=50");
+            WebUtils.WebClient.Timeout = 500;
+            try
+            {
+                try
+                {
+                    var task = GetResponseSafeAsync(uri).Result;
+                }catch(AggregateException ex)
+                {
+                    throw ex.InnerException;
+                }
+                
+            }
+            catch (WebClientException ex)
+            {
+                Console.WriteLine($"WebClientException\n{ex}");
+            }
+            catch(AssertFailedException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception\n{ex}");
+            }
+        }
 
         [TestMethod]
         public void GetSongsFromPage_XML_Test()
@@ -107,7 +162,7 @@ namespace SongFeedReadersTests
         [TestMethod]
         public void GetSongsFromFeed_Followings_SinglePage_LimitedSongs()
         {
-            var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true } ;
+            var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true };
             int maxSongs = 20;
             int maxPages = 1;
             var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.Following)

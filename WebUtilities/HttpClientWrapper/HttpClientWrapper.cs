@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -68,6 +69,14 @@ namespace WebUtilities.HttpClientWrapper
 
         public ErrorHandling ErrorHandling { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="completeOnHeaders"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="WebClientException">Thrown on errors from the web client.</exception>
+        /// <returns></returns>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
         {
             HttpCompletionOption completionOption =
@@ -75,7 +84,8 @@ namespace WebUtilities.HttpClientWrapper
             try
             {
                 //TODO: Need testing for cancellation token
-                return new HttpResponseWrapper(await httpClient.GetAsync(uri, completionOption, cancellationToken).ConfigureAwait(false));
+                var response = await httpClient.GetAsync(uri, completionOption, cancellationToken).ConfigureAwait(false);
+                return new HttpResponseWrapper(response, uri);
             }
             catch (ArgumentException ex)
             {
@@ -84,19 +94,38 @@ namespace WebUtilities.HttpClientWrapper
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Invalid URL, {uri?.ToString()}, passed to GetAsync()\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null, ex);
+                    return new HttpResponseWrapper(null, uri, ex);
                 }
             }
             catch (HttpRequestException ex)
             {
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                 {
-                    throw new WebClientException(ex.Message, ex, uri, new HttpResponseWrapper(null, ex));
+                    throw new WebClientException(ex.Message, ex, new HttpResponseWrapper(null, uri, ex));
                 }
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null, ex);
+                    return new HttpResponseWrapper(null, uri, ex);
+                }
+            }
+            catch (TaskCanceledException ex)
+            {
+                Exception retException = ex;
+                int? statusOverride = null;
+                if(!cancellationToken.IsCancellationRequested)
+                {
+                    retException = new TimeoutException($"Timeout occured while waiting for {uri}");
+                    statusOverride = (int)HttpStatusCode.RequestTimeout;
+                }
+                if (ErrorHandling == ErrorHandling.ThrowOnException)
+                {
+                    throw new WebClientException(retException.Message, retException, new HttpResponseWrapper(null, uri, retException, statusOverride));
+                }
+                else
+                {
+                    //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
+                    return new HttpResponseWrapper(null, uri, retException, statusOverride);
                 }
             }
 

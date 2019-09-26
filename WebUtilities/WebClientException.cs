@@ -20,9 +20,9 @@ namespace WebUtilities
 
         }
 
-        public WebClientException(string message, Exception innerException, Uri uri, IWebResponseMessage response) : base(message, innerException)
+        public WebClientException(string message, Exception innerException, IWebResponseMessage response) 
+            : base(message, innerException)
         {
-            Uri = uri;
             Response = response;
         }
     }

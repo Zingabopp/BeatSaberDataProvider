@@ -17,7 +17,7 @@ namespace SongFeedReadersTests
             {
                 WebUtils.Initialize(new WebUtilities.WebWrapper.WebClientWrapper());
                 //WebUtils.Initialize(new WebUtilities.HttpClientWrapper.HttpClientWrapper());
-                WebUtils.WebClient.Timeout = 5000;
+                WebUtils.WebClient.Timeout = 10000;
                 
             }
 

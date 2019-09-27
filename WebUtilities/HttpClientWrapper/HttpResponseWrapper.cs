@@ -60,7 +60,8 @@ namespace WebUtilities.HttpClientWrapper
             _statusCodeOverride = statusCodeOverride;
             Exception = exception;
             RequestUri = requestUri;
-            Content = new HttpContentWrapper(response?.Content);
+            if(response?.Content != null)
+                Content = new HttpContentWrapper(response?.Content);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)
             {

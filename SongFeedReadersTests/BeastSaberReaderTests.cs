@@ -24,8 +24,9 @@ namespace SongFeedReadersTests
         {
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.WebClient.GetAsync(uri, 0).ConfigureAwait(false))
                 {
+                    await Task.Delay(10000);
                     return response;
                 }
             }
@@ -44,10 +45,41 @@ namespace SongFeedReadersTests
         }
 
         [TestMethod]
+        public void LargeFile()
+        {
+            var uri = new Uri("http://releases.ubuntu.com/18.04.3/ubuntu-18.04.3-desktop-amd64.iso");
+            //WebUtils.WebClient.Timeout = 500;
+            try
+            {
+                try
+                {
+                    var task = GetResponseSafeAsync(uri).Result;
+                }
+                catch (AggregateException ex)
+                {
+                    throw ex.InnerException;
+                }
+
+            }
+            catch (WebClientException ex)
+            {
+                Console.WriteLine($"WebClientException\n{ex}");
+            }
+            catch (AssertFailedException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception\n{ex}");
+            }
+        }
+
+        [TestMethod]
         public void SingleRequest()
         {
             var uri = new Uri("https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=2&count=50");
-            WebUtils.WebClient.Timeout = 500;
+            //WebUtils.WebClient.Timeout = 500;
             try
             {
                 try

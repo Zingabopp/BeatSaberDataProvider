@@ -58,7 +58,8 @@ namespace WebUtilities.WebWrapper
             _statusCodeOverride = statusCodeOverride;
             Exception = exception;
             RequestUri = request?.RequestUri;
-            Content = new WebClientContent(_response);
+            if(response != null)
+                Content = new WebClientContent(_response);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)
             {

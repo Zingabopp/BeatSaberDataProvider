@@ -54,7 +54,7 @@ namespace WebUtilities.WebWrapper
                 using (MemoryStream memStream = new MemoryStream())
                 {
                     await Task.Yield();
-                    await stream.CopyToAsync(memStream).ConfigureAwait(false);
+                    await stream.CopyToAsync(memStream, int.MaxValue).ConfigureAwait(false);
                     return memStream.ToArray();
                 }
             }

@@ -15,7 +15,7 @@ namespace WebUtilities.HttpClientWrapper
         {
             if (httpClient == null)
                 httpClient = new HttpClient();
-            if(!string.IsNullOrEmpty(UserAgent))
+            if (!string.IsNullOrEmpty(UserAgent))
             {
                 httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd(UserAgent);
             }
@@ -35,7 +35,7 @@ namespace WebUtilities.HttpClientWrapper
 
         public void SetUserAgent(string userAgent)
         {
-            
+
             if (httpClient != null)
             {
                 httpClient.DefaultRequestHeaders.UserAgent.Clear();
@@ -77,91 +77,97 @@ namespace WebUtilities.HttpClientWrapper
         /// <param name="cancellationToken"></param>
         /// <exception cref="WebClientException">Thrown on errors from the web client.</exception>
         /// <returns></returns>
-        public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
+        public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
-            HttpCompletionOption completionOption =
-                completeOnHeaders ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead;
-            try
+            if (uri == null)
+                throw new ArgumentNullException(nameof(uri), $"Uri cannot be null for GetAsync");
+            if (timeout == 0)
+                timeout = Timeout;
+            if (timeout == 0)
+                timeout = (int)httpClient.Timeout.TotalMilliseconds;
+            var timeoutCts = new CancellationTokenSource(timeout);
+            var timeoutToken = timeoutCts.Token;
+            using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutToken))
             {
-                //TODO: Need testing for cancellation token
-                var response = await httpClient.GetAsync(uri, completionOption, cancellationToken).ConfigureAwait(false);
-                return new HttpResponseWrapper(response, uri);
-            }
-            catch (ArgumentException ex)
-            {
-                if (ErrorHandling != ErrorHandling.ReturnEmptyContent)
-                    throw;
-                else
+                try
                 {
-                    //Logger?.Log(LogLevel.Error, $"Invalid URL, {uri?.ToString()}, passed to GetAsync()\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null, uri, ex);
+                    //TODO: Need testing for cancellation token
+                    HttpResponseMessage response = null;
+                    response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
+                    return new HttpResponseWrapper(response, uri);
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                if (ErrorHandling == ErrorHandling.ThrowOnException)
+                catch (HttpRequestException ex)
                 {
-                    throw new WebClientException(ex.Message, ex, new HttpResponseWrapper(null, uri, ex));
+                    timeoutCts.Dispose();
+                    if (ErrorHandling == ErrorHandling.ThrowOnException)
+                    {
+                        throw new WebClientException(ex.Message, ex, new HttpResponseWrapper(null, uri, ex));
+                    }
+                    else
+                    {
+                        //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
+                        return new HttpResponseWrapper(null, uri, ex);
+                    }
                 }
-                else
+                catch (OperationCanceledException ex)
                 {
-                    //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null, uri, ex);
-                }
-            }
-            catch (TaskCanceledException ex)
-            {
-                Exception retException = ex;
-                int? statusOverride = null;
-                if(!cancellationToken.IsCancellationRequested)
-                {
-                    retException = new TimeoutException($"Timeout occured while waiting for {uri}");
-                    statusOverride = (int)HttpStatusCode.RequestTimeout;
-                }
-                if (ErrorHandling == ErrorHandling.ThrowOnException)
-                {
-                    throw new WebClientException(retException.Message, retException, new HttpResponseWrapper(null, uri, retException, statusOverride));
-                }
-                else
-                {
-                    //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                    return new HttpResponseWrapper(null, uri, retException, statusOverride);
+                    timeoutCts.Dispose();
+                    Exception retException = ex;
+                    int? statusOverride = null;
+                    if (!cancellationToken.IsCancellationRequested)
+                    {
+                        retException = new TimeoutException($"Timeout occured while waiting for {uri}");
+                        statusOverride = (int)HttpStatusCode.RequestTimeout;
+                    }
+                    else
+                    {
+                        throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
+                    }
+                    if (ErrorHandling == ErrorHandling.ThrowOnException)
+                    {
+                        throw new WebClientException(retException.Message, retException, new HttpResponseWrapper(null, uri, retException, statusOverride));
+                    }
+                    else
+                    {
+                        //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
+                        return new HttpResponseWrapper(null, uri, retException, statusOverride);
+                    }
                 }
             }
 
         }
 
         #region GetAsyncOverloads
-
-        public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders, CancellationToken cancellationToken)
-        {
-            var urlAsUri = string.IsNullOrEmpty(url) ? null : new Uri(url);
-            return GetAsync(urlAsUri, completeOnHeaders, cancellationToken);
-        }
-        public Task<IWebResponseMessage> GetAsync(string url)
-        {
-            return GetAsync(url, false, CancellationToken.None);
-        }
-        public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders)
-        {
-            return GetAsync(url, completeOnHeaders, CancellationToken.None);
-        }
-        public Task<IWebResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
-        {
-            return GetAsync(url, false, cancellationToken);
-        }
-
         public Task<IWebResponseMessage> GetAsync(Uri uri)
         {
-            return GetAsync(uri, false, CancellationToken.None);
-        }
-        public Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders)
-        {
-            return GetAsync(uri, completeOnHeaders, CancellationToken.None);
+            return GetAsync(uri, 0, CancellationToken.None);
         }
         public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
         {
-            return GetAsync(uri, false, cancellationToken);
+            return GetAsync(uri, 0, cancellationToken);
+        }
+        public Task<IWebResponseMessage> GetAsync(Uri uri, int timeout)
+        {
+            return GetAsync(uri, timeout, CancellationToken.None);
+        }
+        public Task<IWebResponseMessage> GetAsync(string url, int timeout, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url), $"Url cannot be null for GetAsync()");
+            var urlAsUri = new Uri(url);
+            return GetAsync(urlAsUri, timeout, cancellationToken);
+        }
+        public Task<IWebResponseMessage> GetAsync(string url)
+        {
+            return GetAsync(url, 0, CancellationToken.None);
+        }
+        public Task<IWebResponseMessage> GetAsync(string url, int timeout)
+        {
+            return GetAsync(url, timeout, CancellationToken.None);
+        }
+        public Task<IWebResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
+        {
+            return GetAsync(url, 0, cancellationToken);
         }
         #endregion
 

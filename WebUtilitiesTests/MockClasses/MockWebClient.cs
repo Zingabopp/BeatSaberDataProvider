@@ -19,7 +19,7 @@ namespace SongFeedReadersTests.MockClasses
             UserAgent = userAgent;
         }
 
-        public Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
+        public Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
             //var content = new MockHttpContent(url);
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -28,39 +28,39 @@ namespace SongFeedReadersTests.MockClasses
             return Task.Run(() => { return (IWebResponseMessage)response; });
         }
 
+
         #region GetAsyncOverloads
-        public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders, CancellationToken cancellationToken)
+        public Task<IWebResponseMessage> GetAsync(Uri uri)
         {
-            var urlAsUri = string.IsNullOrEmpty(url) ? null : new Uri(url);
-            return GetAsync(urlAsUri, completeOnHeaders, cancellationToken);
+            return GetAsync(uri, 0, CancellationToken.None);
+        }
+
+        public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
+        {
+            return GetAsync(uri, 0, cancellationToken);
+        }
+        public Task<IWebResponseMessage> GetAsync(Uri uri, int timeout)
+        {
+            return GetAsync(uri, timeout, CancellationToken.None);
+        }
+        public Task<IWebResponseMessage> GetAsync(string url, int timeout, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url), $"Url cannot be null for GetAsync()");
+            var urlAsUri = new Uri(url);
+            return GetAsync(urlAsUri, timeout, cancellationToken);
         }
         public Task<IWebResponseMessage> GetAsync(string url)
         {
-            var urlAsUri = string.IsNullOrEmpty(url) ? null : new Uri(url);
-            return GetAsync(urlAsUri, false, CancellationToken.None);
+            return GetAsync(url, 0, CancellationToken.None);
         }
-        public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders)
+        public Task<IWebResponseMessage> GetAsync(string url, int timeout)
         {
-            var urlAsUri = string.IsNullOrEmpty(url) ? null : new Uri(url);
-            return GetAsync(urlAsUri, completeOnHeaders, CancellationToken.None);
+            return GetAsync(url, timeout, CancellationToken.None);
         }
         public Task<IWebResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
         {
-            var urlAsUri = string.IsNullOrEmpty(url) ? null : new Uri(url);
-            return GetAsync(urlAsUri, false, cancellationToken);
-        }
-
-        public Task<IWebResponseMessage> GetAsync(Uri uri)
-        {
-            return GetAsync(uri, false, CancellationToken.None);
-        }
-        public Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders)
-        {
-            return GetAsync(uri, completeOnHeaders, CancellationToken.None);
-        }
-        public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
-        {
-            return GetAsync(uri, false, cancellationToken);
+            return GetAsync(url, 0, cancellationToken);
         }
         #endregion
 
@@ -88,6 +88,7 @@ namespace SongFeedReadersTests.MockClasses
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         #endregion
     }
 }

@@ -69,20 +69,24 @@ namespace WebUtilities.WebWrapper
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="WebClientException">Thrown when there's a WebException.</exception>
-        public async Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders, CancellationToken cancellationToken)
+        /// <exception cref="ArgumentException">Thrown when there's a WebException.</exception>
+        public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
+            if (timeout == 0)
+                timeout = Timeout;
             var request = HttpWebRequest.CreateHttp(uri);
-            if(!string.IsNullOrEmpty(UserAgent))
+            if (!string.IsNullOrEmpty(UserAgent))
                 request.UserAgent = UserAgent;
-            if (Timeout != 0)
+            Task cancelTask;
+            if (timeout != 0)
             {
                 // TODO: This doesn't seem to do anything.
                 //request.ContinueTimeout = Timeout;
-                request.Timeout = Timeout;
-                request.ReadWriteTimeout = Timeout;
+                request.Timeout = timeout;
+                request.ReadWriteTimeout = timeout;
             }
             if (cancellationToken.IsCancellationRequested)
-                return null;
+                throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
             try
             {
                 //var getTask = request.GetResponseAsync();
@@ -93,12 +97,13 @@ namespace WebUtilities.WebWrapper
                 //TODO: Need testing for cancellation token
                 if (cancellationToken.CanBeCanceled)
                 {
-                    var cancelTask = cancellationToken.AsTask();
+                    cancelTask = cancellationToken.AsTask();
                     await Task.WhenAny(getTask, cancelTask).ConfigureAwait(false);
                     if (!getTask.IsCompleted) // either getTask completed or cancelTask was triggered
                     {
-                        return null;
+                        throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
                     }
+                    cancelTask?.Dispose();
                 }
                 var response = await getTask.ConfigureAwait(false); // either there's no cancellationToken or it's already completed
 
@@ -118,7 +123,7 @@ namespace WebUtilities.WebWrapper
                 HttpWebResponse resp = ex.Response as HttpWebResponse;
                 var statusOverride = WebExceptionStatusToHttpStatus(ex.Status);
                 // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
-                
+
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                     throw new WebClientException(ex.Message, ex, new WebClientResponseWrapper(resp, request, ex, statusOverride));
                 else
@@ -127,7 +132,6 @@ namespace WebUtilities.WebWrapper
                     return new WebClientResponseWrapper(resp, request, ex, statusOverride);
                 }
             }
-
         }
 
         private static int? WebExceptionStatusToHttpStatus(WebExceptionStatus status)
@@ -136,6 +140,9 @@ namespace WebUtilities.WebWrapper
             {
                 case WebExceptionStatus.Success:
                     return 200;
+                case WebExceptionStatus.Timeout:
+                    return 408;
+                    /*
                 case WebExceptionStatus.NameResolutionFailure:
                     break;
                 case WebExceptionStatus.ConnectFailure:
@@ -162,8 +169,6 @@ namespace WebUtilities.WebWrapper
                     break;
                 case WebExceptionStatus.Pending:
                     break;
-                case WebExceptionStatus.Timeout:
-                    return 408;
                 case WebExceptionStatus.ProxyNameResolutionFailure:
                     break;
                 case WebExceptionStatus.UnknownError:
@@ -176,6 +181,7 @@ namespace WebUtilities.WebWrapper
                     break;
                 case WebExceptionStatus.RequestProhibitedByProxy:
                     break;
+                    */
                 default:
                     return null;
             }
@@ -184,35 +190,37 @@ namespace WebUtilities.WebWrapper
 
         #region GetAsyncOverloads
 
-        public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders, CancellationToken cancellationToken)
+        public Task<IWebResponseMessage> GetAsync(Uri uri)
         {
-            var urlAsUri = string.IsNullOrEmpty(url) ? null : new Uri(url);
-            return GetAsync(urlAsUri, completeOnHeaders, cancellationToken);
+            return GetAsync(uri, 0, CancellationToken.None);
+        }
+
+        public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
+        {
+            return GetAsync(uri, 0, cancellationToken);
+        }
+        public Task<IWebResponseMessage> GetAsync(Uri uri, int timeout)
+        {
+            return GetAsync(uri, timeout, CancellationToken.None);
+        }
+        public Task<IWebResponseMessage> GetAsync(string url, int timeout, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(url))
+                throw new ArgumentNullException(nameof(url), $"Url cannot be null for GetAsync()");
+            var urlAsUri = new Uri(url);
+            return GetAsync(urlAsUri, timeout, cancellationToken);
         }
         public Task<IWebResponseMessage> GetAsync(string url)
         {
-            return GetAsync(url, false, CancellationToken.None);
+            return GetAsync(url, 0, CancellationToken.None);
         }
-        public Task<IWebResponseMessage> GetAsync(string url, bool completeOnHeaders)
+        public Task<IWebResponseMessage> GetAsync(string url, int timeout)
         {
-            return GetAsync(url, completeOnHeaders, CancellationToken.None);
+            return GetAsync(url, timeout, CancellationToken.None);
         }
         public Task<IWebResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
         {
-            return GetAsync(url, false, cancellationToken);
-        }
-
-        public Task<IWebResponseMessage> GetAsync(Uri uri)
-        {
-            return GetAsync(uri, false, CancellationToken.None);
-        }
-        public Task<IWebResponseMessage> GetAsync(Uri uri, bool completeOnHeaders)
-        {
-            return GetAsync(uri, completeOnHeaders, CancellationToken.None);
-        }
-        public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
-        {
-            return GetAsync(uri, false, cancellationToken);
+            return GetAsync(url, 0, cancellationToken);
         }
         #endregion
 

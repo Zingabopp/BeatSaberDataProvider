@@ -77,7 +77,7 @@ namespace WebUtilities.WebWrapper
             var request = HttpWebRequest.CreateHttp(uri);
             if (!string.IsNullOrEmpty(UserAgent))
                 request.UserAgent = UserAgent;
-            Task cancelTask;
+            Task cancelTask = null;
             if (timeout != 0)
             {
                 // TODO: This doesn't seem to do anything.
@@ -132,6 +132,11 @@ namespace WebUtilities.WebWrapper
                     return new WebClientResponseWrapper(resp, request, ex, statusOverride);
                 }
             }
+            finally
+            {
+                if (cancelTask != null)
+                    cancelTask.Dispose();
+            }
         }
 
         private static int? WebExceptionStatusToHttpStatus(WebExceptionStatus status)
@@ -185,7 +190,6 @@ namespace WebUtilities.WebWrapper
                 default:
                     return null;
             }
-            return null;
         }
 
         #region GetAsyncOverloads

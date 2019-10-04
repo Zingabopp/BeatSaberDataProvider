@@ -57,10 +57,12 @@ namespace BeatSaberDataProvider.Web
         }
 
         /// <summary>
+        /// TODO: This throws out WebClientExceptions...Do I want that?
         /// Use to get web responses from Beat Saver. If the rate limit is reached, it waits for the limit to expire before trying again.
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="retries"></param>
+        /// <exception cref="WebClientException"></exception>
         /// <returns></returns>
         public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
         {
@@ -75,7 +77,9 @@ namespace BeatSaberDataProvider.Web
             {
 
                 rateLimitExceeded = false;
+
                 response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
+
                 if (response.StatusCode == 429 && tries < retries)
                 {
                     rateLimitExceeded = true;

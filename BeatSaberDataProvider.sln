@@ -17,9 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebUtilities", "WebUtilitie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebUtilitiesTests", "WebUtilitiesTests\WebUtilitiesTests.csproj", "{F152F8EB-95B7-4997-A2EC-B8B7BA569A05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongDownloadManager", "SongDownloadManager\SongDownloadManager.csproj", "{4DFCE894-E008-4078-BA6D-C99A8658994A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SongDownloadManager", "SongDownloadManager\SongDownloadManager.csproj", "{4DFCE894-E008-4078-BA6D-C99A8658994A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SongDownloadManagerTests", "SongDownloadManagerTests\SongDownloadManagerTests.csproj", "{289335A4-26BF-4F07-946B-E765D9BFEAA9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SongDownloadManagerTests", "SongDownloadManagerTests\SongDownloadManagerTests.csproj", "{289335A4-26BF-4F07-946B-E765D9BFEAA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

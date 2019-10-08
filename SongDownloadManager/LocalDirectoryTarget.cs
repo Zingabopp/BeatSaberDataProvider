@@ -168,9 +168,9 @@ namespace SongDownloadManager
             var createdFiles = new List<FileInfo>();
             bool cancelled = false;
             bool targetDirCreated = false;
-            if (string.IsNullOrEmpty(song.LocalDirectory))
+            if (!(song.LocalDirectory.Parent.Exists))
                 throw new ArgumentException("song's LocalDirectory directory cannot be null for LocalDirectoryTarget.TransferSong", nameof(song));
-            var sourceDir = new DirectoryInfo(song.LocalDirectory);
+            var sourceDir = song.LocalDirectory;
             var targetDir = new DirectoryInfo(Path.Combine(TargetDirectory.FullName, sourceDir.Name));
             if (!targetDir.Exists)
             {
@@ -258,15 +258,15 @@ namespace SongDownloadManager
                 {
                     break;
                 }
-                if (!Directory.EnumerateFiles(song.LocalDirectory, "info.dat", SearchOption.TopDirectoryOnly).Any())
+                if (!song.LocalDirectory.EnumerateFiles("info.dat", SearchOption.TopDirectoryOnly).Any())
                     continue; // Not a valid song folder, skip
                 Action<int> songProgress = null;
                 if (SongProgressPercent != null)
                 {
-                    songProgress = new Action<int>(p => SongProgressPercent(Path.GetFullPath(song.LocalDirectory), p));
+                    songProgress = new Action<int>(p => SongProgressPercent(song.LocalDirectory.FullName, p));
                 }
 
-                retDict.Add(songDir.FullName, await TransferSong(songDir.FullName, overwrite, songProgress, cancellationToken).ConfigureAwait(false));
+                retDict.Add(song.LocalDirectory.FullName, await TransferSong(song, overwrite, songProgress, cancellationToken).ConfigureAwait(false));
             }
             return retDict;
         }

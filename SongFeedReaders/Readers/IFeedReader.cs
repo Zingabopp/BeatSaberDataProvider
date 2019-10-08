@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SongFeedReaders
+namespace SongFeedReaders.Readers
 {
     public interface IFeedReader
     {
@@ -19,15 +19,34 @@ namespace SongFeedReaders
         /// </summary>
         void PrepareReader();
 
+        string GetFeedName(IFeedSettings settings);
+
         /// <summary>
-        /// Retrieves the songs from a feed and returns them as a Dictionary. Key is the song hash.
+        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
         /// </summary>
         /// <param name="settings"></param>
+        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
         /// <returns></returns>
-        Dictionary<string, ScrapedSong> GetSongsFromFeed(IFeedSettings settings);
+        FeedResult GetSongsFromFeed(IFeedSettings settings);
 
-        Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings);
-        Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken);
+        /// <summary>
+        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
+        /// <returns></returns>
+        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings);
+        /// <summary>
+        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
+        /// <returns></returns>
+        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken);
     }
 
     public interface IFeedSettings
@@ -52,16 +71,18 @@ namespace SongFeedReaders
     public struct FeedInfo : IEquatable<FeedInfo>
     {
 #pragma warning disable CA1054 // Uri parameters should not be strings
-        public FeedInfo(string name, string baseUrl)
+        public FeedInfo(string name, string displayName, string baseUrl)
 #pragma warning restore CA1054 // Uri parameters should not be strings
         {
             Name = name;
+            DisplayName = displayName;
             BaseUrl = baseUrl;
         }
 #pragma warning disable CA1056 // Uri properties should not be strings
         public string BaseUrl { get; set; } // Base URL for the feed, has string keys to replace with things like page number/bsaber username
 #pragma warning restore CA1056 // Uri properties should not be strings
         public string Name { get; set; } // Name of the feed
+        public string DisplayName { get; set; }
 
         #region EqualsOperators
         public override bool Equals(object obj)
@@ -86,7 +107,21 @@ namespace SongFeedReaders
             return !feedInfo1.Equals(feedInfo2);
         }
 
-        public override int GetHashCode() => (Name, BaseUrl).GetHashCode();
+        public override int GetHashCode()
+        {
+            return new HashablePair(Name, BaseUrl).GetHashCode();
+        }
+
+        struct HashablePair
+        {
+            public HashablePair(string name, string baseUrl)
+            {
+                Name = name;
+                BaseUrl = baseUrl;
+            }
+            string Name;
+            string BaseUrl;
+        }
         #endregion
     }
 

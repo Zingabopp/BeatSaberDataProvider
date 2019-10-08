@@ -87,6 +87,7 @@ namespace BeatSaberDataProvider
         /// <param name="song"></param>
         /// <param name="searchOnline"></param>
         /// <returns></returns>
+        [Obsolete("Need to make this Async")]
         public static bool TryGetSongByHash(string hash, out Song song, bool searchOnline = true)
         {
             hash = hash.ToUpper();
@@ -94,7 +95,7 @@ namespace BeatSaberDataProvider
             if (song == null && searchOnline)
             {
                 Logger.Info($"Song with hash: {hash}, not in scraped data, searching Beat Saver...");
-                song = OnlineSongSearch.GetSongByHash(hash);
+                song = OnlineSongSearch.GetSongByHashAsync(hash).Result;
                 if (song != null)
                 {
                     song.ScrapedAt = DateTime.Now;
@@ -116,6 +117,7 @@ namespace BeatSaberDataProvider
         /// <param name="song"></param>
         /// <param name="searchOnline"></param>
         /// <returns></returns>
+        [Obsolete("Need to make this Async")]
         public static bool TryGetSongByKey(string key, out Song song, bool searchOnline = true)
         {
             key = key.ToLower();
@@ -123,7 +125,7 @@ namespace BeatSaberDataProvider
             if (song == null && searchOnline)
             {
                 Logger.Info($"Song with key: {key}, not in scraped data, searching Beat Saver...");
-                song = OnlineSongSearch.GetSongByKey(key);
+                song = OnlineSongSearch.GetSongByKeyAsync(key).Result;
                 if (song != null)
                 {
                     

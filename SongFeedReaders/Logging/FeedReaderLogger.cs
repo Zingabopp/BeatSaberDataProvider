@@ -15,6 +15,7 @@ namespace SongFeedReaders.Logging
         }
 
         public FeedReaderLogger(LoggingController controller)
+            : this()
         {
             LogController = controller;
         }

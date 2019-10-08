@@ -5,18 +5,44 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 
-namespace WebUtilities
+namespace WebUtilities.HttpClientWrapper
 {
     public class HttpResponseWrapper : IWebResponseMessage
     {
         private HttpResponseMessage _response;
-        public HttpStatusCode StatusCode { get { return _response.StatusCode; } }
+        private int? _statusCodeOverride;
+        /// <summary>
+        /// Returns 0 if response was null and no status override was provided.
+        /// </summary>
+        public int StatusCode
+        {
+            get
+            {
+                if (_statusCodeOverride != null)
+                    return _statusCodeOverride ?? 0;
+                return (int)(_response?.StatusCode ?? 0);
+            }
+        }
 
-        public bool IsSuccessStatusCode { get { return _response.IsSuccessStatusCode; } }
+        public bool IsSuccessStatusCode { get { return _response?.IsSuccessStatusCode ?? false; } }
+
+        public string ReasonPhrase { get { return _response?.ReasonPhrase ?? Exception?.Message; } }
+
+        public Uri RequestUri { get; protected set; }
+
+        public Exception Exception { get; protected set; }
 
         public IWebResponseMessage EnsureSuccessStatusCode()
         {
-            _response.EnsureSuccessStatusCode();
+            try
+            {
+                var _ = _response?.EnsureSuccessStatusCode()
+                    ?? throw new WebClientException("Response is null.");
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new WebClientException(ex.Message, ex, this);
+            }
             return this;
         }
 
@@ -28,12 +54,14 @@ namespace WebUtilities
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
 
-        public string ReasonPhrase { get { return _response.ReasonPhrase; } }
-
-        public HttpResponseWrapper(HttpResponseMessage response)
+        public HttpResponseWrapper(HttpResponseMessage response, Uri requestUri, Exception exception = null, int? statusCodeOverride = null)
         {
             _response = response;
-            Content = new HttpContentWrapper(response?.Content);
+            _statusCodeOverride = statusCodeOverride;
+            Exception = exception;
+            RequestUri = requestUri;
+            if(response?.Content != null)
+                Content = new HttpContentWrapper(response?.Content);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)
             {

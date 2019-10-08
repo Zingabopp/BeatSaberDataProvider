@@ -1,52 +1,119 @@
 ﻿using BeatSaberDataProvider.Util;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using WebUtilities;
 
 namespace BeatSaberDataProvider.Web
 {
     public static class WebUtils
     {
-        private static bool _initialized = false;
-        private static readonly object lockObject = new object();
-        private static HttpClientHandler _httpClientHandler;
-        public static HttpClientHandler HttpClientHandler
+        public static bool IsInitialized { get; private set; }
+        private static readonly TimeSpan RateLimitPadding = new TimeSpan(0, 0, 0, 0, 100);
+
+        private static IWebClient _webClient;
+        /// <summary>
+        /// Returns the WebClient, throws an exception if WebClient is null (makes debugging easier).
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NullReferenceException">Thrown if WebClient is null.</exception>
+        public static IWebClient WebClient
         {
             get
             {
-                if (_httpClientHandler == null)
-                {
-                    _httpClientHandler = new HttpClientHandler();
-                    HttpClientHandler.MaxConnectionsPerServer = 10;
-                    HttpClientHandler.UseCookies = true;
-                    HttpClientHandler.AllowAutoRedirect = true; // Needs to be false to detect Beat Saver song download rate limit
-                }
-                return _httpClientHandler;
-            }
-        }
-        private static HttpClient _httpClient;
-        public static HttpClient HttpClient
-        {
-            get
-            {
-                lock (lockObject)
-                {
-                    if (_httpClient == null)
-                    {
-                        _httpClient = new HttpClient(HttpClientHandler);
-                        lock (_httpClient)
-                        {
-                            _httpClient.Timeout = new TimeSpan(0, 0, 10);
-                        }
-                    }
-                }
-                return _httpClient;
+                return _webClient ?? throw new NullReferenceException(IsInitialized ?
+                    "WebClient is null, even though WebUtils was initialized."
+                    : "WebClient is null, WebUtils was never initialized.");
             }
         }
 
+        /// <summary>
+        /// Maybe have to move to WebUtils and use url.LastIndexOf("/")
+        /// </summary>
+        private static ConcurrentDictionary<string, DateTime> WaitForRateLimitDict = new ConcurrentDictionary<string, DateTime>();
+
+        public static async Task WaitForRateLimit(string baseUrl)
+        {
+            TimeSpan delay = WaitForRateLimitDict.GetOrAdd(baseUrl, (f) => DateTime.Now) - DateTime.Now;
+            if (delay <= TimeSpan.Zero) // Make sure the delay is > 0
+                delay = TimeSpan.Zero;
+            else
+            {
+                Logger.Debug($"Preemptively waiting {delay.Seconds} seconds for rate limit.");
+            }
+            await Task.Delay(delay).ConfigureAwait(false);
+            return;
+        }
+
+        /// <summary>
+        /// TODO: This throws out WebClientExceptions...Do I want that?
+        /// Use to get web responses from Beat Saver. If the rate limit is reached, it waits for the limit to expire before trying again.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="retries"></param>
+        /// <exception cref="WebClientException"></exception>
+        /// <returns></returns>
+        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
+        {
+
+            bool rateLimitExceeded = false;
+            int tries = 0;
+            IWebResponseMessage response;
+            string baseUrl = uri?.OriginalString.Substring(0, uri.OriginalString.LastIndexOf("/"))
+                ?? throw new ArgumentNullException(nameof(uri), "uri cannot be null for WebUtils.GetBeatSaverAsync");
+            await WaitForRateLimit(baseUrl).ConfigureAwait(false); // Wait for an existing rate limit if it exists
+            do
+            {
+
+                rateLimitExceeded = false;
+
+                response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false);
+
+                if (response.StatusCode == 429 && tries < retries)
+                {
+                    rateLimitExceeded = true;
+
+                    var rateLimit = ParseBeatSaverRateLimit(response.Headers);
+                    WaitForRateLimitDict.AddOrUpdate(baseUrl, rateLimit.TimeToReset, (url, resetTime) =>
+                    {
+                        resetTime = rateLimit.TimeToReset;
+                        return resetTime;
+                    });
+                    if (rateLimit != null)
+                    {
+                        TimeSpan delay = new TimeSpan(0);
+                        var calcDelay = rateLimit.TimeToReset.Add(RateLimitPadding) - DateTime.Now;
+                        if (calcDelay > TimeSpan.Zero) // Make sure the delay is > 0
+                            delay = calcDelay;
+
+                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {delay.TotalSeconds} seconds");
+                        await Task.Delay(delay).ConfigureAwait(false);
+                        response.Dispose();
+                        tries++;
+                        continue;
+                    }
+                    else
+                    {
+                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, could not parse rate limit, not retrying.");
+                        return response;
+                    }
+                }
+                else
+                    return response;
+            } while (rateLimitExceeded);
+            return response;
+        }
+
+        /// <summary>
+        /// Converts a Unix timestamp to a DateTime object.
+        /// </summary>
+        /// <param name="unixTimeStamp"></param>
+        /// <returns></returns>
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
@@ -57,246 +124,70 @@ namespace BeatSaberDataProvider.Web
         private const string RATE_LIMIT_REMAINING_KEY = "Rate-Limit-Remaining";
         private const string RATE_LIMIT_RESET_KEY = "Rate-Limit-Reset";
         private const string RATE_LIMIT_TOTAL_KEY = "Rate-Limit-Total";
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable CA1823 // Remove unused private members
         private const string RATE_LIMIT_PREFIX = "Rate-Limit";
-
-        public static RateLimit ParseRateLimit(Dictionary<string, string> headers)
-        {
-            return new RateLimit()
-            {
-                CallsRemaining = int.Parse(headers[RATE_LIMIT_REMAINING_KEY]),
-                TimeToReset = UnixTimeStampToDateTime(double.Parse(headers[RATE_LIMIT_RESET_KEY])) - DateTime.Now,
-                CallsPerReset = int.Parse(headers[RATE_LIMIT_TOTAL_KEY])
-            };
-        }
-
-        public static void Initialize(int maxConnectionsPerServer)
-        {
-            if (_initialized == false)
-            {
-                _initialized = true;
-                HttpClientHandler.MaxConnectionsPerServer = maxConnectionsPerServer;
-                HttpClientHandler.UseCookies = true;
-                _httpClient = new HttpClient(HttpClientHandler);
-            }
-        }
+#pragma warning restore CA1823 // Remove unused private members
+#pragma warning restore IDE0051 // Remove unused private members
+        private static readonly string[] RateLimitKeys = new string[] { RATE_LIMIT_REMAINING_KEY, RATE_LIMIT_RESET_KEY, RATE_LIMIT_TOTAL_KEY };
 
         /// <summary>
-        /// Retrieves a web page as an HttpResponseMessage.
+        /// Parse the rate limit from Beat Saver's response headers.
         /// </summary>
-        /// <param name="url"></param>
-        /// <exception cref="HttpRequestException"></exception>
+        /// <param name="headers"></param>
         /// <returns></returns>
-        public static HttpResponseMessage GetPage(string url, bool getContent = true)
+        public static RateLimit ParseBeatSaverRateLimit(IDictionary<string, IEnumerable<string>> headers)
         {
-            HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead;
-            if (!getContent)
-                httpCompletionOption = HttpCompletionOption.ResponseHeadersRead;
-            Task<HttpResponseMessage> pageGetTask;
-            //lock (lockObject)
-            bool goodUrl = Uri.TryCreate(url, UriKind.Absolute, out Uri result);
-            if (!goodUrl)
-                throw new ArgumentException($"Error in GetPage, invalid URL: {url}");
-            pageGetTask = HttpClient.GetAsync(result, httpCompletionOption);
-            try
+            if (headers == null)
             {
-                pageGetTask.Wait();
+                return null;
+                //throw new ArgumentNullException(nameof(headers), "headers cannot be null for WebUtils.ParseRateLimit");
             }
-            catch (InvalidOperationException ex)
+            if (RateLimitKeys.All(k => headers.Keys.Contains(k)))
             {
-                Logger.Exception($"Error getting page {url}", ex);
-            }
-            HttpResponseMessage response = pageGetTask.Result;
-            //Logger.Debug(pageText.Result);
-            return response;
-        }
-
-        /// <summary>
-        /// Downloads the page and returns it as a string.
-        /// </summary>
-        /// <param name="url"></param>
-        /// <exception cref="HttpGetException">Thrown when Http response code is not a success.</exception>
-        /// <exception cref="HttpRequestException"></exception>
-        /// <returns></returns>
-        [Obsolete("Use GetPage instead.")]
-        public static string GetPageText(string url, bool exceptionOnHttpNotSuccessful = true)
-        {
-            // TODO: Change to use httpClient.GetAsync(url) so status codes can be handled and passed back
-            //Task<string> pageReadTask;
-            //lock (lockObject)
-            string pageText = string.Empty;
-            using (HttpResponseMessage pageReadTask = GetPage(url, true))
-            {//HttpClient.GetStringAsync(url);
-                //pageReadTask.Wait();
-                if (!pageReadTask.IsSuccessStatusCode)
+                try
                 {
-                    if (exceptionOnHttpNotSuccessful)
-                        throw new HttpGetException(pageReadTask.StatusCode, url, $"Exception getting page ({url}): {pageReadTask.ReasonPhrase}");
+                    return new RateLimit()
+                    {
+                        CallsRemaining = int.Parse(headers[RATE_LIMIT_REMAINING_KEY].FirstOrDefault()),
+                        TimeToReset = UnixTimeStampToDateTime(double.Parse(headers[RATE_LIMIT_RESET_KEY].FirstOrDefault())),
+                        CallsPerReset = int.Parse(headers[RATE_LIMIT_TOTAL_KEY].FirstOrDefault())
+                    };
                 }
-                else
-                    pageText = pageReadTask.Content.ReadAsStringAsync().Result;
+                catch (Exception ex)
+                {
+                    Logger.Exception("Unable to parse RateLimit from header.", ex);
+                    return null;
+                }
+
             }
-            //Logger.Debug(pageText.Result);
-            return pageText;
+            else
+                return null;
         }
 
         /// <summary>
-        /// Retrieves a web page as an HttpResponseMessage as an asynchronous operation.
+        /// Initializes WebUtils, this class cannot be used before calling this.
         /// </summary>
-        /// <param name="url"></param>
-        /// <exception cref="HttpRequestException"></exception>
-        /// <returns></returns>
-        public static async Task<HttpResponseMessage> GetPageAsync(string url, bool getContent)
+        /// <param name="client"></param>
+        public static void Initialize(IWebClient client)
         {
-            //lock (lockObject)
-            HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead;
-            if (!getContent)
-                httpCompletionOption = HttpCompletionOption.ResponseHeadersRead;
-
-            HttpResponseMessage response = await HttpClient.GetAsync(url, httpCompletionOption).ConfigureAwait(false);
-            //Logger.Debug(pageText.Result);
-            //Logger.Debug($"Got page text for {url}");
-            return response;
-        }
-
-        /// <summary>
-        /// Downloads the page and returns it as a string in an asynchronous operation.
-        /// </summary>
-        /// <param name="url"></param>
-        /// <exception cref="HttpRequestException"></exception>
-        /// <returns></returns>
-        [Obsolete("Use GetPageAsync instead")]
-        public static async Task<string> GetPageTextAsync(string url)
-        {
-            //lock (lockObject)
-
-            string pageText = await HttpClient.GetStringAsync(url).ConfigureAwait(false);
-            //Logger.Debug(pageText.Result);
-            //Logger.Debug($"Got page text for {url}");
-            return pageText;
-        }
-
-        public static void AddCookies(CookieContainer newCookies, Uri uri)
-        {
-            lock (HttpClientHandler)
+            if (client == null)
             {
-                if (HttpClientHandler.CookieContainer == null)
-                    HttpClientHandler.CookieContainer = newCookies;
-                else
-                    HttpClientHandler.CookieContainer.Add(newCookies.GetCookies(uri));
+                throw new ArgumentNullException(nameof(client), "client cannot be null for WebUtils.Initialize");
+                //_webClient = new HttpClientWrapper();
             }
-        }
-
-        public static void AddCookies(CookieContainer newCookies, string url)
-        {
-            AddCookies(newCookies, new Uri(url));
-        }
-
-        public async static Task<bool> DownloadFileAsync(string downloadUrl, string path, bool overwrite = true)
-        {
-            var success = true;
-            var response = await WebUtils.HttpClient.GetAsync(downloadUrl).ConfigureAwait(false);
-
-            response.EnsureSuccessStatusCode();
-
-
-            await response.Content.ReadAsFileAsync(path, overwrite).ConfigureAwait(false);
-            return success;
-        }
-
-        public async static Task<string> TryGetStringAsync(string url)
-        {
-            HttpResponseMessage response = await HttpClient.GetAsync(url).ConfigureAwait(false);
-            if (response.IsSuccessStatusCode)
+            if (!IsInitialized || _webClient == null)
             {
-                return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                _webClient = client;
+                IsInitialized = true;
             }
-            return string.Empty;
         }
     }
 
     public class RateLimit
     {
-        public int CallsRemaining;
-        public TimeSpan TimeToReset;
-        public int CallsPerReset;
-    }
-
-    public class HttpGetException : Exception
-    {
-        public HttpStatusCode HttpStatusCode { get; private set; }
-        public string Url { get; private set; }
-
-        public HttpGetException()
-            : base()
-        {
-            base.Data.Add("StatusCode", HttpStatusCode.BadRequest);
-            base.Data.Add("Url", string.Empty);
-        }
-
-        public HttpGetException(string message)
-            : base(message)
-        {
-
-            base.Data.Add("StatusCode", HttpStatusCode.BadRequest);
-            base.Data.Add("Url", string.Empty);
-        }
-
-        public HttpGetException(string message, Exception inner)
-            : base(message, inner)
-        {
-            base.Data.Add("StatusCode", HttpStatusCode.BadRequest);
-            base.Data.Add("Url", string.Empty);
-        }
-
-        public HttpGetException(HttpStatusCode code, string url)
-            : base()
-        {
-            base.Data.Add("StatusCode", code);
-            base.Data.Add("Url", url);
-            HttpStatusCode = code;
-            Url = url;
-        }
-
-        public HttpGetException(HttpStatusCode code, string url, string message)
-        : base(message)
-        {
-            base.Data.Add("StatusCode", code);
-            base.Data.Add("Url", url);
-            HttpStatusCode = code;
-            Url = url;
-        }
-    }
-
-    // From https://stackoverflow.com/questions/45711428/download-file-with-webclient-or-httpclient
-    public static class HttpContentExtensions
-    {
-        public static Task ReadAsFileAsync(this HttpContent content, string filename, bool overwrite)
-        {
-            string pathname = Path.GetFullPath(filename);
-            if (!overwrite && File.Exists(filename))
-            {
-                throw new InvalidOperationException(string.Format("File {0} already exists.", pathname));
-            }
-
-            FileStream fileStream = null;
-            try
-            {
-                fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
-                return content.CopyToAsync(fileStream).ContinueWith(
-                    (copyTask) =>
-                    {
-                        fileStream.Close();
-                    });
-            }
-            catch
-            {
-                if (fileStream != null)
-                {
-                    fileStream.Close();
-                }
-
-                throw;
-            }
-        }
+        public int CallsRemaining { get; set; }
+        public DateTime TimeToReset { get; set; }
+        public int CallsPerReset { get; set; }
     }
 }

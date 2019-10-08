@@ -7,6 +7,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net;
 using WebUtilities;
+using WebUtilities.HttpClientWrapper;
 
 namespace SongDownloadManager.Util
 {

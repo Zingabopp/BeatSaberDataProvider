@@ -10,25 +10,26 @@ using static BeatSaberDataProvider.Web.WebUtils;
 
 namespace BeatSaberDataProvider.Web
 {
-    public class OnlineSongSearch
+    public static class OnlineSongSearch
     {
         private const string BEATSAVER_DETAILS_BASE_URL = "https://beatsaver.com/api/maps/detail/";
         private const string BEATSAVER_GETBYHASH_BASE_URL = "https://beatsaver.com/api/maps/by-hash/";
 
-        public static Song GetSongByKey(string key)
+        public static async Task<Song> GetSongByKeyAsync(string key)
         {
 
-            string url = BEATSAVER_DETAILS_BASE_URL + key;
+            Uri uri = new Uri(BEATSAVER_DETAILS_BASE_URL + key);
             string pageText = "";
-            Song song = new Song();
             try
             {
-                var pageTask = WebUtils.TryGetStringAsync(url);
-                pageTask.Wait();
-                pageText = pageTask.Result;
+                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                {
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                }
+
                 if (string.IsNullOrEmpty(pageText))
                 {
-                    Logger.Warning($"Unable to get web page at {url}");
+                    Logger.Warning($"Unable to get web page at {uri}");
                     return null;
                 }
             }
@@ -45,26 +46,26 @@ namespace BeatSaberDataProvider.Web
             {
                 Logger.Exception("Exception getting page", ex);
             }
-            song = ParseSongsFromPage(pageText).FirstOrDefault();
+            Song song = ParseSongsFromPage(pageText).FirstOrDefault();
             song.ScrapedAt = DateTime.Now;
             return ScrapedDataProvider.GetOrCreateSong(song);
         }
 
 
-        public static Song GetSongByHash(string hash)
+        public static async Task<Song> GetSongByHashAsync(string hash)
         {
 
-            string url = BEATSAVER_GETBYHASH_BASE_URL + hash;
+            Uri uri = new Uri(BEATSAVER_GETBYHASH_BASE_URL + hash);
             string pageText = "";
-            Song song;
             try
             {
-                var pageTask = WebUtils.TryGetStringAsync(url);
-                pageTask.Wait();
-                pageText = pageTask.Result;
+                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                {
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                }
                 if (string.IsNullOrEmpty(pageText))
                 {
-                    Logger.Warning($"Unable to get web page at {url}");
+                    Logger.Warning($"Unable to get web page at {uri}");
                     return null;
                 }
             }
@@ -81,7 +82,7 @@ namespace BeatSaberDataProvider.Web
             {
                 Logger.Exception("Exception getting page", ex);
             }
-            song = ParseSongsFromPage(pageText).FirstOrDefault();
+            Song song = ParseSongsFromPage(pageText).FirstOrDefault();
             song.ScrapedAt = DateTime.Now;
             return ScrapedDataProvider.GetOrCreateSong(song);
         }
@@ -93,7 +94,11 @@ namespace BeatSaberDataProvider.Web
             List<Song> songs = new List<Song>(); ;
             try
             {
-                pageText = await GetPageTextAsync(url).ConfigureAwait(false);
+                using (var response = await WebClient.GetAsync(url).ConfigureAwait(false))
+                {
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                }
+
                 Logger.Debug($"Successful got pageText from {url}");
                 foreach (var song in ParseSongsFromPage(pageText))
                 {

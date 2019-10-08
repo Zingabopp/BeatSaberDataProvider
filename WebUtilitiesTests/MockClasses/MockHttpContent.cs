@@ -61,7 +61,7 @@ namespace SongFeedReadersTests.MockClasses
             }
         }
 
-        public async Task ReadAsFileAsync(string filePath, bool overwrite)
+        public async Task<string> ReadAsFileAsync(string filePath, bool overwrite)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             if (!overwrite && File.Exists(filePath))
@@ -73,6 +73,7 @@ namespace SongFeedReadersTests.MockClasses
             {
                 await Task.Yield();
                 await stream.CopyToAsync(writeStream).ConfigureAwait(false);
+                return filePath;
             }
 
         }

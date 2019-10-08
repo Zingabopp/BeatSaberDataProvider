@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -59,7 +58,7 @@ namespace WebUtilities
         {
             //_httpClient = new HttpClient { Timeout = TimeSpan.FromDays(1) };
 
-            using (var response = await _httpClient.GetAsync(_downloadUri, true).ConfigureAwait(false))
+            using (var response = await _httpClient.GetAsync(_downloadUri).ConfigureAwait(false))
                 await DownloadFileFromHttpResponseMessage(response).ConfigureAwait(false);
         }
 

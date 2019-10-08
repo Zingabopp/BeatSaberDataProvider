@@ -27,7 +27,7 @@ namespace SongDownloadManagerTests
         {
             Directory.CreateDirectory(@"TestSourceSongs");
             Directory.CreateDirectory(@"TestSourceSongs\5381-4803 Moon Pluck");
-            var sourceSong = @"TestSourceSongs\5381-4803 Moon Pluck";
+            var sourceSong = new SongDownload() { Hash = "asdf", LocalDirectory = new DirectoryInfo(@"TestSourceSongs\5381-4803 Moon Pluck") };
             var cancelSource = new CancellationTokenSource();
             var transferTask = downloadTarget.TransferSong(sourceSong, true, cancelSource.Token);
             var result = transferTask.Result;
@@ -38,7 +38,7 @@ namespace SongDownloadManagerTests
         {
             Directory.CreateDirectory(@"TestSourceSongs");
             Directory.CreateDirectory(@"TestSourceSongs\5381-4803 Moon Pluck");
-            var sourceSong = @"TestSourceSongs\5381-4803 Moon Pluck";
+            var sourceSong = new SongDownload() { Hash = "asdf", LocalDirectory = new DirectoryInfo(@"TestSourceSongs\5381-4803 Moon Pluck") };
             var cancelSource = new CancellationTokenSource();
             var transferTask = downloadTarget.TransferSong(sourceSong, true, cancelSource.Token);
             cancelSource.Cancel();
@@ -71,7 +71,9 @@ namespace SongDownloadManagerTests
                 //if (progress == 100)
                     //cancelSource.Cancel();
             });
-            var transferTask = downloadTarget.TransferSongs(sourceDir.FullName, true, progressTest, cancelSource.Token);
+            var sourceSong = new SongDownload() { Hash = "asdf", LocalDirectory = new DirectoryInfo(@"TestSourceSongs\5381-4803 Moon Pluck") };
+            var songs = new List<SongDownload>() { sourceSong };
+            var transferTask = downloadTarget.TransferSongs(songs, true, progressTest, cancelSource.Token);
             var test = transferTask.Result;
             var hashes = downloadTarget.GetExistingSongHashesAsync().Result;
             foreach (var sourceHash in sourceHashes)

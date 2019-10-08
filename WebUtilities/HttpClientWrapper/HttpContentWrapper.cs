@@ -7,15 +7,16 @@ using System.Net;
 using System.Net.Http;
 using System.Collections.ObjectModel;
 
-namespace WebUtilities
+namespace WebUtilities.HttpClientWrapper
 {
     public class HttpContentWrapper : IWebResponseContent
     {
         private HttpContent _content;
+
         public HttpContentWrapper(HttpContent content)
         {
             _content = content;
-            ContentLength = content.Headers.ContentLength;
+            ContentLength = content?.Headers?.ContentLength;
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_content?.Headers != null)
             {
@@ -37,7 +38,7 @@ namespace WebUtilities
         public long? ContentLength { get; protected set; }
 
         public Task<byte[]> ReadAsByteArrayAsync()
-        {
+        { 
             return _content?.ReadAsByteArrayAsync();
         }
 
@@ -58,8 +59,8 @@ namespace WebUtilities
         /// <param name="overwrite"></param>
         /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
-        /// <returns></returns>
-        public Task ReadAsFileAsync(string filePath, bool overwrite)
+        /// <returns>Full path to the downloaded file</returns>
+        public Task<string> ReadAsFileAsync(string filePath, bool overwrite)
         {
             if (_content == null)
                 throw new ArgumentNullException(nameof(_content), "content cannot be null for HttpContent.ReadAsFileAsync");
@@ -75,10 +76,19 @@ namespace WebUtilities
             try
             {
                 fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
+                long expectedLength = 0;
+                if ((_content?.Headers?.ContentLength ?? 0) > 0)
+                    expectedLength = _content.Headers.ContentLength ?? 0;
+                // TODO: Should this be awaited?
                 return _content.CopyToAsync(fileStream).ContinueWith(
                     (copyTask) =>
                     {
+                        long fileStreamLength = fileStream.Length;
+
                         fileStream.Close();
+                        if (expectedLength != 0 && fileStreamLength != ContentLength)
+                            throw new EndOfStreamException($"File content length of {fileStreamLength} didn't match expected size {expectedLength}");
+                        return pathname;
                     });
             }
             catch

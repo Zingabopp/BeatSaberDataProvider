@@ -369,12 +369,12 @@ namespace SongFeedReaders.Readers
                 catch (XmlException ex)
                 {
                     Logger.Exception($"Error parsing page text for {feedUrl} in TransformBlock.", ex);
-                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
+                    return new PageReadResult(feedUrl, null, ex);
                 }
                 catch (Exception ex)
                 {
                     Logger.Exception($"Uncaught error parsing page text for {feedUrl} in TransformBlock.", ex);
-                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
+                    return new PageReadResult(feedUrl, null, ex);
                 }
                 sw.Stop();
                 //Logger.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
@@ -452,7 +452,8 @@ namespace SongFeedReaders.Readers
             Exception exception = null;
             if (exceptions.Count == 1)
             {
-                exception = exceptions.First();
+                var innerException = exceptions.First();
+                exception = new FeedReaderException(innerException.Message, innerException);
             }
             else if (exceptions.Count != 0)
             {

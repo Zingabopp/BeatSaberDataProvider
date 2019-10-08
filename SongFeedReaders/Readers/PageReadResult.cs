@@ -11,7 +11,7 @@ namespace SongFeedReaders.Readers
         public Uri Uri { get; private set; }
         public List<ScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
-        public Exception Exception { get; private set; }
+        public FeedReaderException Exception { get; private set; }
         public PageReadResult(Uri uri, List<ScrapedSong> songs)
         {
             Uri = uri;
@@ -22,7 +22,12 @@ namespace SongFeedReaders.Readers
         public PageReadResult(Uri uri, List<ScrapedSong> songs, Exception exception)
             : this(uri, songs)
         {
-            Exception = exception;
+            if (exception is FeedReaderException frException)
+            {
+                Exception = frException;
+            }
+            else
+                Exception = new FeedReaderException(exception.Message, exception);
         }
     }
 }

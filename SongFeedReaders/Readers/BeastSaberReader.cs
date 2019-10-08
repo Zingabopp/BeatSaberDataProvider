@@ -18,7 +18,7 @@ using SongFeedReaders.Logging;
 using System.Diagnostics;
 using WebUtilities;
 
-namespace SongFeedReaders
+namespace SongFeedReaders.Readers
 {
     public class BeastSaberReader : IFeedReader
     {
@@ -309,8 +309,9 @@ namespace SongFeedReaders
         /// <exception cref="InvalidCastException">Thrown when the passed IFeedSettings isn't a BeastSaberFeedSettings.</exception>
         /// <exception cref="ArgumentException">Thrown when trying to access a feed that requires a username and the username wasn't provided.</exception>
         /// <returns></returns>
-        public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
+        public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
         {
+            List<Exception> exceptions = new List<Exception>();
             if (cancellationToken != CancellationToken.None)
                 Logger.Warning("CancellationToken in GetSongsFromFeedAsync isn't implemented.");
             if (settings == null)
@@ -329,7 +330,7 @@ namespace SongFeedReaders
             bool useMaxPages = maxPages != 0;
             if (useMaxPages && pageIndex > 1)
                 maxPages = maxPages + pageIndex - 1;
-            var ProcessPageBlock = new TransformBlock<Uri, List<ScrapedSong>>(async feedUrl =>
+            var ProcessPageBlock = new TransformBlock<Uri, PageReadResult>(async feedUrl =>
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
@@ -340,7 +341,7 @@ namespace SongFeedReaders
                 string contentTypeStr = string.Empty;
                 try
                 {
-                    using (var response = await WebUtils.GetWebClientSafe().GetAsync(feedUrl).ConfigureAwait(false))
+                    using (var response = await WebUtils.WebClient.GetAsync(feedUrl).ConfigureAwait(false))
                     {
                         contentTypeStr = response.Content.ContentType.ToLower();
                         if (ContentDictionary.ContainsKey(contentTypeStr))
@@ -353,25 +354,38 @@ namespace SongFeedReaders
                 catch (WebClientException ex)
                 {
                     Logger.Exception($"Error downloading {feedUrl} in TransformBlock.", ex);
-                    return new List<ScrapedSong>();
+                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
                 }
                 catch (Exception ex)
                 {
                     Logger.Exception($"Uncaught Error downloading {feedUrl} in TransformBlock.", ex);
-                    return new List<ScrapedSong>();
+                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
                 }
-
-                var newSongs = GetSongsFromPageText(pageText, feedUrl, contentType);
+                List<ScrapedSong> newSongs = null;
+                try
+                {
+                    newSongs = GetSongsFromPageText(pageText, feedUrl, contentType);
+                }
+                catch (XmlException ex)
+                {
+                    Logger.Exception($"Error parsing page text for {feedUrl} in TransformBlock.", ex);
+                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Exception($"Uncaught error parsing page text for {feedUrl} in TransformBlock.", ex);
+                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
+                }
                 sw.Stop();
                 //Logger.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
-                return newSongs.Count > 0 ? newSongs : null;
+                return new PageReadResult(feedUrl, newSongs, null);
             }, new ExecutionDataflowBlockOptions
             {
                 MaxDegreeOfParallelism = MaxConcurrency,
                 BoundedCapacity = MaxConcurrency
-#if NETSTANDARD
-                , EnsureOrdered = true
-#endif
+//#if NETSTANDARD
+//                , EnsureOrdered = true
+//#endif
             });
             bool continueLooping = true;
             int itemsInBlock = 0;
@@ -394,8 +408,10 @@ namespace SongFeedReaders
                         if (itemsInBlock <= 0)
                             break;
                         await ProcessPageBlock.OutputAvailableAsync().ConfigureAwait(false);
-                        while (ProcessPageBlock.TryReceive(out List<ScrapedSong> newSongs))
+                        while (ProcessPageBlock.TryReceive(out PageReadResult newSongs))
                         {
+                            if (newSongs.Exception != null)
+                                exceptions.Add(newSongs.Exception);
                             if (Utilities.IsPaused)
                                 await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                             itemsInBlock--;
@@ -407,11 +423,11 @@ namespace SongFeedReaders
                                 continueLooping = false;
                                 break;
                             }
-                            if(newSongs.Count > 0)
-                                Logger.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.First().SourceUri}");
+                            if (newSongs.Count > 0)
+                                Logger.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.Uri}");
                             else
                                 Logger.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
-                            foreach (var song in newSongs)
+                            foreach (var song in newSongs.Songs)
                             {
                                 if (retDict.ContainsKey(song.Hash))
                                 {
@@ -433,19 +449,27 @@ namespace SongFeedReaders
                 }
             }
             while (continueLooping);
-
-            return retDict;
+            Exception exception = null;
+            if (exceptions.Count == 1)
+            {
+                exception = exceptions.First();
+            }
+            else if (exceptions.Count != 0)
+            {
+                exception = new AggregateException("Multiple exceptions in BeastSaberReader.GetSongsFromFeedAsync().", exceptions.ToArray());
+            }
+            return new FeedResult(retDict, exception);
         }
 
-        public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings)
+        public Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings)
         {
-            return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
+            return GetSongsFromFeedAsync(settings, CancellationToken.None);
         }
 
         #endregion
 
         #region Sync
-        public Dictionary<string, ScrapedSong> GetSongsFromFeed(IFeedSettings settings)
+        public FeedResult GetSongsFromFeed(IFeedSettings settings)
         {
             // Pointless to have these checks here?
             PrepareReader();
@@ -456,9 +480,9 @@ namespace SongFeedReaders
                 Logger.Error($"Can't access feed without a valid username in the config file");
                 throw new ArgumentException("Cannot access this feed without a valid username.");
             }
-            var retDict = GetSongsFromFeedAsync(settings).Result;
+            var result = GetSongsFromFeedAsync(settings).Result;
 
-            return retDict;
+            return result;
         }
         #endregion
         #endregion

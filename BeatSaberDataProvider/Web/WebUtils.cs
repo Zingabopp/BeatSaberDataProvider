@@ -17,25 +17,19 @@ namespace BeatSaberDataProvider.Web
         private static readonly TimeSpan RateLimitPadding = new TimeSpan(0, 0, 0, 0, 100);
 
         private static IWebClient _webClient;
-        public static IWebClient WebClient
-        {
-            get
-            {
-                return _webClient;
-            }
-
-        }
-
         /// <summary>
         /// Returns the WebClient, throws an exception if WebClient is null (makes debugging easier).
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NullReferenceException">Thrown if WebClient is null.</exception>
-        public static IWebClient GetWebClientSafe()
+        public static IWebClient WebClient
         {
-            return WebClient ?? throw new NullReferenceException(IsInitialized ?
-                "WebClient is null, even though WebUtils was initialized."
-                : "WebClient is null, WebUtils was never initialized.");
+            get
+            {
+                return _webClient ?? throw new NullReferenceException(IsInitialized ?
+                    "WebClient is null, even though WebUtils was initialized."
+                    : "WebClient is null, WebUtils was never initialized.");
+            }
         }
 
         /// <summary>
@@ -78,7 +72,7 @@ namespace BeatSaberDataProvider.Web
 
                 rateLimitExceeded = false;
 
-                response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
+                response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false);
 
                 if (response.StatusCode == 429 && tries < retries)
                 {

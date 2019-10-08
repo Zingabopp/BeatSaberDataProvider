@@ -11,6 +11,9 @@ using System.Collections.Concurrent;
 
 namespace SongFeedReaders
 {
+    /// <summary>
+    /// Wrapper for the web client used by SongFeedReaders. Initialize(IWebClient) must be called before it can be used.
+    /// </summary>
     public static class WebUtils
     {
         private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
@@ -19,25 +22,23 @@ namespace SongFeedReaders
         private static readonly TimeSpan RateLimitPadding = new TimeSpan(0, 0, 0, 0, 100);
 
         private static IWebClient _webClient;
+
+        /// <summary>
+        /// Returns the WebClient, throws a <see cref="NullReferenceException"/> if WebClient is null.
+        /// </summary>
+        /// <exception cref="NullReferenceException">Thrown if WebClient is null.</exception>
         public static IWebClient WebClient
         {
             get
             {
+                if (_webClient == null)
+                {
+                    throw new NullReferenceException(IsInitialized ?
+                        "WebClient is null, even though WebUtils was initialized."
+                        : "WebClient is null, WebUtils was never initialized. ");
+                }
                 return _webClient;
             }
-
-        }
-
-        /// <summary>
-        /// Returns the WebClient, throws an exception if WebClient is null (makes debugging easier).
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NullReferenceException">Thrown if WebClient is null.</exception>
-        public static IWebClient GetWebClientSafe()
-        {
-            return WebClient ?? throw new NullReferenceException(IsInitialized ?
-                "WebClient is null, even though WebUtils was initialized."
-                : "WebClient is null, WebUtils was never initialized.");
         }
 
         /// <summary>
@@ -65,13 +66,13 @@ namespace SongFeedReaders
         /// <param name="retries"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown when Uri is null.</exception>
-        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int maxSecondsToWait = 0,  int retries = 5)
+        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int maxSecondsToWait = 0, int retries = 5)
         {
-            
+
             bool retry = false;
             int tries = 0;
             IWebResponseMessage response = null;
-            string baseUrl = uri?.OriginalString.Substring(0, uri.OriginalString.LastIndexOf("/")) 
+            string baseUrl = uri?.OriginalString.Substring(0, uri.OriginalString.LastIndexOf("/"))
                 ?? throw new ArgumentNullException(nameof(uri), "uri cannot be null for WebUtils.GetBeatSaverAsync");
             await WaitForRateLimit(baseUrl).ConfigureAwait(false); // Wait for an existing rate limit if it exists
             do
@@ -80,10 +81,11 @@ namespace SongFeedReaders
                 retry = false;
                 try
                 {
-                    response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false);
-                }catch(WebClientException ex)
+                    response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false);
+                }
+                catch (WebClientException ex)
                 {
-                    
+
                     response = ex.Response;
                 }
                 var errorCode = response?.StatusCode ?? 0;
@@ -130,7 +132,7 @@ namespace SongFeedReaders
                 }
                 else
                 {
-                    if(!(response?.IsSuccessStatusCode ?? true))
+                    if (!(response?.IsSuccessStatusCode ?? true))
                         Logger.Warning($"Error getting {uri.ToString()}, {errorCode} : {response?.ReasonPhrase}. Skipping...");
                     return response;
                 }
@@ -195,7 +197,7 @@ namespace SongFeedReaders
         }
 
         /// <summary>
-        /// Initializes WebUtils, this class cannot be used before calling this.
+        /// Initializes WebUtils, this class cannot be used before calling this. Should only be called once.
         /// </summary>
         /// <param name="client"></param>
         public static void Initialize(IWebClient client)

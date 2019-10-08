@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using WebUtilities;
 using System.Threading.Tasks;
+using SongFeedReaders.Readers;
 
 namespace SongFeedReadersTests
 {
@@ -170,7 +171,7 @@ namespace SongFeedReadersTests
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count > 0);
             Assert.IsFalse(songList.Count > maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
         [TestMethod]
@@ -188,7 +189,7 @@ namespace SongFeedReadersTests
             Assert.IsTrue(songList.Count > 0);
             Assert.IsTrue(songList.Count <= 100);
             //Assert.IsFalse(songList.Count > maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
         [TestMethod]
@@ -203,12 +204,12 @@ namespace SongFeedReadersTests
                 MaxPages = maxPages
             };
             var songList = reader.GetSongsFromFeed(settings);
-            var pagesChecked = songList.Values.GroupBy(s => s.SourceUri);
+            var pagesChecked = songList.Songs.Values.GroupBy(s => s.SourceUri);
             Assert.IsTrue(pagesChecked.Count() == 1);
             Assert.IsTrue(songList.Count > 0);
             Assert.IsTrue(songList.Count <= 20);
             //Assert.IsFalse(songList.Count > maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
         [TestMethod]
@@ -220,7 +221,7 @@ namespace SongFeedReadersTests
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count == maxSongs);
             //Assert.IsFalse(songList.Count > maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
 
@@ -233,7 +234,7 @@ namespace SongFeedReadersTests
             var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.Bookmarks) { MaxSongs = maxSongs };
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count > 0);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
         [TestMethod]
@@ -245,7 +246,7 @@ namespace SongFeedReadersTests
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count > 0);
             Assert.IsFalse(songList.Count > maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
         [TestMethod]
@@ -257,7 +258,7 @@ namespace SongFeedReadersTests
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count != 0);
             //Assert.IsFalse(songList.Count > maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
         [TestMethod]
@@ -269,7 +270,7 @@ namespace SongFeedReadersTests
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count == maxSongs);
             //Assert.IsFalse(songList.Count > maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
         }
 
         [TestMethod]
@@ -280,9 +281,9 @@ namespace SongFeedReadersTests
             var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.CuratorRecommended) { MaxSongs = maxSongs };
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count != 0);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
-            Assert.IsFalse(songList.Any(s => s.Value.DownloadUri == null));
-            var firstSong = songList.First().Value;
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => s.Value.DownloadUri == null));
+            var firstSong = songList.Songs.First().Value;
             var firstRawData = JToken.Parse(firstSong.RawData);
             Assert.IsTrue(firstRawData["hash"]?.Value<string>().ToUpper() == firstSong.Hash);
         }
@@ -295,9 +296,9 @@ namespace SongFeedReadersTests
             var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.CuratorRecommended) { MaxSongs = maxSongs };
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count == maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
-            Assert.IsFalse(songList.Any(s => s.Value.DownloadUri == null));
-            var firstSong = songList.First().Value;
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => s.Value.DownloadUri == null));
+            var firstSong = songList.Songs.First().Value;
             var firstRawData = JToken.Parse(firstSong.RawData);
             Assert.IsTrue(firstRawData["hash"]?.Value<string>().ToUpper() == firstSong.Hash);
         }
@@ -311,8 +312,8 @@ namespace SongFeedReadersTests
             var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.CuratorRecommended) { MaxPages = maxPages, MaxSongs = maxSongs };
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count == maxSongs);
-            Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Key)));
-            Assert.IsFalse(songList.Any(s => s.Value.DownloadUri == null));
+            Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
+            Assert.IsFalse(songList.Songs.Any(s => s.Value.DownloadUri == null));
         }
     }
 }

@@ -94,7 +94,7 @@ namespace BeatSaberDataProvider.Web
             List<Song> songs = new List<Song>(); ;
             try
             {
-                using (var response = await GetWebClientSafe().GetAsync(url).ConfigureAwait(false))
+                using (var response = await WebClient.GetAsync(url).ConfigureAwait(false))
                 {
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }

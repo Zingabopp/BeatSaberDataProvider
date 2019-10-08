@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SongFeedReaders
+namespace SongFeedReaders.Readers
 {
     public interface IFeedReader
     {
@@ -22,14 +22,31 @@ namespace SongFeedReaders
         string GetFeedName(IFeedSettings settings);
 
         /// <summary>
-        /// Retrieves the songs from a feed and returns them as a Dictionary. Key is the song hash.
+        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
         /// </summary>
         /// <param name="settings"></param>
+        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
         /// <returns></returns>
-        Dictionary<string, ScrapedSong> GetSongsFromFeed(IFeedSettings settings);
+        FeedResult GetSongsFromFeed(IFeedSettings settings);
 
-        Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings);
-        Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken);
+        /// <summary>
+        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
+        /// <returns></returns>
+        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings);
+        /// <summary>
+        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
+        /// <returns></returns>
+        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken);
     }
 
     public interface IFeedSettings

@@ -9,7 +9,7 @@ using SongFeedReaders.Logging;
 using static SongFeedReaders.WebUtils;
 using Newtonsoft.Json;
 
-namespace SongFeedReaders
+namespace SongFeedReaders.Readers
 {
     public class ScoreSaberReader : IFeedReader
     {
@@ -93,7 +93,7 @@ namespace SongFeedReaders
             }
         }
 
-        public List<ScrapedSong> GetSongsFromPageText(string pageText, Uri sourceUri)
+        public PageReadResult GetSongsFromPageText(string pageText, Uri sourceUri)
         {
             JObject result = new JObject();
             List<ScrapedSong> songs = new List<ScrapedSong>();
@@ -104,8 +104,9 @@ namespace SongFeedReaders
             }
             catch (JsonReaderException ex)
             {
-                Logger.Exception("Unable to parse JSON from text", ex);
-                return songs;
+                string message = "Unable to parse JSON from text";
+                Logger.Exception(message, ex);
+                return new PageReadResult(sourceUri, null, new FeedReaderException(message, ex));
             }
             var songJSONAry = result["songs"]?.ToArray();
             if (songJSONAry == null)
@@ -127,9 +128,8 @@ namespace SongFeedReaders
                         MapperName = mapperName,
                         RawData = StoreRawData ? song.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
                     });
-                ;
             }
-            return songs;
+            return new PageReadResult(sourceUri, songs);
         }
 
         public static bool IsValidSearchQuery(string query)
@@ -143,7 +143,7 @@ namespace SongFeedReaders
         #region Web Requests
 
         #region Async
-        public async Task<Dictionary<string, ScrapedSong>> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings settings)
+        public async Task<FeedResult> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings settings)
         {
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for ScoreSaberReader.GetSongsFromScoreSaberAsync");
@@ -172,7 +172,7 @@ namespace SongFeedReaders
             GetPageUrl(ref url, urlReplacements);
             var uri = new Uri(url.ToString());
             string pageText = "";
-            using (var response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false))
+            using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -181,8 +181,8 @@ namespace SongFeedReaders
                     Logger.Error($"Error getting text from {uri}, HTTP Status Code is: {response.StatusCode.ToString()}: {response.ReasonPhrase}");
                 }
             }
-
-            foreach (var song in GetSongsFromPageText(pageText, uri))
+            var result = GetSongsFromPageText(pageText, uri);
+            foreach (var song in result.Songs)
             {
                 if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
                 {
@@ -208,7 +208,7 @@ namespace SongFeedReaders
                     await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                 
                 var scrapedDiffs = await GetSongsFromPageAsync(uri).ConfigureAwait(false);
-                foreach (var song in scrapedDiffs)
+                foreach (var song in scrapedDiffs.Songs)
                 {
                     diffCount++;
                     if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
@@ -229,7 +229,7 @@ namespace SongFeedReaders
             } while (continueLooping);
 
 
-            return songs;
+            return new FeedResult(songs);
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace SongFeedReaders
         /// <exception cref="ArgumentException">Thrown when the Search feed is selected and the query in settings isn't valid.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the feed specified in the settings isn't valid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
-        public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings _settings, CancellationToken cancellationToken)
+        public Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings _settings, CancellationToken cancellationToken)
         {
             PrepareReader();
             if (_settings == null)
@@ -259,33 +259,33 @@ namespace SongFeedReaders
                 if (!IsValidSearchQuery(settings.SearchQuery))
                     throw new ArgumentException($"Search query '{settings.SearchQuery ?? "<nul>"}' is not a valid query.");
             }
-            retDict = await GetSongsFromScoreSaberAsync(settings).ConfigureAwait(false);
-            return retDict;
+            return GetSongsFromScoreSaberAsync(settings);
         }
-        public async Task<List<ScrapedSong>> GetSongsFromPageAsync(Uri uri)
+
+        public async Task<PageReadResult> GetSongsFromPageAsync(Uri uri)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in ScoreSaberReader.GetSongsFromPageAsync");
-            List<ScrapedSong> songs = null;
-            using (var response = await WebUtils.GetWebClientSafe().GetAsync(uri).ConfigureAwait(false))
+            using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                 {
                     var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    songs = GetSongsFromPageText(pageText, uri);
+                    return GetSongsFromPageText(pageText, uri);
                 }
                 else
                 {
-                    Logger.Error($"Error getting page {uri?.ToString()}, response was {response.StatusCode.ToString()}: {response.ReasonPhrase}");
+                    string message = $"Error getting page {uri?.ToString()}, response was {response.StatusCode.ToString()}: {response.ReasonPhrase}";
+                    Logger.Error(message);
+                    return new PageReadResult(uri, null, new FeedReaderException(message));
                 }
             }
-            return songs ?? new List<ScrapedSong>();
         }
 
         #endregion
 
         #region Sync
-        public Dictionary<string, ScrapedSong> GetSongsFromFeed(IFeedSettings _settings)
+        public FeedResult GetSongsFromFeed(IFeedSettings _settings)
         {
             return GetSongsFromFeedAsync(_settings).Result;
         }
@@ -295,17 +295,17 @@ namespace SongFeedReaders
         #endregion
 
         #region Overloads
-        public async Task<Dictionary<string, ScrapedSong>> GetSongsFromFeedAsync(IFeedSettings settings)
+        public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings)
         {
             return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
         }
 
-        public Task<List<ScrapedSong>> GetSongsFromPageAsync(string url)
+        public Task<PageReadResult> GetSongsFromPageAsync(string url)
         {
             return GetSongsFromPageAsync(Utilities.GetUriFromString(url));
         }
 
-        public List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl)
+        public PageReadResult GetSongsFromPageText(string pageText, string sourceUrl)
         {
             return GetSongsFromPageText(pageText, Utilities.GetUriFromString(sourceUrl));
         }

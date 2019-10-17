@@ -15,6 +15,8 @@ namespace SongFeedReaders.Readers
     {
         public IReadOnlyDictionary<string, ScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
+        private bool _successful;
+        public bool Successful { get { return _successful && Exception == null; } }
         /// <summary>
         /// Exception when something goes wrong in the feed readers. More specific exceptions may be stored in InnerException.
         /// </summary>
@@ -23,7 +25,12 @@ namespace SongFeedReaders.Readers
         public FeedResult(Dictionary<string, ScrapedSong> songs)
         {
             if (songs == null)
+            {
+                _successful = false;
                 songs = new Dictionary<string, ScrapedSong>();
+            }
+            else
+                _successful = true;
             Songs = new ReadOnlyDictionary<string, ScrapedSong>(songs);
         }
         public FeedResult(Dictionary<string, ScrapedSong> songs, Exception exception)

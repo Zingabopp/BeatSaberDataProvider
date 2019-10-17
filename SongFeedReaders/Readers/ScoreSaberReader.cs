@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using SongFeedReaders.Logging;
 using static SongFeedReaders.WebUtils;
 using Newtonsoft.Json;
+using WebUtilities;
 
 namespace SongFeedReaders.Readers
 {
@@ -93,6 +94,7 @@ namespace SongFeedReaders.Readers
             }
         }
 
+        // TODO: This should return a List<ScrapedSong> (or dictionary) and throw exceptions if it fails.
         public PageReadResult GetSongsFromPageText(string pageText, Uri sourceUri)
         {
             JObject result = new JObject();
@@ -178,6 +180,7 @@ namespace SongFeedReaders.Readers
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 else
                 {
+                    // TODO: Should be returning the failed PageReadResult here.
                     Logger.Error($"Error getting text from {uri}, HTTP Status Code is: {response.StatusCode.ToString()}: {response.ReasonPhrase}");
                 }
             }
@@ -206,7 +209,8 @@ namespace SongFeedReaders.Readers
                 uri = new Uri(url.ToString());
                 if (Utilities.IsPaused)
                     await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
-                
+
+                // TODO: Handle PageReadResult here
                 var scrapedDiffs = await GetSongsFromPageAsync(uri).ConfigureAwait(false);
                 foreach (var song in scrapedDiffs.Songs)
                 {
@@ -254,7 +258,7 @@ namespace SongFeedReaders.Readers
             Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
             if (settings.Feed == ScoreSaberFeed.TopRanked || settings.Feed == ScoreSaberFeed.LatestRanked)
                 settings.RankedOnly = true;
-            if(settings.Feed == ScoreSaberFeed.Search)
+            if (settings.Feed == ScoreSaberFeed.Search)
             {
                 if (!IsValidSearchQuery(settings.SearchQuery))
                     throw new ArgumentException($"Search query '{settings.SearchQuery ?? "<nul>"}' is not a valid query.");
@@ -266,19 +270,33 @@ namespace SongFeedReaders.Readers
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in ScoreSaberReader.GetSongsFromPageAsync");
-            using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+
+            try
             {
-                if (response.IsSuccessStatusCode)
+                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
                 {
+                    response.EnsureSuccessStatusCode();
                     var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     return GetSongsFromPageText(pageText, uri);
                 }
+            }
+            catch (WebClientException ex)
+            {
+                string respMessage;
+                if (ex.Response != null)
+                    respMessage = $", response was {ex.Response.StatusCode.ToString()}: {ex.Response.ReasonPhrase}";
                 else
-                {
-                    string message = $"Error getting page {uri?.ToString()}, response was {response.StatusCode.ToString()}: {response.ReasonPhrase}";
-                    Logger.Error(message);
-                    return new PageReadResult(uri, null, new FeedReaderException(message));
-                }
+                    respMessage = ", response was null.";
+                string message = $"Error getting page {uri?.ToString()}{respMessage}";
+                Logger.Error(message);
+                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+            }
+            catch (Exception ex)
+            {
+                string message = $"Uncaught error getting page {uri?.ToString()}: {ex.Message}";
+                Logger.Error(message);
+                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+
             }
         }
 

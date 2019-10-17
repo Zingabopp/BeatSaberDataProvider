@@ -122,11 +122,17 @@ namespace SongFeedReaders.Readers
         /// Parses the page text and returns all the songs it can find.
         /// </summary>
         /// <param name="pageText"></param>
-        /// <exception cref="XmlException">Invalid XML in pageText</exception>
+        /// <exception cref="XmlException">Invalid XML in pageText.</exception>
+        /// <exception cref="JsonReaderException">Invalid JSON in page text.</exception>
         /// <returns></returns>
         public List<ScrapedSong> GetSongsFromPageText(string pageText, Uri sourceUri, ContentType contentType)
         {
             List<ScrapedSong> songsOnPage = new List<ScrapedSong>();
+            if (string.IsNullOrEmpty(pageText))
+            {
+                Logger.Warning($"Null or empty string passed to GetSongsFromPageText. SourceUri: {sourceUri?.ToString()}");
+                return songsOnPage;
+            }
             //if (pageText.ToLower().StartsWith(@"<?xml"))
             if (contentType == ContentType.XML)
             {
@@ -145,6 +151,7 @@ namespace SongFeedReaders.Readers
         /// https://github.com/brian91292/SyncSaber/blob/master/SyncSaber/SyncSaber.cs#L259
         /// </summary>
         /// <param name="pageText"></param>
+        /// <exception cref="XmlException"></exception>
         /// <returns></returns>
         public List<ScrapedSong> ParseXMLPage(string pageText, Uri sourceUrl)
         {
@@ -169,20 +176,19 @@ namespace SongFeedReaders.Readers
                 {
                     if (retry == true)
                     {
+                        // TODO: Probably don't need logging here.
                         Logger.Exception("Exception parsing XML.", ex);
-                        retry = false;
-                        return songsOnPage;
+                        throw;
                     }
                     else
                     {
-                        Logger.Warning("Invalid XML formatting detected, attempting to fix...");
+                        Logger.Debug("Invalid XML formatting detected, attempting to fix...");
                         pageText = pageText.Replace(" & ", " &amp; ");
                         retry = true;
                     }
                     //File.WriteAllText("ErrorText.xml", pageText);
                 }
             } while (retry == true);
-            List<Task> populateTasks = new List<Task>();
             XmlNodeList xmlNodeList = xmlDocument.DocumentElement.SelectNodes("/rss/channel/item");
             foreach (object obj in xmlNodeList)
             {
@@ -236,19 +242,26 @@ namespace SongFeedReaders.Readers
             return songsOnPage;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageText"></param>
+        /// <param name="sourceUri"></param>
+        /// <exception cref="JsonReaderException">Thrown when the page text is unable to parsed.</exception>
+        /// <returns></returns>
         public List<ScrapedSong> ParseJsonPage(string pageText, Uri sourceUri)
         {
             JObject result = new JObject();
             var songsOnPage = new List<ScrapedSong>();
-            try
-            {
+            //try
+            //{
                 result = JObject.Parse(pageText);
 
-            }
-            catch (JsonReaderException ex)
-            {
-                Logger.Exception("Unable to parse JSON from text", ex);
-            }
+            //}
+            //catch (JsonReaderException ex)
+            //{
+            //    throw;
+            //}
 
             var songs = result["songs"];
             foreach (var bSong in songs)
@@ -353,28 +366,42 @@ namespace SongFeedReaders.Readers
                 }
                 catch (WebClientException ex)
                 {
-                    Logger.Exception($"Error downloading {feedUrl} in TransformBlock.", ex);
-                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
+                    string message = $"Error downloading {feedUrl} in TransformBlock.";
+                    Logger.Exception(message, ex);
+                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Exception($"Uncaught Error downloading {feedUrl} in TransformBlock.", ex);
-                    return new PageReadResult(feedUrl, new List<ScrapedSong>(), ex);
+                    string message = $"Error downloading {feedUrl} in TransformBlock.";
+                    Logger.Exception(message, ex);
+                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+
                 }
                 List<ScrapedSong> newSongs = null;
                 try
                 {
                     newSongs = GetSongsFromPageText(pageText, feedUrl, contentType);
                 }
+                catch(JsonReaderException ex)
+                {
+                    // TODO: Probably don't need a logger message here, caller can deal with it.
+                    string message = $"Error parsing page text for {feedUrl} in TransformBlock.";
+                    Logger.Exception(message, ex);
+                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                }
                 catch (XmlException ex)
                 {
-                    Logger.Exception($"Error parsing page text for {feedUrl} in TransformBlock.", ex);
-                    return new PageReadResult(feedUrl, null, ex);
+                    // TODO: Probably don't need a logger message here, caller can deal with it.
+                    string message = $"Error parsing page text for {feedUrl} in TransformBlock.";
+                    Logger.Exception(message, ex);
+                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
                 }
                 catch (Exception ex)
                 {
-                    Logger.Exception($"Uncaught error parsing page text for {feedUrl} in TransformBlock.", ex);
-                    return new PageReadResult(feedUrl, null, ex);
+                    // TODO: Probably don't need a logger message here, caller can deal with it.
+                    string message = $"Uncaught error parsing page text for {feedUrl} in TransformBlock.";
+                    Logger.Exception(message, ex);
+                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
                 }
                 sw.Stop();
                 //Logger.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
@@ -427,13 +454,11 @@ namespace SongFeedReaders.Readers
                                 Logger.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.Uri}");
                             else
                                 Logger.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
+                            
+                            // TODO: Process PageReadResults for better error feedback.
                             foreach (var song in newSongs.Songs)
                             {
-                                if (retDict.ContainsKey(song.Hash))
-                                {
-                                    Logger.Debug($"Song {song.Hash} already exists.");
-                                }
-                                else
+                                if (!retDict.ContainsKey(song.Hash))
                                 {
                                     if (retDict.Count < settings.MaxSongs || settings.MaxSongs == 0)
                                         retDict.Add(song.Hash, song);
@@ -489,10 +514,24 @@ namespace SongFeedReaders.Readers
         #endregion
 
         #region Overloads
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageText"></param>
+        /// <param name="sourceUrl"></param>
+        /// <exception cref="JsonReaderException"></exception>
+        /// <returns></returns>
         public List<ScrapedSong> ParseJsonPage(string pageText, string sourceUrl)
         {
             return ParseJsonPage(pageText, Utilities.GetUriFromString(sourceUrl));
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageText"></param>
+        /// <param name="sourceUrl"></param>
+        /// <exception cref="XmlException"></exception>
+        /// <returns></returns>
         public List<ScrapedSong> ParseXMLPage(string pageText, string sourceUrl)
         {
             return ParseXMLPage(pageText, Utilities.GetUriFromString(sourceUrl));
@@ -506,6 +545,7 @@ namespace SongFeedReaders.Readers
         /// </summary>
         /// <param name="pageText"></param>
         /// <exception cref="XmlException">Invalid XML in pageText</exception>
+        /// <exception cref="JsonReaderException">Invalid JSON in pageText</exception>
         /// <returns></returns>
         public List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, ContentType contentType)
         {

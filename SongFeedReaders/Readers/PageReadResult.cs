@@ -29,12 +29,15 @@ namespace SongFeedReaders.Readers
         public PageReadResult(Uri uri, List<ScrapedSong> songs, Exception exception)
             : this(uri, songs)
         {
-            if (exception is FeedReaderException frException)
+            if (exception != null)
             {
-                Exception = frException;
+                if (exception is FeedReaderException frException)
+                {
+                    Exception = frException;
+                }
+                else
+                    Exception = new FeedReaderException(exception.Message, exception);
             }
-            else
-                Exception = new FeedReaderException(exception.Message, exception);
         }
     }
 }

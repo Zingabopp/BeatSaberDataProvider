@@ -36,12 +36,15 @@ namespace SongFeedReaders.Readers
         public FeedResult(Dictionary<string, ScrapedSong> songs, Exception exception)
             : this(songs)
         {
-            if (exception is FeedReaderException frException)
+            if (exception != null)
             {
-                Exception = frException;
+                if (exception is FeedReaderException frException)
+                {
+                    Exception = frException;
+                }
+                else
+                    Exception = new FeedReaderException(exception.Message, exception);
             }
-            else
-                Exception = new FeedReaderException(exception.Message, exception);
         }
 
 

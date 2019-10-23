@@ -55,6 +55,11 @@ namespace SongFeedReaders.Readers
         int FeedIndex { get; } // Index of the feed 
 
         /// <summary>
+        /// Number of songs per page.
+        /// </summary>
+        int SongsPerPage { get; }
+
+        /// <summary>
         /// Max number of songs to retrieve, 0 for unlimited.
         /// </summary>
         int MaxSongs { get; set; }

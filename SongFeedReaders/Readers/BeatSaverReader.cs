@@ -35,7 +35,7 @@ namespace SongFeedReaders.Readers
         private const string PAGEKEY = "{PAGE}";
         private const string SEARCHTYPEKEY = "{TYPE}";
         private const string SEARCHKEY = "{SEARCH}";
-        private const int SONGS_PER_PAGE = 10;
+        public const int SongsPerPage = 10;
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeatSaverFeedSettings.";
         private const string BEATSAVER_DOWNLOAD_URL_BASE = "https://beatsaver.com/api/download/key/";
         private const string BEATSAVER_DETAILS_BASE_URL = "https://beatsaver.com/api/maps/detail/";
@@ -205,7 +205,7 @@ namespace SongFeedReaders.Readers
         {
             int retVal = 0;
             if (maxPages > 0)
-                retVal = maxPages * SONGS_PER_PAGE;
+                retVal = maxPages * SongsPerPage;
             if (maxSongs > 0)
             {
                 if (retVal == 0)
@@ -223,7 +223,7 @@ namespace SongFeedReaders.Readers
                 retVal = maxPages;
             if (maxSongs > 0)
             {
-                int pagesForSongs = (int)Math.Ceiling(maxSongs / (float)SONGS_PER_PAGE);
+                int pagesForSongs = (int)Math.Ceiling(maxSongs / (float)SongsPerPage);
                 if (retVal == 0)
                     retVal = pagesForSongs;
                 else
@@ -347,7 +347,7 @@ namespace SongFeedReaders.Readers
                     continueLooping = false;
                 if (useMaxPages && (pageNum >= maxPages))
                     continueLooping = false;
-                if (useMaxSongs && pageNum * SONGS_PER_PAGE >= settings.MaxSongs)
+                if (useMaxSongs && pageNum * SongsPerPage >= settings.MaxSongs)
                     continueLooping = false;
             } while (continueLooping);
             try
@@ -403,7 +403,7 @@ namespace SongFeedReaders.Readers
             do
             {
                 Logger.Debug($"Checking page {page + 1} for the author ID.");
-                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHKEY, authorName).Replace(PAGEKEY, (page * SONGS_PER_PAGE).ToString()));
+                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHKEY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
                 result = new JObject();
                 try
                 {
@@ -440,8 +440,8 @@ namespace SongFeedReaders.Readers
                 matchingSong = (JObject)songJSONAry.FirstOrDefault(c => c["uploader"]?["username"]?.Value<string>()?.ToLower() == authorName.ToLower());
 
                 page++;
-                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHKEY, authorName).Replace(PAGEKEY, (page * SONGS_PER_PAGE).ToString()));
-            } while ((matchingSong == null) && page * SONGS_PER_PAGE < totalResults);
+                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHKEY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
+            } while ((matchingSong == null) && page * SongsPerPage < totalResults);
 
 
             if (matchingSong == null)
@@ -527,7 +527,7 @@ namespace SongFeedReaders.Readers
             int lastPage = result["lastPage"]?.Value<int>() ?? 0;
             // TODO: Redo this using TransformBlock
             if (maxSongs > 0)
-                lastPage = Math.Min(lastPage, maxSongs / SONGS_PER_PAGE + 1);
+                lastPage = Math.Min(lastPage, maxSongs / SongsPerPage + 1);
             Logger.Debug($"{numSongs} songs by {authorId} available on Beat Saver");
             int pageNum = 0;
             List<Task<PageReadResult>> pageReadTasks = new List<Task<PageReadResult>>();
@@ -718,7 +718,7 @@ namespace SongFeedReaders.Readers
                     continueLooping = false;
                 if (useMaxPages && (pageIndex >= maxPages))
                     continueLooping = false;
-                if (useMaxSongs && pageIndex * SONGS_PER_PAGE >= maxSongs)
+                if (useMaxSongs && pageIndex * SongsPerPage >= maxSongs)
                     continueLooping = false;
             } while (continueLooping);
 
@@ -875,6 +875,8 @@ namespace SongFeedReaders.Readers
         /// Default is 'song' (song name, song subname, author)
         /// </summary>
         public BeatSaverReader.SearchType SearchType { get; set; }
+
+        public int SongsPerPage { get { return BeatSaverReader.SongsPerPage; } }
 
         /// <summary>
         /// Maximum songs to retrieve, will stop the reader before MaxPages is met. Use 0 for unlimited.

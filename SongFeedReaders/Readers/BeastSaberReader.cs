@@ -589,7 +589,7 @@ namespace SongFeedReaders.Readers
         public int FeedIndex { get; set; }
         public BeastSaberFeed Feed { get { return (BeastSaberFeed)FeedIndex; } set { FeedIndex = (int)value; } }
 
-        public int SongsPerPage { get { return BeastSaberReader.SongsPerJsonPage; } }
+        public int SongsPerPage { get { return FeedIndex == 0 ? BeastSaberReader.SongsPerXmlPage : BeastSaberReader.SongsPerJsonPage; } }
 
         /// <summary>
         /// Maximum songs to retrieve, will stop the reader before MaxPages is met. Use 0 for unlimited.

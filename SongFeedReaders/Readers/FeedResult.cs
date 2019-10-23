@@ -15,6 +15,7 @@ namespace SongFeedReaders.Readers
     {
         public IReadOnlyDictionary<string, ScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
+        public FeedResultErrorLevel ErrorLevel { get; private set; }
         private bool _successful;
         public bool Successful { get { return _successful && Exception == null; } }
         /// <summary>
@@ -33,9 +34,10 @@ namespace SongFeedReaders.Readers
                 _successful = true;
             Songs = new ReadOnlyDictionary<string, ScrapedSong>(songs);
         }
-        public FeedResult(Dictionary<string, ScrapedSong> songs, Exception exception)
+        public FeedResult(Dictionary<string, ScrapedSong> songs, Exception exception, FeedResultErrorLevel errorLevel)
             : this(songs)
         {
+            ErrorLevel = errorLevel;
             if (exception != null)
             {
                 if (exception is FeedReaderException frException)
@@ -48,5 +50,11 @@ namespace SongFeedReaders.Readers
         }
 
 
+    }
+    public enum FeedResultErrorLevel
+    {
+        None,
+        Warning,
+        Error
     }
 }

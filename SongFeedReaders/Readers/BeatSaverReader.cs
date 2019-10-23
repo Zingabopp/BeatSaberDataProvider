@@ -58,12 +58,12 @@ namespace SongFeedReaders.Readers
                 {
                     _feeds = new Dictionary<BeatSaverFeed, FeedInfo>()
                     {
-                        { (BeatSaverFeed)0, new FeedInfo("author", "BeatSaver Authors", "https://beatsaver.com/api/maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY)},
-                        { (BeatSaverFeed)1, new FeedInfo("latest", "BeatSaver Latest", "https://beatsaver.com/api/maps/latest/" + PAGEKEY) },
-                        { (BeatSaverFeed)2, new FeedInfo("hot", "BeatSaver Hot", "https://beatsaver.com/api/maps/hot/" + PAGEKEY) },
-                        { (BeatSaverFeed)3, new FeedInfo("plays", "BeatSaver Plays", "https://beatsaver.com/api/maps/plays/" + PAGEKEY) },
-                        { (BeatSaverFeed)4, new FeedInfo("downloads", "BeatSaver Downloads", "https://beatsaver.com/api/maps/downloads/" + PAGEKEY) },
-                        { (BeatSaverFeed)98, new FeedInfo("search", "BeatSaver Search", $"https://beatsaver.com/api/search/text/{PAGEKEY}?q={SEARCHKEY}") },
+                        { (BeatSaverFeed)0, new FeedInfo("Author", "BeatSaver Authors", "https://beatsaver.com/api/maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY)},
+                        { (BeatSaverFeed)1, new FeedInfo("Latest", "BeatSaver Latest", "https://beatsaver.com/api/maps/latest/" + PAGEKEY) },
+                        { (BeatSaverFeed)2, new FeedInfo("Hot", "BeatSaver Hot", "https://beatsaver.com/api/maps/hot/" + PAGEKEY) },
+                        { (BeatSaverFeed)3, new FeedInfo("Plays", "BeatSaver Plays", "https://beatsaver.com/api/maps/plays/" + PAGEKEY) },
+                        { (BeatSaverFeed)4, new FeedInfo("Downloads", "BeatSaver Downloads", "https://beatsaver.com/api/maps/downloads/" + PAGEKEY) },
+                        { (BeatSaverFeed)98, new FeedInfo("Search", "BeatSaver Search", $"https://beatsaver.com/api/search/text/{PAGEKEY}?q={SEARCHKEY}") },
                     };
                 }
                 return _feeds;
@@ -310,25 +310,25 @@ namespace SongFeedReaders.Readers
             catch (WebClientException ex)
             {
                 string message = $"Error getting a response from {pageUri}: {ex.Message}";
-                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed));
+                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             catch (JsonReaderException ex)
             {
                 Logger.Exception("Unable to parse JSON from text", ex);
                 var exception = new FeedReaderException("Unable to parse JSON from text on first page in GetBeatSaverSongAsync()", ex, FeedReaderFailureCode.SourceFailed);
-                return new FeedResult(null, exception);
+                return new FeedResult(null, exception, FeedResultErrorLevel.Error);
             }
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting the first page in BeatSaverReader.GetBeatSaverSongsAsync(): {ex.Message}";
-                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed));
+                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             int? numSongs = result["totalDocs"]?.Value<int>();
             int? lastPage = result["lastPage"]?.Value<int>();
             if (numSongs == null || lastPage == null || numSongs == 0)
             {
                 Logger.Warning($"Error checking Beat Saver's {settings.FeedName} feed.");
-                return new FeedResult(null, new FeedReaderException($"Error getting the first page in GetBeatSaverSongsAsync()", null, FeedReaderFailureCode.SourceFailed));
+                return new FeedResult(null, new FeedReaderException($"Error getting the first page in GetBeatSaverSongsAsync()", null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             Logger.Info($"Checking Beat Saver's {settings.FeedName} feed, {numSongs} songs available");
             int maxPages = settings.MaxPages;
@@ -362,7 +362,7 @@ namespace SongFeedReaders.Readers
                 string message = $"Error waiting for pageReadTasks: {ex.Message}";
                 // TODO: Probably don't need logging here.
                 Logger.Error(message);
-                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed));
+                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             foreach (var job in pageReadTasks)
             {
@@ -500,7 +500,7 @@ namespace SongFeedReaders.Readers
                     {
                         string message = $"Error getting songs by UploaderId, {uri?.ToString()} responded with {response.StatusCode}:{response.ReasonPhrase}";
                         Logger.Error(message);
-                        return new FeedResult(null, new FeedReaderException(message, null, FeedReaderFailureCode.SourceFailed));
+                        return new FeedResult(null, new FeedReaderException(message, null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
                     }
                 }
             }
@@ -508,7 +508,7 @@ namespace SongFeedReaders.Readers
             {
                 string message = $"Error getting songs by UploaderId, {authorId}, from {uri}";
                 Logger.Exception(message, ex);
-                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed));
+                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
 
             JObject result;
@@ -520,7 +520,7 @@ namespace SongFeedReaders.Readers
             {
                 string message = "Unable to parse JSON from text";
                 Logger.Exception(message, ex);
-                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed));
+                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
 
             int numSongs = result["totalDocs"]?.Value<int>() ?? 0; // Check this
@@ -557,7 +557,7 @@ namespace SongFeedReaders.Readers
         {
             string mapperId = await GetAuthorIDAsync(uploader).ConfigureAwait(false);
             if (string.IsNullOrEmpty(mapperId))
-                return new FeedResult(null, new FeedReaderException($"Unable to find a mapper ID for uploader {uploader}", null, FeedReaderFailureCode.SourceFailed));
+                return new FeedResult(null, new FeedReaderException($"Unable to find a mapper ID for uploader {uploader}", null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             return await GetSongsByUploaderIdAsync(mapperId, maxSongs).ConfigureAwait(false);
         }
         public static async Task<ScrapedSong> GetSongByHashAsync(string hash)
@@ -702,7 +702,7 @@ namespace SongFeedReaders.Readers
                     {
                         string message = $"Error searching for song, {uri} responded with {response.StatusCode}:{response.ReasonPhrase}";
                         Logger.Error(message);
-                        return new FeedResult(null, new FeedReaderException(message, null, FeedReaderFailureCode.SourceFailed));
+                        return new FeedResult(null, new FeedReaderException(message, null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
                     }
                 }
                 newSongs = ParseSongsFromPage(pageText, uri);

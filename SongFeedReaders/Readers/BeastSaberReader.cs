@@ -81,9 +81,9 @@ namespace SongFeedReaders.Readers
                 {
                     _feeds = new Dictionary<BeastSaberFeed, FeedInfo>()
                     {
-                        { (BeastSaberFeed)0, new FeedInfo("followings", "BeastSaber Follows", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY) },
-                        { (BeastSaberFeed)1, new FeedInfo("bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage)},
-                        { (BeastSaberFeed)2, new FeedInfo("curator recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage) }
+                        { (BeastSaberFeed)0, new FeedInfo("Follows", "BeastSaber Follows", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY) },
+                        { (BeastSaberFeed)1, new FeedInfo("Bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage)},
+                        { (BeastSaberFeed)2, new FeedInfo("Curator Recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage) }
                     };
                 }
                 return _feeds;
@@ -324,7 +324,6 @@ namespace SongFeedReaders.Readers
         /// <returns></returns>
         public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
         {
-            List<Exception> exceptions = new List<Exception>();
             if (cancellationToken != CancellationToken.None)
                 Logger.Warning("CancellationToken in GetSongsFromFeedAsync isn't implemented.");
             if (settings == null)
@@ -356,7 +355,7 @@ namespace SongFeedReaders.Readers
                 try
                 {
                     response = await WebUtils.WebClient.GetAsync(feedUrl).ConfigureAwait(false);
-                    if((response?.StatusCode ?? 500) == 500)
+                    if ((response?.StatusCode ?? 500) == 500)
                     {
                         response?.Dispose();
                         Logger.Warning($"Internal server error on {feedUrl}, retrying in 20 seconds");
@@ -432,6 +431,7 @@ namespace SongFeedReaders.Readers
             });
             bool continueLooping = true;
             int itemsInBlock = 0;
+            List<PageReadResult> pageResults = new List<PageReadResult>(maxPages + 2);
             do
             {
                 while (continueLooping)
@@ -453,12 +453,12 @@ namespace SongFeedReaders.Readers
                         await ProcessPageBlock.OutputAvailableAsync().ConfigureAwait(false);
                         while (ProcessPageBlock.TryReceive(out PageReadResult newSongs))
                         {
-                            if (newSongs.Exception != null)
-                                exceptions.Add(newSongs.Exception);
+                            if (newSongs != null)
+                                pageResults.Add(newSongs);
                             if (Utilities.IsPaused)
                                 await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                             itemsInBlock--;
-                            if (newSongs == null || newSongs.Count == 0)
+                            if (newSongs == null || newSongs.Count == 0) // TODO: This will trigger if a single page has an error.
                             {
                                 Logger.Debug("Received no new songs, last page reached.");
                                 ProcessPageBlock.Complete();
@@ -490,17 +490,41 @@ namespace SongFeedReaders.Readers
                 }
             }
             while (continueLooping);
+            FeedResultErrorLevel errorLevel = FeedResultErrorLevel.None;
             Exception exception = null;
-            if (exceptions.Count == 1)
+            int erroredPages = 0;
+            List<Exception> exceptions = new List<Exception>();
+            foreach (var result in pageResults)
             {
-                var innerException = exceptions.First();
-                exception = new FeedReaderException(innerException.Message, innerException);
+                if (result.Exception != null)
+                {
+                    exceptions.Add(result.Exception);
+                    erroredPages++;
+                }
             }
-            else if (exceptions.Count != 0)
+            if (erroredPages > 0)
             {
-                exception = new AggregateException("Multiple exceptions in BeastSaberReader.GetSongsFromFeedAsync().", exceptions.ToArray());
+                if (erroredPages == pageResults.Count)
+                {
+                    var errorMsg = $"All pages for {Name}.{settings.FeedName} errored, likely site is down.";
+                    var aggException = new AggregateException(errorMsg, exceptions);
+                    exception = new FeedReaderException(errorMsg, aggException, FeedReaderFailureCode.SourceFailed);
+                    errorLevel = FeedResultErrorLevel.Error;
+                }
+                else if (erroredPages > 1)
+                {
+                    var errorMsg = $"Some pages for {Name}.{settings.FeedName} errored.";
+                    var aggException = new AggregateException(errorMsg, exceptions);
+                    exception = new FeedReaderException(errorMsg, aggException, FeedReaderFailureCode.PageFailed);
+                    errorLevel = FeedResultErrorLevel.Warning;
+                }
+                else
+                {
+                    exception = new FeedReaderException($"A single page failed for {Name}.{settings.FeedName}.", exceptions.FirstOrDefault(), FeedReaderFailureCode.PageFailed);
+                    errorLevel = FeedResultErrorLevel.Warning;
+                }
             }
-            return new FeedResult(retDict, exception);
+            return new FeedResult(retDict, exception, errorLevel);
         }
 
         public Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings)

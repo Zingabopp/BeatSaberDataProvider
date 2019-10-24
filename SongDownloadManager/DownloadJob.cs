@@ -111,7 +111,7 @@ namespace SongDownloadManager
             zipFile.Refresh();
             if (!(ResultCode == JobResultCode.SUCCESS) && zipFile.Exists)
             {
-                //Logger.Warning($"Failed download, deleting {zipFile.FullName}");
+                //Logger?.Warning($"Failed download, deleting {zipFile.FullName}");
                 try
                 {
                     var time = Stopwatch.StartNew();

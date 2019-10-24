@@ -39,8 +39,12 @@ namespace SongFeedReaders.Readers
         private const string LATEST_RANKED_KEY = "Latest Ranked";
         private const string SEARCH_KEY = "Search";
         #endregion
-        private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
-        public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
+        private static FeedReaderLoggerBase _logger;
+        public static FeedReaderLoggerBase Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
         public string Name { get { return NameKey; } }
         public string Source { get { return SourceKey; } }
         public Uri RootUri { get { return new Uri("https://scoresaber.com/"); } }
@@ -107,13 +111,15 @@ namespace SongFeedReaders.Readers
             catch (JsonReaderException ex)
             {
                 string message = "Unable to parse JSON from text";
-                Logger.Exception(message, ex);
+                Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
                 return new PageReadResult(sourceUri, null, new FeedReaderException(message, ex), PageErrorType.ParsingError);
             }
             var songJSONAry = result["songs"]?.ToArray();
             if (songJSONAry == null)
             {
-                Logger.Error("Invalid page text: 'songs' field not found.");
+                string message = "Invalid page text: 'songs' field not found.";
+                Logger?.Debug("message");
+                return new PageReadResult(sourceUri, null, new FeedReaderException(message), PageErrorType.ParsingError);
             }
             foreach (var song in songJSONAry)
             {
@@ -185,9 +191,10 @@ namespace SongFeedReaders.Readers
             catch (WebClientException ex)
             {
                 string errorText = string.Empty;
-                if (ex.Response != null)
+                int statusCode = ex?.Response?.StatusCode ?? 0;
+                if (statusCode != 0)
                 {
-                    switch (ex.Response.StatusCode)
+                    switch (statusCode)
                     {
                         case 408:
                             errorText = "Timeout";
@@ -198,8 +205,10 @@ namespace SongFeedReaders.Readers
                     }
                 }
                 string message = $"{errorText} getting first page in ScoreSaberReader: {uri}: {ex.Message}";
-                Logger.Debug(message);
-                Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+                Logger?.Debug(message);
+                // No need for a stacktrace if it's one of these errors.
+                if (!(statusCode == 408 || statusCode == 500))
+                    Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
                 return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             catch (Exception ex)
@@ -310,7 +319,7 @@ namespace SongFeedReaders.Readers
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting page {uri?.ToString()}: {ex.Message}";
-                Logger.Error(message);
+                Logger?.Error(message);
                 return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
 
             }

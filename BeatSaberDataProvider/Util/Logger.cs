@@ -17,7 +17,7 @@ namespace BeatSaberDataProvider.Util
 
     public static class Logger
     {
-        //public static Dictionary<Type, Logger> Loggers; each class can implement their own logger?
+        //public static Dictionary<Type, Logger> Loggers; each class can implement their own Logger
         private static readonly string LoggerName = typeof(Logger).Namespace;
         public static LogLevel LogLevel = LogLevel.Info;
         private static readonly ConsoleColor DefaultFgColor = ConsoleColor.Gray;

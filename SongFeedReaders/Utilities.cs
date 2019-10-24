@@ -11,7 +11,6 @@ namespace SongFeedReaders
     {
         static Utilities()
         {
-            Logger = new FeedReaderLogger(LoggingController.DefaultLogController);
             MaxAggregateExceptionDepth = 10;
         }
 
@@ -27,15 +26,20 @@ namespace SongFeedReaders
             IsPaused = false;
         }
 
-        public static FeedReaderLoggerBase Logger { get; set; }
+        private static FeedReaderLoggerBase _logger;
+        public static FeedReaderLoggerBase Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
         public static int MaxAggregateExceptionDepth { get; set; }
 
         public static void WriteExceptions(this AggregateException ae, string message)
         {
-            Logger.Exception(message, ae);
+            Logger?.Exception(message, ae);
             for (int i = 0; i < ae.InnerExceptions.Count; i++)
             {
-                Logger.Exception($"Exception {i}:\n", ae.InnerExceptions[i]);
+                Logger?.Exception($"Exception {i}:\n", ae.InnerExceptions[i]);
                 if (ae.InnerExceptions[i] is AggregateException ex)
                     WriteExceptions(ex, 0); // TODO: This could get very long
             }
@@ -44,7 +48,7 @@ namespace SongFeedReaders
         {
             for (int i = 0; i < ae.InnerExceptions.Count; i++)
             {
-                Logger.Exception($"Exception {i}:\n", ae.InnerExceptions[i]);
+                Logger?.Exception($"Exception {i}:\n", ae.InnerExceptions[i]);
                 if (ae.InnerExceptions[i] is AggregateException ex)
                 {
                     if (depth < MaxAggregateExceptionDepth)

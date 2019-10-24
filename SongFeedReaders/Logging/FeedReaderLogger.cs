@@ -11,7 +11,7 @@ namespace SongFeedReaders.Logging
     {
         public FeedReaderLogger()
         {
-            LoggerName = "FeedReader";
+
         }
 
         public FeedReaderLogger(LoggingController controller)

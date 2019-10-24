@@ -10,8 +10,12 @@ namespace SongFeedReaders.Readers
 {
     public class PageReadResult
     {
-        private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
-        public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
+        private static FeedReaderLoggerBase _logger;
+        public static FeedReaderLoggerBase Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
         public Uri Uri { get; private set; }
         public List<ScrapedSong> Songs { get; private set; }
         public PageErrorType PageError { get; private set; }
@@ -52,9 +56,10 @@ namespace SongFeedReaders.Readers
         {
             PageErrorType pageError = PageErrorType.SiteError;
             string errorText = string.Empty;
-            if (ex.Response != null)
+            int statusCode = ex?.Response?.StatusCode ?? 0;
+            if (statusCode != 0)
             {
-                switch (ex.Response.StatusCode)
+                switch (statusCode)
                 {
                     case 408:
                         errorText = "Timeout";
@@ -67,8 +72,10 @@ namespace SongFeedReaders.Readers
                 }
             }
             string message = $"{errorText} getting page {requestUri}.";
-            Logger.Debug(message);
-            Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+            Logger?.Debug(message);
+            // No need for a stacktrace if it's one of these errors.
+            if (!(pageError == PageErrorType.Timeout || statusCode == 500))
+                Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
             return new PageReadResult(requestUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), pageError);
 
         }

@@ -7,57 +7,43 @@ namespace SongFeedReaders.Logging
 {
     public abstract class FeedReaderLoggerBase
     {
-        public string LoggerName { get; set; }
-        public LogLevel LogLevel { get; set; }
-        public bool ShortSource { get; set; }
-        public bool EnableTimestamp { get; set; }
+        private string _loggerName;
+        private LogLevel? _logLevel;
+        private bool? _shortSource;
+        private bool? _enableTimeStamp;
+
+        public string LoggerName
+        {
+            get { return _loggerName ?? LogController?.LoggerName; }
+            set { _loggerName = value; }
+        }
+        public LogLevel LogLevel
+        {
+            get { return _logLevel ?? LogController?.LogLevel ?? LogLevel.Disabled; }
+            set { _logLevel = value; }
+        }
+        public bool ShortSource
+        {
+            get { return _shortSource ?? LogController?.ShortSource ?? false; }
+            set { _shortSource = value; }
+        }
+        public bool EnableTimestamp
+        {
+            get { return _enableTimeStamp ?? LogController?.EnableTimestamp ?? true; }
+            set { _enableTimeStamp = value; }
+        }
         private LoggingController _loggingController;
         public LoggingController LogController
         {
-            get { return _loggingController; }
+            get { return _loggingController ?? LoggingController.DefaultLogController; }
             set
             {
                 if (_loggingController == value)
                     return;
-                if(_loggingController != null)
-                    _loggingController.PropertyChanged -= Controller_PropertyChanged;
-                if (value == null)
-                {
-                    _loggingController = null;
-                    return;
-                }
                 _loggingController = value;
-                LoggerName = _loggingController.LoggerName;
-                LogLevel = _loggingController.LogLevel;
-                ShortSource = _loggingController.ShortSource;
-                EnableTimestamp = _loggingController.EnableTimestamp;
-                _loggingController.PropertyChanged -= Controller_PropertyChanged;
-                _loggingController.PropertyChanged += Controller_PropertyChanged;
             }
         }
 
-#pragma warning disable CA1707 // Identifiers should not contain underscores
-        protected virtual void Controller_PropertyChanged(string propertyName, object propertyValue)
-#pragma warning restore CA1707 // Identifiers should not contain underscores
-        {
-            switch (propertyName)
-            {
-                case "LoggerName":
-                    LoggerName = propertyValue?.ToString();
-                    break;
-                case "LogLevel":
-                    LogLevel = (LogLevel)propertyValue;
-                    break;
-                case "ShortSource":
-                    ShortSource = (bool)propertyValue;
-                    break;
-                case "EnableTimeStamp":
-                    EnableTimestamp = (bool)propertyValue;
-                    break;
-                default:
-                    break;
-            }
-        }
 
         public abstract void Trace(string message,
             [CallerFilePath] string file = "",

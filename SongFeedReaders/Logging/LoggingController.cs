@@ -6,7 +6,21 @@ namespace SongFeedReaders.Logging
 {
     public class LoggingController
     {
-        public static LoggingController DefaultLogController { get; protected set; }
+        private static LoggingController _defaultLogController;
+        public static LoggingController DefaultLogController 
+        {
+            get
+            {
+                if (_defaultLogController == null)
+                    _defaultLogController = new LoggingController();
+                return _defaultLogController;
+            } 
+            set
+            {
+                _defaultLogController = value;
+            } 
+        }
+        public static FeedReaderLoggerBase DefaultLogger { get; set; }
         static LoggingController()
         {
             DefaultLogController = new LoggingController()

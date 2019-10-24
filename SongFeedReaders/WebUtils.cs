@@ -16,8 +16,12 @@ namespace SongFeedReaders
     /// </summary>
     public static class WebUtils
     {
-        private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
-        public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
+        private static FeedReaderLoggerBase _logger;
+        public static FeedReaderLoggerBase Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
         public static bool IsInitialized { get; private set; }
         private static readonly TimeSpan RateLimitPadding = new TimeSpan(0, 0, 0, 0, 100);
 
@@ -53,7 +57,7 @@ namespace SongFeedReaders
                 delay = TimeSpan.Zero;
             else
             {
-                Logger.Debug($"Preemptively waiting {delay.Seconds} seconds for rate limit.");
+                Logger?.Debug($"Preemptively waiting {delay.Seconds} seconds for rate limit.");
             }
             await Task.Delay(delay).ConfigureAwait(false);
             return;
@@ -111,10 +115,10 @@ namespace SongFeedReaders
                             delay = calcDelay;
                         if (maxSecondsToWait != 0 && delay.TotalSeconds > maxSecondsToWait)
                         {
-                            Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, delay of {(int)delay.TotalSeconds} seconds is too long, cancelling...");
+                            Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, delay of {(int)delay.TotalSeconds} seconds is too long, cancelling...");
                             return response;
                         }
-                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {(int)delay.TotalSeconds} seconds");
+                        Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {(int)delay.TotalSeconds} seconds");
                         await Task.Delay(delay).ConfigureAwait(false);
                         response.Dispose();
                         tries++;
@@ -122,13 +126,13 @@ namespace SongFeedReaders
                     }
                     else
                     {
-                        Logger.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, could not parse rate limit, not retrying.");
+                        Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, could not parse rate limit, not retrying.");
                         return response;
                     }
                 }
                 else if (errorCode == 0 && tries < retries)
                 {
-                    Logger.Warning($"Error getting {uri.ToString()}, retrying...");
+                    Logger?.Warning($"Error getting {uri.ToString()}, retrying...");
                     await Task.Delay(500).ConfigureAwait(false);
                     tries++;
                     retry = true;
@@ -136,7 +140,7 @@ namespace SongFeedReaders
                 else
                 {
                     if (!(response?.IsSuccessStatusCode ?? true))
-                        Logger.Debug($"Error getting {uri.ToString()}, {errorCode} : {response?.ReasonPhrase}. Skipping...");
+                        Logger?.Debug($"Error getting {uri.ToString()}, {errorCode} : {response?.ReasonPhrase}. Skipping...");
                     return response;
                 }
             } while (retry);

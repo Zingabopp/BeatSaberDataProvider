@@ -9,8 +9,12 @@ namespace SongFeedReaders
 {
     public static class FileOps
     {
-        private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
-        public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
+        private static FeedReaderLoggerBase _logger;
+        public static FeedReaderLoggerBase Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
 
         /// <summary>
         /// Downloads a file from the specified URI to the specified path (path include file name).

@@ -20,8 +20,12 @@ namespace SongFeedReaders.Readers
 {
     public class BeatSaverReader : IFeedReader
     {
-        private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
-        public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
+        private static FeedReaderLoggerBase _logger;
+        public static FeedReaderLoggerBase Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
         public static string NameKey => "BeatSaverReader";
         public string Name { get { return NameKey; } }
         public static readonly string SourceKey = "BeatSaver";
@@ -119,6 +123,7 @@ namespace SongFeedReaders.Readers
         public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri sourceUrl)
         {
             JObject result = new JObject();
+            List<ScrapedSong> songs = new List<ScrapedSong>();
             try
             {
                 result = JObject.Parse(pageText);
@@ -126,9 +131,9 @@ namespace SongFeedReaders.Readers
             }
             catch (JsonReaderException ex)
             {
-                Logger.Exception("Unable to parse JSON from text", ex);
+                Logger?.Exception("Unable to parse JSON from text", ex);
+                return songs;
             }
-            List<ScrapedSong> songs = new List<ScrapedSong>();
             ScrapedSong newSong;
             int? resultTotal = result["totalDocs"]?.Value<int>();
             if (resultTotal == null) resultTotal = 0;
@@ -153,7 +158,7 @@ namespace SongFeedReaders.Readers
 
             if (songJSONAry == null)
             {
-                Logger.Error("Invalid page text: 'songs' field not found.");
+                Logger?.Error("Invalid page text: 'songs' field not found.");
                 return songs;
             }
 
@@ -323,14 +328,16 @@ namespace SongFeedReaders.Readers
                     }
                 }
                 string message = $"{errorText} getting a response from {pageUri}: {ex.Message}";
-                Logger.Debug(message);
-                Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+                Logger?.Debug(message);
+                Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
                 return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             catch (JsonReaderException ex)
             {
-                Logger.Exception("Unable to parse JSON from text", ex);
-                var exception = new FeedReaderException("Unable to parse JSON from text on first page in GetBeatSaverSongAsync()", ex, FeedReaderFailureCode.SourceFailed);
+                string message = "Unable to parse JSON from text on first page in GetBeatSaverSongAsync()";
+                Logger?.Debug(message);
+                Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
+                var exception = new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed);
                 return new FeedResult(null, exception, FeedResultErrorLevel.Error);
             }
             catch (Exception ex)
@@ -342,10 +349,10 @@ namespace SongFeedReaders.Readers
             int? lastPage = result["lastPage"]?.Value<int>();
             if (numSongs == null || lastPage == null || numSongs == 0)
             {
-                Logger.Warning($"Error checking Beat Saver's {settings.FeedName} feed.");
+                Logger?.Warning($"Error checking Beat Saver's {settings.FeedName} feed.");
                 return new FeedResult(null, new FeedReaderException($"Error getting the first page in GetBeatSaverSongsAsync()", null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
-            Logger.Info($"Checking Beat Saver's {settings.FeedName} feed, {numSongs} songs available");
+            Logger?.Info($"Checking Beat Saver's {settings.FeedName} feed, {numSongs} songs available");
             int maxPages = settings.MaxPages;
             int pageNum = Math.Max(settings.StartingPage - 1, 0);
             if (pageNum > 0 && useMaxPages)
@@ -355,7 +362,7 @@ namespace SongFeedReaders.Readers
             do
             {
                 pageUri = GetPageUrl(feedIndex, pageNum);
-                Logger.Trace($"Creating task for {pageUri.ToString()}");
+                Logger?.Trace($"Creating task for {pageUri.ToString()}");
                 pageReadTasks.Add(GetSongsFromPageAsync(pageUri));
                 pageNum++;
                 if ((pageNum > lastPage))
@@ -376,7 +383,8 @@ namespace SongFeedReaders.Readers
             {
                 string message = $"Error waiting for pageReadTasks: {ex.Message}";
                 // TODO: Probably don't need logging here.
-                Logger.Error(message);
+                Logger?.Debug(message);
+                Logger?.Debug(ex.StackTrace);
                 return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             foreach (var job in pageReadTasks)
@@ -397,7 +405,7 @@ namespace SongFeedReaders.Readers
             List<string> authorNames = new List<string>();
             FeedResult result = await GetSongsByUploaderIdAsync(mapperId).ConfigureAwait(false);
             authorNames = result.Songs.Values.Select(s => s.MapperName).Distinct().ToList();
-            //authorNames.ForEach(n => Logger.Warning($"Found authorName: {n}"));
+            //authorNames.ForEach(n => Logger?.Warning($"Found authorName: {n}"));
             return authorNames;
         }
         public static async Task<string> GetAuthorIDAsync(string authorName)
@@ -417,7 +425,7 @@ namespace SongFeedReaders.Readers
             JToken[] songJSONAry;
             do
             {
-                Logger.Debug($"Checking page {page + 1} for the author ID.");
+                Logger?.Debug($"Checking page {page + 1} for the author ID.");
                 sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHKEY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
                 result = new JObject();
                 try
@@ -445,23 +453,23 @@ namespace SongFeedReaders.Readers
                                 break;
                         }
                     }
-                    Logger.Error($"{errorText} getting UploaderID from author name, {sourceUri} responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
+                    Logger?.Error($"{errorText} getting UploaderID from author name, {sourceUri} responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
                     return string.Empty;
                 }
                 catch (JsonReaderException ex)
                 {
                     // TODO: Should I break the loop here, or keep trying?
-                    Logger.Exception("Unable to parse JSON from text", ex);
+                    Logger?.Exception("Unable to parse JSON from text", ex);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error($"Uncaught error getting UploaderID from author name {authorName}");
+                    Logger?.Error($"Uncaught error getting UploaderID from author name {authorName}");
                     return string.Empty;
                 }
                 totalResults = result["totalDocs"]?.Value<int>(); // TODO: Check this
                 if (totalResults == null || totalResults == 0)
                 {
-                    Logger.Warning($"No songs by {authorName} found, is the name spelled correctly?");
+                    Logger?.Warning($"No songs by {authorName} found, is the name spelled correctly?");
                     return string.Empty;
                 }
                 songJSONAry = result["docs"].ToArray();
@@ -474,7 +482,7 @@ namespace SongFeedReaders.Readers
 
             if (matchingSong == null)
             {
-                Logger.Warning($"No songs by {authorName} found, is the name spelled correctly?");
+                Logger?.Warning($"No songs by {authorName} found, is the name spelled correctly?");
                 return string.Empty;
             }
             mapperId = matchingSong["uploader"]["_id"].Value<string>();
@@ -528,7 +536,7 @@ namespace SongFeedReaders.Readers
                     else
                     {
                         string message = $"Error getting songs by UploaderId, {uri?.ToString()} responded with {response.StatusCode}:{response.ReasonPhrase}";
-                        Logger.Error(message);
+                        Logger?.Error(message);
                         return new FeedResult(null, new FeedReaderException(message, null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
                     }
                 }
@@ -536,7 +544,7 @@ namespace SongFeedReaders.Readers
             catch (Exception ex)
             {
                 string message = $"Error getting songs by UploaderId, {authorId}, from {uri}";
-                Logger.Exception(message, ex);
+                Logger?.Exception(message, ex);
                 return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
 
@@ -548,7 +556,7 @@ namespace SongFeedReaders.Readers
             catch (JsonReaderException ex)
             {
                 string message = "Unable to parse JSON from text";
-                Logger.Exception(message, ex);
+                Logger?.Exception(message, ex);
                 return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
 
@@ -557,13 +565,13 @@ namespace SongFeedReaders.Readers
             // TODO: Redo this using TransformBlock
             if (maxSongs > 0)
                 lastPage = Math.Min(lastPage, maxSongs / SongsPerPage + 1);
-            Logger.Debug($"{numSongs} songs by {authorId} available on Beat Saver");
+            Logger?.Debug($"{numSongs} songs by {authorId} available on Beat Saver");
             int pageNum = 0;
             List<Task<PageReadResult>> pageReadTasks = new List<Task<PageReadResult>>();
             do
             {
                 uri = GetPageUrl(feedIndex, pageNum, new Dictionary<string, string>() { { AUTHORIDKEY, authorId } });
-                //Logger.Trace($"Creating task for {uri}");
+                //Logger?.Trace($"Creating task for {uri}");
                 pageReadTasks.Add(GetSongsFromPageAsync(uri));
                 pageNum++;
             } while (pageNum <= lastPage);
@@ -602,13 +610,13 @@ namespace SongFeedReaders.Readers
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     else
                     {
-                        Logger.Error($"Error getting song by hash, {uri.ToString()} responded with {response.StatusCode}:{response.ReasonPhrase}");
+                        Logger?.Error($"Error getting song by hash, {uri.ToString()} responded with {response.StatusCode}:{response.ReasonPhrase}");
                         return song;
                     }
                 }
                 if (string.IsNullOrEmpty(pageText))
                 {
-                    Logger.Warning($"Unable to get web page at {uri.ToString()}");
+                    Logger?.Warning($"Unable to get web page at {uri.ToString()}");
                     return null;
                 }
             }
@@ -627,7 +635,7 @@ namespace SongFeedReaders.Readers
                             break;
                     }
                 }
-                Logger.Error($"{errorText} while trying to populate fields for {hash}");
+                Logger?.Error($"{errorText} while trying to populate fields for {hash}");
                 return null;
             }
             catch (AggregateException ae)
@@ -636,7 +644,7 @@ namespace SongFeedReaders.Readers
             }
             catch (Exception ex)
             {
-                Logger.Exception($"Exception getting page {uri.ToString()}", ex);
+                Logger?.Exception($"Exception getting page {uri.ToString()}", ex);
                 throw;
             }
             song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
@@ -656,13 +664,13 @@ namespace SongFeedReaders.Readers
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     else
                     {
-                        Logger.Error($"Error getting song by key, {uri} responded with {response.StatusCode}:{response.ReasonPhrase}");
+                        Logger?.Error($"Error getting song by key, {uri} responded with {response.StatusCode}:{response.ReasonPhrase}");
                         return song;
                     }
                 }
                 if (string.IsNullOrEmpty(pageText))
                 {
-                    Logger.Warning($"Unable to get web page at {uri}");
+                    Logger?.Warning($"Unable to get web page at {uri}");
                     return null;
                 }
             }
@@ -681,7 +689,7 @@ namespace SongFeedReaders.Readers
                             break;
                     }
                 }
-                Logger.Error($"{errorText} while trying to populate fields for {key}");
+                Logger?.Error($"{errorText} while trying to populate fields for {key}");
                 return null;
             }
             catch (AggregateException ae)
@@ -690,7 +698,7 @@ namespace SongFeedReaders.Readers
             }
             catch (Exception ex)
             {
-                Logger.Exception($"Exception getting page {uri}", ex);
+                Logger?.Exception($"Exception getting page {uri}", ex);
                 throw;
             }
             song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
@@ -748,15 +756,16 @@ namespace SongFeedReaders.Readers
                 url.Replace(PAGEKEY, pageIndex.ToString());
                 var uri = new Uri(url.ToString());
                 string pageText = string.Empty;
+                // TODO: Should probably wrap using in a try/catch
                 using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
                 {
-                    Logger.Debug($"Checking {uri} for songs.");
+                    Logger?.Debug($"Checking {uri} for songs.");
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     else
                     {
                         string message = $"Error searching for song, {uri} responded with {response.StatusCode}:{response.ReasonPhrase}";
-                        Logger.Error(message);
+                        Logger?.Error(message);
                         return new FeedResult(null, new FeedReaderException(message, null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
                     }
                 }
@@ -801,13 +810,13 @@ namespace SongFeedReaders.Readers
             }
             catch (JsonReaderException ex)
             {
-                Logger.Exception("Unable to parse JSON from text", ex);
+                Logger?.Exception("Unable to parse JSON from text", ex);
             }
             int? totalSongs = result["totalDocs"]?.Value<int>();
             int? lastPage = result["lastPage"]?.Value<int>();
             if (totalSongs == null || lastPage == null || totalSongs == 0)
             {
-                Logger.Warning($"Error scraping Beat Saver.");
+                Logger?.Warning($"Error scraping Beat Saver.");
                 return songs;
             }
 

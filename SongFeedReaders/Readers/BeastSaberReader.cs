@@ -42,8 +42,12 @@ namespace SongFeedReaders.Readers
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeastSaberFeedSettings.";
         #endregion
 
-        private static FeedReaderLoggerBase _logger = new FeedReaderLogger(LoggingController.DefaultLogController);
-        public static FeedReaderLoggerBase Logger { get { return _logger; } set { _logger = value; } }
+        private static FeedReaderLoggerBase _logger;
+        public static FeedReaderLoggerBase Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
         public string Name { get { return NameKey; } }
         public string Source { get { return SourceKey; } }
         public bool Ready { get; private set; }
@@ -130,7 +134,7 @@ namespace SongFeedReaders.Readers
             List<ScrapedSong> songsOnPage = new List<ScrapedSong>();
             if (string.IsNullOrEmpty(pageText))
             {
-                Logger.Warning($"Null or empty string passed to GetSongsFromPageText. SourceUri: {sourceUri?.ToString()}");
+                Logger?.Warning($"Null or empty string passed to GetSongsFromPageText. SourceUri: {sourceUri?.ToString()}");
                 return songsOnPage;
             }
             //if (pageText.ToLower().StartsWith(@"<?xml"))
@@ -142,7 +146,7 @@ namespace SongFeedReaders.Readers
             {
                 songsOnPage = ParseJsonPage(pageText, sourceUri);
             }
-            //Logger.Debug($"{songsOnPage.Count} songs on page at {sourceUrl}");
+            //Logger?.Debug($"{songsOnPage.Count} songs on page at {sourceUrl}");
             return songsOnPage;
         }
 
@@ -177,12 +181,12 @@ namespace SongFeedReaders.Readers
                     if (retry == true)
                     {
                         // TODO: Probably don't need logging here.
-                        Logger.Exception("Exception parsing XML.", ex);
+                        Logger?.Exception("Exception parsing XML.", ex);
                         throw;
                     }
                     else
                     {
-                        Logger.Debug("Invalid XML formatting detected, attempting to fix...");
+                        Logger?.Debug("Invalid XML formatting detected, attempting to fix...");
                         pageText = pageText.Replace(" & ", " &amp; ");
                         retry = true;
                     }
@@ -195,7 +199,7 @@ namespace SongFeedReaders.Readers
                 XmlNode node = (XmlNode)obj;
                 if (node["DownloadURL"] == null || node["SongTitle"] == null)
                 {
-                    Logger.Debug("Not a song! Skipping!");
+                    Logger?.Debug("Not a song! Skipping!");
                 }
                 else
                 {
@@ -206,7 +210,7 @@ namespace SongFeedReaders.Readers
                     string songKey = node[XML_SONGKEY_KEY]?.InnerText;
                     if (downloadUrl.Contains("dl.php"))
                     {
-                        Logger.Warning("Skipping BeastSaber download with old url format!");
+                        Logger?.Warning("Skipping BeastSaber download with old url format!");
                     }
                     else
                     {
@@ -306,7 +310,7 @@ namespace SongFeedReaders.Readers
             if (string.IsNullOrEmpty(feedUrlBase))
                 throw new ArgumentNullException(nameof(feedUrlBase), "feedUrlBase cannot be null or empty for GetPageUrl");
             string feedUrl = feedUrlBase.Replace(USERNAMEKEY, _username).Replace(PAGENUMKEY, page.ToString());
-            //Logger.Debug($"Replacing {USERNAMEKEY} with {_username} in base URL:\n   {feedUrlBase}");
+            //Logger?.Debug($"Replacing {USERNAMEKEY} with {_username} in base URL:\n   {feedUrlBase}");
             return Utilities.GetUriFromString(feedUrl);
         }
 
@@ -325,7 +329,7 @@ namespace SongFeedReaders.Readers
         public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
         {
             if (cancellationToken != CancellationToken.None)
-                Logger.Warning("CancellationToken in GetSongsFromFeedAsync isn't implemented.");
+                Logger?.Warning("CancellationToken in GetSongsFromFeedAsync isn't implemented.");
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for BeastSaberReader.GetSongsFromFeedAsync.");
             Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
@@ -333,7 +337,7 @@ namespace SongFeedReaders.Readers
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             if (_settings.FeedIndex != 2 && string.IsNullOrEmpty(_username?.Trim()))
             {
-                //Logger.Error($"Can't access feed without a valid username in the config file");
+                //Logger?.Error($"Can't access feed without a valid username in the config file");
                 throw new ArgumentException("Cannot access this feed without a valid username.");
             }
             int pageIndex = settings.StartingPage;
@@ -346,7 +350,7 @@ namespace SongFeedReaders.Readers
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                //Logger.Debug($"Checking URL: {feedUrl}");
+                //Logger?.Debug($"Checking URL: {feedUrl}");
                 string pageText = "";
 
                 ContentType contentType;
@@ -358,7 +362,7 @@ namespace SongFeedReaders.Readers
                     if ((response?.StatusCode ?? 500) == 500)
                     {
                         response?.Dispose();
-                        Logger.Warning($"Internal server error on {feedUri}, retrying in 20 seconds");
+                        Logger?.Warning($"Internal server error on {feedUri}, retrying in 20 seconds");
                         await Task.Delay(20000);
                         response = await WebUtils.WebClient.GetAsync(feedUri).ConfigureAwait(false);
                     }
@@ -378,8 +382,8 @@ namespace SongFeedReaders.Readers
                 catch (Exception ex)
                 {
                     string message = $"Error downloading {feedUri} in TransformBlock.";
-                    Logger.Debug(message);
-                    Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+                    Logger?.Debug(message);
+                    Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
                     return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
                 }
                 finally
@@ -395,28 +399,28 @@ namespace SongFeedReaders.Readers
                 {
                     // TODO: Probably don't need a logger message here, caller can deal with it.
                     string message = $"Error parsing page text for {feedUri} in TransformBlock.";
-                    Logger.Debug(message);
-                    Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+                    Logger?.Debug(message);
+                    Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
                     return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 catch (XmlException ex)
                 {
                     // TODO: Probably don't need a logger message here, caller can deal with it.
                     string message = $"Error parsing page text for {feedUri} in TransformBlock.";
-                    Logger.Debug(message);
-                    Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+                    Logger?.Debug(message);
+                    Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
                     return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 catch (Exception ex)
                 {
                     // TODO: Probably don't need a logger message here, caller can deal with it.
                     string message = $"Uncaught error parsing page text for {feedUri} in TransformBlock.";
-                    Logger.Debug(message);
-                    Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+                    Logger?.Debug(message);
+                    Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
                     return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
                 }
                 sw.Stop();
-                //Logger.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
+                //Logger?.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
                 return new PageReadResult(feedUri, newSongs);
             }, new ExecutionDataflowBlockOptions
             {
@@ -457,16 +461,16 @@ namespace SongFeedReaders.Readers
                             itemsInBlock--;
                             if (newSongs == null || newSongs.Count == 0) // TODO: This will trigger if a single page has an error.
                             {
-                                Logger.Debug("Received no new songs, last page reached.");
+                                Logger?.Debug("Received no new songs, last page reached.");
                                 ProcessPageBlock.Complete();
                                 itemsInBlock = 0;
                                 continueLooping = false;
                                 break;
                             }
                             if (newSongs.Count > 0)
-                                Logger.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.Uri}");
+                                Logger?.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.Uri}");
                             else
-                                Logger.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
+                                Logger?.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
 
                             // TODO: Process PageReadResults for better error feedback.
                             foreach (var song in newSongs.Songs)
@@ -540,7 +544,7 @@ namespace SongFeedReaders.Readers
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             if (_settings.FeedIndex != 2 && string.IsNullOrEmpty(_username?.Trim()))
             {
-                Logger.Error($"Can't access feed without a valid username in the config file");
+                Logger?.Error($"Can't access feed without a valid username in the config file");
                 throw new ArgumentException("Cannot access this feed without a valid username.");
             }
             var result = GetSongsFromFeedAsync(settings).Result;

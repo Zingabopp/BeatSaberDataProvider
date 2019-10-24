@@ -19,7 +19,7 @@ namespace SongFeedReadersTests
             TestSetup.Initialize();
         }
 
-        private int DefaultMaxConcurrency = 5;
+        private int DefaultMaxConcurrency = 2;
 
         private async Task<IWebResponseMessage> GetResponseSafeAsync(Uri uri)
         {

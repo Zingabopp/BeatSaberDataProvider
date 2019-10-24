@@ -342,7 +342,7 @@ namespace SongFeedReaders.Readers
             bool useMaxPages = maxPages != 0;
             if (useMaxPages && pageIndex > 1)
                 maxPages = maxPages + pageIndex - 1;
-            var ProcessPageBlock = new TransformBlock<Uri, PageReadResult>(async feedUrl =>
+            var ProcessPageBlock = new TransformBlock<Uri, PageReadResult>(async feedUri =>
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
@@ -354,13 +354,13 @@ namespace SongFeedReaders.Readers
                 IWebResponseMessage response = null;
                 try
                 {
-                    response = await WebUtils.WebClient.GetAsync(feedUrl).ConfigureAwait(false);
+                    response = await WebUtils.WebClient.GetAsync(feedUri).ConfigureAwait(false);
                     if ((response?.StatusCode ?? 500) == 500)
                     {
                         response?.Dispose();
-                        Logger.Warning($"Internal server error on {feedUrl}, retrying in 20 seconds");
+                        Logger.Warning($"Internal server error on {feedUri}, retrying in 20 seconds");
                         await Task.Delay(20000);
-                        response = await WebUtils.WebClient.GetAsync(feedUrl).ConfigureAwait(false);
+                        response = await WebUtils.WebClient.GetAsync(feedUri).ConfigureAwait(false);
                     }
                     response.EnsureSuccessStatusCode();
                     contentTypeStr = response.Content.ContentType.ToLower();
@@ -373,17 +373,14 @@ namespace SongFeedReaders.Readers
                 }
                 catch (WebClientException ex)
                 {
-                    string message = $"Error downloading {feedUrl} in TransformBlock.";
-                    Logger.Debug(message);
-                    Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                    return PageReadResult.FromWebClientException(ex, feedUri);
                 }
                 catch (Exception ex)
                 {
-                    string message = $"Error downloading {feedUrl} in TransformBlock.";
+                    string message = $"Error downloading {feedUri} in TransformBlock.";
                     Logger.Debug(message);
                     Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
                 }
                 finally
                 {
@@ -392,35 +389,35 @@ namespace SongFeedReaders.Readers
                 List<ScrapedSong> newSongs = null;
                 try
                 {
-                    newSongs = GetSongsFromPageText(pageText, feedUrl, contentType);
+                    newSongs = GetSongsFromPageText(pageText, feedUri, contentType);
                 }
                 catch (JsonReaderException ex)
                 {
                     // TODO: Probably don't need a logger message here, caller can deal with it.
-                    string message = $"Error parsing page text for {feedUrl} in TransformBlock.";
+                    string message = $"Error parsing page text for {feedUri} in TransformBlock.";
                     Logger.Debug(message);
                     Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 catch (XmlException ex)
                 {
                     // TODO: Probably don't need a logger message here, caller can deal with it.
-                    string message = $"Error parsing page text for {feedUrl} in TransformBlock.";
+                    string message = $"Error parsing page text for {feedUri} in TransformBlock.";
                     Logger.Debug(message);
                     Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 catch (Exception ex)
                 {
                     // TODO: Probably don't need a logger message here, caller can deal with it.
-                    string message = $"Uncaught error parsing page text for {feedUrl} in TransformBlock.";
+                    string message = $"Uncaught error parsing page text for {feedUri} in TransformBlock.";
                     Logger.Debug(message);
                     Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUrl, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
                 }
                 sw.Stop();
                 //Logger.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
-                return new PageReadResult(feedUrl, newSongs, null);
+                return new PageReadResult(feedUri, newSongs);
             }, new ExecutionDataflowBlockOptions
             {
                 MaxDegreeOfParallelism = MaxConcurrency,

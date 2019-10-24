@@ -108,7 +108,7 @@ namespace SongFeedReaders.Readers
             {
                 string message = "Unable to parse JSON from text";
                 Logger.Exception(message, ex);
-                return new PageReadResult(sourceUri, null, new FeedReaderException(message, ex));
+                return new PageReadResult(sourceUri, null, new FeedReaderException(message, ex), PageErrorType.ParsingError);
             }
             var songJSONAry = result["songs"]?.ToArray();
             if (songJSONAry == null)
@@ -174,15 +174,38 @@ namespace SongFeedReaders.Readers
             GetPageUrl(ref url, urlReplacements);
             var uri = new Uri(url.ToString());
             string pageText = "";
-            using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+            try
             {
-                if (response.IsSuccessStatusCode)
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                else
+                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
                 {
-                    // TODO: Should be returning the failed PageReadResult here.
-                    Logger.Error($"Error getting text from {uri}, HTTP Status Code is: {response.StatusCode.ToString()}: {response.ReasonPhrase}");
+                    response.EnsureSuccessStatusCode();
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }
+            }
+            catch (WebClientException ex)
+            {
+                string errorText = string.Empty;
+                if (ex.Response != null)
+                {
+                    switch (ex.Response.StatusCode)
+                    {
+                        case 408:
+                            errorText = "Timeout";
+                            break;
+                        default:
+                            errorText = "Site Error";
+                            break;
+                    }
+                }
+                string message = $"{errorText} getting first page in ScoreSaberReader: {uri}: {ex.Message}";
+                Logger.Debug(message);
+                Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
+                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
+            }
+            catch (Exception ex)
+            {
+                string message = $"Uncaught error getting the first page in ScoreSaberReader.GetSongsFromScoreSaberAsync(): {ex.Message}";
+                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             var result = GetSongsFromPageText(pageText, uri);
             foreach (var song in result.Songs)
@@ -282,20 +305,13 @@ namespace SongFeedReaders.Readers
             }
             catch (WebClientException ex)
             {
-                string respMessage;
-                if (ex.Response != null)
-                    respMessage = $", response was {ex.Response.StatusCode.ToString()}: {ex.Response.ReasonPhrase}";
-                else
-                    respMessage = ", response was null.";
-                string message = $"Error getting page {uri?.ToString()}{respMessage}";
-                Logger.Error(message);
-                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                return PageReadResult.FromWebClientException(ex, uri);
             }
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting page {uri?.ToString()}: {ex.Message}";
                 Logger.Error(message);
-                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed));
+                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
 
             }
         }

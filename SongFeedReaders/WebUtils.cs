@@ -66,6 +66,7 @@ namespace SongFeedReaders
         /// <param name="retries"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown when Uri is null.</exception>
+        /// <exception cref="WebClientException"></exception>
         public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int maxSecondsToWait = 0, int retries = 5)
         {
 
@@ -81,11 +82,13 @@ namespace SongFeedReaders
                 retry = false;
                 try
                 {
-                    response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false);
+                    response = await WebClient.GetAsync(uri).ConfigureAwait(false);
                 }
                 catch (WebClientException ex)
                 {
-
+                    var statusCode = response?.StatusCode ?? 0;
+                    if (tries >= retries && (statusCode != 429 || statusCode != 0))
+                        throw;
                     response = ex.Response;
                 }
                 var errorCode = response?.StatusCode ?? 0;

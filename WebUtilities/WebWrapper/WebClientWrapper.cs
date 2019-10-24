@@ -132,6 +132,16 @@ namespace WebUtilities.WebWrapper
                     return new WebClientResponseWrapper(resp, request, ex, statusOverride);
                 }
             }
+            catch (OperationCanceledException ex) // Timeout, could also be caught by WebException
+            {
+                if (ErrorHandling == ErrorHandling.ThrowOnException)
+                    throw new WebClientException(ex.Message, ex, new WebClientResponseWrapper(null, request, ex, 408));
+                else
+                {
+                    //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
+                    return new WebClientResponseWrapper(null, request, ex, 408);
+                }
+            }
             finally
             {
                 if (cancelTask != null)
@@ -147,46 +157,46 @@ namespace WebUtilities.WebWrapper
                     return 200;
                 case WebExceptionStatus.Timeout:
                     return 408;
-                    /*
-                case WebExceptionStatus.NameResolutionFailure:
-                    break;
-                case WebExceptionStatus.ConnectFailure:
-                    break;
-                case WebExceptionStatus.ReceiveFailure:
-                    break;
-                case WebExceptionStatus.SendFailure:
-                    break;
-                case WebExceptionStatus.PipelineFailure:
-                    break;
-                case WebExceptionStatus.RequestCanceled:
-                    break;
-                case WebExceptionStatus.ProtocolError:
-                    break;
-                case WebExceptionStatus.ConnectionClosed:
-                    break;
-                case WebExceptionStatus.TrustFailure:
-                    break;
-                case WebExceptionStatus.SecureChannelFailure:
-                    break;
-                case WebExceptionStatus.ServerProtocolViolation:
-                    break;
-                case WebExceptionStatus.KeepAliveFailure:
-                    break;
-                case WebExceptionStatus.Pending:
-                    break;
-                case WebExceptionStatus.ProxyNameResolutionFailure:
-                    break;
-                case WebExceptionStatus.UnknownError:
-                    break;
-                case WebExceptionStatus.MessageLengthLimitExceeded:
-                    break;
-                case WebExceptionStatus.CacheEntryNotFound:
-                    break;
-                case WebExceptionStatus.RequestProhibitedByCachePolicy:
-                    break;
-                case WebExceptionStatus.RequestProhibitedByProxy:
-                    break;
-                    */
+                /*
+            case WebExceptionStatus.NameResolutionFailure:
+                break;
+            case WebExceptionStatus.ConnectFailure:
+                break;
+            case WebExceptionStatus.ReceiveFailure:
+                break;
+            case WebExceptionStatus.SendFailure:
+                break;
+            case WebExceptionStatus.PipelineFailure:
+                break;
+            case WebExceptionStatus.RequestCanceled:
+                break;
+            case WebExceptionStatus.ProtocolError:
+                break;
+            case WebExceptionStatus.ConnectionClosed:
+                break;
+            case WebExceptionStatus.TrustFailure:
+                break;
+            case WebExceptionStatus.SecureChannelFailure:
+                break;
+            case WebExceptionStatus.ServerProtocolViolation:
+                break;
+            case WebExceptionStatus.KeepAliveFailure:
+                break;
+            case WebExceptionStatus.Pending:
+                break;
+            case WebExceptionStatus.ProxyNameResolutionFailure:
+                break;
+            case WebExceptionStatus.UnknownError:
+                break;
+            case WebExceptionStatus.MessageLengthLimitExceeded:
+                break;
+            case WebExceptionStatus.CacheEntryNotFound:
+                break;
+            case WebExceptionStatus.RequestProhibitedByCachePolicy:
+                break;
+            case WebExceptionStatus.RequestProhibitedByProxy:
+                break;
+                */
                 default:
                     return null;
             }

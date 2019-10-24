@@ -309,7 +309,22 @@ namespace SongFeedReaders.Readers
             }
             catch (WebClientException ex)
             {
-                string message = $"Error getting a response from {pageUri}: {ex.Message}";
+                string errorText = string.Empty;
+                if (ex.Response != null)
+                {
+                    switch (ex.Response.StatusCode)
+                    {
+                        case 408:
+                            errorText = "Timeout";
+                            break;
+                        default:
+                            errorText = "Site Error";
+                            break;
+                    }
+                }
+                string message = $"{errorText} getting a response from {pageUri}: {ex.Message}";
+                Logger.Debug(message);
+                Logger.Debug($"{ex.Message}\n{ex.StackTrace}");
                 return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             catch (JsonReaderException ex)
@@ -417,7 +432,20 @@ namespace SongFeedReaders.Readers
                 }
                 catch (WebClientException ex)
                 {
-                    Logger.Error($"Error getting UploaderID from author name, {sourceUri} responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
+                    string errorText = string.Empty;
+                    if (ex.Response != null)
+                    {
+                        switch (ex.Response.StatusCode)
+                        {
+                            case 408:
+                                errorText = "Timeout";
+                                break;
+                            default:
+                                errorText = "Site Error";
+                                break;
+                        }
+                    }
+                    Logger.Error($"{errorText} getting UploaderID from author name, {sourceUri} responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
                     return string.Empty;
                 }
                 catch (JsonReaderException ex)
@@ -425,7 +453,7 @@ namespace SongFeedReaders.Readers
                     // TODO: Should I break the loop here, or keep trying?
                     Logger.Exception("Unable to parse JSON from text", ex);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error($"Uncaught error getting UploaderID from author name {authorName}");
                     return string.Empty;
@@ -461,16 +489,17 @@ namespace SongFeedReaders.Readers
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in BeatSaverReader.GetSongsFromPageAsync.");
             string pageText = string.Empty;
             var songs = new List<ScrapedSong>();
-            using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+            try
             {
-                if (response.IsSuccessStatusCode)
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                else
+                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
                 {
-                    string message = $"Error getting songs from page, {uri?.ToString()} responded with {response.StatusCode}:{response.ReasonPhrase}";
-                    Logger.Error(message);
-                    return new PageReadResult(uri, null, new FeedReaderException(message, null, FeedReaderFailureCode.PageFailed));
+                    response.EnsureSuccessStatusCode();
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }
+            }
+            catch (WebClientException ex)
+            {
+                return PageReadResult.FromWebClientException(ex, uri);
             }
 
             foreach (var song in ParseSongsFromPage(pageText, uri))
@@ -583,9 +612,22 @@ namespace SongFeedReaders.Readers
                     return null;
                 }
             }
-            catch (WebClientException)
+            catch (WebClientException ex)
             {
-                Logger.Error($"Exception while trying to populate fields for {hash}");
+                string errorText = string.Empty;
+                if (ex.Response != null)
+                {
+                    switch (ex.Response.StatusCode)
+                    {
+                        case 408:
+                            errorText = "Timeout";
+                            break;
+                        default:
+                            errorText = "Site Error";
+                            break;
+                    }
+                }
+                Logger.Error($"{errorText} while trying to populate fields for {hash}");
                 return null;
             }
             catch (AggregateException ae)
@@ -624,9 +666,22 @@ namespace SongFeedReaders.Readers
                     return null;
                 }
             }
-            catch (WebClientException)
+            catch (WebClientException ex)
             {
-                Logger.Error($"Exception while trying to populate fields for {key}");
+                string errorText = string.Empty;
+                if (ex.Response != null)
+                {
+                    switch (ex.Response.StatusCode)
+                    {
+                        case 408:
+                            errorText = "Timeout";
+                            break;
+                        default:
+                            errorText = "Site Error";
+                            break;
+                    }
+                }
+                Logger.Error($"{errorText} while trying to populate fields for {key}");
                 return null;
             }
             catch (AggregateException ae)

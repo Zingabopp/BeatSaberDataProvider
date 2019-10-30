@@ -452,14 +452,14 @@ namespace SongFeedReaders.Readers
                         if (itemsInBlock <= 0)
                             break;
                         await ProcessPageBlock.OutputAvailableAsync().ConfigureAwait(false);
-                        while (ProcessPageBlock.TryReceive(out PageReadResult newSongs))
+                        while (ProcessPageBlock.TryReceive(out PageReadResult pageResult))
                         {
-                            if (newSongs != null)
-                                pageResults.Add(newSongs);
+                            if (pageResult != null)
+                                pageResults.Add(pageResult);
                             if (Utilities.IsPaused)
                                 await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
                             itemsInBlock--;
-                            if (newSongs == null || newSongs.Count == 0) // TODO: This will trigger if a single page has an error.
+                            if (pageResult == null || pageResult.Count == 0) // TODO: This will trigger if a single page has an error.
                             {
                                 Logger?.Debug("Received no new songs, last page reached.");
                                 ProcessPageBlock.Complete();
@@ -467,13 +467,13 @@ namespace SongFeedReaders.Readers
                                 continueLooping = false;
                                 break;
                             }
-                            if (newSongs.Count > 0)
-                                Logger?.Debug($"Receiving {newSongs.Count} potential songs from {newSongs.Uri}");
+                            if (pageResult.Count > 0)
+                                Logger?.Debug($"Receiving {pageResult.Count} potential songs from {pageResult.Uri}");
                             else
                                 Logger?.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
 
                             // TODO: Process PageReadResults for better error feedback.
-                            foreach (var song in newSongs.Songs)
+                            foreach (var song in pageResult.Songs)
                             {
                                 if (!retDict.ContainsKey(song.Hash))
                                 {
@@ -491,41 +491,7 @@ namespace SongFeedReaders.Readers
                 }
             }
             while (continueLooping);
-            FeedResultErrorLevel errorLevel = FeedResultErrorLevel.None;
-            Exception exception = null;
-            int erroredPages = 0;
-            List<Exception> exceptions = new List<Exception>();
-            foreach (var result in pageResults)
-            {
-                if (result.Exception != null)
-                {
-                    exceptions.Add(result.Exception);
-                    erroredPages++;
-                }
-            }
-            if (erroredPages > 0)
-            {
-                if (erroredPages == pageResults.Count)
-                {
-                    var errorMsg = $"All pages for {Name}.{settings.FeedName} errored, likely site is down.";
-                    var aggException = new AggregateException(errorMsg, exceptions);
-                    exception = new FeedReaderException(errorMsg, aggException, FeedReaderFailureCode.SourceFailed);
-                    errorLevel = FeedResultErrorLevel.Error;
-                }
-                else if (erroredPages > 1)
-                {
-                    var errorMsg = $"Some pages for {Name}.{settings.FeedName} errored.";
-                    var aggException = new AggregateException(errorMsg, exceptions);
-                    exception = new FeedReaderException(errorMsg, aggException, FeedReaderFailureCode.PageFailed);
-                    errorLevel = FeedResultErrorLevel.Warning;
-                }
-                else
-                {
-                    exception = new FeedReaderException($"A single page failed for {Name}.{settings.FeedName}.", exceptions.FirstOrDefault(), FeedReaderFailureCode.PageFailed);
-                    errorLevel = FeedResultErrorLevel.Warning;
-                }
-            }
-            return new FeedResult(retDict, exception, errorLevel);
+            return new FeedResult(retDict, pageResults);
         }
 
         public Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings)

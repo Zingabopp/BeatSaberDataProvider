@@ -180,6 +180,7 @@ namespace SongFeedReaders.Readers
             GetPageUrl(ref url, urlReplacements);
             var uri = new Uri(url.ToString());
             string pageText = "";
+            var pageResults = new List<PageReadResult>();
             try
             {
                 using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
@@ -209,14 +210,15 @@ namespace SongFeedReaders.Readers
                 // No need for a stacktrace if it's one of these errors.
                 if (!(statusCode == 408 || statusCode == 500))
                     Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
+                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting the first page in ScoreSaberReader.GetSongsFromScoreSaberAsync(): {ex.Message}";
-                return new FeedResult(null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
+                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             var result = GetSongsFromPageText(pageText, uri);
+            pageResults.Add(result);
             foreach (var song in result.Songs)
             {
                 if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
@@ -225,6 +227,7 @@ namespace SongFeedReaders.Readers
                 }
             }
             bool continueLooping = true;
+            
             do
             {
                 pageNum++;
@@ -243,8 +246,9 @@ namespace SongFeedReaders.Readers
                     await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
 
                 // TODO: Handle PageReadResult here
-                var scrapedDiffs = await GetSongsFromPageAsync(uri).ConfigureAwait(false);
-                foreach (var song in scrapedDiffs.Songs)
+                var pageResult = await GetSongsFromPageAsync(uri).ConfigureAwait(false);
+                pageResults.Add(pageResult);
+                foreach (var song in pageResult.Songs)
                 {
                     diffCount++;
                     if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
@@ -265,7 +269,7 @@ namespace SongFeedReaders.Readers
             } while (continueLooping);
 
 
-            return new FeedResult(songs);
+            return new FeedResult(songs, pageResults);
         }
 
         /// <summary>

@@ -13,6 +13,13 @@ namespace SongFeedReaders.Readers
     /// </summary>
     public class FeedResult
     {
+        public PageReadResult[] PageResults { get; private set; }
+        public PageReadResult[] FaultedResults { get; private set; }
+        /// <summary>
+        /// Distinct page errors.
+        /// </summary>
+        public string[] PageErrors { get; private set; }
+        public int PagesChecked { get { return PageResults?.Count() ?? 0; } }
         public IReadOnlyDictionary<string, ScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
         public FeedResultErrorLevel ErrorLevel { get; private set; }
@@ -23,21 +30,51 @@ namespace SongFeedReaders.Readers
         /// </summary>
         public FeedReaderException Exception { get; private set; }
 
-        public FeedResult(Dictionary<string, ScrapedSong> songs)
+        public FeedResult(Dictionary<string, ScrapedSong> songs, IEnumerable<PageReadResult> pageResults)
         {
-            if (songs == null)
-            {
-                _successful = false;
+            PageResults = pageResults?.ToArray() ?? new PageReadResult[0];
+            if(songs == null)
                 songs = new Dictionary<string, ScrapedSong>();
+            var pageErrors = new List<string>();
+            var faultedResults = new List<PageReadResult>();
+            if (PageResults != null)
+            {
+                _successful = true;
+                foreach (var pageResult in PageResults)
+                {
+                    if (!pageResult.Successful)
+                    {
+                        pageErrors.Add(pageResult.PageError.ErrorToString());
+                        faultedResults.Add(pageResult);
+                    }
+                }
             }
             else
-                _successful = true;
+            {
+                _successful = false;
+
+            }
+            int errorCount = pageErrors.Count;
+            if (errorCount > 0)
+            {
+                PageErrors = pageErrors.Distinct().ToArray();
+                if (errorCount == PagesChecked)
+                    ErrorLevel = FeedResultErrorLevel.Error;
+                else
+                {
+                    if (ErrorLevel < FeedResultErrorLevel.Warning)
+                        ErrorLevel = FeedResultErrorLevel.Warning;
+                }
+            }
             Songs = new ReadOnlyDictionary<string, ScrapedSong>(songs);
+            FaultedResults = faultedResults.ToArray();
         }
-        public FeedResult(Dictionary<string, ScrapedSong> songs, Exception exception, FeedResultErrorLevel errorLevel)
-            : this(songs)
+
+        public FeedResult(Dictionary<string, ScrapedSong> songs, IEnumerable<PageReadResult> pageResults, Exception exception, FeedResultErrorLevel errorLevel)
+            : this(songs, pageResults)
         {
-            ErrorLevel = errorLevel;
+            if(ErrorLevel < errorLevel)
+                ErrorLevel = errorLevel;
             if (exception != null)
             {
                 if (exception is FeedReaderException frException)
@@ -53,8 +90,8 @@ namespace SongFeedReaders.Readers
     }
     public enum FeedResultErrorLevel
     {
-        None,
-        Warning,
-        Error
+        None = 0,
+        Warning = 1,
+        Error = 2
     }
 }

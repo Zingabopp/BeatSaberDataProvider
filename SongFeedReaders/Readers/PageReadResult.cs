@@ -80,7 +80,27 @@ namespace SongFeedReaders.Readers
 
         }
     }
-
+    public static class PageErrorTypeExtensions
+    {
+        public static string ErrorToString(this PageErrorType pageError)
+        {
+            switch (pageError)
+            {
+                case PageErrorType.None:
+                    return string.Empty;
+                case PageErrorType.Timeout:
+                    return "Timeout";
+                case PageErrorType.SiteError:
+                    return "Site Error";
+                case PageErrorType.ParsingError:
+                    return "Parsing Error";
+                case PageErrorType.Unknown:
+                    return "Unknown Error";
+                default:
+                    return "Unknown Error";
+            }
+        }
+    }
     public enum PageErrorType
     {
         None = 0,

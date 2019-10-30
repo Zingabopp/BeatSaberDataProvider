@@ -43,7 +43,7 @@ namespace SongFeedReadersTests
         //        Assert.IsTrue(author.Count() <= maxSongs);
         //        Assert.IsTrue(author.Count() > 0);
         //    }
-            
+
 
         //    // BlackBlazon check
         //    var blazonHash = "58de2d709a45b68fdb1dbbfefb187f59f629bfc5".ToUpper();
@@ -69,7 +69,9 @@ namespace SongFeedReadersTests
                 var songsByAuthor = reader.GetSongsFromFeed(settings);
                 Assert.IsTrue(songsByAuthor.Count > 0);
                 Assert.IsTrue(songsByAuthor.Count <= 59);
-                foreach(var song in songsByAuthor.Songs)
+                var expectedPages = (int)Math.Ceiling((double)songsByAuthor.Count / BeatSaverReader.SongsPerPage);
+                Assert.IsTrue(expectedPages <= songsByAuthor.PagesChecked);
+                foreach (var song in songsByAuthor.Songs)
                 {
                     songList.TryAdd(song.Key, song.Value);
                 }
@@ -139,9 +141,10 @@ namespace SongFeedReadersTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Downloads) { MaxSongs = 50 };
-            var songList = reader.GetSongsFromFeed(settings);
-            Assert.IsTrue(songList.Count == settings.MaxSongs);
-            foreach (var song in songList.Songs.Values)
+            var result = reader.GetSongsFromFeed(settings);
+            Assert.IsTrue(result.Count == settings.MaxSongs);
+            Assert.AreEqual(5, result.PagesChecked);
+            foreach (var song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -152,9 +155,10 @@ namespace SongFeedReadersTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Search) { MaxSongs = 50, Criteria = "Believer" };
-            var songList = reader.GetSongsFromFeed(settings);
-            Assert.IsTrue(songList.Count > 0);
-            foreach (var song in songList.Songs.Values)
+            var result = reader.GetSongsFromFeed(settings);
+            Assert.IsTrue(result.Count > 0);
+            Assert.AreEqual(0, result.PagesChecked);
+            foreach (var song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -178,7 +182,7 @@ namespace SongFeedReadersTests
             }
             var firstSong = JObject.Parse(songs.First().RawData);
             string firstHash = firstSong["hash"]?.Value<string>();
-            Assert.IsTrue( firstHash == "27639680f92a9588b7cce843fc7aaa0f5dc720f8");
+            Assert.IsTrue(firstHash == "27639680f92a9588b7cce843fc7aaa0f5dc720f8");
             string firstUploader = firstSong["uploader"]?["username"]?.Value<string>();
             Assert.IsTrue(firstUploader == "latte");
         }

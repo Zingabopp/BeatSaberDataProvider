@@ -34,9 +34,10 @@ namespace SongFeedReadersTests
             var reader = new ScoreSaberReader();
             int maxSongs = 50;
             var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeed.LatestRanked) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
-            var songList = reader.GetSongsFromFeed(settings);
-            Assert.IsTrue(songList.Count == maxSongs);
-            Assert.IsFalse(songList.Songs.Keys.Any(k => string.IsNullOrEmpty(k)));
+            var result = reader.GetSongsFromFeed(settings);
+            Assert.IsTrue(result.Count == maxSongs);
+            Assert.IsFalse(result.Songs.Keys.Any(k => string.IsNullOrEmpty(k)));
+            Assert.IsTrue(1 <= result.PagesChecked);
         }
 
         [TestMethod]

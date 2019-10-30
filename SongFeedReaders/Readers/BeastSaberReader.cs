@@ -309,7 +309,10 @@ namespace SongFeedReaders.Readers
         {
             if (string.IsNullOrEmpty(feedUrlBase))
                 throw new ArgumentNullException(nameof(feedUrlBase), "feedUrlBase cannot be null or empty for GetPageUrl");
-            string feedUrl = feedUrlBase.Replace(USERNAMEKEY, _username).Replace(PAGENUMKEY, page.ToString());
+            string pageStr = page.ToString();
+            string feedUrl = feedUrlBase.Replace(USERNAMEKEY, _username).Replace(PAGENUMKEY, pageStr);
+            //if (page == 2)
+            //    feedUrl = feedUrl.Replace("followings", "asdfasdf");
             //Logger?.Debug($"Replacing {USERNAMEKEY} with {_username} in base URL:\n   {feedUrlBase}");
             return Utilities.GetUriFromString(feedUrl);
         }

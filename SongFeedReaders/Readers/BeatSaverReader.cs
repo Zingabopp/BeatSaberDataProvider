@@ -337,8 +337,7 @@ namespace SongFeedReaders.Readers
                 string message = "Unable to parse JSON from text on first page in GetBeatSaverSongAsync()";
                 Logger?.Debug(message);
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                var exception = new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed);
-                return new FeedResult(null, null, exception, FeedResultErrorLevel.Error);
+                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
             catch (Exception ex)
             {

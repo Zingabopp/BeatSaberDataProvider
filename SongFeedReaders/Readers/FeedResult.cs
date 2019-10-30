@@ -18,7 +18,7 @@ namespace SongFeedReaders.Readers
         /// <summary>
         /// Distinct page errors.
         /// </summary>
-        public string[] PageErrors { get; private set; }
+        public PageErrorType[] PageErrors { get; private set; }
         public int PagesChecked { get { return PageResults?.Count() ?? 0; } }
         public IReadOnlyDictionary<string, ScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
@@ -35,7 +35,7 @@ namespace SongFeedReaders.Readers
             PageResults = pageResults?.ToArray() ?? new PageReadResult[0];
             if(songs == null)
                 songs = new Dictionary<string, ScrapedSong>();
-            var pageErrors = new List<string>();
+            var pageErrors = new List<PageErrorType>();
             var faultedResults = new List<PageReadResult>();
             if (PageResults != null)
             {
@@ -44,7 +44,7 @@ namespace SongFeedReaders.Readers
                 {
                     if (!pageResult.Successful)
                     {
-                        pageErrors.Add(pageResult.PageError.ErrorToString());
+                        pageErrors.Add(pageResult.PageError);
                         faultedResults.Add(pageResult);
                     }
                 }
@@ -59,7 +59,9 @@ namespace SongFeedReaders.Readers
             {
                 PageErrors = pageErrors.Distinct().ToArray();
                 if (errorCount == PagesChecked)
+                {
                     ErrorLevel = FeedResultErrorLevel.Error;
+                }
                 else
                 {
                     if (ErrorLevel < FeedResultErrorLevel.Warning)

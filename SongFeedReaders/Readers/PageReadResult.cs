@@ -39,16 +39,23 @@ namespace SongFeedReaders.Readers
         public PageReadResult(Uri uri, List<ScrapedSong> songs, Exception exception, PageErrorType pageError)
             : this(uri, songs)
         {
+
             if (exception != null)
             {
                 if (pageError == PageErrorType.None)
-                    PageError = PageErrorType.Unknown;
+                    pageError = PageErrorType.Unknown;
+                PageError = pageError;
                 if (exception is FeedReaderException frException)
                 {
                     Exception = frException;
                 }
                 else
                     Exception = new FeedReaderException(exception.Message, exception);
+            }
+            else
+            {
+                if (pageError > PageError)
+                    PageError = pageError;
             }
         }
 

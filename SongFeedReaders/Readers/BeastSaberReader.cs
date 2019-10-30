@@ -331,8 +331,8 @@ namespace SongFeedReaders.Readers
         /// <returns></returns>
         public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
         {
-            if (cancellationToken != CancellationToken.None)
-                Logger?.Warning("CancellationToken in GetSongsFromFeedAsync isn't implemented.");
+            if (cancellationToken.IsCancellationRequested)
+                return FeedResult.CancelledResult;
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for BeastSaberReader.GetSongsFromFeedAsync.");
             Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
@@ -428,7 +428,8 @@ namespace SongFeedReaders.Readers
             }, new ExecutionDataflowBlockOptions
             {
                 MaxDegreeOfParallelism = MaxConcurrency,
-                BoundedCapacity = MaxConcurrency
+                BoundedCapacity = MaxConcurrency,
+                CancellationToken = cancellationToken
                 //#if NETSTANDARD
                 //                , EnsureOrdered = true
                 //#endif

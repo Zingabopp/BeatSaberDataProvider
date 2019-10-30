@@ -114,6 +114,7 @@ namespace SongFeedReaders.Readers
         Timeout = 1,
         SiteError = 2,
         ParsingError = 3,
-        Unknown = 4
+        Cancelled = 4,
+        Unknown = 5
     }
 }

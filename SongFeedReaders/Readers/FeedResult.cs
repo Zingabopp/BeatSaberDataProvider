@@ -88,12 +88,13 @@ namespace SongFeedReaders.Readers
             }
         }
 
-
+        public static FeedResult CancelledResult { get { return new FeedResult(null, null, new OperationCanceledException("Feed was cancelled before completion"), FeedResultErrorLevel.Cancelled); } }
     }
     public enum FeedResultErrorLevel
     {
         None = 0,
         Warning = 1,
-        Error = 2
+        Error = 2,
+        Cancelled = 3
     }
 }

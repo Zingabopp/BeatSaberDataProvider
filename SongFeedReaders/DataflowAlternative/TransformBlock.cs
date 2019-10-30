@@ -15,6 +15,7 @@ namespace SongFeedReaders.DataflowAlternative
         private ConcurrentQueue<TInput> waitQueue;
         public int BoundedCapacity { get; private set; }
         public int MaxDegreeOfParallelism { get; private set; }
+        public CancellationToken CancellationToken { get; private set; }
         public bool EnsureOrdered { get; set; }
         private bool Completed { get; set; }
         public Task Completion { get; private set; }
@@ -50,6 +51,7 @@ namespace SongFeedReaders.DataflowAlternative
             BoundedCapacity = 1;
             MaxDegreeOfParallelism = 1;
             EnsureOrdered = true;
+            CancellationToken = CancellationToken.None;
         }
 
 
@@ -64,6 +66,8 @@ namespace SongFeedReaders.DataflowAlternative
             blockFunction = function;
             BoundedCapacity = options.BoundedCapacity;
             MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
+            CancellationToken = options.CancellationToken;
+            CancellationToken.Register(() => Complete());
         }
 
         private void QueueNext()
@@ -98,12 +102,16 @@ namespace SongFeedReaders.DataflowAlternative
         /// <returns></returns>
         public async Task<bool> SendAsync(TInput input, CancellationToken cancellationToken)
         {
-            if (Completed)
-                return false;
-            await Utilities.WaitUntil(() =>
+            using (var tcs = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, cancellationToken))
             {
-                return (waitQueue.Count + taskQueue.Count) < BoundedCapacity;
-            }, cancellationToken).ConfigureAwait(false);
+                if (Completed || tcs.IsCancellationRequested)
+                    return false;
+                if (await Utilities.WaitUntil(() =>
+                 {
+                     return (waitQueue.Count + taskQueue.Count) < BoundedCapacity;
+                 }, tcs.Token).ConfigureAwait(false))
+                    return false;
+            }
             waitQueue.Enqueue(input);
             QueueNext();
             return true;
@@ -118,8 +126,9 @@ namespace SongFeedReaders.DataflowAlternative
         /// Waits for an output to become available and returns true.
         /// If there are no workers in the queue, returns false.
         /// </summary>
+        /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
-        public async Task<bool> OutputAvailableAsync()
+        public async Task<bool> OutputAvailableAsync(CancellationToken cancellationToken)
         {
             if (!(taskQueue.Any() || waitQueue.Any()))
                 return false;
@@ -132,6 +141,7 @@ namespace SongFeedReaders.DataflowAlternative
                     // Wait until first task in the taskQueue is finished
                     try
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         await firstTask.ConfigureAwait(false);
                     }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -143,6 +153,11 @@ namespace SongFeedReaders.DataflowAlternative
                     QueueNext(); // Just in case, probably no reason to have this
             }
             return false;
+        }
+
+        public Task<bool> OutputAvailableAsync()
+        {
+            return OutputAvailableAsync(CancellationToken.None);
         }
 
         /// <summary>

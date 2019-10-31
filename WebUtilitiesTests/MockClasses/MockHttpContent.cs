@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using WebUtilities;
+using System.Threading;
 
 namespace SongFeedReadersTests.MockClasses
 {
@@ -61,7 +62,7 @@ namespace SongFeedReadersTests.MockClasses
             }
         }
 
-        public async Task<string> ReadAsFileAsync(string filePath, bool overwrite)
+        public async Task<string> ReadAsFileAsync(string filePath, bool overwrite, CancellationToken cancellationToken)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             if (!overwrite && File.Exists(filePath))
@@ -72,7 +73,7 @@ namespace SongFeedReadersTests.MockClasses
             using (var writeStream = File.OpenWrite(filePath))
             {
                 await Task.Yield();
-                await stream.CopyToAsync(writeStream).ConfigureAwait(false);
+                await stream.CopyToAsync(writeStream, cancellationToken).ConfigureAwait(false);
                 return filePath;
             }
 

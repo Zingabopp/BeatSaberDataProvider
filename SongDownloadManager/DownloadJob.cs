@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static SongDownloadManager.Util.Util;
 using SongDownloadManager.Util;
+using System.Threading;
 
 namespace SongDownloadManager
 {
@@ -50,7 +51,7 @@ namespace SongDownloadManager
 
         public JobResultCode ResultCode { get; protected set; }
 
-        public async Task<bool> DownloadFile(string url, string path)
+        public async Task<bool> DownloadFile(string url, string path, CancellationToken cancellationToken)
         {
             bool successful = true;
             ResultCode = JobResultCode.SUCCESS;
@@ -65,7 +66,7 @@ namespace SongDownloadManager
             {
                 var dwnlResponse = await WebUtils.WebClient.GetAsync(url).ConfigureAwait(false);
                 dwnlResponse.EnsureSuccessStatusCode();
-                downloadAsync = dwnlResponse.Content.ReadAsFileAsync(zipFile.FullName, true);
+                downloadAsync = dwnlResponse.Content.ReadAsFileAsync(zipFile.FullName, true, cancellationToken);
             }
             catch (Exception ex)
             {

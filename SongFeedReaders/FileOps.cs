@@ -22,14 +22,14 @@ namespace SongFeedReaders
         /// <param name="uri"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static async Task<string> DownloadFileAsync(Uri uri, string path, bool overwrite = true)
+        public static async Task<string> DownloadFileAsync(Uri uri, string path, CancellationToken cancellationToken, bool overwrite = true)
         {
             string actualPath = path;
-            using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+            using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
             {
                 if (!response.IsSuccessStatusCode)
                     return null;
-                actualPath = await response.Content.ReadAsFileAsync(path, overwrite).ConfigureAwait(false);
+                actualPath = await response.Content.ReadAsFileAsync(path, overwrite, cancellationToken).ConfigureAwait(false);
             }
             return actualPath;
         }

@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -58,7 +59,7 @@ namespace BeatSaberDataProvider.DataModels
 
         public bool PopulateFields()
         {
-            return PopulateFieldsAsync().Result;
+            return PopulateFieldsAsync(CancellationToken.None).Result;
         }
 
         enum SongGetMethod
@@ -67,7 +68,7 @@ namespace BeatSaberDataProvider.DataModels
             Hash
         }
 
-        public async Task<bool> PopulateFieldsAsync()
+        public async Task<bool> PopulateFieldsAsync(CancellationToken cancellationToken)
         {
             if (Populated)
                 return true;
@@ -91,7 +92,7 @@ namespace BeatSaberDataProvider.DataModels
             string pageText = "";
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
             catch (TaskCanceledException)
@@ -339,16 +340,16 @@ namespace BeatSaberDataProvider.DataModels
     {
         public static void PopulateFromBeatSaver(this IEnumerable<BeatSaverSong> songs)
         {
-            songs.PopulateFromBeatSaverAsync().Wait();
+            songs.PopulateFromBeatSaverAsync(CancellationToken.None).Wait();
         }
 
-        public static async Task PopulateFromBeatSaverAsync(this IEnumerable<BeatSaverSong> songs)
+        public static async Task PopulateFromBeatSaverAsync(this IEnumerable<BeatSaverSong> songs, CancellationToken cancellationToken)
         {
             List<Task> populateTasks = new List<Task>();
             for (int i = 0; i < songs.Count(); i++)
             {
                 if (!songs.ElementAt(i).Populated)
-                    populateTasks.Add(songs.ElementAt(i).PopulateFieldsAsync());
+                    populateTasks.Add(songs.ElementAt(i).PopulateFieldsAsync(cancellationToken));
             }
 
             await Task.WhenAll(populateTasks).ConfigureAwait(false);

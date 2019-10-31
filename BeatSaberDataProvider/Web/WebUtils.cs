@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using WebUtilities;
 
@@ -58,7 +59,7 @@ namespace BeatSaberDataProvider.Web
         /// <param name="retries"></param>
         /// <exception cref="WebClientException"></exception>
         /// <returns></returns>
-        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int retries = 5)
+        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, CancellationToken cancellationToken, int retries = 5)
         {
 
             bool rateLimitExceeded = false;
@@ -72,7 +73,7 @@ namespace BeatSaberDataProvider.Web
 
                 rateLimitExceeded = false;
 
-                response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false);
+                response = await WebUtils.WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 if (response.StatusCode == 429 && tries < retries)
                 {

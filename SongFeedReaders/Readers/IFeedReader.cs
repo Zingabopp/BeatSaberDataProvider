@@ -28,7 +28,7 @@ namespace SongFeedReaders.Readers
         /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
         /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
         /// <returns></returns>
-        FeedResult GetSongsFromFeed(IFeedSettings settings);
+        //FeedResult GetSongsFromFeed(IFeedSettings settings);
 
         /// <summary>
         /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
@@ -37,7 +37,7 @@ namespace SongFeedReaders.Readers
         /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
         /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
         /// <returns></returns>
-        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings);
+        //Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings);
         /// <summary>
         /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
         /// </summary>

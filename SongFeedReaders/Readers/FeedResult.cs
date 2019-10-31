@@ -24,7 +24,7 @@ namespace SongFeedReaders.Readers
         public int Count { get { return Songs?.Count ?? 0; } }
         public FeedResultErrorLevel ErrorLevel { get; private set; }
         private bool _successful;
-        public bool Successful { get { return _successful && Exception == null; } }
+        public bool Successful { get { return _successful && Exception == null && ErrorLevel != FeedResultErrorLevel.Error; } }
         /// <summary>
         /// Exception when something goes wrong in the feed readers. More specific exceptions may be stored in InnerException.
         /// </summary>
@@ -82,6 +82,10 @@ namespace SongFeedReaders.Readers
                 if (exception is FeedReaderException frException)
                 {
                     Exception = frException;
+                }
+                else if(exception is OperationCanceledException canceledException)
+                {
+                    Exception = new FeedReaderException(canceledException.Message, canceledException, FeedReaderFailureCode.Cancelled);
                 }
                 else
                     Exception = new FeedReaderException(exception.Message, exception);

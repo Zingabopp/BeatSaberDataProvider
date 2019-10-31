@@ -261,14 +261,14 @@ namespace SongFeedReaders.Readers
             {
                 // Author
                 case BeatSaverFeed.Author:
-                    songs = await GetSongsByAuthorAsync(settings.Criteria, CalcMaxSongs(settings.MaxPages, settings.MaxSongs)).ConfigureAwait(false);
+                    songs = await GetSongsByAuthorAsync(settings.Criteria, cancellationToken, CalcMaxSongs(settings.MaxPages, settings.MaxSongs)).ConfigureAwait(false);
                     break;
                 case BeatSaverFeed.Search:
-                    songs = await SearchAsync(settings.Criteria, settings.SearchType).ConfigureAwait(false);
+                    songs = await SearchAsync(settings.Criteria, settings.SearchType, cancellationToken).ConfigureAwait(false);
                     break;
                 // Latest/Hot/Plays/Downloads
                 default:
-                    songs = await GetBeatSaverSongsAsync(settings).ConfigureAwait(false);
+                    songs = await GetBeatSaverSongsAsync(settings, cancellationToken).ConfigureAwait(false);
                     break;
             }
 
@@ -289,10 +289,12 @@ namespace SongFeedReaders.Readers
         /// <param name="settings"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
-        public static async Task<FeedResult> GetBeatSaverSongsAsync(BeatSaverFeedSettings settings)
+        public static async Task<FeedResult> GetBeatSaverSongsAsync(BeatSaverFeedSettings settings, CancellationToken cancellationToken)
         {
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for BeatSaverReader.GetBeatSaverSongsAsync");
+            if (cancellationToken.IsCancellationRequested)
+                return FeedResult.CancelledResult;
             // TODO: double checks the first page
             int feedIndex = settings.FeedIndex;
             bool useMaxPages = settings.MaxPages != 0;
@@ -304,7 +306,7 @@ namespace SongFeedReaders.Readers
             var pageUri = GetPageUrl(feedIndex);
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(pageUri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(pageUri, cancellationToken).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -339,6 +341,10 @@ namespace SongFeedReaders.Readers
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
                 return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
             }
+            catch (OperationCanceledException)
+            {
+                return FeedResult.CancelledResult;
+            }
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting the first page in BeatSaverReader.GetBeatSaverSongsAsync(): {ex.Message}";
@@ -362,7 +368,7 @@ namespace SongFeedReaders.Readers
             {
                 pageUri = GetPageUrl(feedIndex, pageNum);
                 Logger?.Trace($"Creating task for {pageUri.ToString()}");
-                pageReadTasks.Add(GetSongsFromPageAsync(pageUri));
+                pageReadTasks.Add(GetSongsFromPageAsync(pageUri, cancellationToken));
                 pageNum++;
                 if ((pageNum > lastPage))
                     continueLooping = false;
@@ -401,15 +407,23 @@ namespace SongFeedReaders.Readers
             }
             return new FeedResult(songs, pageResults);
         }
-        public static async Task<List<string>> GetAuthorNamesByIDAsync(string mapperId)
+        public static async Task<List<string>> GetAuthorNamesByIDAsync(string mapperId, CancellationToken cancellationToken)
         {
             List<string> authorNames = new List<string>();
-            FeedResult result = await GetSongsByUploaderIdAsync(mapperId).ConfigureAwait(false);
+            FeedResult result = await GetSongsByUploaderIdAsync(mapperId, cancellationToken).ConfigureAwait(false);
             authorNames = result.Songs.Values.Select(s => s.MapperName).Distinct().ToList();
             //authorNames.ForEach(n => Logger?.Warning($"Found authorName: {n}"));
             return authorNames;
         }
-        public static async Task<string> GetAuthorIDAsync(string authorName)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="authorName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="OperationCanceledException"></exception>
+        /// <returns></returns>
+        public static async Task<string> GetAuthorIDAsync(string authorName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(authorName))
                 return string.Empty;
@@ -431,7 +445,7 @@ namespace SongFeedReaders.Readers
                 result = new JObject();
                 try
                 {
-                    using (var response = await WebUtils.GetBeatSaverAsync(sourceUri).ConfigureAwait(false))
+                    using (var response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false))
                     {
                         response.EnsureSuccessStatusCode();
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -461,6 +475,10 @@ namespace SongFeedReaders.Readers
                 {
                     // TODO: Should I break the loop here, or keep trying?
                     Logger?.Exception("Unable to parse JSON from text", ex);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -492,7 +510,7 @@ namespace SongFeedReaders.Readers
             return mapperId;
         }
 
-        public static async Task<PageReadResult> GetSongsFromPageAsync(Uri uri)
+        public static async Task<PageReadResult> GetSongsFromPageAsync(Uri uri, CancellationToken cancellationToken)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in BeatSaverReader.GetSongsFromPageAsync.");
@@ -500,7 +518,7 @@ namespace SongFeedReaders.Readers
             var songs = new List<ScrapedSong>();
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -509,6 +527,10 @@ namespace SongFeedReaders.Readers
             catch (WebClientException ex)
             {
                 return PageReadResult.FromWebClientException(ex, uri);
+            }
+            catch (OperationCanceledException ex)
+            {
+                return new PageReadResult(uri, null, ex, PageErrorType.Cancelled);
             }
 
             foreach (var song in ParseSongsFromPage(pageText, uri))
@@ -522,7 +544,7 @@ namespace SongFeedReaders.Readers
         /// </summary>
         /// <param name="authorId"></param>
         /// <returns></returns>
-        public static async Task<FeedResult> GetSongsByUploaderIdAsync(string authorId, int maxSongs = 0)
+        public static async Task<FeedResult> GetSongsByUploaderIdAsync(string authorId, CancellationToken cancellationToken, int maxSongs = 0)
         {
             int feedIndex = 0;
             var songDict = new Dictionary<string, ScrapedSong>();
@@ -530,7 +552,7 @@ namespace SongFeedReaders.Readers
             Uri uri = GetPageUrl(feedIndex, 0, new Dictionary<string, string>() { { AUTHORIDKEY, authorId } });
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -541,6 +563,11 @@ namespace SongFeedReaders.Readers
                         return new FeedResult(null, null, new FeedReaderException(message, null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
                     }
                 }
+            }
+            catch(OperationCanceledException ex)
+            {
+                string message = $"Operation canceled getting songs by UploaderId, {authorId}, from {uri}";
+                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.Cancelled), FeedResultErrorLevel.Cancelled);
             }
             catch (Exception ex)
             {
@@ -573,7 +600,7 @@ namespace SongFeedReaders.Readers
             {
                 uri = GetPageUrl(feedIndex, pageNum, new Dictionary<string, string>() { { AUTHORIDKEY, authorId } });
                 //Logger?.Trace($"Creating task for {uri}");
-                pageReadTasks.Add(GetSongsFromPageAsync(uri));
+                pageReadTasks.Add(GetSongsFromPageAsync(uri, cancellationToken));
                 pageNum++;
             } while (pageNum <= lastPage);
 
@@ -593,21 +620,28 @@ namespace SongFeedReaders.Readers
             return new FeedResult(songDict, pageResults);
         }
 
-        public static async Task<FeedResult> GetSongsByAuthorAsync(string uploader, int maxSongs = 0)
+        public static async Task<FeedResult> GetSongsByAuthorAsync(string uploader, CancellationToken cancellationToken, int maxSongs = 0)
         {
-            string mapperId = await GetAuthorIDAsync(uploader).ConfigureAwait(false);
-            if (string.IsNullOrEmpty(mapperId))
-                return new FeedResult(null, null, new FeedReaderException($"Unable to find a mapper ID for uploader {uploader}", null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
-            return await GetSongsByUploaderIdAsync(mapperId, maxSongs).ConfigureAwait(false);
+            try
+            {
+                string mapperId = await GetAuthorIDAsync(uploader, cancellationToken).ConfigureAwait(false);
+                if (string.IsNullOrEmpty(mapperId))
+                    return new FeedResult(null, null, new FeedReaderException($"Unable to find a mapper ID for uploader {uploader}", null, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
+                return await GetSongsByUploaderIdAsync(mapperId, cancellationToken, maxSongs).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                return FeedResult.CancelledResult;
+            }
         }
-        public static async Task<ScrapedSong> GetSongByHashAsync(string hash)
+        public static async Task<ScrapedSong> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
             var uri = new Uri(BEATSAVER_GETBYHASH_BASE_URL + hash);
             string pageText = "";
             ScrapedSong song = null;
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -654,14 +688,14 @@ namespace SongFeedReaders.Readers
             return song;
         }
 
-        public static async Task<ScrapedSong> GetSongByKeyAsync(string key)
+        public static async Task<ScrapedSong> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
         {
             var uri = new Uri(BEATSAVER_DETAILS_BASE_URL + key);
             string pageText = "";
             ScrapedSong song = null;
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     if (response.IsSuccessStatusCode)
                         pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -716,13 +750,13 @@ namespace SongFeedReaders.Readers
         /// <param name="type"></param>
         /// <param name="settings"></param>
         /// <returns></returns>
-        public static async Task<FeedResult> SearchAsync(string criteria, SearchType type, BeatSaverFeedSettings settings = null)
+        public static async Task<FeedResult> SearchAsync(string criteria, SearchType type, CancellationToken cancellationToken, BeatSaverFeedSettings settings = null)
         {
             // TODO: Hits rate limit
             if (type == SearchType.key)
             {
                 var songDict = new Dictionary<string, ScrapedSong>();
-                var song = await GetSongByKeyAsync(criteria).ConfigureAwait(false);
+                var song = await GetSongByKeyAsync(criteria, cancellationToken).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(song?.Hash))
                     songDict.Add(song.Hash, song);
                 return new FeedResult(songDict, null);
@@ -730,13 +764,13 @@ namespace SongFeedReaders.Readers
 
             if (type == SearchType.user)
             {
-                return await GetSongsByUploaderIdAsync((await GetAuthorNamesByIDAsync(criteria).ConfigureAwait(false)).FirstOrDefault()).ConfigureAwait(false);
+                return await GetSongsByUploaderIdAsync((await GetAuthorNamesByIDAsync(criteria, cancellationToken).ConfigureAwait(false)).FirstOrDefault(), cancellationToken).ConfigureAwait(false);
             }
 
             if (type == SearchType.hash)
             {
                 var songDict = new Dictionary<string, ScrapedSong>();
-                var song = await GetSongByHashAsync(criteria).ConfigureAwait(false);
+                var song = await GetSongByHashAsync(criteria, cancellationToken).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(song?.Hash))
                     songDict.Add(song.Hash, song);
                 return new FeedResult(songDict, null);
@@ -769,7 +803,7 @@ namespace SongFeedReaders.Readers
                 var uri = new Uri(url.ToString());
                 string pageText = string.Empty;
                 // TODO: Should probably wrap using in a try/catch
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     Logger?.Debug($"Checking {uri} for songs.");
                     if (response.IsSuccessStatusCode)
@@ -802,12 +836,12 @@ namespace SongFeedReaders.Readers
         }
 
         [Obsolete("This isn't even finished.")]
-        public static async Task<List<JToken>> ScrapeBeatSaver(int timeBetweenRequests, DateTime? stopAtDate = null)
+        public static async Task<List<JToken>> ScrapeBeatSaver(int timeBetweenRequests, CancellationToken cancellationToken, DateTime? stopAtDate = null)
         {
             throw new NotImplementedException("Not finished");
             List<JToken> songs = null;
             string pageText = string.Empty;
-            using (var response = await WebUtils.GetBeatSaverAsync(GetPageUrl(BeatSaverFeed.Latest)).ConfigureAwait(false))
+            using (var response = await WebUtils.GetBeatSaverAsync(GetPageUrl(BeatSaverFeed.Latest), cancellationToken).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -851,29 +885,29 @@ namespace SongFeedReaders.Readers
         }
         public static FeedResult GetBeatSaverSongs(BeatSaverFeedSettings settings)
         {
-            return GetBeatSaverSongsAsync(settings).Result;
+            return GetBeatSaverSongsAsync(settings, CancellationToken.None).Result;
         }
 
         public static List<string> GetAuthorNamesByID(string mapperId)
         {
-            return GetAuthorNamesByIDAsync(mapperId).Result;
+            return GetAuthorNamesByIDAsync(mapperId, CancellationToken.None).Result;
         }
         public static string GetAuthorID(string authorName)
         {
-            return GetAuthorIDAsync(authorName).Result;
+            return GetAuthorIDAsync(authorName, CancellationToken.None).Result;
         }
         public static PageReadResult GetSongsFromPage(Uri uri)
         {
-            return GetSongsFromPageAsync(uri).Result;
+            return GetSongsFromPageAsync(uri, CancellationToken.None).Result;
         }
         public static PageReadResult GetSongsFromPage(string url)
         {
-            return GetSongsFromPageAsync(Utilities.GetUriFromString(url)).Result;
+            return GetSongsFromPageAsync(Utilities.GetUriFromString(url), CancellationToken.None).Result;
         }
         [Obsolete("Check this")]
         public static FeedResult GetSongsByUploaderId(string authorId)
         {
-            return GetSongsByUploaderIdAsync(authorId).Result;
+            return GetSongsByUploaderIdAsync(authorId, CancellationToken.None).Result;
         }
         /// <summary>
         /// Searches Beat Saver and retrieves all songs by the provided uploader name.
@@ -882,19 +916,19 @@ namespace SongFeedReaders.Readers
         /// <returns></returns>
         public static FeedResult GetSongsByAuthor(string uploader)
         {
-            return GetSongsByAuthorAsync(uploader).Result;
+            return GetSongsByAuthorAsync(uploader, CancellationToken.None).Result;
         }
         public static ScrapedSong GetSongByHash(string hash)
         {
-            return GetSongByHashAsync(hash).Result;
+            return GetSongByHashAsync(hash, CancellationToken.None).Result;
         }
         public static ScrapedSong GetSongByKey(string key)
         {
-            return GetSongByKeyAsync(key).Result;
+            return GetSongByKeyAsync(key, CancellationToken.None).Result;
         }
         public static FeedResult Search(string criteria, SearchType type)
         {
-            return SearchAsync(criteria, type).Result;
+            return SearchAsync(criteria, type, CancellationToken.None).Result;
         }
 
 
@@ -909,7 +943,7 @@ namespace SongFeedReaders.Readers
 
         public static Task<PageReadResult> GetSongsFromPageAsync(string url)
         {
-            return GetSongsFromPageAsync(Utilities.GetUriFromString(url));
+            return GetSongsFromPageAsync(Utilities.GetUriFromString(url), CancellationToken.None);
         }
 
         public static Uri GetPageUrl(int feedIndex, int pageIndex = 0, Dictionary<string, string> replacements = null)

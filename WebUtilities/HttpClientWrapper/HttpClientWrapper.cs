@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using static WebUtilities.Utilities;
 
 namespace WebUtilities.HttpClientWrapper
 {
@@ -89,11 +90,12 @@ namespace WebUtilities.HttpClientWrapper
             var timeoutToken = timeoutCts.Token;
             using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutToken))
             {
+                HttpResponseMessage response = null;
                 try
                 {
                     //TODO: Need testing for cancellation token
-                    HttpResponseMessage response = null;
                     response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
                     return new HttpResponseWrapper(response, uri);
                 }
                 catch (HttpRequestException ex)
@@ -101,7 +103,7 @@ namespace WebUtilities.HttpClientWrapper
                     timeoutCts.Dispose();
                     if (ErrorHandling == ErrorHandling.ThrowOnException)
                     {
-                        throw new WebClientException(ex.Message, ex, new HttpResponseWrapper(null, uri, ex));
+                        throw new WebClientException(ex.Message, ex, new HttpResponseWrapper(response, uri, ex));
                     }
                     else
                     {
@@ -116,7 +118,7 @@ namespace WebUtilities.HttpClientWrapper
                     int? statusOverride = null;
                     if (!cancellationToken.IsCancellationRequested)
                     {
-                        retException = new TimeoutException($"Timeout occured while waiting for {uri}");
+                        retException = new TimeoutException(GetTimeoutMessage(uri));
                         statusOverride = (int)HttpStatusCode.RequestTimeout;
                     }
                     else

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebUtilities
@@ -23,7 +24,8 @@ namespace WebUtilities
         /// <exception cref="DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
         /// <exception cref="EndOfStreamException">Thrown when ContentLength is reported by the server and the file doesn't match it.</exception>
         /// <exception cref="IOException">Thrown when there's a problem writing the file.</exception>
-        Task<string> ReadAsFileAsync(string filePath, bool overwrite);
+        /// <exception cref="OperationCanceledException">Thrown when the cancellationToken is triggered while downloading</exception>
+        Task<string> ReadAsFileAsync(string filePath, bool overwrite, CancellationToken cancellationToken);
 
         string ContentType { get; }
         long? ContentLength { get; }

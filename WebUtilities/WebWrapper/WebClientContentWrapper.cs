@@ -16,6 +16,8 @@ namespace WebUtilities.WebWrapper
         {
             _response = response;
             ContentLength = _response?.ContentLength ?? 0;
+            if (ContentLength < 0)
+                ContentLength = null;
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)
             {
@@ -38,7 +40,7 @@ namespace WebUtilities.WebWrapper
             {
                 if (_response == null)
                     return string.Empty;
-                var cType = _response.ContentType;
+                var cType = _response.ContentType ?? string.Empty;
                 if (cType.Contains(";"))
                     cType = cType.Substring(0, cType.IndexOf(";"));
                 return cType;
@@ -83,9 +85,11 @@ namespace WebUtilities.WebWrapper
         /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
+        /// <exception cref="EndOfStreamException">Thrown when the downloaded file's size doesn't match the expected size</exception>
         /// <exception cref="IOException">Thrown when there's a problem writing the file.</exception>
+        /// <exception cref="OperationCanceledException"></exception>
         /// <returns>Full path to the downloaded file</returns>
-        public async Task<string> ReadAsFileAsync(string filePath, bool overwrite)
+        public async Task<string> ReadAsFileAsync(string filePath, bool overwrite, CancellationToken cancellationToken)
         {
             if (_response == null)
                 throw new ArgumentNullException(nameof(_response), "content cannot be null for HttpContent.ReadAsFileAsync");
@@ -108,16 +112,22 @@ namespace WebUtilities.WebWrapper
                 // TODO: Timeouts don't seem to do anything.
                 //responseStream.ReadTimeout = 1;
                 //responseStream.WriteTimeout = 1;
-                return await _response.GetResponseStream().CopyToAsync(fileStream, 81920, CancellationToken.None).ContinueWith(
+                string downloadedPath = string.Empty;
+                downloadedPath = await _response.GetResponseStream().CopyToAsync(fileStream, 81920, cancellationToken).ContinueWith(
                     (copyTask) =>
                     {
                         long fileStreamLength = fileStream.Length;
-                        
+
                         fileStream.Close();
+
                         if (expectedLength != 0 && fileStreamLength != ContentLength)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
                             throw new EndOfStreamException($"File content length of {fileStreamLength} didn't match expected size {expectedLength}");
+                        }
                         return pathname;
                     }).ConfigureAwait(false);
+                return downloadedPath;
             }
             catch
             {

@@ -21,5 +21,10 @@ namespace WebUtilities
             cancellationToken.Register(() => tcs.TrySetCanceled(), false);
             return tcs.Task;
         }
+
+        public static string GetTimeoutMessage(Uri uri)
+        {
+            return $"Timeout occurred while waiting for {uri}";
+        }
     }
 }

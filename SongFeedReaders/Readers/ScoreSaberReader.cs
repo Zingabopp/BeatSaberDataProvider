@@ -151,7 +151,7 @@ namespace SongFeedReaders.Readers
         #region Web Requests
 
         #region Async
-        public async Task<FeedResult> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings settings)
+        public async Task<FeedResult> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings settings, CancellationToken cancellationToken)
         {
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for ScoreSaberReader.GetSongsFromScoreSaberAsync");
@@ -183,7 +183,7 @@ namespace SongFeedReaders.Readers
             var pageResults = new List<PageReadResult>();
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -246,7 +246,7 @@ namespace SongFeedReaders.Readers
                     await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
 
                 // TODO: Handle PageReadResult here
-                var pageResult = await GetSongsFromPageAsync(uri).ConfigureAwait(false);
+                var pageResult = await GetSongsFromPageAsync(uri, cancellationToken).ConfigureAwait(false);
                 pageResults.Add(pageResult);
                 foreach (var song in pageResult.Songs)
                 {
@@ -299,17 +299,17 @@ namespace SongFeedReaders.Readers
                 if (!IsValidSearchQuery(settings.SearchQuery))
                     throw new ArgumentException($"Search query '{settings.SearchQuery ?? "<nul>"}' is not a valid query.");
             }
-            return GetSongsFromScoreSaberAsync(settings);
+            return GetSongsFromScoreSaberAsync(settings, cancellationToken);
         }
 
-        public async Task<PageReadResult> GetSongsFromPageAsync(Uri uri)
+        public async Task<PageReadResult> GetSongsFromPageAsync(Uri uri, CancellationToken cancellationToken)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in ScoreSaberReader.GetSongsFromPageAsync");
 
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     response.EnsureSuccessStatusCode();
                     var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -334,7 +334,7 @@ namespace SongFeedReaders.Readers
         #region Sync
         public FeedResult GetSongsFromFeed(IFeedSettings _settings)
         {
-            return GetSongsFromFeedAsync(_settings).Result;
+            return GetSongsFromFeedAsync(_settings, CancellationToken.None).Result;
         }
 
         #endregion
@@ -349,7 +349,7 @@ namespace SongFeedReaders.Readers
 
         public Task<PageReadResult> GetSongsFromPageAsync(string url)
         {
-            return GetSongsFromPageAsync(Utilities.GetUriFromString(url));
+            return GetSongsFromPageAsync(Utilities.GetUriFromString(url), CancellationToken.None);
         }
 
         public PageReadResult GetSongsFromPageText(string pageText, string sourceUrl)

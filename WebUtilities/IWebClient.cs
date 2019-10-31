@@ -45,7 +45,7 @@ namespace WebUtilities
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">The provided Uri is null.</exception>
         /// <exception cref="WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
-        Task<IWebResponseMessage> GetAsync(Uri uri);
+        //Task<IWebResponseMessage> GetAsync(Uri uri);
         /// <summary>
         /// Send a GET request to the specified Uri as an asynchronous operation. If the provided CancellationToken is triggered, the operation is canceled.
         /// </summary>

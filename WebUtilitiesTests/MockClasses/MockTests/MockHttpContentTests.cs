@@ -6,6 +6,7 @@ using SongFeedReaders;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace SongFeedReadersTests.MockClasses.MockTests
 {
@@ -71,11 +72,11 @@ namespace SongFeedReadersTests.MockClasses.MockTests
                 var expectedString = File.ReadAllText(mockContent.FileSourcePath);
                 var dirPath = new DirectoryInfo(DownloadPath);
                 var destPath = Path.Combine(dirPath.FullName, Path.GetFileName(mockContent.FileSourcePath));
-                var actualPath = mockContent.ReadAsFileAsync(destPath, true).Result;
+                var actualPath = mockContent.ReadAsFileAsync(destPath, true, CancellationToken.None).Result;
                 var actualString = mockContent.ReadAsStringAsync().Result;
                 Assert.AreEqual(destPath, actualPath);
                 Assert.AreEqual(expectedString, actualString);
-                AssertAsync.ThrowsExceptionAsync<InvalidOperationException>(async () => await mockContent.ReadAsFileAsync(destPath, false).ConfigureAwait(false)).Wait();
+                AssertAsync.ThrowsExceptionAsync<InvalidOperationException>(async () => await mockContent.ReadAsFileAsync(destPath, false, CancellationToken.None).ConfigureAwait(false)).Wait();
             }
         }
 

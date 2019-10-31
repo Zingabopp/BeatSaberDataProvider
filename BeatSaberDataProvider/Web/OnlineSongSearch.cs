@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using static BeatSaberDataProvider.Web.WebUtils;
 
@@ -15,14 +16,14 @@ namespace BeatSaberDataProvider.Web
         private const string BEATSAVER_DETAILS_BASE_URL = "https://beatsaver.com/api/maps/detail/";
         private const string BEATSAVER_GETBYHASH_BASE_URL = "https://beatsaver.com/api/maps/by-hash/";
 
-        public static async Task<Song> GetSongByKeyAsync(string key)
+        public static async Task<Song> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
         {
 
             Uri uri = new Uri(BEATSAVER_DETAILS_BASE_URL + key);
             string pageText = "";
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }
@@ -52,14 +53,14 @@ namespace BeatSaberDataProvider.Web
         }
 
 
-        public static async Task<Song> GetSongByHashAsync(string hash)
+        public static async Task<Song> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
 
             Uri uri = new Uri(BEATSAVER_GETBYHASH_BASE_URL + hash);
             string pageText = "";
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri).ConfigureAwait(false))
+                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
                 {
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 }

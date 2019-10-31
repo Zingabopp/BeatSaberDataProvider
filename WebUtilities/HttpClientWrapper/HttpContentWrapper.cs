@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace WebUtilities.HttpClientWrapper
 {
@@ -33,12 +34,12 @@ namespace WebUtilities.HttpClientWrapper
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
 
-        public string ContentType { get { return _content?.Headers?.ContentType?.MediaType; } }
+        public string ContentType { get { return _content?.Headers?.ContentType?.MediaType ?? string.Empty; } }
 
         public long? ContentLength { get; protected set; }
 
         public Task<byte[]> ReadAsByteArrayAsync()
-        { 
+        {
             return _content?.ReadAsByteArrayAsync();
         }
 
@@ -59,8 +60,9 @@ namespace WebUtilities.HttpClientWrapper
         /// <param name="overwrite"></param>
         /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
+        /// <exception cref="OperationCanceledException"></exception>
         /// <returns>Full path to the downloaded file</returns>
-        public Task<string> ReadAsFileAsync(string filePath, bool overwrite)
+        public async Task<string> ReadAsFileAsync(string filePath, bool overwrite, CancellationToken cancellationToken)
         {
             if (_content == null)
                 throw new ArgumentNullException(nameof(_content), "content cannot be null for HttpContent.ReadAsFileAsync");
@@ -76,11 +78,13 @@ namespace WebUtilities.HttpClientWrapper
             try
             {
                 fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
+                if (cancellationToken.CanBeCanceled)
+                    cancellationToken.Register(() => fileStream.Close());
                 long expectedLength = 0;
                 if ((_content?.Headers?.ContentLength ?? 0) > 0)
                     expectedLength = _content.Headers.ContentLength ?? 0;
                 // TODO: Should this be awaited?
-                return _content.CopyToAsync(fileStream).ContinueWith(
+                string downloadedPath = await _content.CopyToAsync(fileStream).ContinueWith(
                     (copyTask) =>
                     {
                         long fileStreamLength = fileStream.Length;
@@ -90,8 +94,14 @@ namespace WebUtilities.HttpClientWrapper
                             throw new EndOfStreamException($"File content length of {fileStreamLength} didn't match expected size {expectedLength}");
                         return pathname;
                     });
+                return downloadedPath;
             }
-            catch
+            catch (ObjectDisposedException ex)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                throw;
+            }
+            catch (Exception ex)
             {
                 if (fileStream != null)
                 {

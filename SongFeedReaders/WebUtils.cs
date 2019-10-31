@@ -8,6 +8,7 @@ using System.Net;
 using SongFeedReaders.Logging;
 using WebUtilities;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace SongFeedReaders
 {
@@ -50,7 +51,14 @@ namespace SongFeedReaders
         /// </summary>
         private static ConcurrentDictionary<string, DateTime> WaitForRateLimitDict = new ConcurrentDictionary<string, DateTime>();
 
-        public static async Task WaitForRateLimit(string baseUrl)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseUrl"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="TaskCanceledException"></exception>
+        /// <returns></returns>
+        public static async Task WaitForRateLimit(string baseUrl, CancellationToken cancellationToken)
         {
             TimeSpan delay = WaitForRateLimitDict.GetOrAdd(baseUrl, (f) => DateTime.Now) - DateTime.Now;
             if (delay <= TimeSpan.Zero) // Make sure the delay is > 0
@@ -59,7 +67,7 @@ namespace SongFeedReaders
             {
                 Logger?.Debug($"Preemptively waiting {delay.Seconds} seconds for rate limit.");
             }
-            await Task.Delay(delay).ConfigureAwait(false);
+            await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             return;
         }
 
@@ -71,22 +79,23 @@ namespace SongFeedReaders
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown when Uri is null.</exception>
         /// <exception cref="WebClientException"></exception>
-        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, int maxSecondsToWait = 0, int retries = 5)
+        /// <exception cref="OperationCanceledException"></exception>
+        public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, CancellationToken cancellationToken, int maxSecondsToWait = 0, int retries = 5)
         {
-
+            cancellationToken.ThrowIfCancellationRequested();
             bool retry = false;
             int tries = 0;
             IWebResponseMessage response = null;
             string baseUrl = uri?.OriginalString.Substring(0, uri.OriginalString.LastIndexOf("/"))
                 ?? throw new ArgumentNullException(nameof(uri), "uri cannot be null for WebUtils.GetBeatSaverAsync");
-            await WaitForRateLimit(baseUrl).ConfigureAwait(false); // Wait for an existing rate limit if it exists
+            await WaitForRateLimit(baseUrl, cancellationToken).ConfigureAwait(false); // Wait for an existing rate limit if it exists
             do
             {
-
+                cancellationToken.ThrowIfCancellationRequested();
                 retry = false;
                 try
                 {
-                    response = await WebClient.GetAsync(uri).ConfigureAwait(false);
+                    response = await WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
                 }
                 catch (WebClientException ex)
                 {

@@ -44,6 +44,7 @@ namespace SongFeedReaders.Readers
     {
         Generic = 0,
         SourceFailed = 1,
-        PageFailed = 2
+        PageFailed = 2,
+        Cancelled = 3
     }
 }

@@ -328,6 +328,7 @@ namespace SongFeedReaders.Readers
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidCastException">Thrown when the passed IFeedSettings isn't a BeastSaberFeedSettings.</exception>
         /// <exception cref="ArgumentException">Thrown when trying to access a feed that requires a username and the username wasn't provided.</exception>
+        /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
         public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
         {
@@ -356,18 +357,18 @@ namespace SongFeedReaders.Readers
                 //Logger?.Debug($"Checking URL: {feedUrl}");
                 string pageText = "";
 
-                ContentType contentType;
+                ContentType contentType = ContentType.Unknown;
                 string contentTypeStr = string.Empty;
                 IWebResponseMessage response = null;
                 try
                 {
-                    response = await WebUtils.WebClient.GetAsync(feedUri).ConfigureAwait(false);
+                    response = await WebUtils.WebClient.GetAsync(feedUri, cancellationToken).ConfigureAwait(false);
                     if ((response?.StatusCode ?? 500) == 500)
                     {
                         response?.Dispose();
                         Logger?.Warning($"Internal server error on {feedUri}, retrying in 20 seconds");
                         await Task.Delay(20000);
-                        response = await WebUtils.WebClient.GetAsync(feedUri).ConfigureAwait(false);
+                        response = await WebUtils.WebClient.GetAsync(feedUri, cancellationToken).ConfigureAwait(false);
                     }
                     response.EnsureSuccessStatusCode();
                     contentTypeStr = response.Content.ContentType.ToLower();
@@ -381,6 +382,10 @@ namespace SongFeedReaders.Readers
                 catch (WebClientException ex)
                 {
                     return PageReadResult.FromWebClientException(ex, feedUri);
+                }
+                catch (OperationCanceledException)
+                {
+                    return new PageReadResult(feedUri, null, new FeedReaderException("Page read was cancelled.", new OperationCanceledException(), FeedReaderFailureCode.Cancelled), PageErrorType.Cancelled);
                 }
                 catch (Exception ex)
                 {
@@ -439,29 +444,41 @@ namespace SongFeedReaders.Readers
             List<PageReadResult> pageResults = new List<PageReadResult>(maxPages + 2);
             do
             {
+                if (cancellationToken.IsCancellationRequested)
+                    continueLooping = false;
                 while (continueLooping)
                 {
                     if (Utilities.IsPaused)
-                        await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
+                        await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        continueLooping = false;
+                        break;
+                    }
                     var feedUrl = GetPageUri(Feeds[_settings.Feed].BaseUrl, pageIndex);
-                    await ProcessPageBlock.SendAsync(feedUrl).ConfigureAwait(false); // TODO: Need check with SongsPerPage
+                    await ProcessPageBlock.SendAsync(feedUrl, cancellationToken).ConfigureAwait(false); // TODO: Need check with SongsPerPage
                     itemsInBlock++;
                     pageIndex++;
 
-                    if (pageIndex > maxPages && useMaxPages)
+                    if ((pageIndex > maxPages && useMaxPages) || cancellationToken.IsCancellationRequested)
                         continueLooping = false;
                     // TODO: Better http error handling, what if only a single page is broken and returns 0 songs?
                     while (ProcessPageBlock.OutputCount > 0 || itemsInBlock == MaxConcurrency || !continueLooping)
                     {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            continueLooping = false;
+                            break;
+                        }
                         if (itemsInBlock <= 0)
                             break;
-                        await ProcessPageBlock.OutputAvailableAsync().ConfigureAwait(false);
+                        await ProcessPageBlock.OutputAvailableAsync(cancellationToken).ConfigureAwait(false);
                         while (ProcessPageBlock.TryReceive(out PageReadResult pageResult))
                         {
                             if (pageResult != null)
                                 pageResults.Add(pageResult);
                             if (Utilities.IsPaused)
-                                await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
+                                await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
                             itemsInBlock--;
                             if (pageResult == null || pageResult.Count == 0) // TODO: This will trigger if a single page has an error.
                             {

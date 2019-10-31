@@ -70,6 +70,7 @@ namespace WebUtilities.WebWrapper
         /// <returns></returns>
         /// <exception cref="WebClientException">Thrown when there's a WebException.</exception>
         /// <exception cref="ArgumentException">Thrown when there's a WebException.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when cancelled by caller.</exception>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
             if (timeout == 0)
@@ -103,7 +104,7 @@ namespace WebUtilities.WebWrapper
                     {
                         throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
                     }
-                    cancelTask?.Dispose();
+                    //cancelTask?.Dispose(); Can't dispose of a task that isn't Completed
                 }
                 var response = await getTask.ConfigureAwait(false); // either there's no cancellationToken or it's already completed
 
@@ -125,7 +126,18 @@ namespace WebUtilities.WebWrapper
                 // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
 
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
-                    throw new WebClientException(ex.Message, ex, new WebClientResponseWrapper(resp, request, ex, statusOverride));
+                {
+                    string message = string.Empty;
+                    Exception retException = ex;
+                    if (ex.Status == WebExceptionStatus.Timeout)
+                    {
+                        message = Utilities.GetTimeoutMessage(uri);
+                        retException = new TimeoutException(message);
+                    }
+                    else
+                        message = ex.Message;
+                    throw new WebClientException(message, retException, new WebClientResponseWrapper(resp, request, retException, statusOverride));
+                }
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
@@ -134,8 +146,17 @@ namespace WebUtilities.WebWrapper
             }
             catch (OperationCanceledException ex) // Timeout, could also be caught by WebException
             {
+                Exception retException = ex;
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
-                    throw new WebClientException(ex.Message, ex, new WebClientResponseWrapper(null, request, ex, 408));
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                        throw; // Cancelled by caller, rethrow
+                    else
+                    {
+                        retException = new TimeoutException(Utilities.GetTimeoutMessage(uri));
+                        throw new WebClientException(retException.Message, retException, new WebClientResponseWrapper(null, request, retException, 408));
+                    }
+                }
                 else
                 {
                     //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
@@ -144,8 +165,8 @@ namespace WebUtilities.WebWrapper
             }
             finally
             {
-                if (cancelTask != null)
-                    cancelTask.Dispose();
+                //if (cancelTask != null)
+                //    cancelTask.Dispose();
             }
         }
 

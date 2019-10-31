@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace BeatSaberDataProvider
 {
@@ -95,7 +96,7 @@ namespace BeatSaberDataProvider
             if (song == null && searchOnline)
             {
                 Logger.Info($"Song with hash: {hash}, not in scraped data, searching Beat Saver...");
-                song = OnlineSongSearch.GetSongByHashAsync(hash).Result;
+                song = OnlineSongSearch.GetSongByHashAsync(hash, CancellationToken.None).Result;
                 if (song != null)
                 {
                     song.ScrapedAt = DateTime.Now;
@@ -125,7 +126,7 @@ namespace BeatSaberDataProvider
             if (song == null && searchOnline)
             {
                 Logger.Info($"Song with key: {key}, not in scraped data, searching Beat Saver...");
-                song = OnlineSongSearch.GetSongByKeyAsync(key).Result;
+                song = OnlineSongSearch.GetSongByKeyAsync(key, CancellationToken.None).Result;
                 if (song != null)
                 {
                     

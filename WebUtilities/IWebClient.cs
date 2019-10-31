@@ -13,7 +13,7 @@ namespace WebUtilities
         /// </summary>
         int Timeout { get; set; }
         /// <summary>
-        /// The UserAgent string the client sends with request headers.
+        /// The UserAgent string the client sends with request headers. Must start with "PRODUCT/VERSION" (No '\').
         /// </summary>
         string UserAgent { get; }
         /// <summary>

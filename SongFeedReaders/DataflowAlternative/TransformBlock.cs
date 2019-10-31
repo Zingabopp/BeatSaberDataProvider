@@ -106,10 +106,10 @@ namespace SongFeedReaders.DataflowAlternative
             {
                 if (Completed || tcs.IsCancellationRequested)
                     return false;
-                if (await Utilities.WaitUntil(() =>
+                if (!(await Utilities.WaitUntil(() =>
                  {
                      return (waitQueue.Count + taskQueue.Count) < BoundedCapacity;
-                 }, tcs.Token).ConfigureAwait(false))
+                 }, tcs.Token).ConfigureAwait(false)))
                     return false;
             }
             waitQueue.Enqueue(input);

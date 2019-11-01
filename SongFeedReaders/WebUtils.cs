@@ -23,7 +23,12 @@ namespace SongFeedReaders
             get { return _logger ?? LoggingController.DefaultLogger; }
             set { _logger = value; }
         }
-        public static bool IsInitialized { get; private set; }
+        private static bool _isInitialized;
+        public static bool IsInitialized
+        {
+            get { return _isInitialized && _webClient != null; }
+            private set { _isInitialized = value; }
+        }
         private static readonly TimeSpan RateLimitPadding = new TimeSpan(0, 0, 0, 0, 100);
 
         private static IWebClient _webClient;
@@ -215,6 +220,7 @@ namespace SongFeedReaders
         /// <summary>
         /// Initializes WebUtils, this class cannot be used before calling this. Should only be called once.
         /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
         /// <param name="client"></param>
         public static void Initialize(IWebClient client)
         {

@@ -491,6 +491,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 catch (Exception ex)
                 {
                     Logger?.Error($"Uncaught error getting UploaderID from author name {authorName}");
+                    Logger?.Debug($"{ex}");
                     return string.Empty;
                 }
                 totalResults = result["totalDocs"]?.Value<int>(); // TODO: Check this

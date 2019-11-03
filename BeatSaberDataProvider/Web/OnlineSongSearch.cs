@@ -106,7 +106,7 @@ namespace BeatSaberDataProvider.Web
                     songs.Add(ScrapedDataProvider.GetOrCreateSong(song));
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Logger.Error($"Error getting page text from {url}");
             }

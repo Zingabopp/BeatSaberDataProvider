@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using SongFeedReaders.Readers.BeatSaver;
 using System.Threading;
+using System.Threading.Tasks;
 
-namespace SongFeedReadersTests.Experiments
+namespace SongFeedReadersTests
 {
     [TestClass]
-    public class GetSongsFromFeed_Tests
+    public class Experiments
     {
-        static GetSongsFromFeed_Tests()
+        static Experiments()
         {
             TestSetup.Initialize();
         }
@@ -34,6 +35,31 @@ namespace SongFeedReadersTests.Experiments
             url = @"https://beatsaver.com/api/search/text/?q=bomb";
             response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
             songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url);
+        }
+
+        [TestMethod]
+        public void AggregateExceptionTest()
+        {
+            var mainTask = Task.Run(async () =>
+            {
+                var a = Task.Run(() => { throw new InvalidOperationException("a"); });
+                var b = Task.Run(() => { throw new ArgumentException("b"); });
+                var c = Task.Run(() => { throw new ApplicationException("c"); });
+                await Task.WhenAll(a, b, c);
+                Assert.Fail("Breaks on the WhenAll");
+                throw new IOException("mainTask");
+            });
+
+            try
+            {
+                mainTask.Wait();
+                Assert.Fail("Should have thrown exception");
+            }
+            catch (AggregateException ex)
+            {
+                ex = ex.Flatten();
+                Console.WriteLine(ex.InnerExceptions.Count);
+            }
         }
 
     }

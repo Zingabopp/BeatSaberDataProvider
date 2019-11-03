@@ -76,12 +76,16 @@ namespace WebUtilities.HttpClientWrapper
         /// <param name="uri"></param>
         /// <param name="completeOnHeaders"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="WebClientException">Thrown on errors from the web client.</exception>
+        /// <exception cref="WebClientException">Thrown when there's a HttpRequestException.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="uri"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
+        /// <exception cref="OperationCanceledException">Thrown when cancelled by caller.</exception>
         /// <returns></returns>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri), $"Uri cannot be null for GetAsync");
+            if (uri == null) throw new ArgumentNullException(nameof(uri), "uri cannot be null.");
+            if (timeout < 0) throw new ArgumentOutOfRangeException(nameof(timeout), "timeout cannot be less than 0.");
+
             if (timeout == 0)
                 timeout = Timeout;
             if (timeout == 0)

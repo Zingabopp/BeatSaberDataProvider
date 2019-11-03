@@ -69,10 +69,13 @@ namespace WebUtilities.WebWrapper
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="WebClientException">Thrown when there's a WebException.</exception>
-        /// <exception cref="ArgumentException">Thrown when there's a WebException.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="uri"/> is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
         /// <exception cref="OperationCanceledException">Thrown when cancelled by caller.</exception>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
+            if (uri == null) throw new ArgumentNullException(nameof(uri), "uri cannot be null.");
+            if (timeout < 0) throw new ArgumentOutOfRangeException(nameof(timeout), "timeout cannot be less than 0.");
             if (timeout == 0)
                 timeout = Timeout;
             var request = HttpWebRequest.CreateHttp(uri);
@@ -81,10 +84,10 @@ namespace WebUtilities.WebWrapper
             Task cancelTask = null;
             if (timeout != 0)
             {
-                // TODO: This doesn't seem to do anything.
-                //request.ContinueTimeout = Timeout;
                 request.Timeout = timeout;
                 request.ReadWriteTimeout = timeout;
+                // TODO: This doesn't seem to do anything.
+                //request.ContinueTimeout = Timeout;
             }
             if (cancellationToken.IsCancellationRequested)
                 throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);

@@ -96,12 +96,12 @@ namespace WebUtilities.HttpClientWrapper
                     });
                 return downloadedPath;
             }
-            catch (ObjectDisposedException ex)
+            catch (ObjectDisposedException)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (fileStream != null)
                 {

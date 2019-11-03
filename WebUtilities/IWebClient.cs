@@ -34,6 +34,7 @@ namespace WebUtilities
         /// <param name="timeout">Timeout in milliseconds</param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="ArgumentNullException">The provided Uri is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
         /// <exception cref="WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
         /// <exception cref="OperationCanceledException">The provided cancellationToken was triggered.</exception>
         /// <returns></returns>
@@ -45,7 +46,7 @@ namespace WebUtilities
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">The provided Uri is null.</exception>
         /// <exception cref="WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
-        //Task<IWebResponseMessage> GetAsync(Uri uri);
+        Task<IWebResponseMessage> GetAsync(Uri uri);
         /// <summary>
         /// Send a GET request to the specified Uri as an asynchronous operation. If the provided CancellationToken is triggered, the operation is canceled.
         /// </summary>
@@ -61,6 +62,7 @@ namespace WebUtilities
         /// <param name="uri"></param>
         /// <param name="timeout">Timeout in milliseconds</param>
         /// <exception cref="ArgumentNullException">The provided Uri is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
         /// <exception cref="WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
         /// <returns></returns>
         Task<IWebResponseMessage> GetAsync(Uri uri, int timeout);
@@ -69,6 +71,7 @@ namespace WebUtilities
         /// </summary>
         /// <param name="url"></param>
         /// <exception cref="ArgumentNullException">The provided Url is null.</exception>
+        /// <exception cref="UriFormatException">Thrown when a URI cannot be formed from the provided URL.</exception>
         /// <exception cref="WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
         /// <returns></returns>
         Task<IWebResponseMessage> GetAsync(string url);
@@ -78,6 +81,7 @@ namespace WebUtilities
         /// <param name="url"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="ArgumentNullException">The provided Url is null.</exception>
+        /// <exception cref="UriFormatException">Thrown when a URI cannot be formed from the provided URL.</exception>
         /// <exception cref="WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
         /// <exception cref="OperationCanceledException">The provided cancellationToken was triggered.</exception>
         /// <returns></returns>
@@ -89,6 +93,8 @@ namespace WebUtilities
         /// <param name="timeout">Timeout in milliseconds</param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="ArgumentNullException">The provided Url is null.</exception>
+        /// <exception cref="UriFormatException">Thrown when a URI cannot be formed from the provided URL.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
         /// <exception cref="WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
         /// <exception cref="OperationCanceledException">The provided cancellationToken was triggered.</exception>
         /// <returns></returns>

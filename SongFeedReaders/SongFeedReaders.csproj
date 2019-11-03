@@ -49,11 +49,6 @@
   <ItemGroup>
     <ProjectReference Include="..\WebUtilities\WebUtilities.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Readers\BeastSaber\" />
-    <Folder Include="Readers\BeatSaver\" />
-    <Folder Include="Readers\ScoreSaber\" />
-  </ItemGroup>
   
 
 

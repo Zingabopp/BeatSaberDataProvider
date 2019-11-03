@@ -811,7 +811,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             do
             {
                 url = new StringBuilder(Feeds[BeatSaverFeed.Search].BaseUrl);
-                url.Replace(SEARCHTYPEKEY, settings.SearchType.ToString());
+                url.Replace(SEARCHTYPEKEY, settings.SearchType == BeatSaverSearchType.all ? "text" : "advanced");
                 url.Replace(SEARCHQUERY, settings.Criteria);
                 url.Replace(PAGEKEY, pageIndex.ToString());
                 var uri = new Uri(url.ToString());

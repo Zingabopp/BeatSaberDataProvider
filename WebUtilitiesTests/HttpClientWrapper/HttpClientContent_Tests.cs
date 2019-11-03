@@ -42,6 +42,8 @@ namespace WebUtilitiesTests.HttpClientWrapperTests
                     Assert.Fail("Wrong exception thrown.");
                 }
             }
+            cts.Dispose();
+            client.Dispose();
         }
     }
 }

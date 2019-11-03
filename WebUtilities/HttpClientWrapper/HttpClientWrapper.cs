@@ -90,57 +90,56 @@ namespace WebUtilities.HttpClientWrapper
                 timeout = Timeout;
             if (timeout == 0)
                 timeout = (int)httpClient.Timeout.TotalMilliseconds;
-            var timeoutCts = new CancellationTokenSource(timeout);
-            var timeoutToken = timeoutCts.Token;
-            using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutToken))
+            using (var timeoutCts = new CancellationTokenSource(timeout))
             {
-                HttpResponseMessage response = null;
-                try
+                var timeoutToken = timeoutCts.Token;
+                using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutToken))
                 {
-                    //TODO: Need testing for cancellation token
-                    response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
-                    response.EnsureSuccessStatusCode();
-                    return new HttpResponseWrapper(response, uri);
-                }
-                catch (HttpRequestException ex)
-                {
-                    timeoutCts.Dispose();
-                    if (ErrorHandling == ErrorHandling.ThrowOnException)
+                    HttpResponseMessage response = null;
+                    try
                     {
-                        throw new WebClientException(ex.Message, ex, new HttpResponseWrapper(response, uri, ex));
+                        //TODO: Need testing for cancellation token
+                        response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
+                        response.EnsureSuccessStatusCode();
+                        return new HttpResponseWrapper(response, uri);
                     }
-                    else
+                    catch (HttpRequestException ex)
                     {
-                        //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                        return new HttpResponseWrapper(null, uri, ex);
+                        if (ErrorHandling == ErrorHandling.ThrowOnException)
+                        {
+                            throw new WebClientException(ex.Message, ex, new HttpResponseWrapper(response, uri, ex));
+                        }
+                        else
+                        {
+                            //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
+                            return new HttpResponseWrapper(null, uri, ex);
+                        }
                     }
-                }
-                catch (OperationCanceledException ex)
-                {
-                    timeoutCts.Dispose();
-                    Exception retException = ex;
-                    int? statusOverride = null;
-                    if (!cancellationToken.IsCancellationRequested)
+                    catch (OperationCanceledException ex)
                     {
-                        retException = new TimeoutException(GetTimeoutMessage(uri));
-                        statusOverride = (int)HttpStatusCode.RequestTimeout;
-                    }
-                    else
-                    {
-                        throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
-                    }
-                    if (ErrorHandling == ErrorHandling.ThrowOnException)
-                    {
-                        throw new WebClientException(retException.Message, retException, new HttpResponseWrapper(null, uri, retException, statusOverride));
-                    }
-                    else
-                    {
-                        //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                        return new HttpResponseWrapper(null, uri, retException, statusOverride);
+                        Exception retException = ex;
+                        int? statusOverride = null;
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            retException = new TimeoutException(GetTimeoutMessage(uri));
+                            statusOverride = (int)HttpStatusCode.RequestTimeout;
+                        }
+                        else
+                        {
+                            throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
+                        }
+                        if (ErrorHandling == ErrorHandling.ThrowOnException)
+                        {
+                            throw new WebClientException(retException.Message, retException, new HttpResponseWrapper(null, uri, retException, statusOverride));
+                        }
+                        else
+                        {
+                            //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
+                            return new HttpResponseWrapper(null, uri, retException, statusOverride);
+                        }
                     }
                 }
             }
-
         }
 
         #region GetAsyncOverloads

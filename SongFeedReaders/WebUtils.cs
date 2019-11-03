@@ -30,7 +30,47 @@ namespace SongFeedReaders
             private set { _isInitialized = value; }
         }
         private static readonly TimeSpan RateLimitPadding = new TimeSpan(0, 0, 0, 0, 100);
+        private static string[] RateLimitedRoutes = new string[] {
+            "/vote/",
+            "/legal",
+            "/users/me",
+            "/users/find",
+            "/stats",
+            "/search/text/",
+            "/search/advanced/",
+            "/maps/latest",
+            "/maps/downloads",
+            "/maps/plays",
+            "/maps/hot",
+            "/maps/rating",
+            "/maps/detail/*",
+            "/maps/by-hash/*",
+            "/maps/uploader/*"
+        };
 
+        public static string GetRateLimitedBase(string url)
+        {
+            string baseUrl = null;
+            bool wildCard = false;
+            var route = RateLimitedRoutes.Where(r => url.Contains(r)).SingleOrDefault();
+            if (string.IsNullOrEmpty(route))
+                return string.Empty;
+            int routeLength = route.Length;
+            baseUrl = url.Substring(0, url.IndexOf(route) + routeLength);
+            wildCard = route.EndsWith("*");
+            if(wildCard)
+            {
+                string addition = string.Empty;
+                var afterRoute = url.Substring(url.IndexOf(route) + route.Length);
+                var firstSlash = afterRoute.IndexOf("/");
+                if (firstSlash > 0)
+                    addition = afterRoute.Substring(0, firstSlash);
+                else
+                    addition = afterRoute;
+                baseUrl += addition;
+            }
+            return baseUrl;
+        }
         private static IWebClient _webClient;
 
         /// <summary>

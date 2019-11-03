@@ -111,7 +111,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             FeedIndex = feedIndex;
             MaxPages = 0;
             StartingPage = 1;
-            SearchType = BeatSaverSearchType.song;
+            SearchType = BeatSaverSearchType.all;
         }
 
         public BeatSaverFeedSettings(BeatSaverFeed feed)
@@ -119,7 +119,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             Feed = feed;
             MaxPages = 0;
             StartingPage = 1;
-            SearchType = BeatSaverSearchType.song;
+            SearchType = BeatSaverSearchType.all;
         }
     }
 
@@ -140,10 +140,10 @@ namespace SongFeedReaders.Readers.BeatSaver
         name, // song name only, ?q=metadata.songName:<CRITERIA>
         user, // user (uploader) name, ?q=uploader.username:<CRITERIA>
         hash, // -MD5 Hash
-        song, // song name, song subname, author 
+        song, // song name, song subname, artist 
         key, // -BeatSaver hex key
         custom, // Custom query (BeatSaverSettings.Criteria is used directly)
-        all // Normal search: name, uploader.username, song name, songSubName, songAuthorName, metadata.levelAuthorName, hash
+        all // Default search: name, uploader.username, song name, songSubName, songAuthorName, metadata.levelAuthorName, hash
     }
 
     /// BeatSaver advanced search uses (<jsonField>:<query>), where query is a lucene query.

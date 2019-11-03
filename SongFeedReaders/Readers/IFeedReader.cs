@@ -22,29 +22,45 @@ namespace SongFeedReaders.Readers
         string GetFeedName(IFeedSettings settings);
 
         /// <summary>
-        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
+        /// Retrieves the songs from a feed and returns them in a <see cref="FeedResult"/>.
+        /// Non-critical exceptions are returned in the <see cref="FeedResult"/> as a <see cref="FeedReaderException"/> more specific exceptions can be found in <see cref="FeedReaderException">FeedReaderException.InnerException</see>.
         /// </summary>
         /// <param name="settings"></param>
-        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
+        /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
         /// <returns></returns>
-        //FeedResult GetSongsFromFeed(IFeedSettings settings);
+        FeedResult GetSongsFromFeed(IFeedSettings settings);
 
         /// <summary>
-        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
-        /// </summary>
-        /// <param name="settings"></param>
-        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
-        /// <returns></returns>
-        //Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings);
-        /// <summary>
-        /// Retrieves the songs from a feed and returns them as a FeedResult. Non-critical exceptions are returned in the FeedResult (AggregateException if there are multiple).
+        /// Retrieves the songs from a feed and returns them in a <see cref="FeedResult"/>.
+        /// Cancellation does not throw an exception. If aborted early, the <see cref="FeedResult.ErrorCode"/> will indicate cancellation.
+        /// Non-critical exceptions are returned in the <see cref="FeedResult"/> as a <see cref="FeedReaderException"/> more specific exceptions can be found in <see cref="FeedReaderException">FeedReaderException.InnerException</see>.
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="InvalidCastException">Thrown when the IFeedSettings doesn't match the reader type.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
+        /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
+        /// <returns></returns>
+        FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Retrieves the songs from a feed and returns them in a <see cref="FeedResult"/>.
+        /// Non-critical exceptions are returned in the <see cref="FeedResult"/> as a <see cref="FeedReaderException"/> more specific exceptions can be found in <see cref="FeedReaderException">FeedReaderException.InnerException</see>.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
+        /// <returns></returns>
+        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings);
+        /// <summary>
+        /// Retrieves the songs from a feed and returns them in a <see cref="FeedResult"/>.
+        /// Cancellation does not throw an exception. If aborted early, the <see cref="FeedResult.ErrorCode"/> will indicate cancellation.
+        /// Non-critical exceptions are returned in the <see cref="FeedResult"/> as a <see cref="FeedReaderException"/> more specific exceptions can be found in <see cref="FeedReaderException">FeedReaderException.InnerException</see>.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
         /// <returns></returns>
         Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken);
     }
@@ -76,19 +92,21 @@ namespace SongFeedReaders.Readers
     public struct FeedInfo : IEquatable<FeedInfo>
     {
 #pragma warning disable CA1054 // Uri parameters should not be strings
-        public FeedInfo(string name, string displayName, string baseUrl)
+        public FeedInfo(string name, string displayName, string baseUrl, string description)
 #pragma warning restore CA1054 // Uri parameters should not be strings
         {
             Name = name;
-            DisplayName = displayName;
+            _displayName = displayName;
             BaseUrl = baseUrl;
+            Description = description;
         }
 #pragma warning disable CA1056 // Uri properties should not be strings
-        public string BaseUrl { get; set; } // Base URL for the feed, has string keys to replace with things like page number/bsaber username
+        public string BaseUrl { get; private set; } // Base URL for the feed, has string keys to replace with things like page number/bsaber username
 #pragma warning restore CA1056 // Uri properties should not be strings
-        public string Name { get; set; } // Name of the feed
-        public string DisplayName { get; set; }
-
+        public string Name { get; private set; } // Name of the feed
+        private string _displayName;
+        public string DisplayName { get { return string.IsNullOrEmpty(_displayName) ? Name : _displayName; } set { _displayName = value; } }
+        public string Description { get; set; }
         #region EqualsOperators
         public override bool Equals(object obj)
         {

@@ -10,7 +10,7 @@ using static SongFeedReaders.WebUtils;
 using Newtonsoft.Json;
 using WebUtilities;
 
-namespace SongFeedReaders.Readers
+namespace SongFeedReaders.Readers.ScoreSaber
 {
     public class ScoreSaberReader : IFeedReader
     {
@@ -38,6 +38,12 @@ namespace SongFeedReaders.Readers
         private const string TOP_PLAYED_KEY = "Top Played";
         private const string LATEST_RANKED_KEY = "Latest Ranked";
         private const string SEARCH_KEY = "Search";
+
+        private const string DescriptionTrending = "Retrieves songs that are Trending as determined by ScoreSaber.";
+        private const string DescriptionLatestRanked = "Retrieves the latest ranked songs.";
+        private const string DescriptionTopPlayed = "Retrieves the songs that have the most plays as determined by ScoreSaber.";
+        private const string DescriptionTopRanked = "Retrieves songs ordered from highest ranked value to lowest.";
+        private const string DescriptionSearch = "Retrieves songs matching the search criteria from ScoreSaber.";
         #endregion
         private static FeedReaderLoggerBase _logger;
         public static FeedReaderLoggerBase Logger
@@ -68,11 +74,11 @@ namespace SongFeedReaders.Readers
                 {
                     _feeds = new Dictionary<ScoreSaberFeed, FeedInfo>()
                     {
-                        { (ScoreSaberFeed)0, new FeedInfo(TRENDING_KEY, "ScoreSaber Trending", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=0&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}") },
-                        { (ScoreSaberFeed)1, new FeedInfo(LATEST_RANKED_KEY, "ScoreSaber Latest Ranked", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=1&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}") },
-                        { (ScoreSaberFeed)2, new FeedInfo(TOP_PLAYED_KEY, "ScoreSaber Top Played", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=2&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}") },
-                        { (ScoreSaberFeed)3, new FeedInfo(TOP_RANKED_KEY, "ScoreSaber Top Ranked", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=3&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}") },
-                        { (ScoreSaberFeed)99, new FeedInfo(SEARCH_KEY, "ScoreSaber Search", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=3&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}&search={QUERYKEY}") }
+                        { (ScoreSaberFeed)0, new FeedInfo(TRENDING_KEY, "ScoreSaber Trending", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=0&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}",DescriptionTrending ) },
+                        { (ScoreSaberFeed)1, new FeedInfo(LATEST_RANKED_KEY, "ScoreSaber Latest Ranked", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=1&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}", DescriptionLatestRanked) },
+                        { (ScoreSaberFeed)2, new FeedInfo(TOP_PLAYED_KEY, "ScoreSaber Top Played", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=2&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}", DescriptionTopPlayed) },
+                        { (ScoreSaberFeed)3, new FeedInfo(TOP_RANKED_KEY, "ScoreSaber Top Ranked", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=3&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}", DescriptionTopRanked) },
+                        { (ScoreSaberFeed)99, new FeedInfo(SEARCH_KEY, "ScoreSaber Search", $"https://scoresaber.com/api.php?function=get-leaderboards&cat=3&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}&search={QUERYKEY}", DescriptionSearch) }
                     };
                 }
                 return _feeds;
@@ -210,12 +216,12 @@ namespace SongFeedReaders.Readers
                 // No need for a stacktrace if it's one of these errors.
                 if (!(statusCode == 408 || statusCode == 500))
                     Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
+                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultError.Error);
             }
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting the first page in ScoreSaberReader.GetSongsFromScoreSaberAsync(): {ex.Message}";
-                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultErrorLevel.Error);
+                return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultError.Error);
             }
             var result = GetSongsFromPageText(pageText, uri);
             pageResults.Add(result);
@@ -227,7 +233,7 @@ namespace SongFeedReaders.Readers
                 }
             }
             bool continueLooping = true;
-            
+
             do
             {
                 pageNum++;
@@ -332,9 +338,38 @@ namespace SongFeedReaders.Readers
         #endregion
 
         #region Sync
-        public FeedResult GetSongsFromFeed(IFeedSettings _settings)
+        public FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken)
         {
-            return GetSongsFromFeedAsync(_settings, CancellationToken.None).Result;
+            try
+            {
+                return GetSongsFromFeedAsync(settings, cancellationToken).Result;
+            }
+            catch (AggregateException ex)
+            {
+                var flattened = ex.Flatten();
+                if (flattened.InnerExceptions.Count == 1)
+                {
+                    throw flattened.InnerException;
+                }
+                throw ex;
+            }
+        }
+
+        public FeedResult GetSongsFromFeed(IFeedSettings settings)
+        {
+            try
+            {
+                return GetSongsFromFeedAsync(settings, CancellationToken.None).Result;
+            }
+            catch (AggregateException ex)
+            {
+                var flattened = ex.Flatten();
+                if (flattened.InnerExceptions.Count == 1)
+                {
+                    throw flattened.InnerException;
+                }
+                throw ex;
+            }
         }
 
         #endregion
@@ -365,42 +400,127 @@ namespace SongFeedReaders.Readers
     {
 
         public string FeedName { get { return ScoreSaberReader.Feeds[Feed].Name; } }
-        public ScoreSaberFeed Feed { get { return (ScoreSaberFeed)FeedIndex; } set { FeedIndex = (int)value; } }
-        public int FeedIndex { get; set; }
+        private int _feedIndex;
+        private int _startingPage;
+        private int _maxSongs;
+        private int _maxPages;
+        private int _songsPerPage;
 
         /// <summary>
-        /// Only get ranked songs. Forced true for TOP_RANKED and LATEST_RANKED feeds.
+        /// Index of the feed defined by <see cref="ScoreSaberFeed"/>.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="ScoreSaberFeed"/></exception>
+        public int FeedIndex
+        {
+            get { return _feedIndex; }
+            set
+            {
+                if (!Enum.IsDefined(typeof(ScoreSaberFeed), value))
+                    throw new ArgumentOutOfRangeException($"Failed to set FeedIndex: No ScoreSaberFeed defined for an index of {value}.");
+                _feedIndex = value;
+            }
+        }
+
+        public ScoreSaberFeed Feed
+        {
+            get { return (ScoreSaberFeed)FeedIndex; }
+            set
+            {
+                FeedIndex = (int)value;
+            }
+        }
+
+        /// <summary>
+        /// Only get ranked songs. Forced true for <see cref="ScoreSaberFeed.TopRanked"/> and <see cref="ScoreSaberFeed.LatestRanked"/> feeds.
         /// </summary>
         public bool RankedOnly { get; set; }
 
         /// <summary>
-        /// Maximum songs to retrieve, will stop the reader before MaxPages is met. Use 0 for unlimited.
+        /// Number of songs shown on a page. 100 is default.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 1.
         /// </summary>
-        public int MaxSongs { get; set; }
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 1.</exception>
+        public int SongsPerPage
+        {
+            get { return _songsPerPage; }
+            set
+            {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(SongsPerPage), "SongsPerPage cannot be less than 1.");
+                _songsPerPage = value;
+            }
+        }
+
+        /// <summary>
+        /// Maximum songs to retrieve, will stop the reader before MaxPages is met. Use 0 for unlimited.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
+        public int MaxSongs
+        {
+            get { return _maxSongs; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(MaxSongs), "MaxSongs cannot be less than 0.");
+                _maxSongs = value;
+            }
+        }
 
         /// <summary>
         /// Maximum pages to check, will stop the reader before MaxSongs is met. Use 0 for unlimited.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
         /// </summary>
-        public int MaxPages { get; set; }
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
+        public int MaxPages
+        {
+            get { return _maxPages; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(MaxPages), "MaxPages cannot be less than 0.");
+                _maxPages = value;
+            }
+        }
 
         /// <summary>
-        /// Number of songs shown on a page. 100 is default.
+        /// Page of the feed to start on, default is 1. Setting '1' here is the same as starting on the first page.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 1.
         /// </summary>
-        public int SongsPerPage { get; set; }
-
-        /// <summary>
-        /// Page of the feed to start on, default is 1. For all feeds, setting '1' here is the same as starting on the first page.
-        /// </summary>
-        public int StartingPage { get; set; }
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 1.</exception>
+        public int StartingPage
+        {
+            get { return _startingPage; }
+            set
+            {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(StartingPage), "StartingPage cannot be less than 1.");
+                _startingPage = value;
+            }
+        }
 
         /// <summary>
         /// String to search ScoreSaber with (only used for the Search feed).
         /// </summary>
         public string SearchQuery { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="feedIndex"></param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="ScoreSaberFeed"/></exception>
         public ScoreSaberFeedSettings(int feedIndex)
         {
+            if (!Enum.IsDefined(typeof(ScoreSaberFeed), feedIndex))
+                throw new ArgumentOutOfRangeException(nameof(feedIndex), $"No ScoreSaberFeed defined for an index of {feedIndex}.");
             FeedIndex = feedIndex;
+            SongsPerPage = 100;
+            StartingPage = 1;
+        }
+
+        public ScoreSaberFeedSettings(ScoreSaberFeed feed)
+        {
+            Feed = feed;
             SongsPerPage = 100;
             StartingPage = 1;
         }

@@ -18,7 +18,7 @@ using SongFeedReaders.Logging;
 using System.Diagnostics;
 using WebUtilities;
 
-namespace SongFeedReaders.Readers
+namespace SongFeedReaders.Readers.BeastSaber
 {
     public class BeastSaberReader : IFeedReader
     {
@@ -40,6 +40,10 @@ namespace SongFeedReaders.Readers
         private const string XML_AUTHOR_KEY = "LevelAuthorName";
         private const string XML_SONGKEY_KEY = "SongKey";
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeastSaberFeedSettings.";
+
+        private const string DescriptionFollows = "Retrieves songs by mappers that are marked as Followed by the provided BeastSaber account name.";
+        private const string DescriptionBookmarks = "Retrieves songs that are bookmarked by the provided BeastSaber account name.";
+        private const string DescriptionCuratorRecommended = "Retrieves songs from BeastSaber's Curator Recommended list.";
         #endregion
 
         private static FeedReaderLoggerBase _logger;
@@ -85,9 +89,9 @@ namespace SongFeedReaders.Readers
                 {
                     _feeds = new Dictionary<BeastSaberFeed, FeedInfo>()
                     {
-                        { (BeastSaberFeed)0, new FeedInfo("Follows", "BeastSaber Follows", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY) },
-                        { (BeastSaberFeed)1, new FeedInfo("Bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage)},
-                        { (BeastSaberFeed)2, new FeedInfo("Curator Recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage) }
+                        { (BeastSaberFeed)0, new FeedInfo("Follows", "BeastSaber Follows", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY, DescriptionFollows) },
+                        { (BeastSaberFeed)1, new FeedInfo("Bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage, DescriptionBookmarks)},
+                        { (BeastSaberFeed)2, new FeedInfo("Curator Recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage, DescriptionCuratorRecommended) }
                     };
                 }
                 return _feeds;
@@ -523,20 +527,39 @@ namespace SongFeedReaders.Readers
         #endregion
 
         #region Sync
+
+        public FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return GetSongsFromFeedAsync(settings, cancellationToken).Result;
+            }
+            catch (AggregateException ex)
+            {
+                var flattened = ex.Flatten();
+                if(flattened.InnerExceptions.Count == 1)
+                {
+                    throw flattened.InnerException;
+                }
+                throw ex;
+            }
+        }
+
         public FeedResult GetSongsFromFeed(IFeedSettings settings)
         {
-            // Pointless to have these checks here?
-            PrepareReader();
-            if (!(settings is BeastSaberFeedSettings _settings))
-                throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
-            if (_settings.FeedIndex != 2 && string.IsNullOrEmpty(_username?.Trim()))
+            try
             {
-                Logger?.Error($"Can't access feed without a valid username in the config file");
-                throw new ArgumentException("Cannot access this feed without a valid username.");
+                return GetSongsFromFeedAsync(settings, CancellationToken.None).Result;
             }
-            var result = GetSongsFromFeedAsync(settings).Result;
-
-            return result;
+            catch (AggregateException ex)
+            {
+                var flattened = ex.Flatten();
+                if (flattened.InnerExceptions.Count == 1)
+                {
+                    throw flattened.InnerException;
+                }
+                throw ex;
+            }
         }
         #endregion
         #endregion
@@ -598,30 +621,103 @@ namespace SongFeedReaders.Readers
         /// Name of the chosen feed.
         /// </summary>
         public string FeedName { get { return BeastSaberReader.Feeds[Feed].Name; } }
-        public int FeedIndex { get; set; }
-        public BeastSaberFeed Feed { get { return (BeastSaberFeed)FeedIndex; } set { FeedIndex = (int)value; } }
+        private int _feedIndex;
+        private int _startingPage;
+        private int _maxSongs;
+        private int _maxPages;
+
+        /// <summary>
+        /// Index of the feed defined by <see cref="BeastSaberFeed"/>.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="BeastSaberFeed"/></exception>
+        public int FeedIndex { 
+            get { return _feedIndex; }
+            set
+            {
+                if (!Enum.IsDefined(typeof(BeastSaberFeed), value))
+                    throw new ArgumentOutOfRangeException($"Failed to set FeedIndex: No BeastSaberFeed defined for an index of {value}.");
+                _feedIndex = value;
+            }
+        }
+        
+        public BeastSaberFeed Feed 
+        { 
+            get { return (BeastSaberFeed)FeedIndex; } 
+            set 
+            { 
+                FeedIndex = (int)value; 
+            } 
+        }
 
         public int SongsPerPage { get { return FeedIndex == 0 ? BeastSaberReader.SongsPerXmlPage : BeastSaberReader.SongsPerJsonPage; } }
 
         /// <summary>
         /// Maximum songs to retrieve, will stop the reader before MaxPages is met. Use 0 for unlimited.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
         /// </summary>
-        public int MaxSongs { get; set; }
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
+        public int MaxSongs
+        {
+            get { return _maxSongs; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(MaxSongs), "MaxSongs cannot be less than 0.");
+                _maxSongs = value;
+            }
+        }
 
         /// <summary>
         /// Maximum pages to check, will stop the reader before MaxSongs is met. Use 0 for unlimited.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
         /// </summary>
-        public int MaxPages { get; set; }
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
+        public int MaxPages
+        {
+            get { return _maxPages; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(MaxPages), "MaxPages cannot be less than 0.");
+                _maxPages = value;
+            }
+        }
 
         /// <summary>
-        /// Page of the feed to start on, default is 1. For all feeds, setting '1' here is the same as starting on the first page.
+        /// Page of the feed to start on, default is 1. Setting '1' here is the same as starting on the first page.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 1.
         /// </summary>
-        public int StartingPage { get; set; }
-
-        public BeastSaberFeedSettings(int feedIndex, int maxPages = 0)
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 1.</exception>
+        public int StartingPage
         {
+            get { return _startingPage; }
+            set
+            {
+                if (value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(StartingPage), "StartingPage cannot be less than 1.");
+                _startingPage = value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="feedIndex"></param>
+        /// <param name="maxPages"></param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="BeastSaberFeed"/></exception>
+        public BeastSaberFeedSettings(int feedIndex)
+        {
+            if (!Enum.IsDefined(typeof(BeastSaberFeed), feedIndex))
+                throw new ArgumentOutOfRangeException(nameof(feedIndex), $"No BeastSaberFeed defined for an index of {feedIndex}.");
             FeedIndex = feedIndex;
-            MaxPages = maxPages;
+            MaxPages = 0;
+            StartingPage = 1;
+        }
+
+        public BeastSaberFeedSettings(BeastSaberFeed feed)
+        {
+            Feed = feed;
+            MaxPages = 0;
             StartingPage = 1;
         }
     }

@@ -5,14 +5,14 @@ using System.IO;
 using SongFeedReaders;
 using Newtonsoft.Json.Linq;
 using System;
-using SongFeedReaders.Readers;
+using SongFeedReaders.Readers.ScoreSaber;
 
-namespace SongFeedReadersTests
+namespace SongFeedReadersTests.ScoreSaberReaderTests
 {
     [TestClass]
-    public class ScoreSaberReaderTests
+    public class GetSongsFromFeed_Tests
     {
-        static ScoreSaberReaderTests()
+        static GetSongsFromFeed_Tests()
         {
             TestSetup.Initialize();
         }

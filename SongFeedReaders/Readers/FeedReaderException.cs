@@ -8,6 +8,9 @@ namespace SongFeedReaders.Readers
 {
     public class FeedReaderException : Exception
     {
+        /// <summary>
+        /// A <see cref="FeedReaderFailureCode"/> associated with the exception.
+        /// </summary>
         public FeedReaderFailureCode FailureCode { get; protected set; }
 
         public override string Message
@@ -40,11 +43,24 @@ namespace SongFeedReaders.Readers
         }
     }
 
+
     public enum FeedReaderFailureCode
     {
+        /// <summary>
+        /// Generic error.
+        /// </summary>
         Generic = 0,
+        /// <summary>
+        /// All pages failed, likely a site problem.
+        /// </summary>
         SourceFailed = 1,
+        /// <summary>
+        /// Some pages failed.
+        /// </summary>
         PageFailed = 2,
+        /// <summary>
+        /// CancellationToken was triggered before the reader finished.
+        /// </summary>
         Cancelled = 3
     }
 }

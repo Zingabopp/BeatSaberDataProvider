@@ -34,6 +34,16 @@ namespace SongFeedReaders
             Hash = hash;
         }
 
+        public override string ToString()
+        {
+            string keyStr;
+            if (!string.IsNullOrEmpty(SongKey))
+                keyStr = $"({SongKey}) ";
+            else
+                keyStr = string.Empty;
+            return $"{keyStr}{SongName} by {MapperName}";
+        }
+
         /// <summary>
         /// Copies the values from another ScrapedSong into this one.
         /// </summary>

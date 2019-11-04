@@ -370,8 +370,9 @@ namespace SongFeedReaders.Readers.BeastSaber
                     if ((response?.StatusCode ?? 500) == 500)
                     {
                         response?.Dispose();
+                        response = null;
                         Logger?.Warning($"Internal server error on {feedUri}, retrying in 20 seconds");
-                        await Task.Delay(20000);
+                        await Task.Delay(20000).ConfigureAwait(false);
                         response = await WebUtils.WebClient.GetAsync(feedUri, cancellationToken).ConfigureAwait(false);
                     }
                     response.EnsureSuccessStatusCode();
@@ -401,6 +402,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 finally
                 {
                     response?.Dispose();
+                    response = null;
                 }
                 List<ScrapedSong> newSongs = null;
                 try

@@ -187,13 +187,12 @@ namespace SongFeedReaders.Readers.ScoreSaber
             var uri = new Uri(url.ToString());
             string pageText = "";
             var pageResults = new List<PageReadResult>();
+            IWebResponseMessage response = null;
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false))
-                {
-                    response.EnsureSuccessStatusCode();
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                }
+                response = await WebUtils.WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
             catch (WebClientException ex)
             {
@@ -222,6 +221,11 @@ namespace SongFeedReaders.Readers.ScoreSaber
             {
                 string message = $"Uncaught error getting the first page in ScoreSaberReader.GetSongsFromScoreSaberAsync(): {ex.Message}";
                 return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultError.Error);
+            }
+            finally
+            {
+                response?.Dispose();
+                response = null;
             }
             var result = GetSongsFromPageText(pageText, uri);
             pageResults.Add(result);
@@ -312,15 +316,13 @@ namespace SongFeedReaders.Readers.ScoreSaber
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in ScoreSaberReader.GetSongsFromPageAsync");
-
+            IWebResponseMessage response = null;
             try
             {
-                using (var response = await WebUtils.WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    return GetSongsFromPageText(pageText, uri);
-                }
+                response = await WebUtils.WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                return GetSongsFromPageText(pageText, uri);
             }
             catch (WebClientException ex)
             {
@@ -332,6 +334,11 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 Logger?.Error(message);
                 return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
 
+            }
+            finally
+            {
+                response?.Dispose();
+                response = null;
             }
         }
 

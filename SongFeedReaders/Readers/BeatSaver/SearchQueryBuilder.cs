@@ -9,7 +9,7 @@ namespace SongFeedReaders.Readers.BeatSaver
     public class SearchQueryBuilder
     {
         private const string CRITERIA_KEY = "{CRITERIA}";
-        public static Dictionary<BeatSaverSearchType, string> SearchFields = new Dictionary<BeatSaverSearchType, string>()
+        public static Dictionary<BeatSaverSearchType, string> SearchBases = new Dictionary<BeatSaverSearchType, string>()
         {
             { BeatSaverSearchType.author, $"(uploader.username:{CRITERIA_KEY} metadata.levelAuthorName:{CRITERIA_KEY})"},
             { BeatSaverSearchType.name, $"metadata.songName:{CRITERIA_KEY}"},
@@ -21,17 +21,18 @@ namespace SongFeedReaders.Readers.BeatSaver
             { BeatSaverSearchType.all, $""}
         };
 
-        private string _searchField;
+        private string _searchBase;
         private string _searchCriteria;
 
         public string GetQueryString()
         {
-            return $"{_searchField}:{_searchCriteria}";
+            return _searchBase.Replace(CRITERIA_KEY, _searchCriteria);
         }
 
         public SearchQueryBuilder(BeatSaverSearchType searchType, string criteria)
         {
-            
+            _searchBase = SearchBases[searchType];
+            _searchCriteria = criteria;
         }
 
 

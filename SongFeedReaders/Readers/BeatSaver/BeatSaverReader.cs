@@ -312,14 +312,13 @@ namespace SongFeedReaders.Readers.BeatSaver
 
             JObject result = new JObject();
             var pageUri = GetPageUrl(feedIndex);
+            IWebResponseMessage response = null;
             try
             {
-                using (var response = await GetBeatSaverAsync(pageUri, cancellationToken).ConfigureAwait(false))
-                {
-                    response.EnsureSuccessStatusCode();
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                response = await GetBeatSaverAsync(pageUri, cancellationToken).ConfigureAwait(false);
 
-                }
+                response.EnsureSuccessStatusCode();
+                pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 result = JObject.Parse(pageText);
             }
             catch (WebClientException ex)
@@ -357,6 +356,11 @@ namespace SongFeedReaders.Readers.BeatSaver
             {
                 string message = $"Uncaught error getting the first page in BeatSaverReader.GetBeatSaverSongsAsync(): {ex.Message}";
                 return new FeedResult(null, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), FeedResultError.Error);
+            }
+            finally
+            {
+                response?.Dispose();
+                response = null;
             }
             int? numSongs = result["totalDocs"]?.Value<int>();
             int? lastPage = result["lastPage"]?.Value<int>();
@@ -446,19 +450,19 @@ namespace SongFeedReaders.Readers.BeatSaver
             JObject result;
             JToken matchingSong;
             JToken[] songJSONAry;
+            var queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.author, authorName);
+
             do
             {
                 Logger?.Debug($"Checking page {page + 1} for the author ID.");
-                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHQUERY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
+                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHTYPEKEY, "advanced").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
                 result = new JObject();
+                IWebResponseMessage response = null;
                 try
                 {
-                    using (var response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false))
-                    {
-                        response.EnsureSuccessStatusCode();
-                        pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-                    }
+                    response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     result = JObject.Parse(pageText);
                 }
                 catch (WebClientException ex)
@@ -494,6 +498,11 @@ namespace SongFeedReaders.Readers.BeatSaver
                     Logger?.Debug($"{ex}");
                     return string.Empty;
                 }
+                finally
+                {
+                    response?.Dispose();
+                    response = null;
+                }
                 totalResults = result["totalDocs"]?.Value<int>(); // TODO: Check this
                 if (totalResults == null || totalResults == 0)
                 {
@@ -525,13 +534,12 @@ namespace SongFeedReaders.Readers.BeatSaver
                 throw new ArgumentNullException(nameof(uri), "uri cannot be null in BeatSaverReader.GetSongsFromPageAsync.");
             string pageText = string.Empty;
             var songs = new List<ScrapedSong>();
+            IWebResponseMessage response = null;
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
-                {
-                    response.EnsureSuccessStatusCode();
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                }
+                response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
             catch (WebClientException ex)
             {
@@ -540,6 +548,11 @@ namespace SongFeedReaders.Readers.BeatSaver
             catch (OperationCanceledException ex)
             {
                 return new PageReadResult(uri, null, ex, PageErrorType.Cancelled);
+            }
+            finally
+            {
+                response?.Dispose();
+                response = null;
             }
 
             foreach (var song in ParseSongsFromPage(pageText, uri))
@@ -649,18 +662,16 @@ namespace SongFeedReaders.Readers.BeatSaver
             ScrapedSong song = null;
             var pageError = PageErrorType.None;
             Exception exception = null;
+            IWebResponseMessage response = null;
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
-                }
+                response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
             }
             catch (WebClientException ex)
             {
-                
                 string errorText = string.Empty;
                 if (ex.Response != null)
                 {
@@ -678,7 +689,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 Logger?.Error(message);
                 exception = new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed);
             }
-            catch(OperationCanceledException ex)
+            catch (OperationCanceledException ex)
             {
                 exception = new FeedReaderException(ex.Message, ex, FeedReaderFailureCode.Cancelled);
             }
@@ -694,6 +705,11 @@ namespace SongFeedReaders.Readers.BeatSaver
                 Logger?.Exception(message, ex);
                 exception = new FeedReaderException(message, ex, FeedReaderFailureCode.Generic);
             }
+            finally
+            {
+                response?.Dispose();
+                response = null;
+            }
             List<ScrapedSong> retList = new List<ScrapedSong>();
             if (song != null)
                 retList.Add(song);
@@ -705,17 +721,16 @@ namespace SongFeedReaders.Readers.BeatSaver
             var uri = new Uri(BEATSAVER_DETAILS_BASE_URL + key);
             string pageText = "";
             ScrapedSong song = null;
+            IWebResponseMessage response = null;
             try
             {
-                using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
+                response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
+                if (response.IsSuccessStatusCode)
+                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                else
                 {
-                    if (response.IsSuccessStatusCode)
-                        pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    else
-                    {
-                        Logger?.Error($"Error getting song by key, {uri} responded with {response.StatusCode}:{response.ReasonPhrase}");
-                        return song;
-                    }
+                    Logger?.Error($"Error getting song by key, {uri} responded with {response.StatusCode}:{response.ReasonPhrase}");
+                    return song;
                 }
                 if (string.IsNullOrEmpty(pageText))
                 {
@@ -749,6 +764,11 @@ namespace SongFeedReaders.Readers.BeatSaver
             {
                 Logger?.Exception($"Exception getting page {uri}", ex);
                 throw;
+            }
+            finally
+            {
+                response?.Dispose();
+                response = null;
             }
             song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
             return song;

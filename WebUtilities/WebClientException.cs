@@ -20,6 +20,7 @@ namespace WebUtilities
 
         }
 
+        // TODO: Bad to include the response in the exception, response could get disposed by a using
         public WebClientException(string message, Exception innerException, IWebResponseMessage response) 
             : base(message, innerException)
         {

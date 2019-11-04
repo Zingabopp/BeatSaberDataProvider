@@ -25,29 +25,42 @@ namespace WebUtilitiesTests.IWebClientTests
             int expectedStatus = 200;
             string expectedContentType = "text/html";
             long? expectedContentLength = null;
+            bool? actualResponseSuccess = null;
+            int? actualStatus = null;
+            string actualContentType = null;
+            long? actualContentLength = null;
+            Uri actualRequestUri = null;
             var action = new Func<IWebClient, Task<IWebResponseMessage>>(async (target) =>
             {
-                IWebResponseMessage response = null;
                 Exception exception = null;
                 try
                 {
-                    response = await target.GetAsync(url).ConfigureAwait(false);
-                    //Assert.Fail("Should've thrown exception");
+                    using (var response = await target.GetAsync(url).ConfigureAwait(false))
+                    {
+                        actualResponseSuccess = response.IsSuccessStatusCode;
+                        actualStatus = response.StatusCode;
+                        actualContentType = response.Content.ContentType;
+                        actualContentLength = response.Content.ContentLength;
+                        actualRequestUri = response.RequestUri;
+                        //Assert.Fail("Should've thrown exception");
+                    }
                 }
                 catch (WebClientException ex)
                 {
                     Assert.Fail("Should not have thrown exception");
                     exception = ex;
-                    response = ex.Response;
+                    actualResponseSuccess = ex.Response?.IsSuccessStatusCode;
+                    actualStatus = ex.Response.StatusCode;
+                    actualRequestUri = ex.Response.RequestUri;
                 }
-                Assert.AreEqual(expectedResponseSuccess, response?.IsSuccessStatusCode);
-                Assert.AreEqual(expectedStatus, response?.StatusCode);
-                Assert.AreEqual(expectedContentType, response?.Content?.ContentType);
-                Assert.AreEqual(expectedContentLength, response?.Content?.ContentLength);
-                Assert.AreEqual(url, response?.RequestUri.OriginalString);
+                Assert.AreEqual(expectedResponseSuccess, actualResponseSuccess);
+                Assert.AreEqual(expectedStatus, actualStatus);
+                Assert.AreEqual(expectedContentType, actualContentType);
+                Assert.AreEqual(expectedContentLength, actualContentLength);
+                Assert.AreEqual(url, actualRequestUri.ToString());
                 if (exception != null)
                     throw exception;
-                return response;
+                return null;
             });
             CompareGetAsync(client1, client2, action);
         }
@@ -60,8 +73,14 @@ namespace WebUtilitiesTests.IWebClientTests
             var url = "https://beatsaver.com/cdn/5317/aaa14fb7dcaeda7a688db77617045a24d7baa151d.zip";
             bool expectedResponseSuccess = false;
             int expectedStatus = 404;
-            string expectedContentType = "text/plain";
-            long? expectedContentLength = 14;
+            string expectedContentType = null;
+            long? expectedContentLength = null;
+            bool? actualResponseSuccess = null;
+            string actualReasonPhrase = null;
+            int? actualStatus = null;
+            string actualContentType = null;
+            long? actualContentLength = null;
+            Uri actualRequestUri = null;
             var action = new Func<IWebClient, Task<IWebResponseMessage>>(async (target) =>
             {
                 IWebResponseMessage response = null;
@@ -69,18 +88,72 @@ namespace WebUtilitiesTests.IWebClientTests
                 try
                 {
                     response = await target.GetAsync(url).ConfigureAwait(false);
+                    actualResponseSuccess = response.IsSuccessStatusCode;
+                    actualStatus = response.StatusCode;
+                    actualContentType = response.Content.ContentType;
+                    actualContentLength = response.Content.ContentLength;
+                    actualRequestUri = response.RequestUri;
                     Assert.Fail("Should've thrown exception");
                 }
                 catch (WebClientException ex)
                 {
                     exception = ex;
-                    response = ex.Response;
+                    actualResponseSuccess = ex.Response?.IsSuccessStatusCode;
+                    actualReasonPhrase = ex.Response.ReasonPhrase;
+                    actualStatus = ex.Response.StatusCode;
+                    actualRequestUri = ex.Response.RequestUri;
                 }
-                Assert.AreEqual(expectedResponseSuccess, response?.IsSuccessStatusCode);
-                Assert.AreEqual(expectedStatus, response?.StatusCode);
+                Assert.AreEqual(expectedResponseSuccess, actualResponseSuccess);
+                Assert.AreEqual(expectedStatus, actualStatus);
                 Assert.AreEqual(expectedContentType, response?.Content?.ContentType);
                 Assert.AreEqual(expectedContentLength, response?.Content?.ContentLength);
-                Assert.AreEqual(url, response?.RequestUri.OriginalString);
+                Assert.AreEqual(url, actualRequestUri.ToString());
+                if (exception != null)
+                    throw exception;
+                return response;
+            });
+            CompareGetAsync(client1, client2, action);
+        }
+
+        [TestMethod]
+        public void UsingWrapped_NotFound()
+        {
+            var client1 = new WebClientWrapper();
+            client1.ErrorHandling = ErrorHandling.ReturnEmptyContent;
+            var client2 = new HttpClientWrapper();
+            var url = "https://beatsaver.com/cdn/5317/aaa14fb7dcaeda7a688db77617045a24d7baa151d.zip";
+            bool expectedResponseSuccess = false;
+            int expectedStatus = 404;
+            string expectedContentType = null;
+            long? expectedContentLength = null;
+            bool? actualResponseSuccess = null;
+            int? actualStatus = null;
+            string actualContentType = null;
+            long? actualContentLength = null;
+            Uri actualRequestUri = null;
+            var action = new Func<IWebClient, Task<IWebResponseMessage>>(async (target) =>
+            {
+                IWebResponseMessage response = null;
+                Exception exception = null;
+                try
+                {
+                    using (response = await target.GetAsync(url).ConfigureAwait(false))
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                }
+                catch (WebClientException ex)
+                {
+                    exception = ex;
+                    actualResponseSuccess = ex.Response?.IsSuccessStatusCode;
+                    actualStatus = ex.Response.StatusCode;
+                    actualRequestUri = ex.Response.RequestUri;
+                }
+                Assert.AreEqual(expectedResponseSuccess, actualResponseSuccess);
+                Assert.AreEqual(expectedStatus, actualStatus);
+                Assert.AreEqual(expectedContentType, response?.Content?.ContentType);
+                Assert.AreEqual(expectedContentLength, response?.Content?.ContentLength);
+                Assert.AreEqual(url, actualRequestUri.ToString());
                 if (exception != null)
                     throw exception;
                 return response;
@@ -102,6 +175,11 @@ namespace WebUtilitiesTests.IWebClientTests
             int expectedStatus = 404;
             string expectedContentType = "text/plain";
             long? expectedContentLength = 14;
+            bool? actualResponseSuccess = null;
+            int? actualStatus = null;
+            string actualContentType = null;
+            long? actualContentLength = null;
+            Uri actualRequestUri = null;
             var action = new Func<IWebClient, Task<IWebResponseMessage>>(async (target) =>
             {
                 IWebResponseMessage response = null;
@@ -115,13 +193,15 @@ namespace WebUtilitiesTests.IWebClientTests
                 catch (WebClientException ex)
                 {
                     exception = ex;
-                    response = ex.Response;
+                    actualResponseSuccess = ex.Response?.IsSuccessStatusCode;
+                    actualStatus = ex.Response.StatusCode;
+                    actualRequestUri = ex.Response.RequestUri;
                 }
-                Assert.AreEqual(expectedResponseSuccess, response?.IsSuccessStatusCode);
-                Assert.AreEqual(expectedStatus, response?.StatusCode);
+                Assert.AreEqual(expectedResponseSuccess, actualResponseSuccess);
+                Assert.AreEqual(expectedStatus, actualStatus);
                 Assert.AreEqual(expectedContentType, response?.Content?.ContentType);
                 Assert.AreEqual(expectedContentLength, response?.Content?.ContentLength);
-                Assert.AreEqual(url, response?.RequestUri.OriginalString);
+                Assert.AreEqual(url, actualRequestUri.ToString());
                 if (exception != null)
                     throw exception;
                 return response;
@@ -144,6 +224,11 @@ namespace WebUtilitiesTests.IWebClientTests
             int expectedStatus = 408;
             string expectedContentType = null;
             long? expectedContentLength = null;
+            bool? actualResponseSuccess = null;
+            int? actualStatus = null;
+            string actualContentType = null;
+            long? actualContentLength = null;
+            Uri actualRequestUri = null;
             var action = new Func<IWebClient, Task<IWebResponseMessage>>(async (target) =>
             {
                 IWebResponseMessage response = null;
@@ -156,13 +241,15 @@ namespace WebUtilitiesTests.IWebClientTests
                 catch (WebClientException ex)
                 {
                     exception = ex;
-                    response = ex.Response;
+                    actualResponseSuccess = ex.Response?.IsSuccessStatusCode;
+                    actualStatus = ex.Response.StatusCode;
+                    actualRequestUri = ex.Response.RequestUri;
                 }
-                Assert.AreEqual(expectedResponseSuccess, response?.IsSuccessStatusCode);
-                Assert.AreEqual(expectedStatus, response?.StatusCode);
+                Assert.AreEqual(expectedResponseSuccess, actualResponseSuccess);
+                Assert.AreEqual(expectedStatus, actualStatus);
                 Assert.AreEqual(expectedContentType, response?.Content?.ContentType);
                 Assert.AreEqual(expectedContentLength, response?.Content?.ContentLength);
-                Assert.AreEqual(url, response?.RequestUri.OriginalString);
+                Assert.AreEqual(url, actualRequestUri.ToString());
                 if (exception != null)
                     throw exception;
                 return response;
@@ -255,6 +342,29 @@ namespace WebUtilitiesTests.IWebClientTests
 
         public static void CompareResponses(IWebResponseMessage response1, IWebResponseMessage response2)
         {
+            if (response1 == null || response2 == null)
+            {
+                if(!(response1 == null && response2 == null))
+                    Assert.Fail($"One response is null and the other isn't.");
+            }
+            else
+            {
+                Assert.AreEqual(response1.IsSuccessStatusCode, response2.IsSuccessStatusCode);
+                Console.WriteLine($"IsSuccessStatusCode is {response1.IsSuccessStatusCode}");
+                Assert.AreEqual(response1.StatusCode, response2.StatusCode);
+                Console.WriteLine($"Status code is {response1.StatusCode}");
+                Assert.AreEqual(response1.ReasonPhrase, response2.ReasonPhrase);
+                Console.WriteLine($"ReasonPhrase is {response1.ReasonPhrase}");
+                //Assert.AreEqual(response1.Exception?.GetType(), response2.Exception?.GetType());
+                Assert.AreEqual(response1.RequestUri.ToString(), response2.RequestUri.ToString());
+                Console.WriteLine($"RequestUri is {response1.RequestUri}");
+
+                CompareContent(response1.Content, response2.Content);
+            }
+        }
+
+        public static void CompareResponses(FaultedResponse response1, FaultedResponse response2)
+        {
             if (response1 == null)
             {
                 Assert.IsNull(response2, $"response1 is null, but {response2.GetType().Name} is not.");
@@ -270,8 +380,6 @@ namespace WebUtilitiesTests.IWebClientTests
                 //Assert.AreEqual(response1.Exception?.GetType(), response2.Exception?.GetType());
                 Assert.AreEqual(response1.RequestUri.ToString(), response2.RequestUri.ToString());
                 Console.WriteLine($"RequestUri is {response1.RequestUri}");
-
-                CompareContent(response1.Content, response2.Content);
             }
         }
 

@@ -85,6 +85,11 @@ namespace WebUtilities.WebWrapper
                         Content.Dispose();
                         Content = null;
                     }
+                    if (_response != null)
+                    {
+                        _response.Dispose();
+                        _response = null;
+                    }
                 }
                 disposedValue = true;
             }

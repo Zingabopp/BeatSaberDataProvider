@@ -4,7 +4,23 @@ using System.Collections.ObjectModel;
 
 namespace WebUtilities
 {
-    public interface IWebResponseMessage : IDisposable
+    public interface IWebResponseMessage : IWebResponse, IDisposable
+    {
+        /// <summary>
+        /// Content of the response.
+        /// </summary>
+        IWebResponseContent Content { get; }
+
+
+        /// <summary>
+        /// Throws an exception if there wasn't a successful response.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="WebClientException">Thrown when IsSuccessStatusCode is false or the response is null.</exception>
+        IWebResponseMessage EnsureSuccessStatusCode();
+    }
+
+    public interface IWebResponse
     {
         /// <summary>
         /// Http Status code of the response.
@@ -32,21 +48,11 @@ namespace WebUtilities
         Uri RequestUri { get; }
 
         /// <summary>
-        /// Content of the response.
-        /// </summary>
-        IWebResponseContent Content { get; }
-
-        /// <summary>
-        /// Throws an exception if there wasn't a successful response.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="WebClientException">Thrown when IsSuccessStatusCode is false or the response is null.</exception>
-        IWebResponseMessage EnsureSuccessStatusCode();
-
-        /// <summary>
         /// Headers associated with the response.
         /// </summary>
         ReadOnlyDictionary<string, IEnumerable<string>> Headers { get; }
+
+
     }
 
 

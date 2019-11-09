@@ -100,8 +100,12 @@ namespace WebUtilities.HttpClientWrapper
                     {
                         //TODO: Need testing for cancellation token
                         response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
-                        response.EnsureSuccessStatusCode();
-                        return new HttpResponseWrapper(response, uri);
+                        // response.EnsureSuccessStatusCode(); // Calling this disposes the content.
+                        
+                        var wrappedResponse = new HttpResponseWrapper(response, uri);
+                        if (ErrorHandling == ErrorHandling.ThrowOnException)
+                            wrappedResponse.EnsureSuccessStatusCode();
+                        return wrappedResponse;
                     }
                     catch (HttpRequestException ex)
                     {
@@ -112,7 +116,7 @@ namespace WebUtilities.HttpClientWrapper
                         else
                         {
                             //Logger?.Log(LogLevel.Error, $"Exception getting {uri?.ToString()}\n{ex.Message}\n{ex.StackTrace}");
-                            return new HttpResponseWrapper(null, uri, ex);
+                            return new HttpResponseWrapper(response, uri, ex);
                         }
                     }
                     catch (OperationCanceledException ex)

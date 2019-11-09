@@ -20,7 +20,11 @@ namespace WebUtilities
         {
 
         }
-
+        public WebClientException(string message, Exception innerException, FaultedResponse response)
+            : base(message, innerException)
+        {
+            Response = response;
+        }
         // TODO: Bad to include the response in the exception, response could get disposed by a using
         public WebClientException(string message, Exception innerException, IWebResponseMessage response)
             : base(message, innerException)

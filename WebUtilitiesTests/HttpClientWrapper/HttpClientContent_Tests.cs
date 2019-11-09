@@ -9,7 +9,7 @@ using WebUtilities.HttpClientWrapper;
 namespace WebUtilitiesTests.HttpClientWrapperTests
 {
     [TestClass]
-    public class HttpClientContent_Tests
+    public class WebClientContent_Tests
     {
         private static readonly string TestOutputPath = Path.GetFullPath(@"Output\HttpClientContent");
 

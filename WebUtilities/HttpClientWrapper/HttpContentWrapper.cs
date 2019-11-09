@@ -17,7 +17,6 @@ namespace WebUtilities.HttpClientWrapper
         public HttpContentWrapper(HttpContent content)
         {
             _content = content;
-            ContentLength = content?.Headers?.ContentLength;
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_content?.Headers != null)
             {
@@ -26,6 +25,15 @@ namespace WebUtilities.HttpClientWrapper
                     _headers.Add(header.Key, header.Value);
                 }
             }
+            try
+            {
+                ContentLength = content?.Headers?.ContentLength;
+            }
+            catch (ObjectDisposedException)
+            {
+                _content = null;
+            }
+
         }
 
         protected Dictionary<string, IEnumerable<string>> _headers;
@@ -38,19 +46,25 @@ namespace WebUtilities.HttpClientWrapper
 
         public long? ContentLength { get; protected set; }
 
-        public Task<byte[]> ReadAsByteArrayAsync()
+        public async Task<byte[]> ReadAsByteArrayAsync()
         {
-            return _content?.ReadAsByteArrayAsync();
+            if (_content == null)
+                return null;
+            return await _content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
 
-        public Task<Stream> ReadAsStreamAsync()
+        public async Task<Stream> ReadAsStreamAsync()
         {
-            return _content?.ReadAsStreamAsync();
+            if (_content == null)
+                return null;
+            return await _content.ReadAsStreamAsync().ConfigureAwait(false);
         }
 
-        public Task<string> ReadAsStringAsync()
+        public async Task<string> ReadAsStringAsync()
         {
-            return _content?.ReadAsStringAsync();
+            if (_content == null)
+                return null;
+            return await _content.ReadAsStringAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -125,6 +139,7 @@ namespace WebUtilities.HttpClientWrapper
                     {
                         _content.Dispose();
                         _content = null;
+                        ContentLength = null;
                     }
                 }
                 disposedValue = true;

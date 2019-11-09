@@ -36,8 +36,22 @@ namespace WebUtilities.WebWrapper
 
         public IWebResponseMessage EnsureSuccessStatusCode()
         {
+            if (_response == null)
+                throw new WebClientException("Response is null.");
             if (!IsSuccessStatusCode)
-                throw new WebClientException($"HttpStatus: {StatusCode.ToString()}, {ReasonPhrase} getting {_request?.RequestUri.ToString()}.", null, this);
+            {
+                WebException webException;
+                if (((int)_response.StatusCode) == 0 && Exception == null)
+                    webException = new WebException($"Error getting a response: {ReasonPhrase}.");
+                else if (Exception is WebException wException)
+                    webException = wException;
+                else
+                    webException = new WebException($"The remove server returned an error: ({(int)_response.StatusCode}) {ReasonPhrase}.");
+                var faultedResponse = new FaultedResponse(this);
+                _response.Dispose();
+                _response = null;
+                throw new WebClientException(webException.Message, webException, faultedResponse);
+            }
             return this;
         }
 
@@ -49,7 +63,7 @@ namespace WebUtilities.WebWrapper
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
 
-        public string ReasonPhrase { get { return _response?.StatusDescription ?? Exception?.Message; } }
+        public string ReasonPhrase { get { return _response?.StatusDescription ?? Exception?.Message ?? "Unknown Error"; } }
 
         public WebClientResponseWrapper(HttpWebResponse response, HttpWebRequest request, Exception exception = null, int? statusCodeOverride = null)
         {

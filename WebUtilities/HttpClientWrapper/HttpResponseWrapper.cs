@@ -36,12 +36,27 @@ namespace WebUtilities.HttpClientWrapper
         {
             try
             {
-                var _ = _response?.EnsureSuccessStatusCode()
-                    ?? throw new WebClientException("Response is null.");
+                if(_response == null)
+                    throw new WebClientException("Response is null.");
+                if (!_response.IsSuccessStatusCode)
+                {
+                    HttpRequestException httpException;
+                    if(((int)_response.StatusCode) > 0)
+                        httpException = new HttpRequestException($"The remove server returned an error: ({(int)_response.StatusCode}) {_response.ReasonPhrase}.");
+                    else
+                        httpException = new HttpRequestException($"Error getting a response: {_response.ReasonPhrase}.");
+                    var faultedResponse = new FaultedResponse(this);
+                    _response.Dispose();
+                    _response = null;
+                    throw new WebClientException(httpException.Message, httpException, faultedResponse);
+                }
             }
             catch (HttpRequestException ex)
             {
-                throw new WebClientException(ex.Message, ex, this);
+                var faultedResponse = new FaultedResponse(this);
+                _response.Dispose();
+                _response = null;
+                throw new WebClientException(ex.Message, ex, faultedResponse);
             }
             return this;
         }
@@ -61,7 +76,7 @@ namespace WebUtilities.HttpClientWrapper
             Exception = exception;
             RequestUri = requestUri;
             if(response?.Content != null)
-                Content = new HttpContentWrapper(response?.Content);
+                Content = new HttpContentWrapper(response.Content);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)
             {

@@ -30,7 +30,8 @@ namespace SongFeedReaders.Readers.BeatSaver
         public string Name { get { return NameKey; } }
         public static readonly string SourceKey = "BeatSaver";
         public string Source { get { return SourceKey; } }
-        public Uri RootUri { get { return new Uri("https://beatsaver.com"); } }
+        public static readonly Uri ReaderRootUri = new Uri("https://beatsaver.com");
+        public Uri RootUri => ReaderRootUri;
         public bool Ready { get; private set; }
         public bool StoreRawData { get; set; }
         #region Constants
@@ -39,7 +40,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         private const string PAGEKEY = "{PAGE}";
         private const string SEARCHTYPEKEY = "{SEARCHTYPE}"; // text or advanced
         private const string SEARCHQUERY = "{SEARCHQUERY}";
-        public const int SongsPerPage = 10;
+        public static readonly int SongsPerPage = 10;
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeatSaverFeedSettings.";
 #pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable CA1823 // Remove unused private members
@@ -58,26 +59,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         private static ConcurrentDictionary<string, string> _authors = new ConcurrentDictionary<string, string>();
         // { (BeatSaverFeeds)99, new FeedInfo("search-by-author", "https://beatsaver.com/api/songs/search/user/" + AUTHORKEY) }
 
-        private static Dictionary<BeatSaverFeed, FeedInfo> _feeds;
-        public static Dictionary<BeatSaverFeed, FeedInfo> Feeds
-        {
-            get
-            {
-                if (_feeds == null)
-                {
-                    _feeds = new Dictionary<BeatSaverFeed, FeedInfo>()
-                    {
-                        { (BeatSaverFeed)0, new FeedInfo("Author", "BeatSaver Authors", "https://beatsaver.com/api/maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY, DescriptionAuthor)},
-                        { (BeatSaverFeed)1, new FeedInfo("Latest", "BeatSaver Latest", "https://beatsaver.com/api/maps/latest/" + PAGEKEY, DescriptionLatest) },
-                        { (BeatSaverFeed)2, new FeedInfo("Hot", "BeatSaver Hot", "https://beatsaver.com/api/maps/hot/" + PAGEKEY, DescriptionHot) },
-                        { (BeatSaverFeed)3, new FeedInfo("Plays", "BeatSaver Plays", "https://beatsaver.com/api/maps/plays/" + PAGEKEY, DescriptionPlays) },
-                        { (BeatSaverFeed)4, new FeedInfo("Downloads", "BeatSaver Downloads", "https://beatsaver.com/api/maps/downloads/" + PAGEKEY, DescriptionDownloads) },
-                        { (BeatSaverFeed)98, new FeedInfo("Search", "BeatSaver Search", $"https://beatsaver.com/api/search/{SEARCHTYPEKEY}/{PAGEKEY}/?q={SEARCHQUERY}", DescriptionSearch) },
-                    };
-                }
-                return _feeds;
-            }
-        }
+        
 
         public void PrepareReader()
         {
@@ -97,22 +79,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for BeatSaverReader.GetFeedName");
             if (!(settings is BeatSaverFeedSettings ssSettings))
                 throw new InvalidCastException("Settings is not BeatSaverFeedSettings in BeatSaverReader.GetFeedName");
-            return Feeds[ssSettings.Feed].DisplayName;
-        }
-
-        public static Uri GetPageUrl(BeatSaverFeed feed, int pageIndex = 0, Dictionary<string, string> replacements = null)
-        {
-            string mapperId = string.Empty;
-            StringBuilder url = new StringBuilder(Feeds[feed].BaseUrl);
-            //if (!string.IsNullOrEmpty(author) && author.Length > 3)
-            //    mapperId = GetAuthorID(author);
-            if (replacements != null)
-                foreach (var key in replacements.Keys)
-                {
-                    url.Replace(key, replacements[key]);
-                }
-            return Utilities.GetUriFromString(url.Replace(PAGEKEY, pageIndex.ToString()).ToString());
-
+            return BeatSaverFeed.Feeds[ssSettings.Feed].DisplayName;
         }
 
         public static List<ScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl)
@@ -262,13 +229,13 @@ namespace SongFeedReaders.Readers.BeatSaver
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             FeedResult songs = null;
 
-            switch ((BeatSaverFeed)settings.FeedIndex)
+            switch ((BeatSaverFeedName)settings.FeedIndex)
             {
                 // Author
-                case BeatSaverFeed.Author:
+                case BeatSaverFeedName.Author:
                     songs = await GetSongsByAuthorAsync(settings.Criteria, cancellationToken, CalcMaxSongs(settings.MaxPages, settings.MaxSongs)).ConfigureAwait(false);
                     break;
-                case BeatSaverFeed.Search:
+                case BeatSaverFeedName.Search:
                     songs = await SearchAsync(settings, cancellationToken).ConfigureAwait(false);
                     break;
                 // Latest/Hot/Plays/Downloads
@@ -452,7 +419,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             do
             {
                 Logger?.Debug($"Checking page {page + 1} for the author ID.");
-                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHTYPEKEY, "advanced").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
+                sourceUri = new Uri(Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHTYPEKEY, "advanced").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
                 result = new JObject();
                 IWebResponseMessage response = null;
                 try
@@ -510,7 +477,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 matchingSong = (JObject)songJSONAry.FirstOrDefault(c => c["uploader"]?["username"]?.Value<string>()?.ToLower() == authorName.ToLower());
 
                 page++;
-                sourceUri = new Uri(Feeds[BeatSaverFeed.Search].BaseUrl.Replace(SEARCHQUERY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
+                sourceUri = new Uri(Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHQUERY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
             } while ((matchingSong == null) && page * SongsPerPage < totalResults);
 
 
@@ -830,7 +797,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             List<PageReadResult> pageResults = new List<PageReadResult>();
             do
             {
-                url = new StringBuilder(Feeds[BeatSaverFeed.Search].BaseUrl);
+                url = new StringBuilder(Feeds[BeatSaverFeedName.Search].BaseUrl);
                 url.Replace(SEARCHTYPEKEY, settings.SearchType == BeatSaverSearchType.all ? "text" : "advanced");
                 url.Replace(SEARCHQUERY, settings.Criteria);
                 url.Replace(PAGEKEY, pageIndex.ToString());
@@ -863,7 +830,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             throw new NotImplementedException("Not finished");
             List<JToken> songs = null;
             string pageText = string.Empty;
-            using (var response = await WebUtils.GetBeatSaverAsync(GetPageUrl(BeatSaverFeed.Latest), cancellationToken).ConfigureAwait(false))
+            using (var response = await WebUtils.GetBeatSaverAsync(GetPageUrl(BeatSaverFeedName.Latest), cancellationToken).ConfigureAwait(false))
             {
                 if (response.IsSuccessStatusCode)
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -1006,7 +973,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public static Uri GetPageUrl(int feedIndex, int pageIndex = 0, Dictionary<string, string> replacements = null)
         {
-            return GetPageUrl((BeatSaverFeed)feedIndex, pageIndex, replacements);
+            return GetPageUrl((BeatSaverFeedName)feedIndex, pageIndex, replacements);
         }
 
         #endregion

@@ -28,7 +28,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             int maxSongs = 59;
             foreach (var author in authorList)
             {
-                var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Author) { Criteria = author, MaxSongs = maxSongs };
+                var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Author) { Criteria = author, MaxSongs = maxSongs };
                 var songsByAuthor = reader.GetSongsFromFeed(settings);
                 Assert.IsTrue(songsByAuthor.Count > 0);
                 Assert.IsTrue(songsByAuthor.Count <= maxSongs);
@@ -67,7 +67,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 55;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Latest) { MaxSongs = maxSongs };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(settings.MaxSongs, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);
@@ -83,7 +83,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 50;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Hot) { MaxSongs = maxSongs };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Hot) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count == settings.MaxSongs);
             int expectedPages = ExpectedPagesForSongs(result.Count);
@@ -98,7 +98,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 50;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Plays) { MaxSongs = maxSongs };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Plays) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count == settings.MaxSongs);
             int expectedPages = ExpectedPagesForSongs(result.Count);
@@ -119,7 +119,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 50;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Downloads) { MaxSongs = maxSongs };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count == settings.MaxSongs);
             int expectedPages = ExpectedPagesForSongs(result.Count);
@@ -135,7 +135,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 10;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Search) { MaxSongs = maxSongs, Criteria = "Believer" };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, Criteria = "Believer" };
             var result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count > 0);
             Assert.IsTrue(result.Count <= 10);
@@ -154,7 +154,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             int maxSongs = 10;
             string criteria = "19F2879D11A91B51A5C090D63471C3E8D9B7AEE3";
             var searchType = BeatSaverSearchType.hash;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Search) { MaxSongs = maxSongs, Criteria = criteria, SearchType = searchType };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, Criteria = criteria, SearchType = searchType };
             var result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(1, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);
@@ -172,7 +172,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             int maxSongs = 10;
             string criteria = "19F2879D11A91B51A5C090D63471C3E8D9B7AEE3";
             var searchType = BeatSaverSearchType.hash;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeed.Search) { MaxSongs = maxSongs, Criteria = criteria, SearchType = searchType };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, Criteria = criteria, SearchType = searchType };
             var result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(1, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);

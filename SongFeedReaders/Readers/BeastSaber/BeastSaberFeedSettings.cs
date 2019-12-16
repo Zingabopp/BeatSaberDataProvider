@@ -7,37 +7,37 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <summary>
         /// Name of the chosen feed.
         /// </summary>
-        public string FeedName { get { return BeastSaberReader.Feeds[Feed].Name; } }
+        public string FeedName { get { return BeastSaberFeed.Feeds[Feed].Name; } }
         private int _feedIndex;
         private int _startingPage;
         private int _maxSongs;
         private int _maxPages;
 
         /// <summary>
-        /// Index of the feed defined by <see cref="BeastSaberFeed"/>.
+        /// Index of the feed defined by <see cref="BeastSaberFeedName"/>.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="BeastSaberFeed"/></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="BeastSaberFeedName"/></exception>
         public int FeedIndex
         {
             get { return _feedIndex; }
             set
             {
-                if (!Enum.IsDefined(typeof(BeastSaberFeed), value))
+                if (!Enum.IsDefined(typeof(BeastSaberFeedName), value))
                     throw new ArgumentOutOfRangeException($"Failed to set FeedIndex: No BeastSaberFeed defined for an index of {value}.");
                 _feedIndex = value;
             }
         }
 
-        public BeastSaberFeed Feed
+        public BeastSaberFeedName Feed
         {
-            get { return (BeastSaberFeed)FeedIndex; }
+            get { return (BeastSaberFeedName)FeedIndex; }
             set
             {
                 FeedIndex = (int)value;
             }
         }
 
-        public int SongsPerPage { get { return FeedIndex == 0 ? BeastSaberReader.SongsPerXmlPage : BeastSaberReader.SongsPerJsonPage; } }
+        public int SongsPerPage { get { return FeedIndex == 0 ? BeastSaberFeed.SongsPerXmlPage : BeastSaberFeed.SongsPerJsonPage; } }
 
         /// <summary>
         /// Maximum songs to retrieve, will stop the reader before MaxPages is met. Use 0 for unlimited.
@@ -71,6 +71,8 @@ namespace SongFeedReaders.Readers.BeastSaber
             }
         }
 
+        public string Username { get; set; }
+
         /// <summary>
         /// Page of the feed to start on, default is 1. Setting '1' here is the same as starting on the first page.
         /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 1.
@@ -92,25 +94,27 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// </summary>
         /// <param name="feedIndex"></param>
         /// <param name="maxPages"></param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="BeastSaberFeed"/></exception>
-        public BeastSaberFeedSettings(int feedIndex)
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="BeastSaberFeedName"/></exception>
+        public BeastSaberFeedSettings(int feedIndex, string username = null)
         {
-            if (!Enum.IsDefined(typeof(BeastSaberFeed), feedIndex))
+            if (!Enum.IsDefined(typeof(BeastSaberFeedName), feedIndex))
                 throw new ArgumentOutOfRangeException(nameof(feedIndex), $"No BeastSaberFeed defined for an index of {feedIndex}.");
             FeedIndex = feedIndex;
             MaxPages = 0;
             StartingPage = 1;
+            Username = username ?? string.Empty;
         }
 
-        public BeastSaberFeedSettings(BeastSaberFeed feed)
+        public BeastSaberFeedSettings(BeastSaberFeedName feed, string username = null)
         {
             Feed = feed;
             MaxPages = 0;
             StartingPage = 1;
+            Username = username ?? string.Empty;
         }
     }
 
-    public enum BeastSaberFeed
+    public enum BeastSaberFeedName
     {
         Following = 0,
         Bookmarks = 1,

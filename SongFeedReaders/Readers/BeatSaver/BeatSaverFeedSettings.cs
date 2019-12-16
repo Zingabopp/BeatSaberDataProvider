@@ -7,7 +7,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <summary>
         /// Name of the chosen feed.
         /// </summary>
-        public string FeedName { get { return BeatSaverReader.Feeds[Feed].Name; } } // Name of the chosen feed
+        public string FeedName { get { return BeatSaverFeed.Feeds[Feed].Name; } } // Name of the chosen feed
 
         private int _feedIndex;
         private int _startingPage;
@@ -15,23 +15,23 @@ namespace SongFeedReaders.Readers.BeatSaver
         private int _maxPages;
 
         /// <summary>
-        /// Index of the feed defined by <see cref="BeatSaverFeed"/>.
+        /// Index of the feed defined by <see cref="BeatSaverFeedName"/>.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="BeatSaverFeed"/></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="BeatSaverFeedName"/></exception>
         public int FeedIndex
         {
             get { return _feedIndex; }
             set
             {
-                if (!Enum.IsDefined(typeof(BeatSaverFeed), value))
+                if (!Enum.IsDefined(typeof(BeatSaverFeedName), value))
                     throw new ArgumentOutOfRangeException($"Failed to set FeedIndex: No BeatSaverFeed defined for an index of {value}.");
                 _feedIndex = value;
             }
         }
 
-        public BeatSaverFeed Feed
+        public BeatSaverFeedName Feed
         {
-            get { return (BeatSaverFeed)FeedIndex; }
+            get { return (BeatSaverFeedName)FeedIndex; }
             set
             {
                 FeedIndex = (int)value;
@@ -43,11 +43,15 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// </summary>
         public string Criteria { get; set; }
 
+        public string AuthorId { get; set; }
+
+        public BeatSaverSearchQuery? SearchQuery { get; set; }
+
         /// <summary>
         /// Type of search to perform, only used for SEARCH feed.
         /// Default is 'song' (song name, song subname, author)
         /// </summary>
-        public BeatSaverSearchType SearchType { get; set; }
+        public BeatSaverSearchType? SearchType { get { return SearchQuery?.SearchType; } }
 
         public int SongsPerPage { get { return BeatSaverReader.SongsPerPage; } }
 
@@ -103,10 +107,10 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// 
         /// </summary>
         /// <param name="feedIndex"></param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="BeatSaverFeed"/></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="BeatSaverFeedName"/></exception>
         public BeatSaverFeedSettings(int feedIndex)
         {
-            if (!Enum.IsDefined(typeof(BeatSaverFeed), feedIndex))
+            if (!Enum.IsDefined(typeof(BeatSaverFeedName), feedIndex))
                 throw new ArgumentOutOfRangeException(nameof(feedIndex), $"No BeatSaverFeed defined for an index of {feedIndex}.");
             FeedIndex = feedIndex;
             MaxPages = 0;
@@ -114,7 +118,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             SearchType = BeatSaverSearchType.all;
         }
 
-        public BeatSaverFeedSettings(BeatSaverFeed feed)
+        public BeatSaverFeedSettings(BeatSaverFeedName feed)
         {
             Feed = feed;
             MaxPages = 0;
@@ -123,7 +127,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         }
     }
 
-    public enum BeatSaverFeed
+    public enum BeatSaverFeedName
     {
         Author = 0,
         Latest = 1,

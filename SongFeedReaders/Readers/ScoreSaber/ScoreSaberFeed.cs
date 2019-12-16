@@ -103,20 +103,9 @@ namespace SongFeedReaders.Readers.ScoreSaber
         {
             if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page cannot be less than 1.");
             Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
-            StringBuilder url = new StringBuilder(BaseUrl);
-            Dictionary<string, string> urlReplacements = new Dictionary<string, string>() {
-                {LIMITKEY, SongsPerPage.ToString() },
-                {PAGENUMKEY, page.ToString()},
-                {RANKEDKEY, RankedOnly ? "1" : "0" }
-            };
-            if (Feed == ScoreSaberFeedName.Search)
-            {
-                urlReplacements.Add(QUERYKEY, SearchQuery);
-            }
+            
 
-            GetPageUrl(ref url, urlReplacements);
-
-            var uri = new Uri(url.ToString());
+            var uri = GetUriForPage(page);
             string pageText = "";
 
             IWebResponseMessage response = null;
@@ -211,16 +200,23 @@ namespace SongFeedReaders.Readers.ScoreSaber
             return new PageReadResult(sourceUri, songs, page, isLastPage);
         }
 
-        public static void GetPageUrl(ref StringBuilder baseUrl, Dictionary<string, string> replacements)
+        public Uri GetUriForPage(int page)
         {
-            if (baseUrl == null)
-                throw new ArgumentNullException(nameof(replacements), "baseUrl cannot be null for ScoreSaberReader.GetPageUrl");
-            if (replacements == null)
-                throw new ArgumentNullException(nameof(replacements), "replacements cannot be null for ScoreSaberReader.GetPageUrl");
-            foreach (var key in replacements.Keys)
+            string url = BaseUrl;
+            Dictionary<string, string> urlReplacements = new Dictionary<string, string>() {
+                {LIMITKEY, SongsPerPage.ToString() },
+                {PAGENUMKEY, page.ToString()},
+                {RANKEDKEY, RankedOnly ? "1" : "0" }
+            };
+            if (Feed == ScoreSaberFeedName.Search)
             {
-                baseUrl.Replace(key, replacements[key]);
+                urlReplacements.Add(QUERYKEY, SearchQuery);
             }
+            foreach (var pair in urlReplacements)
+            {
+                url = url.Replace(pair.Key, pair.Value);
+            }
+            return new Uri(url);
         }
 
 

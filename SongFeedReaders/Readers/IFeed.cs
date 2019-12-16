@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,28 +21,71 @@ namespace SongFeedReaders.Readers
 
         Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken);
 
-
+        Uri GetUriForPage(int page);
     }
 
     public class FeedAsyncEnumerator
     {
         readonly IFeed Feed;
         private object _pageLock = new object();
-        private int _lastPage;
+        public int LastPage { get; private set; }
         public int StartingPage { get; }
         public int CurrentPage { get; private set; }
+
+        public bool CachePages { get; }
+
+        private ConcurrentDictionary<int, Task<PageReadResult>> CachedPages;
+
+        //public int MaxCachedPages { get; set; }
 
         public bool CanMovePrevious { get { return CurrentPage > 1; } }
         public bool CanMoveNext { get; private set; }
 
-        public FeedAsyncEnumerator(IFeed feed, int startingPage = 1)
+        public FeedAsyncEnumerator(IFeed feed, int startingPage = 1, bool cachePages = false)
         {
-            _lastPage = 0;
+            LastPage = 0;
             if (startingPage < 1) startingPage = 1;
             Feed = feed;
             StartingPage = startingPage;
             CurrentPage = startingPage;
+            CachePages = cachePages;
+            if (CachePages)
+            {
+                CachedPages = new ConcurrentDictionary<int, Task<PageReadResult>>();
+            }
             CanMoveNext = true;
+        }
+
+        private bool TryGetCachedPage(int page, out Task<PageReadResult> cachedTask)
+        {
+            cachedTask = null;
+            if (CachePages && CachedPages.TryGetValue(page, out var cache))
+            {
+                if (cache != null)
+                {
+                    if (cache.IsCanceled)
+                        return false;
+                    if (!cache.IsCompleted)
+                    {
+                        cachedTask = cache;
+                        return true;
+                    }
+                    else if (!cache.IsFaulted)
+                    {
+                        var cachedResult = cache.Result;
+                        if (cachedResult.Successful)
+                        {
+                            cachedTask = cache;
+                            return true;
+                        }
+                        else
+                            CachedPages.TryRemove(page, out _);
+                    }
+                    else
+                        CachedPages.TryRemove(page, out _);
+                }
+            }
+            return false;
         }
 
         public async Task<PageReadResult> MoveNextAsync(CancellationToken cancellationToken)
@@ -52,12 +96,51 @@ namespace SongFeedReaders.Readers
                 page = CurrentPage;
                 CurrentPage++;
             }
-            var result = await Feed.GetSongsFromPageAsync(page, cancellationToken).ConfigureAwait(false);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
+            }
+
+            Task<PageReadResult> pageTask;
+            PageReadResult result = null;
+            if (TryGetCachedPage(page, out var cachedTask))
+            {
+                if (cachedTask.IsCompleted)
+                    return await cachedTask.ConfigureAwait(false);
+                else
+                {
+                    using (var tcs = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    {
+                        bool completed = await Utilities.WaitUntil(() => cachedTask.IsCompleted, tcs.Token).ConfigureAwait(false);
+                        if (completed)
+                        {
+                            result = await cachedTask.ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
+                }
+                pageTask = Feed.GetSongsFromPageAsync(page, cancellationToken);
+                if (CachePages)
+                    CachedPages.TryAdd(page, pageTask);
+                result = await pageTask.ConfigureAwait(false);
+            }
             if (result.IsLastPage)
             {
                 CanMoveNext = false;
-                _lastPage = Math.Min(_lastPage, page);
+                LastPage = Math.Min(LastPage, page);
             }
+
             return result;
         }
 
@@ -68,11 +151,49 @@ namespace SongFeedReaders.Readers
             lock (_pageLock)
             {
                 page = CurrentPage - 1;
-                if (page < 1) 
-                    return new PageReadResult(null, new List<ScrapedSong>(), page, new IndexOutOfRangeException($"Page {page} is below the minimum of 1."), PageErrorType.PageOutOfRange);
+                if (page < 1)
+                    return new PageReadResult(Feed.GetUriForPage(page), new List<ScrapedSong>(), page, new IndexOutOfRangeException($"Page {page} is below the minimum of 1."), PageErrorType.PageOutOfRange);
                 CurrentPage--;
             }
-            return await Feed.GetSongsFromPageAsync(page, cancellationToken).ConfigureAwait(false);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
+            }
+            Task<PageReadResult> pageTask;
+            PageReadResult result = null;
+            if (TryGetCachedPage(page, out var cachedTask))
+            {
+                if (cachedTask.IsCompleted)
+                    return await cachedTask.ConfigureAwait(false);
+                else
+                {
+                    using (var tcs = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    {
+                        bool completed = await Utilities.WaitUntil(() => cachedTask.IsCompleted, tcs.Token).ConfigureAwait(false);
+                        if (completed)
+                        {
+                            result = await cachedTask.ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
+                        }
+
+                    }
+                }
+            }
+            else
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
+                }
+                pageTask = Feed.GetSongsFromPageAsync(page, cancellationToken);
+                if (CachePages)
+                    CachedPages.TryAdd(page, pageTask);
+                result = await pageTask.ConfigureAwait(false);
+            }
+            return result;
         }
 
 

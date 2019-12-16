@@ -92,7 +92,13 @@ namespace SongFeedReaders.Readers
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
             return new PageReadResult(requestUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), pageError);
         }
+
+        public static PageReadResult CancelledResult(Uri requestUri, int page)
+        {
+            return new PageReadResult(requestUri, new List<ScrapedSong>(), page, new OperationCanceledException(), PageErrorType.Cancelled);
+        }
     }
+
 
     public static class PageErrorTypeExtensions
     {

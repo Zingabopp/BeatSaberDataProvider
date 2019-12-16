@@ -41,9 +41,6 @@ namespace SongFeedReaders.Readers.BeatSaver
         private const string SEARCHQUERY = "{SEARCHQUERY}";
         public const int SongsPerPage = 10;
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeatSaverFeedSettings.";
-        private const string BEATSAVER_DOWNLOAD_URL_BASE = "https://beatsaver.com/api/download/key/";
-        private const string BEATSAVER_DETAILS_BASE_URL = "https://beatsaver.com/api/maps/detail/";
-        private const string BEATSAVER_GETBYHASH_BASE_URL = "https://beatsaver.com/api/maps/by-hash/";
 #pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable CA1823 // Remove unused private members
         private const string BEATSAVER_NIGHTLYDUMP_URL = "https://beatsaver.com/api/download/dump/maps";
@@ -201,10 +198,10 @@ namespace SongFeedReaders.Readers.BeatSaver
             var mapperName = song["uploader"]?["username"]?.Value<string>();
             if (string.IsNullOrEmpty(songHash))
                 throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
-            string downloadUri = !string.IsNullOrEmpty(songKey) ? BEATSAVER_DOWNLOAD_URL_BASE + songKey : string.Empty;
+            Uri downloadUri = Utilities.GetDownloadUriByHash(songHash);
             var newSong = new ScrapedSong(songHash)
             {
-                DownloadUri = Utilities.GetUriFromString(downloadUri),
+                DownloadUri = downloadUri,
                 SourceUri = sourceUrl,
                 SongName = songName,
                 SongKey = songKey,
@@ -543,11 +540,11 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
             catch (WebClientException ex)
             {
-                return PageReadResult.FromWebClientException(ex, uri);
+                return PageReadResult.FromWebClientException(ex, uri, page);
             }
             catch (OperationCanceledException ex)
             {
-                return new PageReadResult(uri, null, ex, PageErrorType.Cancelled);
+                return new PageReadResult(uri, null, page, ex, PageErrorType.Cancelled);
             }
             finally
             {
@@ -559,7 +556,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             {
                 songs.Add(song);
             }
-            return new PageReadResult(uri, songs);
+            return new PageReadResult(uri, songs, page);
         }
         /// <summary>
         /// Gets a list of songs by an author with the provided ID (NOT the author's username).
@@ -658,7 +655,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         }
         public static async Task<PageReadResult> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
-            var uri = new Uri(BEATSAVER_GETBYHASH_BASE_URL + hash);
+            var uri = Utilities.GetBeatSaverDetailsByHash(hash);
             ScrapedSong song = null;
             var pageError = PageErrorType.None;
             Exception exception = null;
@@ -713,12 +710,12 @@ namespace SongFeedReaders.Readers.BeatSaver
             List<ScrapedSong> retList = new List<ScrapedSong>();
             if (song != null)
                 retList.Add(song);
-            return new PageReadResult(uri, retList, exception, pageError);
+            return new PageReadResult(uri, retList, page, exception, pageError);
         }
 
         public static async Task<ScrapedSong> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
         {
-            var uri = new Uri(BEATSAVER_DETAILS_BASE_URL + key);
+            var uri = Utilities.GetBeatSaverDetailsByKey(key);
             string pageText = "";
             ScrapedSong song = null;
             IWebResponseMessage response = null;
@@ -745,15 +742,18 @@ namespace SongFeedReaders.Readers.BeatSaver
                 {
                     switch (ex.Response.StatusCode)
                     {
+                        case 404:
+                            errorText = $"Song {key} was not found on BeatSaver.";
+                            break;
                         case 408:
-                            errorText = "Timeout";
+                            errorText = "Timeout while trying to populate fields for {key}";
                             break;
                         default:
-                            errorText = "Site Error";
+                            errorText = "Site Error while trying to populate fields for {key}";
                             break;
                     }
                 }
-                Logger?.Error($"{errorText} while trying to populate fields for {key}");
+                Logger?.Error(errorText);
                 return null;
             }
             catch (AggregateException ae)

@@ -9,6 +9,10 @@ namespace SongFeedReaders
 {
     public static class Utilities
     {
+        public static string BeatSaverDownloadUrlKeyBase => "https://beatsaver.com/api/download/key/";
+        public static string BeatSaverDetailsFromKeyBaseUrl => "https://beatsaver.com/api/maps/detail/";
+        public static string BeatSaverDetailsFromHashBaseUrl => "https://beatsaver.com/api/maps/by-hash/";
+        public static string BeatSaverDownloadUrlHashBase => "http://beatsaver.com/api/download/hash/";
         static Utilities()
         {
             MaxAggregateExceptionDepth = 10;
@@ -67,6 +71,26 @@ namespace SongFeedReaders
                 retVal = new Uri(uriString);
             }
             return retVal;
+        }
+
+        public static Uri GetDownloadUriByHash(string hash)
+        {
+            return new Uri(BeatSaverDownloadUrlHashBase + hash.ToLower());
+        }
+
+        public static Uri GetDownloadUriByKey(string key)
+        {
+            return new Uri(BeatSaverDownloadUrlKeyBase + key.ToLower());
+        }
+
+        public static Uri GetBeatSaverDetailsByKey(string key)
+        {
+            return new Uri(BeatSaverDetailsFromKeyBaseUrl + key.ToLower());
+        }
+
+        public static Uri GetBeatSaverDetailsByHash(string hash)
+        {
+            return new Uri(BeatSaverDetailsFromHashBaseUrl + hash.ToLower());
         }
 
         /// <summary>

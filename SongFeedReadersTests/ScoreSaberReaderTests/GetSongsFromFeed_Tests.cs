@@ -22,7 +22,7 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
         {
             var reader = new ScoreSaberReader();
             int maxSongs = 100;
-            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeed.Trending) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
+            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.Trending) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count == maxSongs);
             Assert.IsFalse(songList.Songs.Keys.Any(k => string.IsNullOrEmpty(k)));
@@ -33,7 +33,7 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
         {
             var reader = new ScoreSaberReader();
             int maxSongs = 50;
-            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeed.LatestRanked) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
+            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.LatestRanked) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
             var result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count == maxSongs);
             Assert.IsFalse(result.Songs.Keys.Any(k => string.IsNullOrEmpty(k)));
@@ -45,7 +45,7 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
         {
             var reader = new ScoreSaberReader();
             int maxSongs = 0;
-            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeed.TopRanked) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
+            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.TopRanked) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
             var songList = reader.GetSongsFromFeed(settings);
             Console.WriteLine($"{songList.Count} songs.");
             Assert.IsTrue(songList.Count >= 367);
@@ -57,7 +57,7 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
         {
             var reader = new ScoreSaberReader();
             int maxSongs = 30;
-            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeed.TopPlayed) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = false };
+            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.TopPlayed) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = false };
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count == maxSongs);
             Assert.IsFalse(songList.Songs.Keys.Any(k => string.IsNullOrEmpty(k)));
@@ -68,7 +68,7 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
         {
             var reader = new ScoreSaberReader();
             int maxSongs = 40;
-            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeed.Search)
+            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.Search)
             { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true, SearchQuery = "Believer" };
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Songs.Values.Any(s => s.SongName.ToLower().Contains("believer")));

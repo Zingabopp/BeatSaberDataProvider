@@ -5,7 +5,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
     public class ScoreSaberFeedSettings : IFeedSettings
     {
 
-        public string FeedName { get { return ScoreSaberReader.Feeds[Feed].Name; } }
+        public string FeedName { get { return ScoreSaberFeed.Feeds[Feed].Name; } }
         private int _feedIndex;
         private int _startingPage;
         private int _maxSongs;
@@ -13,23 +13,23 @@ namespace SongFeedReaders.Readers.ScoreSaber
         private int _songsPerPage;
 
         /// <summary>
-        /// Index of the feed defined by <see cref="ScoreSaberFeed"/>.
+        /// Index of the feed defined by <see cref="ScoreSaberFeedName"/>.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="ScoreSaberFeed"/></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when setting a value that is not a valid <see cref="ScoreSaberFeedName"/></exception>
         public int FeedIndex
         {
             get { return _feedIndex; }
             set
             {
-                if (!Enum.IsDefined(typeof(ScoreSaberFeed), value))
+                if (!Enum.IsDefined(typeof(ScoreSaberFeedName), value))
                     throw new ArgumentOutOfRangeException($"Failed to set FeedIndex: No ScoreSaberFeed defined for an index of {value}.");
                 _feedIndex = value;
             }
         }
 
-        public ScoreSaberFeed Feed
+        public ScoreSaberFeedName Feed
         {
-            get { return (ScoreSaberFeed)FeedIndex; }
+            get { return (ScoreSaberFeedName)FeedIndex; }
             set
             {
                 FeedIndex = (int)value;
@@ -37,7 +37,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         }
 
         /// <summary>
-        /// Only get ranked songs. Forced true for <see cref="ScoreSaberFeed.TopRanked"/> and <see cref="ScoreSaberFeed.LatestRanked"/> feeds.
+        /// Only get ranked songs. Forced true for <see cref="ScoreSaberFeedName.TopRanked"/> and <see cref="ScoreSaberFeedName.LatestRanked"/> feeds.
         /// </summary>
         public bool RankedOnly { get; set; }
 
@@ -114,17 +114,17 @@ namespace SongFeedReaders.Readers.ScoreSaber
         /// 
         /// </summary>
         /// <param name="feedIndex"></param>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="ScoreSaberFeed"/></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="ScoreSaberFeedName"/></exception>
         public ScoreSaberFeedSettings(int feedIndex)
         {
-            if (!Enum.IsDefined(typeof(ScoreSaberFeed), feedIndex))
+            if (!Enum.IsDefined(typeof(ScoreSaberFeedName), feedIndex))
                 throw new ArgumentOutOfRangeException(nameof(feedIndex), $"No ScoreSaberFeed defined for an index of {feedIndex}.");
             FeedIndex = feedIndex;
             SongsPerPage = 100;
             StartingPage = 1;
         }
 
-        public ScoreSaberFeedSettings(ScoreSaberFeed feed)
+        public ScoreSaberFeedSettings(ScoreSaberFeedName feed)
         {
             Feed = feed;
             SongsPerPage = 100;
@@ -132,7 +132,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         }
     }
 
-    public enum ScoreSaberFeed
+    public enum ScoreSaberFeedName
     {
         Trending = 0,
         LatestRanked = 1,

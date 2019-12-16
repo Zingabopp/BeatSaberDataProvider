@@ -30,7 +30,6 @@ namespace SongFeedReaders.Readers.BeastSaber
         private static readonly Dictionary<string, ContentType> ContentDictionary =
             new Dictionary<string, ContentType>() { { "text/xml", ContentType.XML }, { "application/json", ContentType.JSON } };
         //private const string DefaultLoginUri = "https://bsaber.com/wp-login.php?jetpack-sso-show-default-form=1";
-        private const string BeatSaverDownloadURL_Base = "https://beatsaver.com/api/download/key/";
         public Uri RootUri { get { return new Uri("https://bsaber.com"); } }
         public const int SongsPerXmlPage = 50;
         public const int SongsPerJsonPage = 50;
@@ -279,16 +278,20 @@ namespace SongFeedReaders.Readers.BeastSaber
                 string songKey = bSong["song_key"]?.Value<string>();
                 string songName = bSong["title"]?.Value<string>();
                 string mapperName = bSong["level_author_name"]?.Value<string>();
-                string downloadUrl = "";
-                if (!string.IsNullOrEmpty(songKey))
+                Uri downloadUri = null;
+                if (!string.IsNullOrEmpty(songHash))
                 {
-                    downloadUrl = BeatSaverDownloadURL_Base + songKey;
+                    downloadUri = Utilities.GetDownloadUriByHash(songHash);
+                }
+                else if (!string.IsNullOrEmpty(songKey))
+                {
+                    downloadUri = Utilities.GetDownloadUriByKey(songKey);
                 }
                 if (!string.IsNullOrEmpty(songHash))
                 {
                     songsOnPage.Add(new ScrapedSong(songHash)
                     {
-                        DownloadUri = Utilities.GetUriFromString(downloadUrl),
+                        DownloadUri = downloadUri,
                         SourceUri = sourceUri,
                         SongName = songName,
                         SongKey = songKey,
@@ -386,18 +389,18 @@ namespace SongFeedReaders.Readers.BeastSaber
                 }
                 catch (WebClientException ex)
                 {
-                    return PageReadResult.FromWebClientException(ex, feedUri);
+                    return PageReadResult.FromWebClientException(ex, feedUri, page);
                 }
                 catch (OperationCanceledException)
                 {
-                    return new PageReadResult(feedUri, null, new FeedReaderException("Page read was cancelled.", new OperationCanceledException(), FeedReaderFailureCode.Cancelled), PageErrorType.Cancelled);
+                    return new PageReadResult(feedUri, null, page, new FeedReaderException("Page read was cancelled.", new OperationCanceledException(), FeedReaderFailureCode.Cancelled), PageErrorType.Cancelled);
                 }
                 catch (Exception ex)
                 {
                     string message = $"Error downloading {feedUri} in TransformBlock.";
                     Logger?.Debug(message);
                     Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
+                    return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
                 }
                 finally
                 {
@@ -415,7 +418,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                     string message = $"Error parsing page text for {feedUri} in TransformBlock.";
                     Logger?.Debug(message);
                     Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                    return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 catch (XmlException ex)
                 {
@@ -423,7 +426,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                     string message = $"Error parsing page text for {feedUri} in TransformBlock.";
                     Logger?.Debug(message);
                     Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                    return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 catch (Exception ex)
                 {
@@ -431,11 +434,11 @@ namespace SongFeedReaders.Readers.BeastSaber
                     string message = $"Uncaught error parsing page text for {feedUri} in TransformBlock.";
                     Logger?.Debug(message);
                     Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                    return new PageReadResult(feedUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
+                    return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
                 }
                 sw.Stop();
                 //Logger?.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
-                return new PageReadResult(feedUri, newSongs);
+                return new PageReadResult(feedUri, newSongs, page);
             }, new ExecutionDataflowBlockOptions
             {
                 MaxDegreeOfParallelism = MaxConcurrency,

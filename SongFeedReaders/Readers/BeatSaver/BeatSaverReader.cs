@@ -419,7 +419,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             do
             {
                 Logger?.Debug($"Checking page {page + 1} for the author ID.");
-                sourceUri = new Uri(Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHTYPEKEY, "advanced").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
+                sourceUri = new Uri(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHTYPEKEY, "advanced").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
                 result = new JObject();
                 IWebResponseMessage response = null;
                 try
@@ -477,7 +477,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 matchingSong = (JObject)songJSONAry.FirstOrDefault(c => c["uploader"]?["username"]?.Value<string>()?.ToLower() == authorName.ToLower());
 
                 page++;
-                sourceUri = new Uri(Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHQUERY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
+                sourceUri = new Uri(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHQUERY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
             } while ((matchingSong == null) && page * SongsPerPage < totalResults);
 
 
@@ -797,7 +797,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             List<PageReadResult> pageResults = new List<PageReadResult>();
             do
             {
-                url = new StringBuilder(Feeds[BeatSaverFeedName.Search].BaseUrl);
+                url = new StringBuilder(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl);
                 url.Replace(SEARCHTYPEKEY, settings.SearchType == BeatSaverSearchType.all ? "text" : "advanced");
                 url.Replace(SEARCHQUERY, settings.Criteria);
                 url.Replace(PAGEKEY, pageIndex.ToString());
@@ -828,34 +828,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         public static async Task<List<JToken>> ScrapeBeatSaver(int timeBetweenRequests, CancellationToken cancellationToken, DateTime? stopAtDate = null)
         {
             throw new NotImplementedException("Not finished");
-            List<JToken> songs = null;
-            string pageText = string.Empty;
-            using (var response = await WebUtils.GetBeatSaverAsync(GetPageUrl(BeatSaverFeedName.Latest), cancellationToken).ConfigureAwait(false))
-            {
-                if (response.IsSuccessStatusCode)
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                else
-                    return songs;
-            }
-
-            JObject result = new JObject();
-            try
-            {
-                result = JObject.Parse(pageText);
-            }
-            catch (JsonReaderException ex)
-            {
-                Logger?.Exception("Unable to parse JSON from text", ex);
-            }
-            int? totalSongs = result["totalDocs"]?.Value<int>();
-            int? lastPage = result["lastPage"]?.Value<int>();
-            if (totalSongs == null || lastPage == null || totalSongs == 0)
-            {
-                Logger?.Warning($"Error scraping Beat Saver.");
-                return songs;
-            }
-
-            return songs;
+           
 
         }
 
@@ -971,10 +944,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             return SearchAsync(settings, cancellationToken).Result;
         }
 
-        public static Uri GetPageUrl(int feedIndex, int pageIndex = 0, Dictionary<string, string> replacements = null)
-        {
-            return GetPageUrl((BeatSaverFeedName)feedIndex, pageIndex, replacements);
-        }
 
         #endregion
         #endregion

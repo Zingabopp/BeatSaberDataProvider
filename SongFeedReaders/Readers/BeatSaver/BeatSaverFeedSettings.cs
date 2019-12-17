@@ -115,7 +115,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             FeedIndex = feedIndex;
             MaxPages = 0;
             StartingPage = 1;
-            SearchType = BeatSaverSearchType.all;
         }
 
         public BeatSaverFeedSettings(BeatSaverFeedName feed)
@@ -123,7 +122,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             Feed = feed;
             MaxPages = 0;
             StartingPage = 1;
-            SearchType = BeatSaverSearchType.all;
         }
     }
 

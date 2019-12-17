@@ -112,6 +112,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             JObject result = new JObject();
             List<ScrapedSong> newSongs;
             var pageUri = GetUriForPage(page);
+            bool isLastPage = false;
             IWebResponseMessage response = null;
             try
             {
@@ -127,7 +128,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                     Logger?.Warning($"Error checking Beat Saver's {Name} feed.");
                     return new PageReadResult(pageUri, null, page, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
-
+                isLastPage = page > lastPage.Value; // BeatSaver pages start at 0, Readers at 1.
                 newSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri);
             }
             catch (WebClientException ex)
@@ -172,7 +173,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response = null;
             }
 
-
+            return new PageReadResult(pageUri, newSongs, page, isLastPage);
         }
 
         public Uri GetUriForPage(int page)

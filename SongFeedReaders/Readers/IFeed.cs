@@ -32,7 +32,12 @@ namespace SongFeedReaders.Readers
         public int StartingPage { get; }
         public int CurrentPage { get; private set; }
 
-        public bool CachePages { get; }
+        /// <summary>
+        /// How many pages to load forward/backward. Page caching must be enabled.
+        /// </summary>
+        public int LookAhead { get; set; }
+
+        public bool EnablePageCache { get; }
 
         private ConcurrentDictionary<int, Task<PageReadResult>> CachedPages;
 
@@ -48,8 +53,8 @@ namespace SongFeedReaders.Readers
             Feed = feed;
             StartingPage = startingPage;
             CurrentPage = startingPage;
-            CachePages = cachePages;
-            if (CachePages)
+            EnablePageCache = cachePages;
+            if (EnablePageCache)
             {
                 CachedPages = new ConcurrentDictionary<int, Task<PageReadResult>>();
             }
@@ -59,7 +64,7 @@ namespace SongFeedReaders.Readers
         private bool TryGetCachedPage(int page, out Task<PageReadResult> cachedTask)
         {
             cachedTask = null;
-            if (CachePages && CachedPages.TryGetValue(page, out var cache))
+            if (EnablePageCache && CachedPages.TryGetValue(page, out var cache))
             {
                 if (cache != null)
                 {
@@ -131,7 +136,7 @@ namespace SongFeedReaders.Readers
                     return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
                 }
                 pageTask = Feed.GetSongsFromPageAsync(page, cancellationToken);
-                if (CachePages)
+                if (EnablePageCache)
                     CachedPages.TryAdd(page, pageTask);
                 result = await pageTask.ConfigureAwait(false);
             }
@@ -189,7 +194,7 @@ namespace SongFeedReaders.Readers
                     return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
                 }
                 pageTask = Feed.GetSongsFromPageAsync(page, cancellationToken);
-                if (CachePages)
+                if (EnablePageCache)
                     CachedPages.TryAdd(page, pageTask);
                 result = await pageTask.ConfigureAwait(false);
             }

@@ -492,39 +492,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             return mapperId;
         }
 
-        public static async Task<PageReadResult> GetSongsFromPageAsync(Uri uri, CancellationToken cancellationToken)
-        {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri), "uri cannot be null in BeatSaverReader.GetSongsFromPageAsync.");
-            string pageText = string.Empty;
-            var songs = new List<ScrapedSong>();
-            IWebResponseMessage response = null;
-            try
-            {
-                response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-                pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            }
-            catch (WebClientException ex)
-            {
-                return PageReadResult.FromWebClientException(ex, uri, page);
-            }
-            catch (OperationCanceledException ex)
-            {
-                return new PageReadResult(uri, null, page, ex, PageErrorType.Cancelled);
-            }
-            finally
-            {
-                response?.Dispose();
-                response = null;
-            }
-
-            foreach (var song in ParseSongsFromPage(pageText, uri))
-            {
-                songs.Add(song);
-            }
-            return new PageReadResult(uri, songs, page);
-        }
         /// <summary>
         /// Gets a list of songs by an author with the provided ID (NOT the author's username).
         /// </summary>
@@ -842,11 +809,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
         }
 
-        public static Task<PageReadResult> GetSongsFromPageAsync(string url)
-        {
-            return GetSongsFromPageAsync(Utilities.GetUriFromString(url), CancellationToken.None);
-        }
-
         #region Sync
 
         public FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken)
@@ -896,16 +858,6 @@ namespace SongFeedReaders.Readers.BeatSaver
         public static string GetAuthorID(string authorName)
         {
             return GetAuthorIDAsync(authorName, CancellationToken.None).Result;
-        }
-
-        public static PageReadResult GetSongsFromPage(Uri uri)
-        {
-            return GetSongsFromPageAsync(uri, CancellationToken.None).Result;
-        }
-
-        public static PageReadResult GetSongsFromPage(string url)
-        {
-            return GetSongsFromPageAsync(Utilities.GetUriFromString(url), CancellationToken.None).Result;
         }
 
         [Obsolete("Check this")]

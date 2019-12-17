@@ -95,7 +95,6 @@ namespace SongFeedReaders.Readers.BeastSaber
 
 
         #region Web Requests
-        #region Async
         // TODO: Abort early when bsaber.com is down (check if all items in block failed?)
         // TODO: Make cancellationToken actually do something.
         /// <summary>
@@ -116,7 +115,9 @@ namespace SongFeedReaders.Readers.BeastSaber
             Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
             if (!(settings is BeastSaberFeedSettings _settings))
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
-            BeastSaberFeed feed = new BeastSaberFeed(_settings);
+            if (_settings.Feed != BeastSaberFeedName.CuratorRecommended && string.IsNullOrEmpty(_settings.Username))
+                _settings.Username = Username;
+            BeastSaberFeed feed = new BeastSaberFeed(_settings) { StoreRawData = StoreRawData };
             int pageIndex = settings.StartingPage;
             int maxPages = _settings.MaxPages;
             bool useMaxSongs = _settings.MaxSongs != 0;
@@ -211,30 +212,11 @@ namespace SongFeedReaders.Readers.BeastSaber
             return new FeedResult(retDict, pageResults);
         }
 
+        #region Overloads
+
         public Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings)
         {
             return GetSongsFromFeedAsync(settings, CancellationToken.None);
-        }
-
-        #endregion
-
-        #region Sync
-
-        public FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return GetSongsFromFeedAsync(settings, cancellationToken).Result;
-            }
-            catch (AggregateException ex)
-            {
-                var flattened = ex.Flatten();
-                if(flattened.InnerExceptions.Count == 1)
-                {
-                    throw flattened.InnerException;
-                }
-                throw ex;
-            }
         }
 
         public FeedResult GetSongsFromFeed(IFeedSettings settings)
@@ -253,10 +235,28 @@ namespace SongFeedReaders.Readers.BeastSaber
                 throw ex;
             }
         }
+
+        public FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return GetSongsFromFeedAsync(settings, cancellationToken).Result;
+            }
+            catch (AggregateException ex)
+            {
+                var flattened = ex.Flatten();
+                if (flattened.InnerExceptions.Count == 1)
+                {
+                    throw flattened.InnerException;
+                }
+                throw ex;
+            }
+        }
+
         #endregion
         #endregion
 
-        
+
 
 
     }

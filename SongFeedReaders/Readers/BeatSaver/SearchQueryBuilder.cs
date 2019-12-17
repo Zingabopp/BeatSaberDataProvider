@@ -21,18 +21,31 @@ namespace SongFeedReaders.Readers.BeatSaver
             { BeatSaverSearchType.all, $""}
         };
 
-        private string _searchBase;
-        private string _searchCriteria;
+        private string SearchBase => SearchBases[SearchType];
+        public string Criteria { get; set; }
+
+        public BeatSaverSearchType SearchType { get; set; }
+
 
         public string GetQueryString()
         {
-            return _searchBase.Replace(CRITERIA_KEY, _searchCriteria);
+            return SearchBase.Replace(CRITERIA_KEY, Criteria);
+        }
+
+        public string GetBaseUrl()
+        {
+            throw new NotImplementedException();
+        }
+
+        public BeatSaverSearchQuery GetQuery()
+        {
+            return new BeatSaverSearchQuery(GetBaseUrl(), GetQueryString(), SearchType);
         }
 
         public SearchQueryBuilder(BeatSaverSearchType searchType, string criteria)
         {
-            _searchBase = SearchBases[searchType];
-            _searchCriteria = criteria;
+            SearchType = searchType;
+            Criteria = criteria;
         }
 
 

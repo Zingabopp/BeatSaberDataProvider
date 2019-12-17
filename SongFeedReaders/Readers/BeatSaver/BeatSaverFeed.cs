@@ -83,6 +83,14 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public BeatSaverFeedSettings BeatSaverFeedSettings { get; }
 
+        public FeedAsyncEnumerator GetEnumerator(bool cachePages)
+        {
+            return new FeedAsyncEnumerator(this, Settings.StartingPage, cachePages);
+        }
+        public FeedAsyncEnumerator GetEnumerator()
+        {
+            return GetEnumerator(false);
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -97,10 +105,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             FeedInfo = Feeds[BeatSaverFeedSettings.Feed];
             if (Feed == BeatSaverFeedName.Search && !BeatSaverFeedSettings.SearchQuery.HasValue) 
                 throw new ArgumentException(nameof(settings), $"SearchQuery cannot be null in settings for feed {FeedInfo.DisplayName}.");
-            if (Feed == BeatSaverFeedName.Author && string.IsNullOrEmpty(BeatSaverFeedSettings.AuthorId))
-                throw new ArgumentException(nameof(settings), $"AuthorId cannot be null in settings for feed {FeedInfo.DisplayName}.");
-            Criteria = BeatSaverFeedSettings.Criteria;
-            AuthorId = BeatSaverFeedSettings.AuthorId;
+            SearchQuery = BeatSaverFeedSettings.SearchQuery;
         }
 
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
@@ -122,12 +127,14 @@ namespace SongFeedReaders.Readers.BeatSaver
                 result = JObject.Parse(pageText);
                 int? numSongs = result["totalDocs"]?.Value<int>();
                 lastPage = result["lastPage"]?.Value<int>();
+                if (lastPage.HasValue)
+                    lastPage = lastPage.Value + 1; // BeatSaver pages start at 0, Readers at 1.
                 if (numSongs == null || lastPage == null || numSongs == 0)
                 {
                     Logger?.Warning($"Error checking Beat Saver's {Name} feed.");
                     return new PageReadResult(pageUri, null, page, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
-                isLastPage = page > lastPage.Value; // BeatSaver pages start at 0, Readers at 1.
+                isLastPage = page >= lastPage.Value; 
                 newSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri);
             }
             catch (WebClientException ex)
@@ -179,6 +186,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public Uri GetUriForPage(int page)
         {
+            page = page - 1; // BeatSaver pages start at 0, readers at 1
             Uri uri;
             if (Feed == BeatSaverFeedName.Search && SearchQuery.HasValue)
                 uri = SearchQuery.Value.GetUriForPage(page);

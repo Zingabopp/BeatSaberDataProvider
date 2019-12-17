@@ -109,6 +109,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
                 Assert.AreEqual(3, result.PagesChecked);
             }
             var firstSong = result.Songs.First().Value;
+            Assert.IsFalse(string.IsNullOrEmpty(firstSong.RawData));
             var firstRawData = JToken.Parse(firstSong.RawData);
             Assert.IsTrue(firstRawData["hash"]?.Value<string>().ToUpper() == firstSong.Hash);
         }

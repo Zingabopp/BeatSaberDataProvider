@@ -22,6 +22,9 @@ namespace SongFeedReaders.Readers
         Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken);
 
         Uri GetUriForPage(int page);
+
+        FeedAsyncEnumerator GetEnumerator();
+        FeedAsyncEnumerator GetEnumerator(bool cachePages);
     }
 
     public class FeedAsyncEnumerator
@@ -49,7 +52,8 @@ namespace SongFeedReaders.Readers
         public FeedAsyncEnumerator(IFeed feed, int startingPage = 1, bool cachePages = false)
         {
             LastPage = 0;
-            if (startingPage < 1) startingPage = 1;
+            startingPage--;
+            if (startingPage < 0) startingPage = 0;
             Feed = feed;
             StartingPage = startingPage;
             CurrentPage = startingPage;

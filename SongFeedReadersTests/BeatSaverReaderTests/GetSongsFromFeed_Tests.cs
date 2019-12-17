@@ -26,9 +26,11 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             var authorList = new string[] { "BlackBlazon", "greatyazer", "joetastic" };
             var songList = new Dictionary<string, ScrapedSong>();
             int maxSongs = 59;
+            var queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.author, null);
             foreach (var author in authorList)
             {
-                var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Author) { Criteria = author, MaxSongs = maxSongs };
+                queryBuilder.Criteria = author;
+                var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Author) { SearchQuery = queryBuilder.GetQuery(), MaxSongs = maxSongs };
                 var songsByAuthor = reader.GetSongsFromFeed(settings);
                 Assert.IsTrue(songsByAuthor.Count > 0);
                 Assert.IsTrue(songsByAuthor.Count <= maxSongs);
@@ -118,11 +120,12 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         public void Success_Downloads()
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
-            int maxSongs = 50;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs };
+            int maxPages = 5;
+            int maxSongs = 45;
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs, MaxPages = maxPages };
             var result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count == settings.MaxSongs);
-            int expectedPages = ExpectedPagesForSongs(result.Count);
+            int expectedPages = maxPages;
             Assert.AreEqual(expectedPages, result.PagesChecked);
             foreach (var song in result.Songs.Values)
             {
@@ -135,7 +138,10 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 10;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, Criteria = "Believer" };
+            var searchType = BeatSaverSearchType.name;
+            var criteria = "Believer";
+            var query = new SearchQueryBuilder(searchType, criteria).GetQuery();
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
             var result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count > 0);
             Assert.IsTrue(result.Count <= 10);
@@ -154,7 +160,8 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             int maxSongs = 10;
             string criteria = "19F2879D11A91B51A5C090D63471C3E8D9B7AEE3";
             var searchType = BeatSaverSearchType.hash;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, Criteria = criteria, SearchType = searchType };
+            var query = new SearchQueryBuilder(searchType, criteria).GetQuery();
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
             var result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(1, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);
@@ -172,7 +179,8 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             int maxSongs = 10;
             string criteria = "19F2879D11A91B51A5C090D63471C3E8D9B7AEE3";
             var searchType = BeatSaverSearchType.hash;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, Criteria = criteria, SearchType = searchType };
+            var query = new SearchQueryBuilder(searchType, criteria).GetQuery();
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
             var result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(1, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);

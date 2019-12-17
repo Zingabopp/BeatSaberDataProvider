@@ -102,7 +102,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         {
             if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page cannot be less than 1.");
             Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
-            
+
 
             var uri = GetUriForPage(page);
             string pageText = "";
@@ -150,32 +150,63 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 response?.Dispose();
                 response = null;
             }
-
-            var result = GetSongsFromPageText(pageText, uri, page);
-            return result;
+            bool isLastPage;
+            try
+            {
+                var diffs = GetSongsFromPageText(pageText, uri, StoreRawData);
+                isLastPage = diffs.Count < SongsPerPage;
+                foreach (var diff in diffs)
+                {
+                    if (!songs.ContainsKey(diff.Hash))
+                        songs.Add(diff.Hash, diff);
+                }
+            }
+            catch (JsonReaderException ex)
+            {
+                string message = "Unable to parse JSON from text";
+                Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
+                return new PageReadResult(uri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+            }
+            catch(Exception ex)
+            {
+                string message = $"Unhandled exception from GetSongsFromPageText() while parsing {uri}";
+                Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
+                return new PageReadResult(uri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+            }
+            
+            return new PageReadResult(uri, songs.Values.ToList(), page, isLastPage);
         }
 
-        public PageReadResult GetSongsFromPageText(string pageText, Uri sourceUri, int page)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pageText"></param>
+        /// <param name="sourceUri"></param>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        /// <exception cref="JsonReaderException"></exception>
+        /// 
+        public static List<ScrapedSong> GetSongsFromPageText(string pageText, Uri sourceUri, bool storeRawData)
         {
             JObject result;
             List<ScrapedSong> songs = new List<ScrapedSong>();
             try
             {
                 result = JObject.Parse(pageText);
-
             }
             catch (JsonReaderException ex)
             {
-                string message = "Unable to parse JSON from text";
-                Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(sourceUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                throw;
+                //string message = "Unable to parse JSON from text";
+                //Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
+                //return new PageReadResult(sourceUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
             var songJSONAry = result["songs"]?.ToArray();
             if (songJSONAry == null)
             {
                 string message = "Invalid page text: 'songs' field not found.";
-                Logger?.Debug("message");
-                return new PageReadResult(sourceUri, null, page, new FeedReaderException(message, null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                Logger?.Debug(message);
+                return null;
             }
             foreach (var song in songJSONAry)
             {
@@ -190,13 +221,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
                         SourceUri = sourceUri,
                         SongName = songName,
                         MapperName = mapperName,
-                        RawData = StoreRawData ? song.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
+                        RawData = storeRawData ? song.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
                     });
             }
-            bool isLastPage = false;
-            if (songs.Count == 0)
-                isLastPage = true;
-            return new PageReadResult(sourceUri, songs, page, isLastPage);
+            return songs;
         }
 
         public Uri GetUriForPage(int page)
@@ -218,6 +246,13 @@ namespace SongFeedReaders.Readers.ScoreSaber
             return new Uri(url);
         }
 
-
+        public FeedAsyncEnumerator GetEnumerator(bool cachePages)
+        {
+            return new FeedAsyncEnumerator(this, Settings.StartingPage, cachePages);
+        }
+        public FeedAsyncEnumerator GetEnumerator()
+        {
+            return GetEnumerator(false);
+        }
     }
 }

@@ -38,13 +38,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
         }
 
-        /// <summary>
-        /// Additional feed criteria, used for Search and Author feed.
-        /// </summary>
-        public string Criteria { get; set; }
-
-        public string AuthorId { get; set; }
-
         public BeatSaverSearchQuery? SearchQuery { get; set; }
 
         /// <summary>
@@ -131,9 +124,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 MaxPages = MaxPages,
                 MaxSongs = MaxSongs,
                 StartingPage = StartingPage,
-                Criteria = Criteria,
-                AuthorId = AuthorId,
-                SearchQuery = SearchQuery
+                SearchQuery = SearchQuery.GetValueOrDefault()
             };
         }
     }

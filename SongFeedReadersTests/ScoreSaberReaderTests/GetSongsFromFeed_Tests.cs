@@ -81,30 +81,31 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
             var reader = new ScoreSaberReader() { StoreRawData = true };
             var pageText = File.ReadAllText("Data\\ScoreSaberPage.json");
             Uri sourceUri = null;
-            var songList = reader.GetSongsFromPageText(pageText, sourceUri);
+            var songList = ScoreSaberFeed.GetSongsFromPageText(pageText, sourceUri, true);
             Assert.IsTrue(songList.Count == 50);
             var firstHash = "0597F8F7D8E396EBFEF511DC9EC98B69635CE532";
-            Assert.IsTrue(songList.Songs.First().Hash == firstHash);
-            var firstRawData = JToken.Parse(songList.Songs.First().RawData);
+            Assert.IsTrue(songList.First().Hash == firstHash);
+            var firstRawData = JToken.Parse(songList.First().RawData);
             Assert.IsTrue(firstRawData["uid"]?.Value<int>() == 143199);
             var lastHash = "F369747C6B54914DEAA163AAE85816BA5A8C1845";
-            Assert.IsTrue(songList.Songs.Last().Hash == lastHash);
+            Assert.IsTrue(songList.Last().Hash == lastHash);
         }
 
         [TestMethod]
         public void GetSongsFromPageText_Url()
         {
+            Assert.Fail("No more URL overload");
             var reader = new ScoreSaberReader() { StoreRawData = true };
             var pageText = File.ReadAllText("Data\\ScoreSaberPage.json");
             string url = Path.GetFullPath("Data\\ScoreSaberPage.json");
-            var songList = reader.GetSongsFromPageText(pageText, url);
+            var songList = ScoreSaberFeed.GetSongsFromPageText(pageText, new Uri(url), true);
             Assert.IsTrue(songList.Count == 50);
             var firstHash = "0597F8F7D8E396EBFEF511DC9EC98B69635CE532";
-            Assert.IsTrue(songList.Songs.First().Hash == firstHash);
-            var firstRawData = JToken.Parse(songList.Songs.First().RawData);
+            Assert.IsTrue(songList.First().Hash == firstHash);
+            var firstRawData = JToken.Parse(songList.First().RawData);
             Assert.IsTrue(firstRawData["uid"]?.Value<int>() == 143199);
             var lastHash = "F369747C6B54914DEAA163AAE85816BA5A8C1845";
-            Assert.IsTrue(songList.Songs.Last().Hash == lastHash);
+            Assert.IsTrue(songList.Last().Hash == lastHash);
         }
 
     }

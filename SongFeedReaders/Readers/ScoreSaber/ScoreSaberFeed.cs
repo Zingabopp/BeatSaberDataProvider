@@ -167,13 +167,13 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
                 return new PageReadResult(uri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 string message = $"Unhandled exception from GetSongsFromPageText() while parsing {uri}";
                 Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
                 return new PageReadResult(uri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
-            
+
             return new PageReadResult(uri, songs.Values.ToList(), page, isLastPage);
         }
 
@@ -253,6 +253,11 @@ namespace SongFeedReaders.Readers.ScoreSaber
         public FeedAsyncEnumerator GetEnumerator()
         {
             return GetEnumerator(false);
+        }
+
+        public static List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, bool storeRawData)
+        {
+            return GetSongsFromPageText(pageText, new Uri(sourceUrl), storeRawData);
         }
     }
 }

@@ -117,14 +117,13 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         }
 
         [TestMethod]
-        public void Success_Downloads()
+        public void Downloads_PageLimit()
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
             int maxPages = 5;
-            int maxSongs = 45;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs, MaxPages = maxPages };
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxPages = maxPages };
             var result = reader.GetSongsFromFeed(settings);
-            Assert.IsTrue(result.Count == settings.MaxSongs);
+            Assert.AreEqual(settings.MaxPages * BeatSaverFeed.GlobalSongsPerPage, result.Songs.Count);
             int expectedPages = maxPages;
             Assert.AreEqual(expectedPages, result.PagesChecked);
             foreach (var song in result.Songs.Values)
@@ -132,6 +131,38 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
         }
+
+        [TestMethod]
+        public void Downloads_SongLimit()
+        {
+            var reader = new BeatSaverReader() { StoreRawData = true };
+            int maxSongs = 45;
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs };
+            var result = reader.GetSongsFromFeed(settings);
+            Assert.AreEqual(maxSongs, result.Songs.Count);
+            //int expectedPages = ExpectedPagesForSongs(maxSongs);
+            //Assert.AreEqual(expectedPages, result.PagesChecked);
+            foreach (var song in result.Songs.Values)
+            {
+                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+            }
+        }
+
+        //[TestMethod]
+        //public void Downloads_SongLimit()
+        //{
+        //    var reader = new BeatSaverReader() { StoreRawData = true };
+        //    int maxSongs = 45;
+        //    var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs };
+        //    var result = reader.GetSongsFromFeed(settings);
+        //    Assert.AreEqual(maxSongs, result.Songs.Count);
+        //    int expectedPages = ExpectedPagesForSongs(maxSongs);
+        //    Assert.AreEqual(expectedPages, result.PagesChecked);
+        //    foreach (var song in result.Songs.Values)
+        //    {
+        //        Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+        //    }
+        //}
 
         [TestMethod]
         public void Search_Default_LimitedSongs()

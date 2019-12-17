@@ -102,8 +102,8 @@ namespace SongFeedReaders.Readers
             int page;
             lock (_pageLock)
             {
-                page = CurrentPage;
                 CurrentPage++;
+                page = CurrentPage;
             }
             if (cancellationToken.IsCancellationRequested)
             {

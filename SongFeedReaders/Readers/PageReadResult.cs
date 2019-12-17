@@ -66,6 +66,11 @@ namespace SongFeedReaders.Readers
             }
         }
 
+        public override string ToString()
+        {
+            return $"{Uri} | {Songs?.Count.ToString() ?? "<NULL>"}";
+        }
+
         public static PageReadResult FromWebClientException(WebClientException ex, Uri requestUri, int page)
         {
             PageErrorType pageError = PageErrorType.SiteError;

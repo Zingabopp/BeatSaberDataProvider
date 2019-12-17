@@ -305,6 +305,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                     break;
                 }
             }
+            if (firstPage.Count > 0)
+                Logger?.Debug($"Receiving {firstPage.Count} potential songs from {firstPage.Uri}");
+            else
+                Logger?.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
             if (pageIndex > maxPages)
                 continueLooping = false;
             if (!continueLooping)

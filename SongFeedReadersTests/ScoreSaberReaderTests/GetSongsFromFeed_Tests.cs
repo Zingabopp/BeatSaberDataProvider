@@ -94,7 +94,6 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
         [TestMethod]
         public void GetSongsFromPageText_Url()
         {
-            Assert.Fail("No more URL overload");
             var reader = new ScoreSaberReader() { StoreRawData = true };
             var pageText = File.ReadAllText("Data\\ScoreSaberPage.json");
             string url = Path.GetFullPath("Data\\ScoreSaberPage.json");

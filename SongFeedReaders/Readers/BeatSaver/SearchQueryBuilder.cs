@@ -8,7 +8,12 @@ namespace SongFeedReaders.Readers.BeatSaver
 {
     public class SearchQueryBuilder
     {
-        private const string CRITERIA_KEY = "{CRITERIA}";
+        private static readonly string CRITERIA_KEY = "{CRITERIA}";
+        private static readonly string SEARCHTYPEKEY = BeatSaverFeed.SEARCHTYPEKEY; // text or advanced
+        private static readonly string SEARCHQUERYKEY = BeatSaverFeed.SEARCHQUERYKEY;
+        private static readonly string PAGEKEY = BeatSaverFeed.PAGEKEY;
+        private static readonly string BaseUrl = BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl;
+
         public static Dictionary<BeatSaverSearchType, string> SearchBases = new Dictionary<BeatSaverSearchType, string>()
         {
             { BeatSaverSearchType.author, $"(uploader.username:{CRITERIA_KEY} metadata.levelAuthorName:{CRITERIA_KEY})"},
@@ -34,7 +39,13 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public string GetBaseUrl()
         {
-            throw new NotImplementedException();
+            string url = BaseUrl;
+            if (SearchType == BeatSaverSearchType.all)
+                return url.Replace(SEARCHTYPEKEY, "text").Replace(CRITERIA_KEY, Criteria);
+
+            url = url.Replace(SEARCHTYPEKEY, "advanced");
+            url = url.Replace(SEARCHQUERYKEY, GetQueryString());
+            return url;
         }
 
         public BeatSaverSearchQuery GetQuery()

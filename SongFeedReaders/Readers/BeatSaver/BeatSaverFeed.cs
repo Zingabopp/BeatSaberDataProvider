@@ -24,8 +24,8 @@ namespace SongFeedReaders.Readers.BeatSaver
         //private static readonly string AUTHORKEY = "{AUTHOR}";
         private static readonly string AUTHORIDKEY = "{AUTHORID}";
         public static readonly string PAGEKEY = "{PAGE}";
-        private const string SEARCHTYPEKEY = "{SEARCHTYPE}"; // text or advanced
-        private const string SEARCHQUERY = "{SEARCHQUERY}";
+        public static readonly string SEARCHTYPEKEY = "{SEARCHTYPE}"; // text or advanced
+        public static readonly string SEARCHQUERYKEY = "{SEARCHQUERY}";
         public static readonly int GlobalSongsPerPage = 10;
 
         private const string DescriptionAuthor = "Retrieves songs by the specified map author.";
@@ -50,7 +50,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                         { (BeatSaverFeedName)2, new FeedInfo("Hot", "BeatSaver Hot", "https://beatsaver.com/api/maps/hot/" + PAGEKEY, DescriptionHot) },
                         { (BeatSaverFeedName)3, new FeedInfo("Plays", "BeatSaver Plays", "https://beatsaver.com/api/maps/plays/" + PAGEKEY, DescriptionPlays) },
                         { (BeatSaverFeedName)4, new FeedInfo("Downloads", "BeatSaver Downloads", "https://beatsaver.com/api/maps/downloads/" + PAGEKEY, DescriptionDownloads) },
-                        { (BeatSaverFeedName)98, new FeedInfo("Search", "BeatSaver Search", $"https://beatsaver.com/api/search/{SEARCHTYPEKEY}/{PAGEKEY}/?q={SEARCHQUERY}", DescriptionSearch) },
+                        { (BeatSaverFeedName)98, new FeedInfo("Search", "BeatSaver Search", $"https://beatsaver.com/api/search/{SEARCHTYPEKEY}/{PAGEKEY}/?q={SEARCHQUERYKEY}", DescriptionSearch) },
                     };
                 }
                 return _feeds;
@@ -188,10 +188,13 @@ namespace SongFeedReaders.Readers.BeatSaver
         {
             page = page - 1; // BeatSaver pages start at 0, readers at 1
             Uri uri;
-            if (Feed == BeatSaverFeedName.Search && SearchQuery.HasValue)
+            if (Feed == BeatSaverFeedName.Search || Feed == BeatSaverFeedName.Author)
+            {
+                if (!SearchQuery.HasValue) throw new InvalidOperationException($"No SearchQuery given for feed {Name}");
                 uri = SearchQuery.Value.GetUriForPage(page);
+            }
             else
-                uri = new Uri(BaseUrl.Replace(PAGEKEY, page.ToString()).Replace(AUTHORIDKEY, AuthorId));
+                uri = new Uri(BaseUrl.Replace(PAGEKEY, page.ToString()));
             return uri;
         }
     }

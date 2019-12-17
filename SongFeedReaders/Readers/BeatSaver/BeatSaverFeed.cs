@@ -79,7 +79,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public bool StoreRawData { get; set; }
 
-        public IFeedSettings Settings { get; }
+        public IFeedSettings Settings => BeatSaverFeedSettings;
 
         public BeatSaverFeedSettings BeatSaverFeedSettings { get; }
 
@@ -92,17 +92,15 @@ namespace SongFeedReaders.Readers.BeatSaver
         public BeatSaverFeed(BeatSaverFeedSettings settings)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings), "settings cannot be null when creating a new ScoreSaberFeed.");
-            
-            Feed = settings.Feed;
-            FeedInfo = Feeds[settings.Feed];
-            if (Feed == BeatSaverFeedName.Search && !settings.SearchQuery.HasValue) 
+            BeatSaverFeedSettings = (BeatSaverFeedSettings)settings.Clone();
+            Feed = BeatSaverFeedSettings.Feed;
+            FeedInfo = Feeds[BeatSaverFeedSettings.Feed];
+            if (Feed == BeatSaverFeedName.Search && !BeatSaverFeedSettings.SearchQuery.HasValue) 
                 throw new ArgumentException(nameof(settings), $"SearchQuery cannot be null in settings for feed {FeedInfo.DisplayName}.");
-            if (Feed == BeatSaverFeedName.Author && string.IsNullOrEmpty(settings.AuthorId))
+            if (Feed == BeatSaverFeedName.Author && string.IsNullOrEmpty(BeatSaverFeedSettings.AuthorId))
                 throw new ArgumentException(nameof(settings), $"AuthorId cannot be null in settings for feed {FeedInfo.DisplayName}.");
-            BeatSaverFeedSettings = settings;
-            Criteria = settings.Criteria;
-            AuthorId = settings.AuthorId;
-            Settings = settings;
+            Criteria = BeatSaverFeedSettings.Criteria;
+            AuthorId = BeatSaverFeedSettings.AuthorId;
         }
 
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
@@ -112,6 +110,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             JObject result = new JObject();
             List<ScrapedSong> newSongs;
             var pageUri = GetUriForPage(page);
+            int? lastPage;
             bool isLastPage = false;
             IWebResponseMessage response = null;
             try
@@ -122,7 +121,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 result = JObject.Parse(pageText);
                 int? numSongs = result["totalDocs"]?.Value<int>();
-                int? lastPage = result["lastPage"]?.Value<int>();
+                lastPage = result["lastPage"]?.Value<int>();
                 if (numSongs == null || lastPage == null || numSongs == 0)
                 {
                     Logger?.Warning($"Error checking Beat Saver's {Name} feed.");
@@ -172,8 +171,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response?.Dispose();
                 response = null;
             }
-
-            return new PageReadResult(pageUri, newSongs, page, isLastPage);
+            if (lastPage.HasValue)
+                return new BeatSaverPageResult(pageUri, newSongs, page, lastPage.Value);
+            else
+                return new PageReadResult(pageUri, newSongs, page, isLastPage);
         }
 
         public Uri GetUriForPage(int page)

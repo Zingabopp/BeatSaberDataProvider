@@ -77,7 +77,7 @@ namespace SongFeedReaders.Readers.BeastSaber
 
         public bool StoreRawData { get; set; }
 
-        public IFeedSettings Settings { get; }
+        public IFeedSettings Settings => BeastSaberFeedSettings;
         public BeastSaberFeedSettings BeastSaberFeedSettings { get; }
 
         /// <summary>
@@ -89,21 +89,20 @@ namespace SongFeedReaders.Readers.BeastSaber
         public BeastSaberFeed(BeastSaberFeedSettings settings)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings), "settings cannot be null when creating a new ScoreSaberFeed.");
-            
-            Feed = settings.Feed;
-            FeedInfo = Feeds[settings.Feed];
-            BeastSaberFeedSettings = settings;
-            if (string.IsNullOrEmpty(settings.Username) && settings.Feed != BeastSaberFeedName.CuratorRecommended) throw new ArgumentException(nameof(settings), $"settings must specify a Username for feed {FeedInfo.DisplayName}");
+            BeastSaberFeedSettings = (BeastSaberFeedSettings)settings.Clone();
+            Feed = BeastSaberFeedSettings.Feed;
+            FeedInfo = Feeds[BeastSaberFeedSettings.Feed];
+            if (string.IsNullOrEmpty(BeastSaberFeedSettings.Username) && BeastSaberFeedSettings.Feed != BeastSaberFeedName.CuratorRecommended) 
+                throw new ArgumentException(nameof(settings), $"settings must specify a Username for feed {FeedInfo.DisplayName}");
             if (Feed != BeastSaberFeedName.Following)
             {
-                SongsPerPage = settings.SongsPerPage;
+                SongsPerPage = BeastSaberFeedSettings.SongsPerPage;
                 if (SongsPerPage < 1)
                     SongsPerPage = SongsPerJsonPage;
             }
             else
                 SongsPerPage = SongsPerXmlPage;
-            Username = settings.Username;
-            Settings = settings;
+            Username = BeastSaberFeedSettings.Username;
         }
         public Uri GetUriForPage(int page)
         {

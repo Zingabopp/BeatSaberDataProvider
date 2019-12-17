@@ -130,6 +130,19 @@ namespace SongFeedReaders.Readers.ScoreSaber
             SongsPerPage = 100;
             StartingPage = 1;
         }
+
+        public object Clone()
+        {
+            return new ScoreSaberFeedSettings(Feed)
+            {
+                MaxPages = MaxPages,
+                MaxSongs = MaxSongs,
+                StartingPage = StartingPage,
+                SongsPerPage = SongsPerPage,
+                SearchQuery = SearchQuery,
+                RankedOnly = RankedOnly
+            };
+        }
     }
 
     public enum ScoreSaberFeedName

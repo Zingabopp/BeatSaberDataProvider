@@ -123,6 +123,19 @@ namespace SongFeedReaders.Readers.BeatSaver
             MaxPages = 0;
             StartingPage = 1;
         }
+
+        public object Clone()
+        {
+            return new BeatSaverFeedSettings(Feed)
+            {
+                MaxPages = MaxPages,
+                MaxSongs = MaxSongs,
+                StartingPage = StartingPage,
+                Criteria = Criteria,
+                AuthorId = AuthorId,
+                SearchQuery = SearchQuery
+            };
+        }
     }
 
     public enum BeatSaverFeedName

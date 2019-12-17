@@ -112,6 +112,17 @@ namespace SongFeedReaders.Readers.BeastSaber
             StartingPage = 1;
             Username = username ?? string.Empty;
         }
+
+        public object Clone()
+        {
+            return new BeastSaberFeedSettings(Feed)
+            {
+                MaxPages = MaxPages,
+                MaxSongs = MaxSongs,
+                StartingPage = StartingPage,
+                Username = Username                 
+            };
+        }
     }
 
     public enum BeastSaberFeedName

@@ -79,7 +79,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
 
         public bool StoreRawData { get; set; }
 
-        public IFeedSettings Settings { get; }
+        public IFeedSettings Settings => ScoreSaberFeedSettings;
         public ScoreSaberFeedSettings ScoreSaberFeedSettings { get; }
 
         /// <summary>
@@ -90,13 +90,12 @@ namespace SongFeedReaders.Readers.ScoreSaber
         public ScoreSaberFeed(ScoreSaberFeedSettings settings)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings), "settings cannot be null when creating a new ScoreSaberFeed.");
-            Feed = settings.Feed;
-            FeedInfo = Feeds[settings.Feed];
-            ScoreSaberFeedSettings = settings;
-            SongsPerPage = settings.SongsPerPage;
-            SearchQuery = settings.SearchQuery;
-            RankedOnly = settings.RankedOnly;
-            Settings = settings;
+            ScoreSaberFeedSettings = (ScoreSaberFeedSettings)settings.Clone();
+            Feed = ScoreSaberFeedSettings.Feed;
+            FeedInfo = Feeds[ScoreSaberFeedSettings.Feed];
+            SongsPerPage = ScoreSaberFeedSettings.SongsPerPage;
+            SearchQuery = ScoreSaberFeedSettings.SearchQuery;
+            RankedOnly = ScoreSaberFeedSettings.RankedOnly;
         }
 
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)

@@ -10,13 +10,16 @@ namespace SongFeedReaders.Readers.BeatSaver
     {
         public string BaseUrl { get; }
         
+        public string Criteria { get; }
+
         public string Query { get; }
 
         public BeatSaverSearchType SearchType { get; }
 
-        public BeatSaverSearchQuery(string baseUrl, string query, BeatSaverSearchType searchType)
+        public BeatSaverSearchQuery(string baseUrl, string query, string criteria, BeatSaverSearchType searchType)
         {
             BaseUrl = baseUrl;
+            Criteria = criteria;
             Query = query;
             SearchType = searchType;
         }

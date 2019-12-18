@@ -50,7 +50,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public BeatSaverSearchQuery GetQuery()
         {
-            return new BeatSaverSearchQuery(GetBaseUrl(), GetQueryString(), SearchType);
+            return new BeatSaverSearchQuery(GetBaseUrl(), GetQueryString(), Criteria, SearchType);
         }
 
         public SearchQueryBuilder(BeatSaverSearchType searchType, string criteria)

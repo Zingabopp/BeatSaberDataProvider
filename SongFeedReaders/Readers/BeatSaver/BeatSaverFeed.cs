@@ -103,7 +103,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             BeatSaverFeedSettings = (BeatSaverFeedSettings)settings.Clone();
             Feed = BeatSaverFeedSettings.Feed;
             FeedInfo = Feeds[BeatSaverFeedSettings.Feed];
-            if (Feed == BeatSaverFeedName.Search && !BeatSaverFeedSettings.SearchQuery.HasValue) 
+            if ((Feed == BeatSaverFeedName.Search || Feed == BeatSaverFeedName.Author) && !BeatSaverFeedSettings.SearchQuery.HasValue) 
                 throw new ArgumentException(nameof(settings), $"SearchQuery cannot be null in settings for feed {FeedInfo.DisplayName}.");
             SearchQuery = BeatSaverFeedSettings.SearchQuery;
         }

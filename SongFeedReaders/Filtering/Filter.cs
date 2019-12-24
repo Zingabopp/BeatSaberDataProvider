@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,6 +41,12 @@ namespace SongFeedReaders.Filtering
                             && OrFilters.Any(m => m.InvokeForObject(t))
                             && !NotFilters.Any(m => m.InvokeForObject(t)));
             return pred;
+        }
+
+        public LambdaExpression GetExpression()
+        {
+            var valExpression = Expression.Constant(Value, typeof(T));
+            throw new NotImplementedException();
         }
         
 

@@ -10,7 +10,7 @@ namespace SongFeedReaders.Filtering
     {
         public abstract Type Type { get; }
 
-        public abstract bool Match(object other);
+        public abstract Predicate<object> Match(object other);
     }
 
     public abstract class ValueFilter<T>
@@ -18,12 +18,13 @@ namespace SongFeedReaders.Filtering
     {
         public override Type Type => typeof(T);
         public T Value { get; }
-        public override bool Match(object other)
+        public override Predicate<object> Match(object other)
         {
             if (!(other is T casted))
                 throw new ArgumentException($"{other.GetType().Name} does not match ValueFilter Type {Type.Name}");
-            return Match(casted);
+            throw new NotImplementedException();
+            //return Match(casted);
         }
-        public abstract bool Match(T other);
+        public abstract Predicate<T> Match(T other);
     }
 }

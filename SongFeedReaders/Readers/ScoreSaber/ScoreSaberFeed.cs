@@ -80,6 +80,34 @@ namespace SongFeedReaders.Readers.ScoreSaber
         public bool StoreRawData { get; set; }
 
         public IFeedSettings Settings => ScoreSaberFeedSettings;
+
+        public bool HasValidSettings
+        {
+            get { return EnsureValidSettings(false); }
+        }
+
+        private bool EnsureValidSettings(bool throwException = true)
+        {
+            string message = string.Empty;
+            bool valid = true;
+            if (Feed == ScoreSaberFeedName.Search)
+            {
+                if (string.IsNullOrEmpty(ScoreSaberFeedSettings.SearchQuery))
+                {
+                    message = $"{nameof(ScoreSaberFeedSettings)}.{nameof(ScoreSaberFeedSettings.SearchQuery)} cannot be null or empty for the {Feed.ToString()} feed.";
+                    valid = false;
+                }
+            }
+            if (!valid && throwException)
+                throw new InvalidFeedSettingsException(message);
+            return valid;
+        }
+
+        public void EnsureValidSettings()
+        {
+            EnsureValidSettings(true);
+        }
+
         public ScoreSaberFeedSettings ScoreSaberFeedSettings { get; }
 
         /// <summary>

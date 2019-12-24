@@ -78,6 +78,34 @@ namespace SongFeedReaders.Readers.BeastSaber
         public bool StoreRawData { get; set; }
 
         public IFeedSettings Settings => BeastSaberFeedSettings;
+
+        public bool HasValidSettings
+        {
+            get { return EnsureValidSettings(false); }
+        }
+
+        private bool EnsureValidSettings(bool throwException = true)
+        {
+            string message = string.Empty;
+            bool valid = true;
+            if (Feed != BeastSaberFeedName.CuratorRecommended)
+            {
+                if (string.IsNullOrEmpty(BeastSaberFeedSettings.Username))
+                {
+                    message = $"{nameof(BeastSaberFeedSettings)}.{nameof(BeastSaberFeedSettings.Username)} cannot be null or empty for the {Feed.ToString()} feed.";
+                    valid = false;
+                }
+            }
+            if (!valid && throwException)
+                throw new InvalidFeedSettingsException(message);
+            return valid;
+        }
+
+        public void EnsureValidSettings()
+        {
+            EnsureValidSettings(true);
+        }
+
         public BeastSaberFeedSettings BeastSaberFeedSettings { get; }
 
         /// <summary>
@@ -92,8 +120,6 @@ namespace SongFeedReaders.Readers.BeastSaber
             BeastSaberFeedSettings = (BeastSaberFeedSettings)settings.Clone();
             Feed = BeastSaberFeedSettings.Feed;
             FeedInfo = Feeds[BeastSaberFeedSettings.Feed];
-            if (string.IsNullOrEmpty(BeastSaberFeedSettings.Username) && BeastSaberFeedSettings.Feed != BeastSaberFeedName.CuratorRecommended) 
-                throw new ArgumentException(nameof(settings), $"settings must specify a Username for feed {FeedInfo.DisplayName}");
             if (Feed != BeastSaberFeedName.Following)
             {
                 SongsPerPage = BeastSaberFeedSettings.SongsPerPage;

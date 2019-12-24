@@ -98,30 +98,33 @@ namespace SongFeedReaders.Readers.BeatSaver
             {
                 if (!BeatSaverFeedSettings.SearchQuery.HasValue)
                 {
-                    message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)} cannot be null.";
+                    message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)} cannot be null for the {Feed.ToString()} feed.";
                     valid = false;
                 }
-                switch (Feed)
+                else if (string.IsNullOrEmpty(BeatSaverFeedSettings.SearchQuery.Value.Criteria))
                 {
-                    case BeatSaverFeedName.Author:
-                        if (string.IsNullOrEmpty(BeatSaverFeedSettings.SearchQuery.Value.Criteria))
-                        {
-                            message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)} cannot be null.";
-                            valid = false;
-                        }
-                        break;
-                    case BeatSaverFeedName.Search:
-                        if (string.IsNullOrEmpty(BeatSaverFeedSettings.SearchQuery.Value.Criteria))
-                        {
-                            message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)} cannot be null.";
-                            valid = false;
-                        }
-                        break;
-                    default:
-                        return false;
+                    message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)}.{nameof(BeatSaverFeedSettings.SearchQuery.Value.Criteria)} cannot be null for the {Feed.ToString()} feed.";
+                    valid = false;
+                }
+                else
+                {
+                    switch (Feed)
+                    {
+                        case BeatSaverFeedName.Author:
+                            if (BeatSaverFeedSettings.SearchQuery.Value.SearchType != BeatSaverSearchType.author)
+                            {
+                                message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchType)} must be 'author' for the {Feed.ToString()} feed.";
+                                valid = false;
+                            }
+                            break;
+                        case BeatSaverFeedName.Search:
+                            break;
+                        default:
+                            return false;
+                    }
                 }
             }
-            if (!valid == throwException)
+            if (!valid && throwException)
                 throw new InvalidFeedSettingsException(message);
             return valid;
         }

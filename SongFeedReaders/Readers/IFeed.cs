@@ -10,20 +10,70 @@ namespace SongFeedReaders.Readers
 {
     public interface IFeed
     {
+        /// <summary>
+        /// Name of the feed.
+        /// </summary>
         string Name { get; }
+        /// <summary>
+        /// DisplayName of the feed.
+        /// </summary>
         string DisplayName { get; }
+        /// <summary>
+        /// Description of the feed.
+        /// </summary>
         string Description { get; }
+        /// <summary>
+        /// The feed's root URI.
+        /// </summary>
         Uri RootUri { get; }
+        /// <summary>
+        /// Base URL used by the feed for constructing the full URI.
+        /// </summary>
         string BaseUrl { get; }
+        /// <summary>
+        /// Number of songs the feed returns per page.
+        /// </summary>
         int SongsPerPage { get; }
+        /// <summary>
+        /// If true, store the full data from the feed for each song as a JSON string.
+        /// </summary>
         bool StoreRawData { get; set; }
+        /// <summary>
+        /// Returns true if the settings are valid for the feed.
+        /// </summary>
         IFeedSettings Settings { get; }
-
+        /// <summary>
+        /// Throws an exception if the settings are not valid for the feed.
+        /// </summary>
+        bool HasValidSettings { get; }
+        /// <summary>
+        /// The settings used by the feed.
+        /// </summary>
+        void EnsureValidSettings();
+        /// <summary>
+        /// Attempts to fetch the specified page and returns it as a <see cref="PageReadResult"/>. 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Gets the feed's full URI for the specified page.
+        /// </summary>
+        /// <param name="page"></param>
+        /// <returns></returns>
         Uri GetUriForPage(int page);
-
+        /// <summary>
+        /// Returns a <see cref="FeedAsyncEnumerator"/> to handle page navigation for the feed.
+        /// </summary>
+        /// <returns></returns>
         FeedAsyncEnumerator GetEnumerator();
+        /// <summary>
+        /// Returns a <see cref="FeedAsyncEnumerator"/> to handle page navigation for the feed. 
+        /// If cachePages is true, the <see cref="FeedAsyncEnumerator"/> will store the pages that were fetched.
+        /// </summary>
+        /// <returns></returns>
         FeedAsyncEnumerator GetEnumerator(bool cachePages);
     }
 

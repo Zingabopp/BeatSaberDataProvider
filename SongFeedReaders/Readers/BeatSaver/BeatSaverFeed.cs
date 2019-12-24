@@ -81,6 +81,56 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public IFeedSettings Settings => BeatSaverFeedSettings;
 
+        public bool HasValidSettings
+        {
+            get { return EnsureValidSettings(false); }
+        }
+
+        private bool EnsureValidSettings(bool throwException = true)
+        {
+            string message = string.Empty;
+            bool valid = true;
+            //if (BeatSaverFeedSettings == null) // BeatSaverFeedSettings should never be null anyway
+            //{
+            //    return !throwException ? false : throw new InvalidFeedSettingsException($"{nameof(BeatSaverFeedSettings)} cannot be null.");
+            //}
+            if (Feed == BeatSaverFeedName.Author || Feed == BeatSaverFeedName.Search)
+            {
+                if (!BeatSaverFeedSettings.SearchQuery.HasValue)
+                {
+                    message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)} cannot be null.";
+                    valid = false;
+                }
+                switch (Feed)
+                {
+                    case BeatSaverFeedName.Author:
+                        if (string.IsNullOrEmpty(BeatSaverFeedSettings.SearchQuery.Value.Criteria))
+                        {
+                            message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)} cannot be null.";
+                            valid = false;
+                        }
+                        break;
+                    case BeatSaverFeedName.Search:
+                        if (string.IsNullOrEmpty(BeatSaverFeedSettings.SearchQuery.Value.Criteria))
+                        {
+                            message = $"{nameof(BeatSaverFeedSettings)}.{nameof(BeatSaverFeedSettings.SearchQuery)} cannot be null.";
+                            valid = false;
+                        }
+                        break;
+                    default:
+                        return false;
+                }
+            }
+            if (!valid == throwException)
+                throw new InvalidFeedSettingsException(message);
+            return valid;
+        }
+
+        public void EnsureValidSettings()
+        {
+            EnsureValidSettings(true);
+        }
+
         public BeatSaverFeedSettings BeatSaverFeedSettings { get; }
 
         public FeedAsyncEnumerator GetEnumerator(bool cachePages)
@@ -103,7 +153,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             BeatSaverFeedSettings = (BeatSaverFeedSettings)settings.Clone();
             Feed = BeatSaverFeedSettings.Feed;
             FeedInfo = Feeds[BeatSaverFeedSettings.Feed];
-            if ((Feed == BeatSaverFeedName.Search || Feed == BeatSaverFeedName.Author) && !BeatSaverFeedSettings.SearchQuery.HasValue) 
+            if ((Feed == BeatSaverFeedName.Search || Feed == BeatSaverFeedName.Author) && !BeatSaverFeedSettings.SearchQuery.HasValue)
                 throw new ArgumentException(nameof(settings), $"SearchQuery cannot be null in settings for feed {FeedInfo.DisplayName}.");
             SearchQuery = BeatSaverFeedSettings.SearchQuery;
         }
@@ -134,7 +184,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                     Logger?.Warning($"Error checking Beat Saver's {Name} feed.");
                     return new PageReadResult(pageUri, null, page, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
-                isLastPage = page >= lastPage.Value; 
+                isLastPage = page >= lastPage.Value;
                 newSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri);
             }
             catch (WebClientException ex)

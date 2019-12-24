@@ -102,8 +102,8 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="cancellationToken"></param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="_settings"/> is null.</exception>
         /// <exception cref="InvalidCastException">Thrown when the passed IFeedSettings isn't a BeastSaberFeedSettings.</exception>
-        /// <exception cref="ArgumentException">Thrown when trying to access a feed that requires a username and the username wasn't provided.</exception>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
         public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
@@ -118,6 +118,14 @@ namespace SongFeedReaders.Readers.BeastSaber
             if (_settings.Feed != BeastSaberFeedName.CuratorRecommended && string.IsNullOrEmpty(_settings.Username))
                 _settings.Username = Username;
             BeastSaberFeed feed = new BeastSaberFeed(_settings) { StoreRawData = StoreRawData };
+            try
+            {
+                feed.EnsureValidSettings();
+            }
+            catch (InvalidFeedSettingsException ex)
+            {
+                return new FeedResult(null, null, ex, FeedResultError.Error);
+            }
             int pageIndex = settings.StartingPage;
             int maxPages = _settings.MaxPages;
             bool useMaxSongs = _settings.MaxSongs != 0;

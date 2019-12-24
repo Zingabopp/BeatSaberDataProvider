@@ -257,6 +257,14 @@ namespace SongFeedReaders.Readers.BeatSaver
             if (pageIndex > 1 && useMaxPages)
                 maxPages += pageIndex - 1; // Add starting page to maxPages so we actually get songs if maxPages < starting page
             var feed = new BeatSaverFeed(settings);
+            try
+            {
+                feed.EnsureValidSettings();
+            }
+            catch (InvalidFeedSettingsException ex)
+            {
+                return new FeedResult(null, null, ex, FeedResultError.Error);
+            }
             var feedEnum = feed.GetEnumerator();
             List<PageReadResult> pageResults;
             Dictionary<string, ScrapedSong> newSongs = new Dictionary<string, ScrapedSong>();

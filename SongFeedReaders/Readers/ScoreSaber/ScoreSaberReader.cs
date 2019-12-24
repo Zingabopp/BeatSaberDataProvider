@@ -27,7 +27,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         public static string NameKey => "ScoreSaberReader";
         public static string SourceKey => "ScoreSaber";
 
-        private const string INVALID_FEED_SETTINGS_MESSAGE = "The IFeedSettings passed is not a ScoreSaberFeedSettings.";
+        private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a ScoreSaberFeedSettings.";
         #endregion
         private static FeedReaderLoggerBase _logger;
         public static FeedReaderLoggerBase Logger
@@ -70,10 +70,20 @@ namespace SongFeedReaders.Readers.ScoreSaber
         #region Web Requests
 
         #region Async
-        public async Task<FeedResult> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings settings, CancellationToken cancellationToken)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_settings"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidCastException">Throw when the provided settings object isn't a BeatSaverFeedSettings</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="_settings"/> is null.</exception>
+        public async Task<FeedResult> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings _settings, CancellationToken cancellationToken)
         {
-            if (settings == null)
-                throw new ArgumentNullException(nameof(settings), "settings cannot be null for ScoreSaberReader.GetSongsFromScoreSaberAsync");
+            if (_settings == null)
+                throw new ArgumentNullException(nameof(_settings), "settings cannot be null for ScoreSaberReader.GetSongsFromScoreSaberAsync");
+            if (!(_settings is ScoreSaberFeedSettings settings))
+                throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             // "https://scoresaber.com/api.php?function=get-leaderboards&cat={CATKEY}&limit={LIMITKEY}&page={PAGENUMKEY}&ranked={RANKEDKEY}"
             int songsPerPage = settings.SongsPerPage;
             if (songsPerPage == 0)
@@ -86,6 +96,14 @@ namespace SongFeedReaders.Readers.ScoreSaber
             //if (settings.MaxPages > 0)
             //    maxPages = maxPages < settings.MaxPages ? maxPages : settings.MaxPages; // Take the lower limit.
             var feed = new ScoreSaberFeed(settings);
+            try
+            {
+                feed.EnsureValidSettings();
+            }
+            catch (InvalidFeedSettingsException ex)
+            {
+                return new FeedResult(null, null, ex, FeedResultError.Error);
+            }
             Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
             
             var pageResults = new List<PageReadResult>();
@@ -161,7 +179,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             if (_settings == null)
                 throw new ArgumentNullException(nameof(_settings), "settings cannot be null for ScoreSaberReader.GetSongsFromFeedAsync");
             if (!(_settings is ScoreSaberFeedSettings settings))
-                throw new InvalidCastException(INVALID_FEED_SETTINGS_MESSAGE);
+                throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             if (!((settings.FeedIndex >= 0 && settings.FeedIndex <= 3) || settings.FeedIndex == 99)) // Validate FeedIndex
                 throw new ArgumentOutOfRangeException(nameof(_settings), "_settings contains an invalid FeedIndex value for ScoreSaberReader");
             Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();

@@ -4,15 +4,18 @@ namespace SongFeedReaders.Readers.BeatSaver
 {
     public class BeatSaverFeedSettings : IFeedSettings
     {
-        /// <summary>
-        /// Name of the chosen feed.
-        /// </summary>
-        public string FeedName { get { return BeatSaverFeed.Feeds[Feed].Name; } } // Name of the chosen feed
-
+        #region Property Fields
         private int _feedIndex;
         private int _startingPage;
         private int _maxSongs;
         private int _maxPages;
+        #endregion
+
+        #region IFeedSettings
+        /// <summary>
+        /// Name of the chosen feed.
+        /// </summary>
+        public string FeedName { get { return BeatSaverFeed.Feeds[Feed].Name; } }
 
         /// <summary>
         /// Index of the feed defined by <see cref="BeatSaverFeedName"/>.
@@ -29,23 +32,9 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
         }
 
-        public BeatSaverFeedName Feed
-        {
-            get { return (BeatSaverFeedName)FeedIndex; }
-            set
-            {
-                FeedIndex = (int)value;
-            }
-        }
-
-        public BeatSaverSearchQuery? SearchQuery { get; set; }
-
         /// <summary>
-        /// Type of search to perform, only used for SEARCH feed.
-        /// Default is 'song' (song name, song subname, author)
+        /// Number of songs per page for this feed.
         /// </summary>
-        public BeatSaverSearchType? SearchType { get { return SearchQuery?.SearchType; } }
-
         public int SongsPerPage { get { return BeatSaverReader.SongsPerPage; } }
 
         /// <summary>
@@ -65,22 +54,6 @@ namespace SongFeedReaders.Readers.BeatSaver
         }
 
         /// <summary>
-        /// Maximum pages to check, will stop the reader before MaxSongs is met. Use 0 for unlimited.
-        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
-        public int MaxPages
-        {
-            get { return _maxPages; }
-            set
-            {
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException(nameof(MaxPages), "MaxPages cannot be less than 0.");
-                _maxPages = value;
-            }
-        }
-
-        /// <summary>
         /// Page of the feed to start on, default is 1. Setting '1' here is the same as starting on the first page.
         /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 1.
         /// </summary>
@@ -96,6 +69,53 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
         }
 
+        public object Clone()
+        {
+            return new BeatSaverFeedSettings(Feed)
+            {
+                MaxPages = MaxPages,
+                MaxSongs = MaxSongs,
+                StartingPage = StartingPage,
+                SearchQuery = SearchQuery.GetValueOrDefault()
+            };
+        }
+        #endregion
+
+
+        public BeatSaverFeedName Feed
+        {
+            get { return (BeatSaverFeedName)FeedIndex; }
+            set
+            {
+                FeedIndex = (int)value;
+            }
+        }
+
+        /// <summary>
+        /// Maximum pages to check, will stop the reader before MaxSongs is met. Use 0 for unlimited.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
+        public int MaxPages
+        {
+            get { return _maxPages; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(MaxPages), "MaxPages cannot be less than 0.");
+                _maxPages = value;
+            }
+        }
+
+        public BeatSaverSearchQuery? SearchQuery { get; set; }
+
+        /// <summary>
+        /// Type of search to perform, only used for Search and Author feeds.
+        /// Default is 'song' (song name, song subname, author)
+        /// </summary>
+        public BeatSaverSearchType? SearchType { get { return SearchQuery?.SearchType; } }
+
+        #region Constructors
         /// <summary>
         /// 
         /// </summary>
@@ -116,17 +136,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             MaxPages = 0;
             StartingPage = 1;
         }
-
-        public object Clone()
-        {
-            return new BeatSaverFeedSettings(Feed)
-            {
-                MaxPages = MaxPages,
-                MaxSongs = MaxSongs,
-                StartingPage = StartingPage,
-                SearchQuery = SearchQuery.GetValueOrDefault()
-            };
-        }
+        #endregion
     }
 
     public enum BeatSaverFeedName

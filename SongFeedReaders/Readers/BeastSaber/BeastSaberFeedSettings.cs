@@ -4,14 +4,18 @@ namespace SongFeedReaders.Readers.BeastSaber
 {
     public class BeastSaberFeedSettings : IFeedSettings
     {
-        /// <summary>
-        /// Name of the chosen feed.
-        /// </summary>
-        public string FeedName { get { return BeastSaberFeed.Feeds[Feed].Name; } }
+        #region Property Fields
         private int _feedIndex;
         private int _startingPage;
         private int _maxSongs;
         private int _maxPages;
+        #endregion
+
+        #region IFeedSettings
+        /// <summary>
+        /// Name of the chosen feed.
+        /// </summary>
+        public string FeedName { get { return BeastSaberFeed.Feeds[Feed].Name; } }
 
         /// <summary>
         /// Index of the feed defined by <see cref="BeastSaberFeedName"/>.
@@ -28,15 +32,9 @@ namespace SongFeedReaders.Readers.BeastSaber
             }
         }
 
-        public BeastSaberFeedName Feed
-        {
-            get { return (BeastSaberFeedName)FeedIndex; }
-            set
-            {
-                FeedIndex = (int)value;
-            }
-        }
-
+        /// <summary>
+        /// Number of songs per page for this feed.
+        /// </summary>
         public int SongsPerPage { get { return FeedIndex == 0 ? BeastSaberFeed.SongsPerXmlPage : BeastSaberFeed.SongsPerJsonPage; } }
 
         /// <summary>
@@ -56,24 +54,6 @@ namespace SongFeedReaders.Readers.BeastSaber
         }
 
         /// <summary>
-        /// Maximum pages to check, will stop the reader before MaxSongs is met. Use 0 for unlimited.
-        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
-        /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
-        public int MaxPages
-        {
-            get { return _maxPages; }
-            set
-            {
-                if (value < 0)
-                    throw new ArgumentOutOfRangeException(nameof(MaxPages), "MaxPages cannot be less than 0.");
-                _maxPages = value;
-            }
-        }
-
-        public string Username { get; set; }
-
-        /// <summary>
         /// Page of the feed to start on, default is 1. Setting '1' here is the same as starting on the first page.
         /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 1.
         /// </summary>
@@ -89,6 +69,49 @@ namespace SongFeedReaders.Readers.BeastSaber
             }
         }
 
+        public object Clone()
+        {
+            return new BeastSaberFeedSettings(Feed)
+            {
+                MaxPages = MaxPages,
+                MaxSongs = MaxSongs,
+                StartingPage = StartingPage,
+                Username = Username
+            };
+        }
+        #endregion
+
+        public BeastSaberFeedName Feed
+        {
+            get { return (BeastSaberFeedName)FeedIndex; }
+            set
+            {
+                FeedIndex = (int)value;
+            }
+        }
+
+        /// <summary>
+        /// Maximum pages to check, will stop the reader before MaxSongs is met. Use 0 for unlimited.
+        /// Throws an <see cref="ArgumentOutOfRangeException"/> when set to less than 0.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when set to less than 0.</exception>
+        public int MaxPages
+        {
+            get { return _maxPages; }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(MaxPages), "MaxPages cannot be less than 0.");
+                _maxPages = value;
+            }
+        }
+
+        /// <summary>
+        /// Username to use when fetching the Following and Bookmarks feeds.
+        /// </summary>
+        public string Username { get; set; }
+
+        #region Constructors
         /// <summary>
         /// 
         /// </summary>
@@ -112,17 +135,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             StartingPage = 1;
             Username = username ?? string.Empty;
         }
-
-        public object Clone()
-        {
-            return new BeastSaberFeedSettings(Feed)
-            {
-                MaxPages = MaxPages,
-                MaxSongs = MaxSongs,
-                StartingPage = StartingPage,
-                Username = Username                 
-            };
-        }
+        #endregion
     }
 
     public enum BeastSaberFeedName

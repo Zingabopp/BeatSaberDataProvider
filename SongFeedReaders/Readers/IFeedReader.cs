@@ -28,6 +28,7 @@ namespace SongFeedReaders.Readers
         /// <param name="settings"></param>
         /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
+        /// <exception cref="InvalidFeedSettingsException">Throw when <paramref name="settings"/> is not valid for the feed.</exception>
         /// <returns></returns>
         FeedResult GetSongsFromFeed(IFeedSettings settings);
 
@@ -40,6 +41,7 @@ namespace SongFeedReaders.Readers
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
+        /// <exception cref="InvalidFeedSettingsException">Throw when <paramref name="settings"/> is not valid for the feed.</exception>
         /// <returns></returns>
         FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken);
 
@@ -50,6 +52,7 @@ namespace SongFeedReaders.Readers
         /// <param name="settings"></param>
         /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
+        /// <exception cref="InvalidFeedSettingsException">Throw when <paramref name="settings"/> is not valid for the feed.</exception>
         /// <returns></returns>
         Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings);
         /// <summary>
@@ -61,6 +64,7 @@ namespace SongFeedReaders.Readers
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidCastException">Thrown when the <see cref="IFeedSettings"/> doesn't match the reader type.</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
+        /// <exception cref="InvalidFeedSettingsException">Throw when <paramref name="settings"/> is not valid for the feed.</exception>
         /// <returns></returns>
         Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken);
     }

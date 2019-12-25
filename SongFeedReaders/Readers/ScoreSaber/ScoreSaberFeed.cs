@@ -81,6 +81,9 @@ namespace SongFeedReaders.Readers.ScoreSaber
 
         public IFeedSettings Settings => ScoreSaberFeedSettings;
 
+        /// <summary>
+        /// Returns true if the <see cref="Settings"/> are valid for the feed, false otherwise.
+        /// </summary>
         public bool HasValidSettings
         {
             get { return EnsureValidSettings(false); }
@@ -103,6 +106,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
             return valid;
         }
 
+        /// <summary>
+        /// Throws an <see cref="InvalidFeedSettingsException"/> when the feed's settings aren't valid.
+        /// </summary>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         public void EnsureValidSettings()
         {
             EnsureValidSettings(true);
@@ -126,13 +133,26 @@ namespace SongFeedReaders.Readers.ScoreSaber
             RankedOnly = ScoreSaberFeedSettings.RankedOnly;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
             if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page cannot be less than 1.");
             Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
-
-
-            var uri = GetUriForPage(page);
+            Uri uri;
+            try
+            {
+                uri = GetUriForPage(page);
+            }
+            catch (InvalidFeedSettingsException)
+            {
+                throw;
+            }
             string pageText = "";
 
             IWebResponseMessage response = null;
@@ -255,8 +275,15 @@ namespace SongFeedReaders.Readers.ScoreSaber
             return songs;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
         public Uri GetUriForPage(int page)
         {
+            EnsureValidSettings();
             string url = BaseUrl;
             Dictionary<string, string> urlReplacements = new Dictionary<string, string>() {
                 {LIMITKEY, SongsPerPage.ToString() },

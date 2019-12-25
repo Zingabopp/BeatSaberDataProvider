@@ -43,18 +43,21 @@ namespace SongFeedReaders.Readers
         /// </summary>
         IFeedSettings Settings { get; }
         /// <summary>
-        /// Throws an exception if the settings are not valid for the feed.
+        /// Returns true if the <see cref="Settings"/> are valid for the feed, false otherwise.
         /// </summary>
         bool HasValidSettings { get; }
+
         /// <summary>
-        /// The settings used by the feed.
+        /// Throws an <see cref="InvalidFeedSettingsException"/> when the feed's settings aren't valid.
         /// </summary>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         void EnsureValidSettings();
         /// <summary>
         /// Attempts to fetch the specified page and returns it as a <see cref="PageReadResult"/>. 
         /// </summary>
         /// <param name="page"></param>
         /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         /// <returns></returns>
         Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken);
 
@@ -62,6 +65,7 @@ namespace SongFeedReaders.Readers
         /// Gets the feed's full URI for the specified page.
         /// </summary>
         /// <param name="page"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         /// <returns></returns>
         Uri GetUriForPage(int page);
         /// <summary>

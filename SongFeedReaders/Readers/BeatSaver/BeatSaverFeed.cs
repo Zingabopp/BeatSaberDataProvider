@@ -81,6 +81,9 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public IFeedSettings Settings => BeatSaverFeedSettings;
 
+        /// <summary>
+        /// Returns true if the <see cref="Settings"/> are valid for the feed, false otherwise.
+        /// </summary>
         public bool HasValidSettings
         {
             get { return EnsureValidSettings(false); }
@@ -129,6 +132,10 @@ namespace SongFeedReaders.Readers.BeatSaver
             return valid;
         }
 
+        /// <summary>
+        /// Throws an <see cref="InvalidFeedSettingsException"/> when the feed's settings aren't valid.
+        /// </summary>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         public void EnsureValidSettings()
         {
             EnsureValidSettings(true);
@@ -161,13 +168,28 @@ namespace SongFeedReaders.Readers.BeatSaver
             SearchQuery = BeatSaverFeedSettings.SearchQuery;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
-            string pageText = string.Empty;
+            string pageText;
 
-            JObject result = new JObject();
+            JObject result;
             List<ScrapedSong> newSongs;
-            var pageUri = GetUriForPage(page);
+            Uri pageUri;
+            try
+            {
+                pageUri = GetUriForPage(page);
+            }
+            catch (InvalidFeedSettingsException)
+            {
+                throw;
+            }
             int? lastPage;
             bool isLastPage = false;
             IWebResponseMessage response = null;
@@ -237,15 +259,19 @@ namespace SongFeedReaders.Readers.BeatSaver
                 return new PageReadResult(pageUri, newSongs, page, isLastPage);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
         public Uri GetUriForPage(int page)
         {
+            EnsureValidSettings();
             page = page - 1; // BeatSaver pages start at 0, readers at 1
             Uri uri;
             if (Feed == BeatSaverFeedName.Search || Feed == BeatSaverFeedName.Author)
-            {
-                if (!SearchQuery.HasValue) throw new InvalidOperationException($"No SearchQuery given for feed {Name}");
                 uri = SearchQuery.Value.GetUriForPage(page);
-            }
             else
                 uri = new Uri(BaseUrl.Replace(PAGEKEY, page.ToString()));
             return uri;

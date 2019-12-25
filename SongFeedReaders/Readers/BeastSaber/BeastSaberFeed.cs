@@ -79,6 +79,9 @@ namespace SongFeedReaders.Readers.BeastSaber
 
         public IFeedSettings Settings => BeastSaberFeedSettings;
 
+        /// <summary>
+        /// Returns true if the <see cref="Settings"/> are valid for the feed, false otherwise.
+        /// </summary>
         public bool HasValidSettings
         {
             get { return EnsureValidSettings(false); }
@@ -101,6 +104,10 @@ namespace SongFeedReaders.Readers.BeastSaber
             return valid;
         }
 
+        /// <summary>
+        /// Throws an <see cref="InvalidFeedSettingsException"/> when the feed's settings aren't valid.
+        /// </summary>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         public void EnsureValidSettings()
         {
             EnsureValidSettings(true);
@@ -112,8 +119,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// 
         /// </summary>
         /// <param name="settings"></param>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentNullException">Thrown when Username is null or empty for a <see cref="BeastSaberFeedName"></see> that requires it./></exception>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null./></exception>
         public BeastSaberFeed(BeastSaberFeedSettings settings)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings), "settings cannot be null when creating a new ScoreSaberFeed.");
@@ -130,21 +136,43 @@ namespace SongFeedReaders.Readers.BeastSaber
                 SongsPerPage = SongsPerXmlPage;
             Username = BeastSaberFeedSettings.Username;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
         public Uri GetUriForPage(int page)
         {
+            EnsureValidSettings();
             return new Uri(FeedInfo.BaseUrl.Replace(PAGENUMKEY, page.ToString()).Replace(USERNAMEKEY, Username));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
             string pageText = "";
-            Uri feedUri = GetUriForPage(page);
+            Uri feedUri;
+            try
+            {
+                feedUri = GetUriForPage(page);
+            }
+            catch (InvalidFeedSettingsException)
+            {
+                throw;
+            }
             ContentType contentType = ContentType.Unknown;
-            string contentTypeStr = string.Empty;
+            string contentTypeStr;
             IWebResponseMessage response = null;
-            PageReadResult result = null;
+            //PageReadResult result = null;
             try
             {
                 response = await WebUtils.WebClient.GetAsync(feedUri, cancellationToken).ConfigureAwait(false);

@@ -175,7 +175,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         /// <returns></returns>
-        public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
+        public async Task<PageReadResult> GetSongsFromPageAsync(int page, Func<ScrapedSong, bool> filter, CancellationToken cancellationToken)
         {
             string pageText;
 
@@ -210,7 +210,13 @@ namespace SongFeedReaders.Readers.BeatSaver
                     return new PageReadResult(pageUri, null, page, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 isLastPage = page >= lastPage.Value;
-                newSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri);
+                newSongs = new List<ScrapedSong>();
+                var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri);
+                foreach (var song in scrapedSongs)
+                {
+                    if (filter == null || filter(song))
+                        newSongs.Add(song);
+                }
             }
             catch (WebClientException ex)
             {
@@ -276,5 +282,16 @@ namespace SongFeedReaders.Readers.BeatSaver
                 uri = new Uri(BaseUrl.Replace(PAGEKEY, page.ToString()));
             return uri;
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
+        public Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken) => GetSongsFromPageAsync(page, null, cancellationToken);
+
     }
 }

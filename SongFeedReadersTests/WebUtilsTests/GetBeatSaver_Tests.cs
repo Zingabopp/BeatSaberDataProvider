@@ -40,7 +40,7 @@ namespace SongFeedReadersTests.WebUtilsTests
             string pageKey = "{PAGE}";
             string baseUrl = $"https://beatsaver.com/api/search/advanced/{pageKey}/?q=uploaded:[2019-01-01%20TO%202019-01-06]";
             var uriList = new List<Tuple<int, Uri>>();
-            for(int i = 0; i < 30; i++)
+            for (int i = 0; i < 30; i++)
             {
                 uriList.Add(new Tuple<int, Uri>(i, new Uri(baseUrl.Replace(pageKey, i.ToString()))));
             }
@@ -56,7 +56,8 @@ namespace SongFeedReadersTests.WebUtilsTests
                         retStr += $"{rateLimit.CallsRemaining} calls for {(rateLimit.TimeToReset - DateTime.Now).TotalSeconds} ({rateLimit.TimeToReset})";
                         Assert.IsNotNull(rateLimit);
                     }
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     retStr += ex.Message;
                 }

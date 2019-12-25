@@ -62,15 +62,6 @@ namespace SongFeedReaders.Readers
         Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Attempts to fetch the specified page and returns it as a <see cref="PageReadResult"/>. 
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="cancellationToken"></param>
-        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
-        /// <returns></returns>
-        Task<PageReadResult> GetSongsFromPageAsync(int page, Func<ScrapedSong, bool> filter, CancellationToken cancellationToken);
-
-        /// <summary>
         /// Gets the feed's full URI for the specified page.
         /// </summary>
         /// <param name="page"></param>

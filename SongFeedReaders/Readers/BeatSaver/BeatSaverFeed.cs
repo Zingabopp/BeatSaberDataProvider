@@ -175,7 +175,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         /// <returns></returns>
-        public async Task<PageReadResult> GetSongsFromPageAsync(int page, Func<ScrapedSong, bool> filter, CancellationToken cancellationToken)
+        public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
             string pageText;
 
@@ -214,8 +214,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                 var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri);
                 foreach (var song in scrapedSongs)
                 {
-                    if (filter == null || filter(song))
+                    if (Settings.Filter == null || Settings.Filter(song))
                         newSongs.Add(song);
+                    if (Settings.StopWhenAny != null || Settings.StopWhenAny(song))
+                        isLastPage = true;
                 }
             }
             catch (WebClientException ex)
@@ -282,16 +284,5 @@ namespace SongFeedReaders.Readers.BeatSaver
                 uri = new Uri(BaseUrl.Replace(PAGEKEY, page.ToString()));
             return uri;
         }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="cancellationToken"></param>
-        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
-        /// <returns></returns>
-        public Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken) => GetSongsFromPageAsync(page, null, cancellationToken);
-
     }
 }

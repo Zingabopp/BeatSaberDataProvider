@@ -155,7 +155,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         /// <returns></returns>
-        public async Task<PageReadResult> GetSongsFromPageAsync(int page, Func<ScrapedSong, bool> filter, CancellationToken cancellationToken)
+        public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -222,8 +222,10 @@ namespace SongFeedReaders.Readers.BeastSaber
                 newSongs = new List<ScrapedSong>();
                 foreach (var song in scrapedSongs)
                 {
-                    if (filter == null || filter(song))
+                    if (Settings.Filter == null || Settings.Filter(song))
                         newSongs.Add(song);
+                    if (Settings.StopWhenAny != null || Settings.StopWhenAny(song))
+                        isLastPage = true;
                 }
             }
             catch (JsonReaderException ex)
@@ -477,16 +479,6 @@ namespace SongFeedReaders.Readers.BeastSaber
         {
             return GetSongsFromPageText(pageText, Utilities.GetUriFromString(sourceUrl), contentType, storeRawData);
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="cancellationToken"></param>
-        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
-        /// <returns></returns>
-        public Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken) => GetSongsFromPageAsync(page, null, cancellationToken);
-
-
         #endregion
 
     }

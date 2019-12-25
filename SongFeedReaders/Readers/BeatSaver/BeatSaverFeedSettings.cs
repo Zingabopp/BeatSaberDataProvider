@@ -68,6 +68,8 @@ namespace SongFeedReaders.Readers.BeatSaver
                 _startingPage = value;
             }
         }
+        public Func<ScrapedSong, bool> Filter { get; set; }
+        public Func<ScrapedSong, bool> StopWhenAny { get; set; }
 
         public object Clone()
         {
@@ -76,7 +78,9 @@ namespace SongFeedReaders.Readers.BeatSaver
                 MaxPages = MaxPages,
                 MaxSongs = MaxSongs,
                 StartingPage = StartingPage,
-                SearchQuery = SearchQuery.GetValueOrDefault()
+                SearchQuery = SearchQuery.GetValueOrDefault(),
+                Filter = (Func<ScrapedSong, bool>)Filter?.Clone(),
+                StopWhenAny = (Func<ScrapedSong, bool>)Filter?.Clone(),
             };
         }
         #endregion

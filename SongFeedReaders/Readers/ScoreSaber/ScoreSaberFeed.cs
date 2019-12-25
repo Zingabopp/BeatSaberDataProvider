@@ -140,7 +140,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         /// <returns></returns>
-        public async Task<PageReadResult> GetSongsFromPageAsync(int page, Func<ScrapedSong, bool> filter, CancellationToken cancellationToken)
+        public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
             if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page cannot be less than 1.");
             Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
@@ -205,8 +205,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 isLastPage = diffs.Count < SongsPerPage;
                 foreach (var diff in diffs)
                 {
-                    if (!songs.ContainsKey(diff.Hash) && (filter == null || filter(diff)))
+                    if (!songs.ContainsKey(diff.Hash) && (Settings.Filter == null || Settings.Filter(diff)))
                         songs.Add(diff.Hash, diff);
+                    if (Settings.StopWhenAny != null || Settings.StopWhenAny(diff))
+                        isLastPage = true;
                 }
             }
             catch (JsonReaderException ex)
@@ -314,16 +316,5 @@ namespace SongFeedReaders.Readers.ScoreSaber
         {
             return GetSongsFromPageText(pageText, new Uri(sourceUrl), storeRawData);
         }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="page"></param>
-        /// <param name="cancellationToken"></param>
-        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
-        /// <returns></returns>
-        public Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken) => GetSongsFromPageAsync(page, null, cancellationToken);
-
     }
 }

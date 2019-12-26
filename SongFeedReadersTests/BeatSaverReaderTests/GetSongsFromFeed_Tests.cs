@@ -84,7 +84,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         public void Success_Filtered360()
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
-            int maxSongs = 10;
+            int maxSongs = 5;
             var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs };
             Func<ScrapedSong, bool> filter = song =>
             {

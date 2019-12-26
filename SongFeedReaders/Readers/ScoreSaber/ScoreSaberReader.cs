@@ -131,14 +131,20 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 // TODO: Handle PageReadResult here
                 var pageResult = await feed.GetSongsFromPageAsync(pageNum, cancellationToken).ConfigureAwait(false);
                 pageResults.Add(pageResult);
+                int uniqueSongCount = 0;
                 foreach (var song in pageResult.Songs)
                 {
                     //diffCount++;
                     if (!songs.ContainsKey(song.Hash) && (songs.Count < settings.MaxSongs || settings.MaxSongs == 0))
                     {
                         songs.Add(song.Hash, song);
+                        uniqueSongCount++;
                     }
                 }
+                if (uniqueSongCount > 0)
+                    Logger?.Debug($"Receiving {uniqueSongCount} potential songs from {pageResult.Uri}");
+                else
+                    Logger?.Debug($"Did not find any new songs on page {pageResult.Page} of {Name}.{settings.FeedName}.");
                 if (pageResult.IsLastPage)
                 {
                     Logger?.Debug($"Last page reached.");

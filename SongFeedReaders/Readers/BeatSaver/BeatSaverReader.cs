@@ -316,7 +316,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             if (firstPage.Count > 0)
                 Logger?.Debug($"Receiving {firstPage.Count} potential songs from {firstPage.Uri}");
             else
-                Logger?.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
+                Logger?.Debug($"Did not find any songs on page {firstPage.Page} of {Name}.{settings.FeedName}.");
             if (pageIndex > maxPages)
                 continueLooping = false;
             if (!continueLooping)
@@ -384,7 +384,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                             if (pageResult.Count > 0)
                                 Logger?.Debug($"Receiving {pageResult.Count} potential songs from {pageResult.Uri}");
                             else
-                                Logger?.Debug($"Did not find any songs in {Name}.{settings.FeedName}.");
+                                Logger?.Debug($"Did not find any songs on page {pageResult.Page} of {Name}.{settings.FeedName}.");
 
                             // TODO: Process PageReadResults for better error feedback.
                             foreach (var song in pageResult.Songs)

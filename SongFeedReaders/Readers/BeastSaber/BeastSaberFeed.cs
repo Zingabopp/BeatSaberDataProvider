@@ -224,7 +224,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 {
                     if (Settings.Filter == null || Settings.Filter(song))
                         newSongs.Add(song);
-                    if (Settings.StopWhenAny != null || Settings.StopWhenAny(song))
+                    if (Settings.StopWhenAny != null && Settings.StopWhenAny(song))
                         isLastPage = true;
                 }
             }
@@ -373,7 +373,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                                 SongName = songName,
                                 SongKey = songIndex,
                                 MapperName = authorName,
-                                RawData = jObject != null ? jObject.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
+                                JsonData = jObject
                             });
                         }
                     }
@@ -404,7 +404,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             //}
 
             var songs = result["songs"];
-            foreach (var bSong in songs)
+            foreach (JObject bSong in songs)
             {
                 // Try to get the song hash from BeastSaber
                 string songHash = bSong["hash"]?.Value<string>();
@@ -429,7 +429,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                         SongName = songName,
                         SongKey = songKey,
                         MapperName = mapperName,
-                        RawData = storeRawData ? bSong.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
+                        JsonData = storeRawData ? bSong : null
                     });
                 }
             }

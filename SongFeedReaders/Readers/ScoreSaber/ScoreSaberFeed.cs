@@ -207,7 +207,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 {
                     if (!songs.ContainsKey(diff.Hash) && (Settings.Filter == null || Settings.Filter(diff)))
                         songs.Add(diff.Hash, diff);
-                    if (Settings.StopWhenAny != null || Settings.StopWhenAny(diff))
+                    if (Settings.StopWhenAny != null && Settings.StopWhenAny(diff))
                         isLastPage = true;
                 }
             }
@@ -258,7 +258,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 Logger?.Debug(message);
                 return null;
             }
-            foreach (var song in songJSONAry)
+            foreach (JObject song in songJSONAry)
             {
                 var hash = song["id"]?.Value<string>();
                 var songName = song["name"]?.Value<string>();
@@ -271,7 +271,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                         SourceUri = sourceUri,
                         SongName = songName,
                         MapperName = mapperName,
-                        RawData = storeRawData ? song.ToString(Newtonsoft.Json.Formatting.None) : string.Empty
+                        JsonData = storeRawData ? song : null
                     });
             }
             return songs;

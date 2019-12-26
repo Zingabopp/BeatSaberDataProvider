@@ -80,7 +80,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 StartingPage = StartingPage,
                 SearchQuery = SearchQuery.GetValueOrDefault(),
                 Filter = (Func<ScrapedSong, bool>)Filter?.Clone(),
-                StopWhenAny = (Func<ScrapedSong, bool>)Filter?.Clone(),
+                StopWhenAny = (Func<ScrapedSong, bool>)StopWhenAny?.Clone(),
             };
         }
         #endregion

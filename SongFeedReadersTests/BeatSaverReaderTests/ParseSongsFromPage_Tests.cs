@@ -23,7 +23,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         {
             string pageText = File.ReadAllText(@"Data\BeatSaverListPage.json");
             Uri uri = null;
-            var songs = BeatSaverReader.ParseSongsFromPage(pageText, uri);
+            var songs = BeatSaverReader.ParseSongsFromPage(pageText, uri, true);
             Assert.IsTrue(songs.Count == 10);
             foreach (var song in songs)
             {

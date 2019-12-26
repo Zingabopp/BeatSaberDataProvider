@@ -81,6 +81,30 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         }
 
         [TestMethod]
+        public void Success_Filtered360()
+        {
+            var reader = new BeatSaverReader() { StoreRawData = true };
+            int maxSongs = 10;
+            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs };
+            Func<ScrapedSong, bool> filter = song =>
+            {
+                var meta = song.JsonData["metadata"];
+                var chara = meta["characteristics"];
+                var list = chara.Children().ToList();
+                return chara.Any(t => t["name"].Value<string>() == "360Degree");
+            };
+            settings.Filter = filter;
+            var result = reader.GetSongsFromFeed(settings);
+            Assert.AreEqual(settings.MaxSongs, result.Count);
+            int expectedPages = ExpectedPagesForSongs(result.Count);
+            Assert.IsTrue(expectedPages <= result.PagesChecked);
+            foreach (var song in result.Songs.Values)
+            {
+                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+            }
+        }
+
+        [TestMethod]
         public void Success_Hot()
         {
             var reader = new BeatSaverReader() { StoreRawData = true };

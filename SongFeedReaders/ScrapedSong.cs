@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,7 +27,9 @@ namespace SongFeedReaders
         /// <summary>
         /// Data this song was scraped from in JSON form.
         /// </summary>
-        public string RawData { get; set; }
+        public string RawData => JsonData?.ToString();
+
+        public JObject JsonData { get; set; }
 
         public ScrapedSong() { }
         public ScrapedSong(string hash)
@@ -61,7 +64,7 @@ namespace SongFeedReaders
             SongName = other.SongName;
             SongKey = other.SongKey;
             MapperName = other.MapperName;
-            RawData = other.RawData;
+            JsonData = other.JsonData;
             return this;
         }
     }

@@ -95,7 +95,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 SearchQuery = SearchQuery,
                 RankedOnly = RankedOnly,
                 Filter = (Func<ScrapedSong, bool>)Filter?.Clone(),
-                StopWhenAny = (Func<ScrapedSong, bool>)Filter?.Clone(),
+                StopWhenAny = (Func<ScrapedSong, bool>)StopWhenAny?.Clone(),
             };
         }
         #endregion

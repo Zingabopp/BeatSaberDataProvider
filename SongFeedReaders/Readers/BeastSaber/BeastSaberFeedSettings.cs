@@ -80,7 +80,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 StartingPage = StartingPage,
                 Username = Username,
                 Filter = (Func<ScrapedSong, bool>)Filter?.Clone(),
-                StopWhenAny = (Func<ScrapedSong, bool>)Filter?.Clone(),
+                StopWhenAny = (Func<ScrapedSong, bool>)StopWhenAny?.Clone(),
             };
         }
         #endregion

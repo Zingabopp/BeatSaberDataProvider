@@ -211,12 +211,12 @@ namespace SongFeedReaders.Readers.BeatSaver
                 }
                 isLastPage = page >= lastPage.Value;
                 newSongs = new List<ScrapedSong>();
-                var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri);
+                var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri, StoreRawData);
                 foreach (var song in scrapedSongs)
                 {
                     if (Settings.Filter == null || Settings.Filter(song))
                         newSongs.Add(song);
-                    if (Settings.StopWhenAny != null || Settings.StopWhenAny(song))
+                    if (Settings.StopWhenAny != null && Settings.StopWhenAny(song))
                         isLastPage = true;
                 }
             }

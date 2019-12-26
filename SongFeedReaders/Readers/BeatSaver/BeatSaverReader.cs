@@ -102,9 +102,9 @@ namespace SongFeedReaders.Readers.BeatSaver
             return BeatSaverFeed.Feeds[ssSettings.Feed].DisplayName;
         }
 
-        public static List<ScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl)
+        public static List<ScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl, bool storeRawData)
         {
-            return ParseSongsFromPage(pageText, Utilities.GetUriFromString(sourceUrl));
+            return ParseSongsFromPage(pageText, Utilities.GetUriFromString(sourceUrl), storeRawData);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// </summary>
         /// <param name="pageText"></param>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri sourceUrl)
+        public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri sourceUrl, bool storeRawData)
         {
             JObject result = new JObject();
             List<ScrapedSong> songs = new List<ScrapedSong>();
@@ -135,7 +135,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             {
                 if (result["key"] != null)
                 {
-                    newSong = ParseSongFromJson(result, sourceUrl);
+                    newSong = ParseSongFromJson(result, sourceUrl, storeRawData);
                     if (newSong != null)
                     {
                         songs.Add(newSong);
@@ -156,16 +156,16 @@ namespace SongFeedReaders.Readers.BeatSaver
 
             foreach (JObject song in songJSONAry)
             {
-                newSong = ParseSongFromJson(song, sourceUrl);
+                newSong = ParseSongFromJson(song, sourceUrl, storeRawData);
                 if (newSong != null)
                     songs.Add(newSong);
             }
             return songs;
         }
 
-        public static ScrapedSong ParseSongFromJson(JObject song, string sourceUrl)
+        public static ScrapedSong ParseSongFromJson(JObject song, string sourceUrl, bool storeRawData)
         {
-            return ParseSongFromJson(song, Utilities.GetUriFromString(sourceUrl));
+            return ParseSongFromJson(song, Utilities.GetUriFromString(sourceUrl), storeRawData);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <param name="song"></param>
         /// <exception cref="ArgumentException">Thrown when a hash can't be found for the given song JObject.</exception>
         /// <returns></returns>
-        public static ScrapedSong ParseSongFromJson(JObject song, Uri sourceUrl)
+        public static ScrapedSong ParseSongFromJson(JObject song, Uri sourceUrl, bool storeRawData)
         {
             if (song == null)
                 throw new ArgumentNullException(nameof(song), "song cannot be null for BeatSaverReader.ParseSongFromJson.");
@@ -193,7 +193,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 SongName = songName,
                 SongKey = songKey,
                 MapperName = mapperName,
-                RawData = song.ToString()
+                JsonData = storeRawData ? song : null
             };
             return newSong;
         }
@@ -256,7 +256,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             int estimatedPageResults = Math.Min(useMaxSongs ? maxSongs / 10 : int.MaxValue, useMaxPages ? maxPages : int.MaxValue);
             if (pageIndex > 1 && useMaxPages)
                 maxPages += pageIndex - 1; // Add starting page to maxPages so we actually get songs if maxPages < starting page
-            var feed = new BeatSaverFeed(settings);
+            var feed = new BeatSaverFeed(settings) { StoreRawData = true };
             try
             {
                 feed.EnsureValidSettings();
@@ -373,7 +373,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                             if (Utilities.IsPaused)
                                 await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
                             itemsInBlock--;
-                            if (pageResult.IsLastPage || pageResult == null || pageResult.Count == 0) // TODO: This will trigger if a single page has an error.
+                            if (pageResult.IsLastPage || pageResult == null) // TODO: This will trigger if a single page has an error.
                             {
                                 Logger?.Debug("Received no new songs, last page reached.");
                                 ProcessPageBlock.Complete();
@@ -532,7 +532,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
                 var pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
+                song = ParseSongsFromPage(pageText, uri, true).FirstOrDefault();
             }
             catch (WebClientException ex)
             {
@@ -637,7 +637,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response?.Dispose();
                 response = null;
             }
-            song = ParseSongsFromPage(pageText, uri).FirstOrDefault();
+            song = ParseSongsFromPage(pageText, uri, true).FirstOrDefault();
             return song;
         }
 

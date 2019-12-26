@@ -93,6 +93,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
                 var list = chara.Children().ToList();
                 return chara.Any(t => t["name"].Value<string>() == "360Degree");
             };
+            filter = SongFeedReaders.Filtering.BuiltInFilters.OneSaber;
             settings.Filter = filter;
             var result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(settings.MaxSongs, result.Count);

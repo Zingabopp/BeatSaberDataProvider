@@ -261,7 +261,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response?.Dispose();
                 response = null;
             }
-            if (lastPage.HasValue)
+            if (lastPage.HasValue && !isLastPage)
                 return new BeatSaverPageResult(pageUri, newSongs, page, lastPage.Value);
             else
                 return new PageReadResult(pageUri, newSongs, page, isLastPage);

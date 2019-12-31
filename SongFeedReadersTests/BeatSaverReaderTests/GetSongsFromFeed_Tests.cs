@@ -84,7 +84,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         public void Success_Filtered360()
         {
             var reader = new BeatSaverReader() { StoreRawData = true };
-            int maxSongs = 5;
+            int maxSongs = 0;
             var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs };
             Func<ScrapedSong, bool> filter = song =>
             {
@@ -93,8 +93,14 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
                 var list = chara.Children().ToList();
                 return chara.Any(t => t["name"].Value<string>() == "360Degree");
             };
-            filter = SongFeedReaders.Filtering.BuiltInFilters.OneSaber;
+            Func<ScrapedSong, bool> stopAfter = song =>
+            {
+                var uploadDate = song.JsonData["uploaded"].Value<DateTime>();
+                return uploadDate < new DateTime(2019, 12, 1);
+            };
+            filter = SongFeedReaders.Filtering.BuiltInFilters.ThreeSixtyDegree;
             settings.Filter = filter;
+            settings.StopWhenAny = stopAfter;
             var result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(settings.MaxSongs, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);

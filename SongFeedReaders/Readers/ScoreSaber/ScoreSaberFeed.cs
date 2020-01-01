@@ -244,7 +244,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             {
                 result = JObject.Parse(pageText);
             }
-            catch (JsonReaderException ex)
+            catch (JsonReaderException)
             {
                 throw;
                 //string message = "Unable to parse JSON from text";

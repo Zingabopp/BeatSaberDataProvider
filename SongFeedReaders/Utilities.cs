@@ -161,8 +161,6 @@ namespace SongFeedReaders
         /// <param name="condition"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="OperationCanceledException">Thrown if cancellationToken is triggered.</exception>
-        /// <exception cref="ObjectDisposedException">Thrown if the cancellationToken's source is disposed.</exception>
         public static Task<bool> WaitUntil(Func<bool> condition, CancellationToken cancellationToken)
         {
             return WaitUntil(condition, 25, cancellationToken);

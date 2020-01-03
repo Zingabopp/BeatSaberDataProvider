@@ -15,6 +15,8 @@ namespace WebUtilities
         private readonly Uri _downloadUri;
         private readonly string _destinationFilePath;
         private readonly int ReportRate;
+        public bool DownloadStarted { get; protected set; }
+        protected CancellationTokenSource TokenSource { get; set; }
 
         private IWebClient _httpClient;
         public IWebClient WebClient
@@ -61,12 +63,16 @@ namespace WebUtilities
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
-        public async Task StartDownload(CancellationToken cancellationToken)
+        public virtual async Task StartDownload(CancellationToken cancellationToken)
         {
-            //_httpClient = new HttpClient { Timeout = TimeSpan.FromDays(1) };
-
-            using (var response = await _httpClient.GetAsync(_downloadUri, cancellationToken).ConfigureAwait(false))
-                await DownloadFileFromHttpResponseMessage(response, cancellationToken).ConfigureAwait(false);
+            if (!DownloadStarted)
+            {
+                DownloadStarted = true;
+                TokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                CancellationToken token = TokenSource.Token;
+                using (var response = await _httpClient.GetAsync(_downloadUri, token).ConfigureAwait(false))
+                    await DownloadFileFromHttpResponseMessage(response, token).ConfigureAwait(false);
+            }
         }
 
         /// <summary>
@@ -139,9 +145,47 @@ namespace WebUtilities
             ProgressChanged(totalDownloadSize, totalBytesRead, progressPercentage);
         }
 
-        public virtual void Dispose()
-        {
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    if (TokenSource != null)
+                    {
+                        TokenSource.Cancel();
+                        TokenSource.Dispose();
+                        TokenSource = null;
+                    }
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
         }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~HttpClientDownloadWithProgress()
+        // {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
+
     }
 }

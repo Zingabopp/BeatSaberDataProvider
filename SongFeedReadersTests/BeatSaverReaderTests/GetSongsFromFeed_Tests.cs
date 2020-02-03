@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using SongFeedReaders.Readers.BeatSaver;
+using SongFeedReaders.Data;
 using System.Threading;
 
 namespace SongFeedReadersTests.BeatSaverReaderTests

@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SongFeedReaders.Logging;
+using SongFeedReaders.Data;
 using static SongFeedReaders.WebUtils;
 using WebUtilities;
 using SongFeedReaders.DataflowAlternative;
@@ -174,7 +175,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <param name="song"></param>
         /// <exception cref="ArgumentException">Thrown when a hash can't be found for the given song JObject.</exception>
         /// <returns></returns>
-        public static ScrapedSong ParseSongFromJson(JObject song, Uri sourceUrl, bool storeRawData)
+        public static ScrapedSong ParseSongFromJson(JObject song, Uri sourceUri, bool storeRawData)
         {
             if (song == null)
                 throw new ArgumentNullException(nameof(song), "song cannot be null for BeatSaverReader.ParseSongFromJson.");
@@ -186,15 +187,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             if (string.IsNullOrEmpty(songHash))
                 throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
             Uri downloadUri = Utilities.GetDownloadUriByHash(songHash);
-            var newSong = new ScrapedSong(songHash)
-            {
-                DownloadUri = downloadUri,
-                SourceUri = sourceUrl,
-                SongName = songName,
-                SongKey = songKey,
-                MapperName = mapperName,
-                JsonData = storeRawData ? song : null
-            };
+            var newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song : null);
             return newSong;
         }
 

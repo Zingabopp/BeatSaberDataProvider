@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SongFeedReaders.Logging;
+using SongFeedReaders.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SongFeedReaders.Logging;
+using SongFeedReaders.Data;
 using static SongFeedReaders.WebUtils;
 using Newtonsoft.Json;
 using WebUtilities;

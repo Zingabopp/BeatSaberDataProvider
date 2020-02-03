@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebUtilities;
 using SongFeedReaders.Logging;
+using SongFeedReaders.Data;
 
 namespace SongFeedReaders.Readers
 {

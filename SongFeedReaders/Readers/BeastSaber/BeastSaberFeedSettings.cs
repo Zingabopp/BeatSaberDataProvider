@@ -1,4 +1,5 @@
 ﻿using System;
+using SongFeedReaders.Data;
 
 namespace SongFeedReaders.Readers.BeastSaber
 {

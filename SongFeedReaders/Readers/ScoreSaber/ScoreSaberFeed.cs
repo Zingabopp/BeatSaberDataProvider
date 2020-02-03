@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SongFeedReaders.Logging;
+using SongFeedReaders.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -265,14 +266,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 var mapperName = song["levelAuthorName"]?.Value<string>();
 
                 if (!string.IsNullOrEmpty(hash))
-                    songs.Add(new ScrapedSong(hash)
-                    {
-                        DownloadUri = Utilities.GetDownloadUriByHash(hash),
-                        SourceUri = sourceUri,
-                        SongName = songName,
-                        MapperName = mapperName,
-                        JsonData = storeRawData ? song : null
-                    });
+                    songs.Add(new ScrapedSong(hash, songName, mapperName, Utilities.GetDownloadUriByHash(hash), sourceUri, storeRawData ? song : null));
             }
             return songs;
         }

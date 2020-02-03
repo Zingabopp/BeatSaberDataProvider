@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SongFeedReaders.Logging;
+using SongFeedReaders.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -293,7 +294,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <param name="pageText"></param>
         /// <exception cref="XmlException"></exception>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseXMLPage(string pageText, Uri sourceUrl, bool storeRawData)
+        public static List<ScrapedSong> ParseXMLPage(string pageText, Uri sourceUri, bool storeRawData)
         {
             if (string.IsNullOrEmpty(pageText))
                 return new List<ScrapedSong>();
@@ -342,7 +343,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                     string songName = node[XML_TITLE_KEY].InnerText;
                     string downloadUrl = node[XML_DOWNLOADURL_KEY]?.InnerText;
                     string hash = node[XML_HASH_KEY]?.InnerText?.ToUpper();
-                    string authorName = node[XML_AUTHOR_KEY]?.InnerText;
+                    string mapperName = node[XML_AUTHOR_KEY]?.InnerText;
                     string songKey = node[XML_SONGKEY_KEY]?.InnerText;
                     if (downloadUrl.Contains("dl.php"))
                     {
@@ -350,7 +351,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                     }
                     else
                     {
-                        string songIndex = !string.IsNullOrEmpty(songKey) ? songKey : downloadUrl.Substring(downloadUrl.LastIndexOf('/') + 1);
+                        //string songIndex = !string.IsNullOrEmpty(songKey) ? songKey : downloadUrl.Substring(downloadUrl.LastIndexOf('/') + 1);
                         //string mapper = !string.IsNullOrEmpty(authorName) ? authorName : GetMapperFromBsaber(node.InnerText);
                         //string songUrl = !string.IsNullOrEmpty(downloadUrl) ? downloadUrl : BeatSaverDownloadURL_Base + songIndex;
                         if (!string.IsNullOrEmpty(hash))
@@ -362,19 +363,11 @@ namespace SongFeedReaders.Readers.BeastSaber
                                 jObject.Add(XML_TITLE_KEY, songName);
                                 jObject.Add(XML_DOWNLOADURL_KEY, downloadUrl);
                                 jObject.Add(XML_HASH_KEY, hash);
-                                jObject.Add(XML_AUTHOR_KEY, authorName);
+                                jObject.Add(XML_AUTHOR_KEY, mapperName);
                                 jObject.Add(XML_SONGKEY_KEY, songKey);
                             }
 
-                            songsOnPage.Add(new ScrapedSong(hash)
-                            {
-                                DownloadUri = Utilities.GetUriFromString(downloadUrl),
-                                SourceUri = sourceUrl,
-                                SongName = songName,
-                                SongKey = songIndex,
-                                MapperName = authorName,
-                                JsonData = jObject
-                            });
+                            songsOnPage.Add(new ScrapedSong(hash, songName, mapperName, Utilities.GetUriFromString(downloadUrl), sourceUri, jObject));
                         }
                     }
                 }
@@ -422,15 +415,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 }
                 if (!string.IsNullOrEmpty(songHash))
                 {
-                    songsOnPage.Add(new ScrapedSong(songHash)
-                    {
-                        DownloadUri = downloadUri,
-                        SourceUri = sourceUri,
-                        SongName = songName,
-                        SongKey = songKey,
-                        MapperName = mapperName,
-                        JsonData = storeRawData ? bSong : null
-                    });
+                    songsOnPage.Add(new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? bSong : null));
                 }
             }
             return songsOnPage;

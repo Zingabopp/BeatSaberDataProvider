@@ -13,7 +13,7 @@ using WebUtilities;
 
 namespace SongFeedReaders.Readers.ScoreSaber
 {
-    public class ScoreSaberReader : IFeedReader
+    public class ScoreSaberReader : FeedReaderBase
     {
         /// API Examples:
         /// https://scoresaber.com/api.php?function=get-leaderboards&cat=3&limit=50&page=1&ranked=1 // Sorted by PP
@@ -36,16 +36,15 @@ namespace SongFeedReaders.Readers.ScoreSaber
             get { return _logger ?? LoggingController.DefaultLogger; }
             set { _logger = value; }
         }
-        public string Name { get { return NameKey; } }
-        public string Source { get { return SourceKey; } }
+        public override string Name { get { return NameKey; } }
+        public override string Source { get { return SourceKey; } }
 
         public static readonly Uri ReaderRootUri = new Uri("https://scoresaber.com/");
 
-        public Uri RootUri => ReaderRootUri;
-        public bool Ready { get; private set; }
-        public bool StoreRawData { get; set; }
+        public override Uri RootUri => ReaderRootUri;
+        public override bool Ready { get; protected set; }
 
-        public void PrepareReader()
+        public override void PrepareReader()
         {
             if (!Ready)
             {
@@ -53,7 +52,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             }
         }
 
-        public string GetFeedName(IFeedSettings settings)
+        public override string GetFeedName(IFeedSettings settings)
         {
             if (!(settings is ScoreSaberFeedSettings ssSettings))
                 throw new ArgumentException("Settings is not ScoreSaberFeedSettings", nameof(settings));
@@ -79,7 +78,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         /// <returns></returns>
         /// <exception cref="InvalidCastException">Throw when the provided settings object isn't a BeatSaverFeedSettings</exception>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="_settings"/> is null.</exception>
-        public async Task<FeedResult> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings _settings, CancellationToken cancellationToken)
+        public async Task<FeedResult> GetSongsFromScoreSaberAsync(ScoreSaberFeedSettings _settings, IProgress<ReaderProgress> progress, CancellationToken cancellationToken)
         {
             if (_settings == null)
                 throw new ArgumentNullException(nameof(_settings), "settings cannot be null for ScoreSaberReader.GetSongsFromScoreSaberAsync");
@@ -118,6 +117,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                     songs.Add(song.Hash, song);
                 }
             }
+            progress?.Report(new ReaderProgress(result.Page, songs.Count));
             bool continueLooping = true;
 
             do
@@ -142,6 +142,8 @@ namespace SongFeedReaders.Readers.ScoreSaber
                         uniqueSongCount++;
                     }
                 }
+
+                progress?.Report(new ReaderProgress(pageResult.Page, uniqueSongCount));
                 if (uniqueSongCount > 0)
                     Logger?.Debug($"Receiving {uniqueSongCount} potential songs from {pageResult.Uri}");
                 else
@@ -180,7 +182,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         /// <exception cref="ArgumentException">Thrown when the Search feed is selected and the query in settings isn't valid.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when the feed specified in the settings isn't valid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when settings is null.</exception>
-        public Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings _settings, CancellationToken cancellationToken)
+        public override Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings _settings, IProgress<ReaderProgress> progress, CancellationToken cancellationToken)
         {
             PrepareReader();
             if (_settings == null)
@@ -197,55 +199,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 if (!IsValidSearchQuery(settings.SearchQuery))
                     throw new ArgumentException($"Search query '{settings.SearchQuery ?? "<nul>"}' is not a valid query.");
             }
-            return GetSongsFromScoreSaberAsync(settings, cancellationToken);
+            return GetSongsFromScoreSaberAsync(settings, progress, cancellationToken);
         }
 
         #endregion
-
-        #region Sync
-        public FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return GetSongsFromFeedAsync(settings, cancellationToken).Result;
-            }
-            catch (AggregateException ex)
-            {
-                var flattened = ex.Flatten();
-                if (flattened.InnerExceptions.Count == 1)
-                {
-                    throw flattened.InnerException;
-                }
-                throw ex;
-            }
-        }
-
-        public FeedResult GetSongsFromFeed(IFeedSettings settings)
-        {
-            try
-            {
-                return GetSongsFromFeedAsync(settings, CancellationToken.None).Result;
-            }
-            catch (AggregateException ex)
-            {
-                var flattened = ex.Flatten();
-                if (flattened.InnerExceptions.Count == 1)
-                {
-                    throw flattened.InnerException;
-                }
-                throw ex;
-            }
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Overloads
-        public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings)
-        {
-            return await GetSongsFromFeedAsync(settings, CancellationToken.None).ConfigureAwait(false);
-        }
 
         #endregion
 

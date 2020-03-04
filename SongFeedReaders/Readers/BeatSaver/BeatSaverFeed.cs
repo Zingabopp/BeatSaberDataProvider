@@ -218,7 +218,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                     if (Settings.Filter == null || Settings.Filter(song))
                         newSongs.Add(song);
                     if (Settings.StopWhenAny != null && Settings.StopWhenAny(song))
+                    {
                         isLastPage = true;
+                        break;
+                    }
                 }
             }
             catch (WebClientException ex)

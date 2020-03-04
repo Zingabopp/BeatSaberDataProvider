@@ -1,14 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections;
-using System.Linq;
-using System.IO;
-using SongFeedReaders;
 using Newtonsoft.Json.Linq;
+using SongFeedReaders.Data;
+using SongFeedReaders.Readers;
+using SongFeedReaders.Readers.BeatSaver;
 using System;
 using System.Collections.Generic;
-using SongFeedReaders.Readers.BeatSaver;
-using SongFeedReaders.Data;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SongFeedReadersTests.BeatSaverReaderTests
 {
@@ -23,44 +22,45 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Success_Authors_LimitedSongs()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
-            var authorList = new string[] { "BlackBlazon", "greatyazer", "joetastic" };
-            var songList = new Dictionary<string, ScrapedSong>();
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
+            string[] authorList = new string[] { "BlackBlazon", "greatyazer", "joetastic" };
+            Dictionary<string, ScrapedSong> songList = new Dictionary<string, ScrapedSong>();
             int maxSongs = 59;
-            var queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.author, null);
-            foreach (var author in authorList)
+            int maxPages = 10;
+            SearchQueryBuilder queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.author, null);
+            foreach (string author in authorList)
             {
                 queryBuilder.Criteria = author;
-                var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Author) { SearchQuery = queryBuilder.GetQuery(), MaxSongs = maxSongs };
-                var songsByAuthor = reader.GetSongsFromFeed(settings);
+                BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Author) { SearchQuery = queryBuilder.GetQuery(), MaxSongs = maxSongs, MaxPages = maxPages };
+                FeedResult songsByAuthor = reader.GetSongsFromFeed(settings);
                 Assert.IsTrue(songsByAuthor.Count > 0);
                 Assert.IsTrue(songsByAuthor.Count <= maxSongs);
                 int expectedPages = ExpectedPagesForSongs(songsByAuthor.Count);
                 Assert.IsTrue(expectedPages <= songsByAuthor.PagesChecked);
-                foreach (var song in songsByAuthor.Songs)
+                foreach (KeyValuePair<string, ScrapedSong> song in songsByAuthor.Songs)
                 {
                     songList.TryAdd(song.Key, song.Value);
                 }
             }
-            var detectedAuthors = songList.Values.Select(s => s.MapperName.ToLower()).Distinct();
-            foreach (var song in songList)
+            IEnumerable<string> detectedAuthors = songList.Values.Select(s => s.MapperName.ToLower()).Distinct();
+            foreach (KeyValuePair<string, ScrapedSong> song in songList)
             {
                 Assert.IsTrue(song.Value.DownloadUri != null);
                 Assert.IsTrue(authorList.Any(a => a.ToLower() == song.Value.MapperName.ToLower()));
             }
-            foreach (var author in authorList)
+            foreach (string author in authorList)
             {
                 Assert.IsTrue(songList.Any(s => s.Value.MapperName.ToLower() == author.ToLower()));
             }
 
             // BlackBlazon check
-            var blazonHash = "58de2d709a45b68fdb1dbbfefb187f59f629bfc5".ToUpper();
-            var blazonSong = songList[blazonHash];
+            string blazonHash = "58de2d709a45b68fdb1dbbfefb187f59f629bfc5".ToUpper();
+            ScrapedSong blazonSong = songList[blazonHash];
             Assert.IsTrue(blazonSong != null);
             Assert.IsTrue(blazonSong.DownloadUri != null);
             // GreatYazer check
-            var songHash = "bf8c016dc6b9832ece3030f05277bbbe67db790d".ToUpper();
-            var yazerSong = songList[songHash];
+            string songHash = "bf8c016dc6b9832ece3030f05277bbbe67db790d".ToUpper();
+            ScrapedSong yazerSong = songList[songHash];
             Assert.IsTrue(yazerSong != null);
             Assert.IsTrue(yazerSong.DownloadUri != null);
         }
@@ -68,14 +68,14 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Success_Newest()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 55;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs };
+            FeedResult result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(settings.MaxSongs, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);
             Assert.IsTrue(expectedPages <= result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -84,29 +84,34 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Success_Filtered360()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
-            int maxSongs = 0;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs };
-            Func<ScrapedSong, bool> filter = song =>
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
+            int maxSongs = 20;
+            int maxPages = 30;
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Latest) { MaxSongs = maxSongs, MaxPages = maxPages };
+            Progress<ReaderProgress> progress = new Progress<ReaderProgress>(p =>
             {
-                var meta = song.JsonData["metadata"];
-                var chara = meta["characteristics"];
-                var list = chara.Children().ToList();
-                return chara.Any(t => t["name"].Value<string>() == "360Degree");
-            };
-            Func<ScrapedSong, bool> stopAfter = song =>
+                if (p.SongCount > 0)
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} found {p.SongCount} songs.");
+                else
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} did not have any songs.");
+            });
+            bool stopAfter(ScrapedSong song)
             {
-                var uploadDate = song.JsonData["uploaded"].Value<DateTime>();
-                return uploadDate < new DateTime(2019, 12, 1);
-            };
-            filter = SongFeedReaders.Filtering.BuiltInFilters.ThreeSixtyDegree;
+                DateTime uploadDate = song.JsonData["uploaded"].Value<DateTime>();
+                bool shouldStop = uploadDate < (DateTime.Now - TimeSpan.FromDays(5));
+                if (shouldStop)
+                    Console.WriteLine($"StopWhenAny reached with {song.SongKey} ({uploadDate.ToString()})");
+                return shouldStop;
+            }
+            Func<ScrapedSong, bool> filter = SongFeedReaders.Filtering.BuiltInFilters.ThreeSixtyDegree;
             settings.Filter = filter;
             settings.StopWhenAny = stopAfter;
-            var result = reader.GetSongsFromFeed(settings);
-            Assert.AreEqual(settings.MaxSongs, result.Count);
+            FeedResult result = reader.GetSongsFromFeedAsync(settings, progress, CancellationToken.None).Result;
+            Assert.IsTrue(result.Count > 0 && result.Count < maxPages * settings.SongsPerPage);
             int expectedPages = ExpectedPagesForSongs(result.Count);
             Assert.IsTrue(expectedPages <= result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            Console.WriteLine($"----------------");
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -115,14 +120,22 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Success_Hot()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
-            int maxSongs = 50;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Hot) { MaxSongs = maxSongs };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
+            int maxSongs = 53;
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Hot) { MaxSongs = maxSongs };
+            Progress<ReaderProgress> progress = new Progress<ReaderProgress>(p =>
+            {
+                if (p.SongCount > 0)
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} found {p.SongCount} songs.");
+                else
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} did not have any songs.");
+            });
+            FeedResult result = reader.GetSongsFromFeedAsync(settings, progress, CancellationToken.None).Result;
             Assert.IsTrue(result.Count == settings.MaxSongs);
             int expectedPages = ExpectedPagesForSongs(result.Count);
             Assert.IsTrue(expectedPages <= result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            Console.WriteLine($"----------------");
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -130,14 +143,14 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Success_Plays()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 50;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Plays) { MaxSongs = maxSongs };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Plays) { MaxSongs = maxSongs };
+            FeedResult result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count == settings.MaxSongs);
             int expectedPages = ExpectedPagesForSongs(result.Count);
             Assert.IsTrue(expectedPages <= result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -149,32 +162,41 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         }
 
         [TestMethod]
-        public void Downloads_PageLimit()
+        public async Task Downloads_PageLimit()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
             int maxPages = 5;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxPages = maxPages };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxPages = maxPages };
+            Progress<ReaderProgress> progress = new Progress<ReaderProgress>(p =>
+            {
+                if (p.SongCount > 0)
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} found {p.SongCount} songs.");
+                else
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} did not have any songs.");
+            });
+            CancellationTokenSource cts = new CancellationTokenSource();
+            FeedResult result = await reader.GetSongsFromFeedAsync(settings, progress, cts.Token).ConfigureAwait(false);
             Assert.AreEqual(settings.MaxPages * BeatSaverFeed.GlobalSongsPerPage, result.Songs.Count);
             int expectedPages = maxPages;
             Assert.AreEqual(expectedPages, result.PagesChecked);
-            foreach (var song in result.Songs.Values)
-            {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
-            }
+            await Task.Delay(100).ConfigureAwait(false);
+            //foreach (ScrapedSong song in result.Songs.Values)
+            //{
+            //    Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+            //}
         }
 
         [TestMethod]
         public void Downloads_SongLimit()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 45;
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxSongs = maxSongs };
+            FeedResult result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(maxSongs, result.Songs.Count);
             //int expectedPages = ExpectedPagesForSongs(maxSongs);
             //Assert.AreEqual(expectedPages, result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -199,18 +221,18 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Search_Default_LimitedSongs()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 10;
-            var searchType = BeatSaverSearchType.name;
-            var criteria = "Believer";
-            var query = new SearchQueryBuilder(searchType, criteria).GetQuery();
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverSearchType searchType = BeatSaverSearchType.name;
+            string criteria = "Believer";
+            BeatSaverSearchQuery query = new SearchQueryBuilder(searchType, criteria).GetQuery();
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
+            FeedResult result = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(result.Count > 0);
             Assert.IsTrue(result.Count <= 10);
             int expectedPages = ExpectedPagesForSongs(result.Count);
             Assert.AreEqual(expectedPages, result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -219,17 +241,17 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Search_Hash()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 10;
             string criteria = "19F2879D11A91B51A5C090D63471C3E8D9B7AEE3";
-            var searchType = BeatSaverSearchType.hash;
-            var query = new SearchQueryBuilder(searchType, criteria).GetQuery();
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverSearchType searchType = BeatSaverSearchType.hash;
+            BeatSaverSearchQuery query = new SearchQueryBuilder(searchType, criteria).GetQuery();
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
+            FeedResult result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(1, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);
             Assert.AreEqual(expectedPages, result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }
@@ -238,17 +260,17 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Search_User()
         {
-            var reader = new BeatSaverReader() { StoreRawData = true };
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
             int maxSongs = 10;
             string criteria = "19F2879D11A91B51A5C090D63471C3E8D9B7AEE3";
-            var searchType = BeatSaverSearchType.hash;
-            var query = new SearchQueryBuilder(searchType, criteria).GetQuery();
-            var settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
-            var result = reader.GetSongsFromFeed(settings);
+            BeatSaverSearchType searchType = BeatSaverSearchType.hash;
+            BeatSaverSearchQuery query = new SearchQueryBuilder(searchType, criteria).GetQuery();
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Search) { MaxSongs = maxSongs, SearchQuery = query };
+            FeedResult result = reader.GetSongsFromFeed(settings);
             Assert.AreEqual(1, result.Count);
             int expectedPages = ExpectedPagesForSongs(result.Count);
             Assert.AreEqual(expectedPages, result.PagesChecked);
-            foreach (var song in result.Songs.Values)
+            foreach (ScrapedSong song in result.Songs.Values)
             {
                 Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
             }

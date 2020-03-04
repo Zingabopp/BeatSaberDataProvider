@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace SongFeedReaders.Readers
 {
+    public struct ReaderProgress
+    {
+        public readonly int CurrentPage;
+        public readonly int SongCount;
+        public ReaderProgress(int currentPage, int totalSongs)
+        {
+            CurrentPage = currentPage;
+            SongCount = totalSongs;
+        }
+    }
     public interface IFeedReader
     {
         string Name { get; } // Name of the reader
@@ -14,6 +24,7 @@ namespace SongFeedReaders.Readers
         bool Ready { get; } // Reader is ready
         bool StoreRawData { get; set; } // Save the raw data in ScrapedSong
 
+        
         /// <summary>
         /// Anything that needs to happen before the Reader is ready.
         /// </summary>
@@ -66,9 +77,6 @@ namespace SongFeedReaders.Readers
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="settings"/> is null.</exception>
         /// <exception cref="InvalidFeedSettingsException">Throw when <paramref name="settings"/> is not valid for the feed.</exception>
         /// <returns></returns>
-        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken);
+        Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, IProgress<ReaderProgress> progress, CancellationToken cancellationToken);
     }
-
-   
-
 }

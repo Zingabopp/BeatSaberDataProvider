@@ -21,7 +21,7 @@ using WebUtilities;
 
 namespace SongFeedReaders.Readers.BeastSaber
 {
-    public class BeastSaberReader : IFeedReader
+    public class BeastSaberReader : FeedReaderBase
     {
         #region Constants
         public static readonly string NameKey = "BeastSaberReader";
@@ -30,7 +30,7 @@ namespace SongFeedReaders.Readers.BeastSaber
 
         //private const string DefaultLoginUri = "https://bsaber.com/wp-login.php?jetpack-sso-show-default-form=1";
         public static readonly Uri ReaderRootUri = new Uri("https://bsaber.com");
-        public Uri RootUri => ReaderRootUri;
+        public override Uri RootUri => ReaderRootUri;
         public static readonly int SongsPerXmlPage = BeastSaberFeed.SongsPerXmlPage;
         public static readonly int SongsPerJsonPage = BeastSaberFeed.SongsPerJsonPage;
         
@@ -42,10 +42,9 @@ namespace SongFeedReaders.Readers.BeastSaber
             get { return _logger ?? LoggingController.DefaultLogger; }
             set { _logger = value; }
         }
-        public string Name { get { return NameKey; } }
-        public string Source { get { return SourceKey; } }
-        public bool Ready { get; private set; }
-        public bool StoreRawData { get; set; }
+        public override string Name { get { return NameKey; } }
+        public override string Source { get { return SourceKey; } }
+        public override bool Ready { get; protected set; }
 
         public string Username { get; set; }
         private int _maxConcurrency;
@@ -66,7 +65,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         }
 
 
-        public void PrepareReader()
+        public override void PrepareReader()
         {
             if (!Ready)
             {
@@ -74,7 +73,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             }
         }
 
-        public string GetFeedName(IFeedSettings settings)
+        public override string GetFeedName(IFeedSettings settings)
         {
             if (!(settings is BeastSaberFeedSettings ssSettings))
                 throw new ArgumentException("Settings is not BeastSaberFeedSettings", nameof(settings));
@@ -107,7 +106,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <exception cref="InvalidCastException">Thrown when the passed IFeedSettings isn't a BeastSaberFeedSettings.</exception>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
-        public async Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, CancellationToken cancellationToken)
+        public async override Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings, IProgress<ReaderProgress> progress, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
                 return FeedResult.CancelledResult;
@@ -181,6 +180,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                         await ProcessPageBlock.OutputAvailableAsync(cancellationToken).ConfigureAwait(false);
                         while (ProcessPageBlock.TryReceive(out PageReadResult pageResult))
                         {
+                            int songsAdded = 0;
                             if (pageResult != null)
                                 pageResults.Add(pageResult);
                             if (Utilities.IsPaused)
@@ -205,11 +205,15 @@ namespace SongFeedReaders.Readers.BeastSaber
                                 if (!retDict.ContainsKey(song.Hash))
                                 {
                                     if (retDict.Count < settings.MaxSongs || settings.MaxSongs == 0)
+                                    {
                                         retDict.Add(song.Hash, song);
+                                        songsAdded++;
+                                    }
                                     if (retDict.Count >= settings.MaxSongs && useMaxSongs)
                                         continueLooping = false;
                                 }
                             }
+                            progress?.Report(new ReaderProgress(pageResult.Page, songsAdded));
                             if (!useMaxPages || pageIndex <= maxPages)
                                 if (retDict.Count < settings.MaxSongs)
                                     continueLooping = true;
@@ -221,48 +225,6 @@ namespace SongFeedReaders.Readers.BeastSaber
             return new FeedResult(retDict, pageResults);
         }
 
-        #region Overloads
-
-        public Task<FeedResult> GetSongsFromFeedAsync(IFeedSettings settings)
-        {
-            return GetSongsFromFeedAsync(settings, CancellationToken.None);
-        }
-
-        public FeedResult GetSongsFromFeed(IFeedSettings settings)
-        {
-            try
-            {
-                return GetSongsFromFeedAsync(settings, CancellationToken.None).Result;
-            }
-            catch (AggregateException ex)
-            {
-                var flattened = ex.Flatten();
-                if (flattened.InnerExceptions.Count == 1)
-                {
-                    throw flattened.InnerException;
-                }
-                throw ex;
-            }
-        }
-
-        public FeedResult GetSongsFromFeed(IFeedSettings settings, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return GetSongsFromFeedAsync(settings, cancellationToken).Result;
-            }
-            catch (AggregateException ex)
-            {
-                var flattened = ex.Flatten();
-                if (flattened.InnerExceptions.Count == 1)
-                {
-                    throw flattened.InnerException;
-                }
-                throw ex;
-            }
-        }
-
-        #endregion
         #endregion
 
 

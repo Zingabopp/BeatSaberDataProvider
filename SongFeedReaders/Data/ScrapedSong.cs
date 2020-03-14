@@ -103,6 +103,17 @@ namespace SongFeedReaders.Data
         /// <param name="hash"></param>
         /// <param name="songName"></param>
         /// <param name="mapperName"></param>
+        public ScrapedSong(string hash, string songName, string mapperName, string songKey)
+           : this(hash, songName, mapperName)
+        {
+            SongKey = songKey;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <param name="songName"></param>
+        /// <param name="mapperName"></param>
         /// <param name="downloadUri"></param>
         /// <param name="sourceUri"></param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hash"/> is null or empty.</exception>

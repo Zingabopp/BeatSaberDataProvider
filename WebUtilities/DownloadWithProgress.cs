@@ -7,14 +7,32 @@ namespace WebUtilities
 {
     public struct DownloadProgress
     {
-        public readonly long? TotalFileSize;
+        public readonly long? TotalDownloadSize;
+        public readonly long BytesRead;
         public readonly long TotalBytesDownloaded;
-        public readonly double? ProgressPercentage;
-        public DownloadProgress(long? totalFileSize, long totalBytesDownloaded, double? progressPercentage)
+        public DownloadProgress(long? totalDownloadSize, long bytesRead, long totalBytesDownloaded)
         {
-            TotalFileSize = totalFileSize;
+            TotalDownloadSize = totalDownloadSize;
+            BytesRead = bytesRead;
             TotalBytesDownloaded = totalBytesDownloaded;
-            ProgressPercentage = progressPercentage;
+        }
+
+        public double? ProgressPercent
+        {
+            get
+            {
+                if (TotalDownloadSize.HasValue && TotalDownloadSize > 0)
+                    return Math.Round((double)TotalBytesDownloaded / TotalDownloadSize.Value * 100, 2);
+                return null;
+            }
+        }
+
+        public override string ToString()
+        {
+            if (TotalDownloadSize.HasValue)
+                return $"{ProgressPercent}";
+            else
+                return $"{BytesRead} ({TotalBytesDownloaded})";
         }
     }
     /// <summary>
@@ -128,16 +146,18 @@ namespace WebUtilities
             long totalBytesRead = 0L;
             long readCount = 0L;
             byte[] buffer = new byte[8192];
+            long progressBytesRead = 0L;
             bool isMoreToRead = true;
             using (_destinationStream)
             {
                 do
                 {
                     int bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+                    progressBytesRead += bytesRead;
                     if (bytesRead == 0)
                     {
                         isMoreToRead = false;
-                        TriggerProgressChanged(totalDownloadSize, totalBytesRead, progress);
+                        TriggerProgressChanged(totalDownloadSize, progressBytesRead, totalBytesRead, progress);
                         continue;
                     }
 
@@ -147,21 +167,24 @@ namespace WebUtilities
                     readCount += 1;
 
                     if (ReportRate == 1 || readCount % ReportRate == 0)
-                        TriggerProgressChanged(totalDownloadSize, totalBytesRead, progress);
+                    {
+                        TriggerProgressChanged(totalDownloadSize, progressBytesRead, totalBytesRead, progress);
+                        progressBytesRead = 0;
+                    }
                 }
                 while (isMoreToRead);
             }
         }
 
-        private void TriggerProgressChanged(long? totalDownloadSize, long totalBytesRead, IProgress<DownloadProgress> progress)
+        private void TriggerProgressChanged(long? totalDownloadSize, long bytesRead, long totalBytesRead, IProgress<DownloadProgress> progress)
         {
-            if (ProgressChanged == null)
+            if (ProgressChanged == null && progress == null)
                 return;
 
             double? progressPercentage = null;
             if (totalDownloadSize.HasValue)
                 progressPercentage = Math.Round((double)totalBytesRead / totalDownloadSize.Value * 100, 2);
-            DownloadProgress currentProgress = new DownloadProgress(totalDownloadSize, totalBytesRead, progressPercentage);
+            DownloadProgress currentProgress = new DownloadProgress(totalDownloadSize, bytesRead, totalBytesRead);
 
             progress?.Report(currentProgress);
             EventHandler<DownloadProgress> progressHandler = ProgressChanged;

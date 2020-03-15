@@ -349,7 +349,7 @@ namespace WebUtilities
                 {
                     string file = FilePath;
                     FilePath = null;
-                    if (!string.IsNullOrEmpty(file))
+                    if (!string.IsNullOrEmpty(file) && File.Exists(file))
                     {
                         File.Delete(file);
                     }

@@ -30,7 +30,7 @@ namespace WebUtilities
         public override string ToString()
         {
             if (TotalDownloadSize.HasValue)
-                return $"{ProgressPercent}";
+                return $"{ProgressPercent}% | {BytesRead} ({TotalBytesDownloaded})";
             else
                 return $"{BytesRead} ({TotalBytesDownloaded})";
         }

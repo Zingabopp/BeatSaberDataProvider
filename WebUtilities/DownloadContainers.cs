@@ -10,7 +10,8 @@ namespace WebUtilities
     {
         public abstract bool ResultAvailable { get; }
         public bool IsDisposed { get; protected set; }
-        protected long? ExpectedInputLength;
+        public long? ExpectedInputLength { get; protected set; }
+        public long ActualBytesReceived { get; protected set; }
         private int _progressReportRate = 50;
         public int ProgressReportRate
         {
@@ -31,29 +32,38 @@ namespace WebUtilities
             long progressBytesRead = 0L;
             byte[] buffer = new byte[8192];
             bool isMoreToRead = true;
-            do
+            try
             {
-                int bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
-                progressBytesRead += bytesRead;
-                if (bytesRead == 0)
+                do
                 {
-                    isMoreToRead = false;
-                    TriggerProgressChanged(bytesRead, totalBytesRead, progress);
-                    continue;
+                    int bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+                    progressBytesRead += bytesRead;
+                    if (bytesRead == 0)
+                    {
+                        isMoreToRead = false;
+                        TriggerProgressChanged(progressBytesRead, totalBytesRead, progress);
+                        progressBytesRead = 0;
+                        continue;
+                    }
+
+                    await destinationStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+
+                    totalBytesRead += bytesRead;
+                    readCount += 1;
+
+                    if (ProgressReportRate > 0 && (ProgressReportRate == 1 || readCount % ProgressReportRate == 0)) // No progress reports if the rate is 0.
+                    {
+                        TriggerProgressChanged(progressBytesRead, totalBytesRead, progress);
+                        progressBytesRead = 0;
+                    }
                 }
-
-                await destinationStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
-
-                totalBytesRead += bytesRead;
-                readCount += 1;
-
-                if (ProgressReportRate > 0 && (ProgressReportRate == 1 || readCount % ProgressReportRate == 0)) // No progress reports if the rate is 0.
-                {
-                    TriggerProgressChanged(progressBytesRead, totalBytesRead, progress);
-                    progressBytesRead = 0;
-                }
+                while (isMoreToRead);
             }
-            while (isMoreToRead);
+            catch { throw; }
+            finally
+            {
+                ActualBytesReceived = totalBytesRead;
+            }
         }
         protected virtual void TriggerProgressChanged(long bytesRead, long totalBytesRead, IProgress<DownloadProgress> progress)
         {
@@ -243,6 +253,7 @@ namespace WebUtilities
         /// <exception cref="IOException"></exception>
         public override long ReceiveData(Stream inputStream, bool disposeInput)
         {
+            long totalBytesReceived = 0;
             try
             {
                 if (inputStream.CanSeek)
@@ -250,8 +261,11 @@ namespace WebUtilities
                 FileStream fileStream = null;
                 FileMode fileMode = Overwrite ? FileMode.Create : FileMode.CreateNew;
                 using (fileStream = new FileStream(FilePath, fileMode, FileAccess.Write, FileShare.None))
+                {
                     inputStream.CopyTo(fileStream, 81920);
-                return fileStream.Length;
+                    totalBytesReceived = fileStream.Length;
+                }
+                return totalBytesReceived;
             }
             catch
             {
@@ -259,6 +273,7 @@ namespace WebUtilities
             }
             finally
             {
+                ActualBytesReceived = totalBytesReceived;
                 try
                 {
                     if (disposeInput)
@@ -292,7 +307,7 @@ namespace WebUtilities
                 {
                     await ProcessContentStreamAsync(inputStream, fileStream, null, cancellationToken).ConfigureAwait(false);
                     fileStreamLength = fileStream.Length;
-                } 
+                }
                 fileStream.Close();
                 return fileStreamLength;
             }
@@ -369,6 +384,7 @@ namespace WebUtilities
         /// <exception cref="IOException"></exception>
         public override long ReceiveData(Stream inputStream, bool disposeInput)
         {
+            long actualBytesReceived = 0;
             try
             {
                 if (inputStream is MemoryStream memoryStream)
@@ -380,9 +396,10 @@ namespace WebUtilities
                     inputStream.CopyTo(ms);
                     _data = ms.ToArray();
                 }
-                ExpectedInputLength = _data.Length;
-                TriggerProgressChanged(_data.Length, _data.Length, null);
-                return _data?.Length ?? 0;
+                actualBytesReceived = _data?.Length ?? 0;
+                ExpectedInputLength = actualBytesReceived;
+                TriggerProgressChanged(actualBytesReceived, actualBytesReceived, null);
+                return actualBytesReceived;
             }
             catch
             {
@@ -390,6 +407,7 @@ namespace WebUtilities
             }
             finally
             {
+                ActualBytesReceived = actualBytesReceived;
                 try
                 {
                     if (disposeInput)
@@ -412,22 +430,24 @@ namespace WebUtilities
         /// <exception cref="IOException"></exception>
         public async override Task<long> ReceiveDataAsync(Stream inputStream, bool disposeInput, IProgress<DownloadProgress> progress, CancellationToken cancellationToken)
         {
+            long actualBytesReceived = 0;
             try
             {
                 if (inputStream is MemoryStream ms)
                 {
                     _data = ms.ToArray();
-                    ExpectedInputLength = _data.Length;
-                    TriggerProgressChanged(_data.Length, _data.Length, progress);
-                    return _data.Length;
+                    actualBytesReceived = _data.Length;
+                    ExpectedInputLength = actualBytesReceived;
+                    TriggerProgressChanged(actualBytesReceived, actualBytesReceived, progress);
+                    return actualBytesReceived;
                 }
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
                     await ProcessContentStreamAsync(inputStream, memoryStream, progress, cancellationToken).ConfigureAwait(false);
                     memoryStream.Seek(0, SeekOrigin.Begin);
                     _data = memoryStream.ToArray();
-                    long streamLength = memoryStream.Length;
-                    return streamLength;
+                    actualBytesReceived = memoryStream.Length;
+                    return actualBytesReceived;
                 }
             }
             catch
@@ -436,6 +456,7 @@ namespace WebUtilities
             }
             finally
             {
+                ActualBytesReceived = actualBytesReceived;
                 try
                 {
                     if (disposeInput)

@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
-using WebUtilities;
 
 namespace WebUtilities.WebWrapper
 {
@@ -32,7 +31,7 @@ namespace WebUtilities.WebWrapper
             UserAgent = userAgent;
         }
 
-        private int _timeout;
+        private int _timeout = 30000;
         /// <summary>
         /// Timeout in milliseconds
         /// </summary>
@@ -41,8 +40,8 @@ namespace WebUtilities.WebWrapper
             get { return _timeout; }
             set
             {
-                if (value <= 0)
-                    value = 1;
+                if (value < 0)
+                    value = 30000;
                 if (_timeout == value)
                     return;
                 _timeout = value;
@@ -78,10 +77,11 @@ namespace WebUtilities.WebWrapper
             if (timeout < 0) throw new ArgumentOutOfRangeException(nameof(timeout), "timeout cannot be less than 0.");
             if (timeout == 0)
                 timeout = Timeout;
-            var request = HttpWebRequest.CreateHttp(uri);
+            HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
             if (!string.IsNullOrEmpty(UserAgent))
                 request.UserAgent = UserAgent;
-            Task cancelTask = null;
+            CancellationTokenSource timeoutSource = null;
+            CancellationToken timeoutToken = CancellationToken.None;
             if (timeout != 0)
             {
                 request.Timeout = timeout;
@@ -91,27 +91,44 @@ namespace WebUtilities.WebWrapper
             }
             if (cancellationToken.IsCancellationRequested)
                 throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
+            bool wasCanceled = false;
+            bool timedOut = false;
             try
             {
-                //var getTask = request.GetResponseAsync();
-                var getTask = Task.Run(() =>
-                {
-                    return request.GetResponse(); // Have to use synchronous call because GetResponseAsync() doesn't respect Timeout
-                });
+                Task<WebResponse> getTask = request.GetResponseAsync(cancellationToken);
+                //var getTask = Task.Run(() =>
+                //{
+                //    return request.GetResponse(); // Have to use synchronous call because GetResponseAsync() doesn't respect Timeout
+                //});
                 //TODO: Need testing for cancellation token
                 if (cancellationToken.CanBeCanceled)
                 {
-                    cancelTask = cancellationToken.AsTask();
-                    await Task.WhenAny(getTask, cancelTask).ConfigureAwait(false);
-                    if (!getTask.IsCompleted) // either getTask completed or cancelTask was triggered
+                    cancellationToken.Register(() =>
                     {
-                        throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
-                    }
-                    //cancelTask?.Dispose(); Can't dispose of a task that isn't Completed
+                        request.Abort();
+                        wasCanceled = true;
+                    });
                 }
-                var response = await getTask.ConfigureAwait(false); // either there's no cancellationToken or it's already completed
+                cancellationToken.ThrowIfCancellationRequested();
+                if (timeout > 0)
+                {
+                    timeoutSource = new CancellationTokenSource();
+                    timeoutToken = timeoutSource.Token;
+                    timeoutToken.Register(() =>
+                    {
+                        request.Abort();
+                        if (!wasCanceled)
+                        {
+                            wasCanceled = true;
+                            timedOut = true;
+                        }
+                    });
+                    timeoutSource.CancelAfter(timeout);
 
+                }
+                WebResponse response = await getTask.ConfigureAwait(false);
                 return new WebClientResponseWrapper(response as HttpWebResponse, request);
+
             }
             catch (ArgumentException ex)
             {
@@ -125,17 +142,23 @@ namespace WebUtilities.WebWrapper
             catch (WebException ex)
             {
                 HttpWebResponse resp = ex.Response as HttpWebResponse;
-                var statusOverride = WebExceptionStatusToHttpStatus(ex.Status);
+                int? statusOverride = WebExceptionStatusToHttpStatus(ex.Status);
                 // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
 
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                 {
                     string message = string.Empty;
                     Exception retException = ex;
-                    if (ex.Status == WebExceptionStatus.Timeout)
+                    if (ex.Status == WebExceptionStatus.RequestCanceled && (wasCanceled || timeoutToken.IsCancellationRequested))
                     {
-                        message = Utilities.GetTimeoutMessage(uri);
-                        retException = new TimeoutException(message);
+                        if (timeoutToken.IsCancellationRequested)
+                        {
+                            message = Utilities.GetTimeoutMessage(uri);
+                            statusOverride = 408;
+                            retException = new TimeoutException(message);
+                        }
+                        else
+                            cancellationToken.ThrowIfCancellationRequested();
                     }
                     else
                         message = ex.Message;
@@ -152,13 +175,9 @@ namespace WebUtilities.WebWrapper
                 Exception retException = ex;
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                        throw; // Cancelled by caller, rethrow
-                    else
-                    {
-                        retException = new TimeoutException(Utilities.GetTimeoutMessage(uri));
-                        throw new WebClientException(retException.Message, retException, new WebClientResponseWrapper(null, request, retException, 408));
-                    }
+                    cancellationToken.ThrowIfCancellationRequested();
+                    retException = new TimeoutException(Utilities.GetTimeoutMessage(uri));
+                    throw new WebClientException(retException.Message, retException, new WebClientResponseWrapper(null, request, retException, 408));
                 }
                 else
                 {
@@ -168,6 +187,11 @@ namespace WebUtilities.WebWrapper
             }
             finally
             {
+                if(timeoutSource != null)
+                {
+                    timeoutSource.Dispose();
+                    timeoutSource = null;
+                }
                 //if (cancelTask != null)
                 //    cancelTask.Dispose();
             }
@@ -245,7 +269,7 @@ namespace WebUtilities.WebWrapper
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url), $"Url cannot be null for GetAsync()");
-            var urlAsUri = new Uri(url);
+            Uri urlAsUri = new Uri(url);
             return GetAsync(urlAsUri, timeout, cancellationToken);
         }
         public Task<IWebResponseMessage> GetAsync(string url)

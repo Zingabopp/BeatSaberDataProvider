@@ -218,7 +218,7 @@ namespace WebUtilitiesTests.IWebClientTests
         {
             var client1 = new WebClientWrapper();
             var client2 = new HttpClientWrapper();
-            var cts = new CancellationTokenSource(500);
+            var cts = new CancellationTokenSource(50);
             var url = "http://releases.ubuntu.com/18.04.3/ubuntu-18.04.3-desktop-amd64.iso";
             string directory = Path.Combine(TestOutputPath, "Canceled");
             Directory.CreateDirectory(directory);
@@ -239,8 +239,8 @@ namespace WebUtilitiesTests.IWebClientTests
                 try
                 {
                     response = await target.GetAsync(url, cts.Token).ConfigureAwait(false);
-                    await response.Content.ReadAsFileAsync(filePath, true, cts.Token);
                     Assert.Fail("Should've thrown exception");
+                    await response.Content.ReadAsFileAsync(filePath, true, cts.Token);
                 }
                 catch (WebClientException ex)
                 {

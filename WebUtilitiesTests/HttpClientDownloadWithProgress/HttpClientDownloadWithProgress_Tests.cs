@@ -50,7 +50,7 @@ namespace WebUtilitiesTests.HttpClientDownloadWithProgressTests
             //};
             Progress<DownloadProgress> progressHandler = new Progress<DownloadProgress>(p =>
             {
-                Console.WriteLine($"IProgress: {p.TotalBytesDownloaded}/{p.TotalFileSize} : {p.ProgressPercentage}%");
+                Console.WriteLine($"IProgress: {p.TotalBytesDownloaded}/{p.TotalDownloadSize} : {p.ProgressPercent}%");
             });
 
             try
@@ -78,11 +78,11 @@ namespace WebUtilitiesTests.HttpClientDownloadWithProgressTests
             DownloadWithProgress progressDownload = new DownloadWithProgress(Client, uri, filePath);
             progressDownload.ProgressChanged += (object sender, DownloadProgress progress) =>
             {
-                Console.WriteLine($"Event: {progress.TotalBytesDownloaded}/{progress.TotalFileSize} : {progress.ProgressPercentage}%");
+                Console.WriteLine($"Event: {progress.TotalBytesDownloaded}/{progress.TotalDownloadSize} : {progress.ProgressPercent}%");
             };
             Progress<DownloadProgress> progressHandler = new Progress<DownloadProgress>(p =>
             {
-                Console.WriteLine($"IProgress: {p.TotalBytesDownloaded}/{p.TotalFileSize} : {p.ProgressPercentage}%");
+                Console.WriteLine($"IProgress: {p.TotalBytesDownloaded}/{p.TotalDownloadSize} : {p.ProgressPercent}%");
             });
 
             try

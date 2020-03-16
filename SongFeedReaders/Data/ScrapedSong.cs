@@ -26,9 +26,9 @@ namespace SongFeedReaders.Data
                 throw new ArgumentNullException(nameof(key), $"{nameof(key)} cannot be null for ScrapedSong.CreateFromKey.");
             return new ScrapedSong()
             {
-                SongKey = key,
-                SongName = songName,
-                MapperName = mapperName,
+                Key = key,
+                Name = songName,
+                LevelAuthorName = mapperName,
                 DownloadUri = downloadUri,
                 SourceUri = sourceUri,
                 JsonData = jsonData,
@@ -43,27 +43,27 @@ namespace SongFeedReaders.Data
         public string Hash
         {
             get { return _hash; }
-            protected set { _hash = value?.ToUpper(); }
+            set { _hash = value?.ToUpper(); }
         }
         /// <summary>
         /// Full URL to download song.
         /// </summary>
-        public Uri DownloadUri { get; protected set; }
+        public Uri DownloadUri { get; set; }
         /// <summary>
         /// What web page this song was scraped from.
         /// </summary>
-        public Uri SourceUri { get; protected set; }
-        public string SongName { get; protected set; }
+        public Uri SourceUri { get; set; }
+        public string Name { get; set; }
         private string _songKey;
         /// <summary>
         /// Beat Saver song key, always uppercase.
         /// </summary>
-        public string SongKey
+        public string Key
         {
             get { return _songKey; }
-            protected set { _songKey = value?.ToUpper(); }
+            set { _songKey = value?.ToUpper(); }
         }
-        public string MapperName { get; protected set; }
+        public string LevelAuthorName { get; set; }
         /// <summary>
         /// Data this song was scraped from in JSON form.
         /// </summary>
@@ -94,8 +94,8 @@ namespace SongFeedReaders.Data
         public ScrapedSong(string hash, string songName, string mapperName)
             : this(hash)
         {
-            SongName = songName;
-            MapperName = mapperName;
+            Name = songName;
+            LevelAuthorName = mapperName;
         }
         /// <summary>
         /// 
@@ -106,7 +106,7 @@ namespace SongFeedReaders.Data
         public ScrapedSong(string hash, string songName, string mapperName, string songKey)
            : this(hash, songName, mapperName)
         {
-            SongKey = songKey;
+            Key = songKey;
         }
         /// <summary>
         /// 
@@ -142,11 +142,11 @@ namespace SongFeedReaders.Data
         public override string ToString()
         {
             string keyStr;
-            if (!string.IsNullOrEmpty(SongKey))
-                keyStr = $"({SongKey}) ";
+            if (!string.IsNullOrEmpty(Key))
+                keyStr = $"({Key}) ";
             else
                 keyStr = string.Empty;
-            return $"{keyStr}{SongName} by {MapperName}";
+            return $"{keyStr}{Name} by {LevelAuthorName}";
         }
 
         ///// <summary>

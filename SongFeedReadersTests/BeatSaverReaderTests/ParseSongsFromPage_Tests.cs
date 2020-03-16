@@ -29,9 +29,9 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             {
                 Assert.IsFalse(song.DownloadUri == null);
                 Assert.IsFalse(string.IsNullOrEmpty(song.Hash));
-                Assert.IsFalse(string.IsNullOrEmpty(song.MapperName));
+                Assert.IsFalse(string.IsNullOrEmpty(song.LevelAuthorName));
                 Assert.IsFalse(string.IsNullOrEmpty(song.RawData));
-                Assert.IsFalse(string.IsNullOrEmpty(song.SongName));
+                Assert.IsFalse(string.IsNullOrEmpty(song.Name));
             }
             var firstSong = JObject.Parse(songs.First().RawData);
             string firstHash = firstSong["hash"]?.Value<string>();

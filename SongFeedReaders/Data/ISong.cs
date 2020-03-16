@@ -9,23 +9,9 @@ namespace SongFeedReaders.Data
         /// <summary>
         /// Beat Saver hash of the song, always uppercase.
         /// </summary>
-        string Hash { get; }
-        /// <summary>
-        /// Full URL to download song.
-        /// </summary>
-        Uri DownloadUri { get; }
-        /// <summary>
-        /// What web page this song was scraped from.
-        /// </summary>
-        Uri SourceUri { get; }
-        string SongName { get; }
-        string SongKey { get; }
-        string MapperName { get; }
-        /// <summary>
-        /// Data this song was scraped from in JSON form.
-        /// </summary>
-        string RawData { get; }
-
-        JObject JsonData { get; }
+        string Hash { get; set; }
+        string Name { get; set; }
+        string Key { get; set; }
+        string LevelAuthorName { get; set; }
     }
 }

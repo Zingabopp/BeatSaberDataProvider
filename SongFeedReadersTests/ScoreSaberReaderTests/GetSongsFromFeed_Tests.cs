@@ -71,7 +71,7 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
             var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.Search)
             { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true, SearchQuery = "Believer" };
             var songList = reader.GetSongsFromFeed(settings);
-            Assert.IsTrue(songList.Songs.Values.Any(s => s.SongName.ToLower().Contains("believer")));
+            Assert.IsTrue(songList.Songs.Values.Any(s => s.Name.ToLower().Contains("believer")));
             Assert.IsFalse(songList.Songs.Keys.Any(k => string.IsNullOrEmpty(k)));
         }
 

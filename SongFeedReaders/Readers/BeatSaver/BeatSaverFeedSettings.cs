@@ -80,6 +80,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 MaxSongs = MaxSongs,
                 StartingPage = StartingPage,
                 SearchQuery = SearchQuery.GetValueOrDefault(),
+                AuthorId = AuthorId,
                 Filter = (Func<ScrapedSong, bool>)Filter?.Clone(),
                 StopWhenAny = (Func<ScrapedSong, bool>)StopWhenAny?.Clone(),
             };
@@ -113,7 +114,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         }
 
         public BeatSaverSearchQuery? SearchQuery { get; set; }
-
+        public string AuthorId { get; set; }
         /// <summary>
         /// Type of search to perform, only used for Search and Author feeds.
         /// Default is 'song' (song name, song subname, author)

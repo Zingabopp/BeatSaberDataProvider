@@ -241,6 +241,10 @@ namespace SongFeedReaders.Readers.BeatSaver
             int estimatedPageResults = Math.Min(useMaxSongs ? maxSongs / 10 : int.MaxValue, useMaxPages ? maxPages : int.MaxValue);
             if (pageIndex > 1 && useMaxPages)
                 maxPages += pageIndex - 1; // Add starting page to maxPages so we actually get songs if maxPages < starting page
+            if (settings.Feed == BeatSaverFeedName.Author && string.IsNullOrEmpty(settings.AuthorId))
+            {
+                settings.AuthorId = await GetAuthorIDAsync(settings.SearchQuery.Value.Criteria, cancellationToken).ConfigureAwait(false);
+            }
             BeatSaverFeed feed = new BeatSaverFeed(settings) { StoreRawData = true };
             try
             {
@@ -429,7 +433,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             SearchQueryBuilder query = new SearchQueryBuilder(BeatSaverSearchType.user, mapperId);
             BeatSaverFeedSettings settings = new BeatSaverFeedSettings(BeatSaverFeedName.Search) { SearchQuery = query.GetQuery() };
             FeedResult result = await GetSongsFromFeedAsync(settings, cancellationToken).ConfigureAwait(false);
-            authorNames = result.Songs.Values.Select(s => s.MapperName).Distinct().ToList();
+            authorNames = result.Songs.Values.Select(s => s.LevelAuthorName).Distinct().ToList();
             //authorNames.ForEach(n => Logger?.Warning($"Found authorName: {n}"));
             throw new NotImplementedException();
             return authorNames;

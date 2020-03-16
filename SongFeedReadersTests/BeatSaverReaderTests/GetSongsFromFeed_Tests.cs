@@ -42,15 +42,15 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
                     songList.TryAdd(song.Key, song.Value);
                 }
             }
-            IEnumerable<string> detectedAuthors = songList.Values.Select(s => s.MapperName.ToLower()).Distinct();
+            IEnumerable<string> detectedAuthors = songList.Values.Select(s => s.LevelAuthorName.ToLower()).Distinct();
             foreach (KeyValuePair<string, ScrapedSong> song in songList)
             {
                 Assert.IsTrue(song.Value.DownloadUri != null);
-                Assert.IsTrue(authorList.Any(a => a.ToLower() == song.Value.MapperName.ToLower()));
+                Assert.IsTrue(authorList.Any(a => a.ToLower() == song.Value.LevelAuthorName.ToLower()));
             }
             foreach (string author in authorList)
             {
-                Assert.IsTrue(songList.Any(s => s.Value.MapperName.ToLower() == author.ToLower()));
+                Assert.IsTrue(songList.Any(s => s.Value.LevelAuthorName.ToLower() == author.ToLower()));
             }
 
             // BlackBlazon check
@@ -63,6 +63,8 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             ScrapedSong yazerSong = songList[songHash];
             Assert.IsTrue(yazerSong != null);
             Assert.IsTrue(yazerSong.DownloadUri != null);
+            var checkedPages = songList.Values.Select(s => s.SourceUri.OriginalString).Distinct().ToList();
+            checkedPages.ForEach(p => Console.WriteLine(p));
         }
 
         [TestMethod]
@@ -77,7 +79,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Assert.IsTrue(expectedPages <= result.PagesChecked);
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
 
@@ -100,7 +102,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
                 DateTime uploadDate = song.JsonData["uploaded"].Value<DateTime>();
                 bool shouldStop = uploadDate < (DateTime.Now - TimeSpan.FromDays(5));
                 if (shouldStop)
-                    Console.WriteLine($"StopWhenAny reached with {song.SongKey} ({uploadDate.ToString()})");
+                    Console.WriteLine($"StopWhenAny reached with {song.Key} ({uploadDate.ToString()})");
                 return shouldStop;
             }
             Func<ScrapedSong, bool> filter = SongFeedReaders.Filtering.BuiltInFilters.ThreeSixtyDegree;
@@ -113,7 +115,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Console.WriteLine($"----------------");
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
 
@@ -137,7 +139,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Console.WriteLine($"----------------");
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
         [TestMethod]
@@ -152,7 +154,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Assert.IsTrue(expectedPages <= result.PagesChecked);
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
 
@@ -182,7 +184,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             await Task.Delay(100).ConfigureAwait(false);
             //foreach (ScrapedSong song in result.Songs.Values)
             //{
-            //    Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+            //    Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             //}
         }
 
@@ -198,7 +200,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             //Assert.AreEqual(expectedPages, result.PagesChecked);
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
 
@@ -214,7 +216,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         //    Assert.AreEqual(expectedPages, result.PagesChecked);
         //    foreach (var song in result.Songs.Values)
         //    {
-        //        Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+        //        Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
         //    }
         //}
 
@@ -234,7 +236,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Assert.AreEqual(expectedPages, result.PagesChecked);
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
 
@@ -253,7 +255,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Assert.AreEqual(expectedPages, result.PagesChecked);
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
 
@@ -272,7 +274,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Assert.AreEqual(expectedPages, result.PagesChecked);
             foreach (ScrapedSong song in result.Songs.Values)
             {
-                Console.WriteLine($"{song.SongName} by {song.MapperName}, {song.Hash}");
+                Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
         #endregion

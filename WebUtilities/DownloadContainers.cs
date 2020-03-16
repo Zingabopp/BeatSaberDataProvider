@@ -305,7 +305,7 @@ namespace WebUtilities
                 long fileStreamLength;
                 using (fileStream = new FileStream(FilePath, fileMode, FileAccess.Write, FileShare.None))
                 {
-                    await ProcessContentStreamAsync(inputStream, fileStream, null, cancellationToken).ConfigureAwait(false);
+                    await ProcessContentStreamAsync(inputStream, fileStream, progress, cancellationToken).ConfigureAwait(false);
                     fileStreamLength = fileStream.Length;
                 }
                 fileStream.Close();

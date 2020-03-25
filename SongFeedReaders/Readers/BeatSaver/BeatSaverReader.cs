@@ -419,6 +419,8 @@ namespace SongFeedReaders.Readers.BeatSaver
                             //    if (newSongs.Count < settings.MaxSongs)
                             //        continueLooping = true;
                         }
+                        if (!continueLooping)
+                            break;
                     }
 
                 }

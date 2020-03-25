@@ -139,6 +139,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Console.WriteLine($"----------------");
             foreach (ScrapedSong song in result.Songs.Values)
             {
+                Assert.IsFalse(string.IsNullOrEmpty(song.Key));
                 Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }

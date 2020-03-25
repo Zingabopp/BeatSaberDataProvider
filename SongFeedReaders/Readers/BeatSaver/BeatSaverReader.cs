@@ -179,7 +179,10 @@ namespace SongFeedReaders.Readers.BeatSaver
             if (string.IsNullOrEmpty(songHash))
                 throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
             Uri downloadUri = Utilities.GetDownloadUriByHash(songHash);
-            ScrapedSong newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song : null);
+            ScrapedSong newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song : null)
+            {
+                Key = songKey
+            };
             return newSong;
         }
 

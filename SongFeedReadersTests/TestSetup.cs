@@ -19,7 +19,7 @@ namespace SongFeedReadersTests
                 WebUtils.Initialize(new WebUtilities.WebWrapper.WebClientWrapper());
                 //WebUtils.Initialize(new WebUtilities.HttpClientWrapper.HttpClientWrapper());
                 WebUtils.WebClient.Timeout = 20000;
-                
+                WebUtils.WebClient.SetUserAgent("SongFeedReadersTests/1.0.0");
             }
 
         }

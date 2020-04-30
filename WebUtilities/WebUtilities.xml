@@ -1,0 +1,1104 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebUtilities</name>
+    </assembly>
+    <members>
+        <member name="T:WebUtilities.DownloadContainer">
+            <summary>
+            A container to house the contents of a web download. This is an abstract class.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.DownloadContainer.ResultAvailable">
+            <summary>
+            Returns true if data was successfully received and the target file exists.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.DownloadContainer.IsDisposed">
+            <summary>
+            Returns true if the <see cref="T:WebUtilities.DownloadContainer"/> was disposed.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.DownloadContainer.ExpectedInputLength">
+            <summary>
+            The expected length in bytes of the content. May be null.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.DownloadContainer.ActualBytesReceived">
+            <summary>
+            The length in bytes of the content received.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.DownloadContainer.ProgressReportRate">
+            <summary>
+            Report rate of the <see cref="E:WebUtilities.DownloadContainer.ProgressChanged"/> handler and the progress callback. 0 to disable progress reporting.
+            </summary>
+        </member>
+        <member name="E:WebUtilities.DownloadContainer.ProgressChanged">
+            <summary>
+            Event invoked for progress updates.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ProcessContentStreamAsync(System.IO.Stream,System.IO.Stream,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of <paramref name="contentStream"/> to <paramref name="destinationStream"/>.
+            </summary>
+            <param name="contentStream"></param>
+            <param name="destinationStream"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.OperationCanceledException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.TriggerProgressChanged(System.Int64,System.Int64,System.IProgress{WebUtilities.DownloadProgress})">
+            <summary>
+            Invokes the <see cref="E:WebUtilities.DownloadContainer.ProgressChanged"/> event and the <paramref name="progress"/> if provided.
+            </summary>
+            <param name="bytesRead">Bytes read since the last progress change.</param>
+            <param name="totalBytesRead">Total bytes transferred into the container.</param>
+            <param name="progress">Progress callback to invoke.</param>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
+            <summary>
+            Transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="disposeInput"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="disposeInput"></param>
+            <param name="cancellationToken"></param>
+            <param name="progress"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="webResponseContent"></param>
+            <param name="disposeInput"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:WebUtilities.WebClientException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.GetResultStream">
+            <summary>
+            Returns a stream with the data contained in this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.TryGetResultStream(System.IO.Stream@,System.Exception@)">
+            <summary>
+            Tries to get a stream with the data contained in this <see cref="T:WebUtilities.MemoryDownloadContainer"/>. Returns false if there is no data.
+            </summary>
+            <param name="stream"><see cref="T:System.IO.Stream"/> with the data.</param>
+            <param name="exception">Any <see cref="T:System.Exception"/> thrown when getting the data stream.</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveData(System.IO.Stream)">
+            <summary>
+            Transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream)">
+            <summary>
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="disposeInput"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent)">
+            <summary>
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="webResponseContent"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:WebUtilities.WebClientException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="webResponseContent"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:WebUtilities.WebClientException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+            <param name="webResponseContent"></param>
+            <param name="disposeInput"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:WebUtilities.WebClientException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.Dispose">
+            <summary>
+            Disposes of the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.DownloadContainer.Dispose(System.Boolean)">
+            <summary>
+            Disposes of the <see cref="T:WebUtilities.DownloadContainer"/>.
+            </summary>
+        </member>
+        <member name="T:WebUtilities.FileDownloadContainer">
+            <summary>
+            A <see cref="T:WebUtilities.DownloadContainer"/> that stores the data in a file.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FileDownloadContainer.FilePath">
+            <summary>
+            Path to the file.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FileDownloadContainer.Overwrite">
+            <summary>
+            If true, overwrites any existing file.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FileDownloadContainer.DeleteOnDispose">
+            <summary>
+            If true, the target file is deleted when the <see cref="T:WebUtilities.FileDownloadContainer"/> is disposed.
+            </summary>
+        </member>
+        <member name="F:WebUtilities.FileDownloadContainer.dataReceived">
+            <summary>
+            Set to true if data has been successfully received.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.FileDownloadContainer.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.FileDownloadContainer"/> that targets the given <paramref name="filePath"/>.
+            </summary>
+            <param name="filePath">Path to the target file.</param>
+            <param name="overwrite">If true, overwrites any existing file when data is received.</param>
+            <param name="deleteOnDispose">If true, the target file is deleted when the <see cref="T:WebUtilities.FileDownloadContainer"/> is disposed.</param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="P:WebUtilities.FileDownloadContainer.ResultAvailable">
+            <summary>
+            Returns true if data was successfully received and the target file exists.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.FileDownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
+            <summary>
+            Transfers the contents of <paramref name="inputStream"/> to the target file.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="disposeInput"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.FileDownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the target file.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="disposeInput"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.FileDownloadContainer.GetResultStream">
+            <summary>
+            Returns a stream with the data contained in the target file.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
+        </member>
+        <member name="M:WebUtilities.FileDownloadContainer.Finalize">
+            <summary>
+            Deconstructor for <see cref="T:WebUtilities.FileDownloadContainer"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.FileDownloadContainer.Dispose(System.Boolean)">
+            <summary>
+            Disposes of the <see cref="T:WebUtilities.FileDownloadContainer"/>, deleting the file.
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="T:WebUtilities.MemoryDownloadContainer">
+            <summary>
+            A <see cref="T:WebUtilities.DownloadContainer"/> that stores the data in memory.
+            </summary>
+        </member>
+        <member name="F:WebUtilities.MemoryDownloadContainer.dataReceived">
+            <summary>
+            Set to true if data has been successfully received.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.MemoryDownloadContainer.ResultAvailable">
+            <summary>
+            Returns true if data was successfully received and is not null.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.MemoryDownloadContainer.#ctor">
+            <summary>
+            Creates an empty <see cref="T:WebUtilities.MemoryDownloadContainer"/> that can receive data.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.MemoryDownloadContainer.#ctor(System.Byte[])">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.MemoryDownloadContainer"/> with existing data.
+            </summary>
+            <param name="existingData"></param>
+            <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="existingData"/> is null.</exception>
+        </member>
+        <member name="M:WebUtilities.MemoryDownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
+            <summary>
+            Transfers the contents of <paramref name="inputStream"/> into this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="disposeInput"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.MemoryDownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously transfers the contents of <paramref name="inputStream"/> into this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            </summary>
+            <param name="inputStream"></param>
+            <param name="disposeInput"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+            <exception cref="T:System.ObjectDisposedException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:WebUtilities.MemoryDownloadContainer.GetResultStream">
+            <summary>
+            Returns a stream with the data contained in this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
+        </member>
+        <member name="M:WebUtilities.MemoryDownloadContainer.Dispose(System.Boolean)">
+            <summary>
+            Disposes this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="T:WebUtilities.DownloadWithProgress">
+            <summary>
+            From: https://stackoverflow.com/a/43169927
+            </summary>
+        </member>
+        <member name="M:WebUtilities.DownloadWithProgress.StartDownload(System.IO.Stream,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            Starts the download using the provided <paramref name="targetStream"/> as the output.
+            </summary>
+            <param name="targetStream"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.DownloadWithProgress.StartDownload(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Starts the download using the provided <paramref name="targetStream"/> as the output.
+            </summary>
+            <param name="targetStream"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.DownloadWithProgress.StartDownload(System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.OperationCanceledException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.DownloadWithProgress.DownloadFileFromHttpResponseMessage(WebUtilities.IWebResponseMessage,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="response"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.OperationCanceledException"></exception>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.DownloadWithProgress.ProcessContentStream(System.Nullable{System.Int64},System.IO.Stream,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+            <summary>
+            
+            </summary>
+            <param name="totalDownloadSize"></param>
+            <param name="contentStream"></param>
+            <param name="progress"></param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.OperationCanceledException"></exception>
+            <returns></returns>
+        </member>
+        <member name="T:WebUtilities.HttpClientWrapper.HttpClientWrapper">
+            <summary>
+            <see cref="T:WebUtilities.IWebClient"/> wrapper for a <see cref="T:System.Net.Http.HttpClient"/>.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpClientWrapper.UserAgent">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.#ctor">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.HttpClientWrapper.HttpClientWrapper"/> with a default <see cref="T:System.Net.Http.HttpClient"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.#ctor(System.String)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.HttpClientWrapper.HttpClientWrapper"/> with a default <see cref="T:System.Net.Http.HttpClient"/> and sets the provided <paramref name="userAgent"/>.
+            </summary>
+            <param name="userAgent"></param>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.#ctor(System.Net.Http.HttpClient)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.HttpClientWrapper.HttpClientWrapper"/> with the given <paramref name="client"/>.
+            </summary>
+            <param name="client"></param>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.SetUserAgent(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpClientWrapper.Timeout">
+            <summary>
+            Timeout for the HttpClient in milliseconds. Default is 100,000 milliseconds.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpClientWrapper.ErrorHandling">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.GetAsync(System.Uri,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.GetAsync(System.Uri)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.GetAsync(System.Uri,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.GetAsync(System.Uri,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.GetAsync(System.String,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.GetAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.GetAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.Dispose(System.Boolean)">
+            <summary>
+            Disposes the wrapped <see cref="T:System.Net.Http.HttpClient"/>.
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpClientWrapper.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:WebUtilities.HttpClientWrapper.HttpContentWrapper">
+            <summary>
+            Wrapper for the content from a <see cref="T:WebUtilities.HttpClientWrapper.HttpResponseWrapper"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpContentWrapper.#ctor(System.Net.Http.HttpContent)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.HttpClientWrapper.HttpContentWrapper"/> from the provided <paramref name="content"/>.
+            </summary>
+            <param name="content"></param>
+        </member>
+        <member name="F:WebUtilities.HttpClientWrapper.HttpContentWrapper._headers">
+            <summary>
+            Response headers.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpContentWrapper.Headers">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpContentWrapper.ContentType">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpContentWrapper.ContentLength">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpContentWrapper.ReadAsByteArrayAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpContentWrapper.ReadAsStreamAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpContentWrapper.ReadAsStringAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpContentWrapper.ReadAsFileAsync(System.String,System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpContentWrapper.Dispose(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpContentWrapper.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:WebUtilities.HttpClientWrapper.HttpResponseWrapper">
+            <summary>
+            Wrapper for the response from <see cref="T:WebUtilities.HttpClientWrapper.HttpClientWrapper"/>.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpResponseWrapper.StatusCode">
+            <summary>
+            Returns 0 if response was null and no status override was provided.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpResponseWrapper.IsSuccessStatusCode">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpResponseWrapper.ReasonPhrase">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpResponseWrapper.RequestUri">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpResponseWrapper.Exception">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpResponseWrapper.EnsureSuccessStatusCode">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpResponseWrapper.Content">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.HttpClientWrapper.HttpResponseWrapper.Headers">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpResponseWrapper.#ctor(System.Net.Http.HttpResponseMessage,System.Uri,System.Exception,System.Nullable{System.Int32})">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.HttpClientWrapper.HttpResponseWrapper"/> from the given <paramref name="response"/>.
+            </summary>
+            <param name="response"></param>
+            <param name="requestUri"></param>
+            <param name="exception"></param>
+            <param name="statusCodeOverride"></param>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpResponseWrapper.Dispose(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.HttpClientWrapper.HttpResponseWrapper.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:WebUtilities.IWebClient">
+            <summary>
+            An interface that defines a web client.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebClient.Timeout">
+            <summary>
+            Default timeout for requests in milliseconds.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebClient.UserAgent">
+            <summary>
+            The UserAgent string the client sends with request headers. Must start with "PRODUCT/VERSION" (No '\').
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebClient.ErrorHandling">
+            <summary>
+            How the WebClient handles errors. TODO: May not be fully implemented.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.IWebClient.SetUserAgent(System.String)">
+            <summary>
+            Sets the UserAgent the client sends in the request headers.
+            Should be in the format: Product/Version.
+            </summary>
+            <param name="userAgent"></param>
+        </member>
+        <member name="M:WebUtilities.IWebClient.GetAsync(System.Uri,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request to the specified Uri as an asynchronous operation. If the server doesn't respond inside the provided timeout (milliseconds) or the provided CancellationToken is triggered, the operation is canceled.
+            </summary>
+            <param name="uri"></param>
+            <param name="timeout">Timeout in milliseconds</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.ArgumentNullException">The provided Uri is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
+            <exception cref="T:System.OperationCanceledException">The provided cancellationToken was triggered.</exception>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.IWebClient.GetAsync(System.Uri)">
+            <summary>
+            Send a GET request to the specified Uri as an asynchronous operation.
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">The provided Uri is null.</exception>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
+        </member>
+        <member name="M:WebUtilities.IWebClient.GetAsync(System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request to the specified Uri as an asynchronous operation. If the provided CancellationToken is triggered, the operation is canceled.
+            </summary>
+            <param name="uri"></param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.ArgumentNullException">The provided Uri is null.</exception>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.IWebClient.GetAsync(System.Uri,System.Int32)">
+            <summary>
+            Send a GET request to the specified Uri as an asynchronous operation. If the server doesn't respond inside the provided timeout (milliseconds), the operation is canceled.
+            </summary>
+            <param name="uri"></param>
+            <param name="timeout">Timeout in milliseconds</param>
+            <exception cref="T:System.ArgumentNullException">The provided Uri is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.IWebClient.GetAsync(System.String)">
+            <summary>
+            Send a GET request to the specified Uri as an asynchronous operation.
+            </summary>
+            <param name="url"></param>
+            <exception cref="T:System.ArgumentNullException">The provided Url is null.</exception>
+            <exception cref="T:System.UriFormatException">Thrown when a URI cannot be formed from the provided URL.</exception>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.IWebClient.GetAsync(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request to the specified Uri as an asynchronous operation. If the provided CancellationToken is triggered, the operation is canceled.
+            </summary>
+            <param name="url"></param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.ArgumentNullException">The provided Url is null.</exception>
+            <exception cref="T:System.UriFormatException">Thrown when a URI cannot be formed from the provided URL.</exception>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
+            <exception cref="T:System.OperationCanceledException">The provided cancellationToken was triggered.</exception>
+            <returns></returns>
+        </member>
+        <member name="M:WebUtilities.IWebClient.GetAsync(System.String,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Send a GET request to the specified Uri as an asynchronous operation. 
+            If the server doesn't respond inside the provided timeout (milliseconds) or the provided CancellationToken is triggered, the operation is canceled.
+            </summary>
+            <param name="url"></param>
+            <param name="timeout">Timeout in milliseconds</param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.ArgumentNullException">The provided Url is null.</exception>
+            <exception cref="T:System.UriFormatException">Thrown when a URI cannot be formed from the provided URL.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when an error occurs in the web client or the request times out.</exception>
+            <exception cref="T:System.OperationCanceledException">The provided cancellationToken was triggered.</exception>
+            <returns></returns>
+        </member>
+        <member name="T:WebUtilities.ErrorHandling">
+            <summary>
+            The type of error handling the <see cref="T:WebUtilities.IWebClient"/> uses.
+            </summary>
+        </member>
+        <member name="F:WebUtilities.ErrorHandling.ThrowOnException">
+            <summary>
+            Any thrown exceptions are passed through to the caller.
+            </summary>
+        </member>
+        <member name="F:WebUtilities.ErrorHandling.ThrowOnWebFault">
+            <summary>
+            Any web faults with throw a <see cref="T:WebUtilities.WebClientException"/>.
+            </summary>
+        </member>
+        <member name="F:WebUtilities.ErrorHandling.ReturnEmptyContent">
+            <summary>
+            Any <see cref="T:System.Exception"/>s thrown are stored and returned in a <see cref="T:WebUtilities.IWebResponse"/> with empty content.
+            </summary>
+        </member>
+        <member name="T:WebUtilities.IWebResponseContent">
+            <summary>
+            An interface defining content returned with an <see cref="T:WebUtilities.IWebResponse"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.IWebResponseContent.ReadAsStringAsync">
+            <summary>
+            Returns the content of the response as a string asynchronously.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when there is no content to read.</exception>
+        </member>
+        <member name="M:WebUtilities.IWebResponseContent.ReadAsStreamAsync">
+            <summary>
+            Returns the content of the response as a stream asynchronously.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when there is no content to read.</exception>
+        </member>
+        <member name="M:WebUtilities.IWebResponseContent.ReadAsByteArrayAsync">
+            <summary>
+            Returns the content of the response in a byte array asynchronously.
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when there is no content to read.</exception>
+        </member>
+        <member name="M:WebUtilities.IWebResponseContent.ReadAsFileAsync(System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Writes the content of the response to a file.
+            </summary>
+            <param name="filePath"></param>
+            <param name="overwrite"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when the filename or response content are empty.</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown when there is no content to read or overwrite is false and the file already exists.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
+            <exception cref="T:System.IO.EndOfStreamException">Thrown when ContentLength is reported by the server and the file doesn't match it.</exception>
+            <exception cref="T:System.IO.IOException">Thrown when there's a problem writing the file.</exception>
+            <exception cref="T:System.OperationCanceledException">Thrown when the cancellationToken is triggered while downloading</exception>
+        </member>
+        <member name="P:WebUtilities.IWebResponseContent.ContentType">
+            <summary>
+            Type of content reported by the response headers, if available.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponseContent.ContentLength">
+            <summary>
+            Length of the content in bytes reported by the response headers, if available.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponseContent.Headers">
+            <summary>
+            The response content headers.
+            </summary>
+        </member>
+        <member name="T:WebUtilities.IWebResponseMessage">
+            <summary>
+            An interface defining a web response with content..
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponseMessage.Content">
+            <summary>
+            Content of the response.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.IWebResponseMessage.EnsureSuccessStatusCode">
+            <summary>
+            Throws an exception if there wasn't a successful response.
+            </summary>
+            <returns></returns>
+            <exception cref="T:WebUtilities.WebClientException">Thrown when IsSuccessStatusCode is false or the response is null.</exception>
+        </member>
+        <member name="T:WebUtilities.IWebResponse">
+            <summary>
+            An interface defining a web response.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponse.StatusCode">
+            <summary>
+            Http Status code of the response.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponse.ReasonPhrase">
+            <summary>
+            Reason phrase associated with the status code.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponse.Exception">
+            <summary>
+            If an exception is thrown getting the response, store it here.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponse.IsSuccessStatusCode">
+            <summary>
+            Returns true if the Http Status Code indicates success.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponse.RequestUri">
+            <summary>
+            URI of the request.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.IWebResponse.Headers">
+            <summary>
+            Headers associated with the response.
+            </summary>
+        </member>
+        <member name="T:WebUtilities.Utilities">
+            <summary>
+            Class with some utility methods.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.Utilities.AsTask(System.Threading.CancellationToken)">
+            <summary>
+            Allows using a Cancellation Token as if it were a task.
+            From https://github.com/docevaad/Anchor/blob/master/Tortuga.Anchor/Tortuga.Anchor.source/shared/TaskUtilities.cs
+            </summary>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns>A task that can be canceled, but never completed.</returns>
+        </member>
+        <member name="M:WebUtilities.Utilities.CreateDownloadWithProgress(WebUtilities.IWebClient,System.Uri,System.String,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="client"></param>
+            <param name="uri"></param>
+            <param name="targetFilePath"></param>
+            <param name="reportRate"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebUtilities.WebClientException">
+            <summary>
+            Exception that wraps almost all <see cref="T:System.Exception"/>s thrown by an <see cref="T:WebUtilities.IWebClient"/>.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.WebClientException.Response">
+            <summary>
+            The <see cref="T:WebUtilities.FaultedResponse"/>.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.WebClientException.Uri">
+            <summary>
+            The Uri of the request that failed.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebClientException.#ctor">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebClientException"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebClientException.#ctor(System.String)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebClientException"/> with a message.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebClientException.#ctor(System.String,System.Exception)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebClientException"/> with a message and inner exception.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebClientException.#ctor(System.String,System.Exception,WebUtilities.FaultedResponse)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebClientException"/> with a message, inner exception, and a <see cref="T:WebUtilities.FaultedResponse"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebClientException.#ctor(System.String,System.Exception,WebUtilities.IWebResponseMessage)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebClientException"/> with a message, inner exception, and the failed <see cref="T:WebUtilities.IWebResponseMessage"/>.
+            TODO: Bad to include the response in the exception, response could get disposed by a using
+            </summary>
+        </member>
+        <member name="T:WebUtilities.FaultedResponse">
+            <summary>
+            A failed <see cref="T:WebUtilities.IWebResponse"/> containing details about the request failure.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FaultedResponse.StatusCode">
+            <summary>
+            HTTP status code.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FaultedResponse.ReasonPhrase">
+            <summary>
+            Reason phrase for the failure, if available.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FaultedResponse.Exception">
+            <summary>
+            The <see cref="P:WebUtilities.FaultedResponse.Exception"/> thrown by the response.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FaultedResponse.IsSuccessStatusCode">
+            <summary>
+            Returns true if the <see cref="P:WebUtilities.FaultedResponse.StatusCode"/> indicated success.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FaultedResponse.RequestUri">
+            <summary>
+            <see cref="T:System.Uri"/> of the request, if available.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.FaultedResponse.Headers">
+            <summary>
+            Response headers, if available.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.FaultedResponse.#ctor(WebUtilities.IWebResponseMessage)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.FaultedResponse"/> from an <see cref="T:WebUtilities.IWebResponseMessage"/>.
+            </summary>
+            <param name="response"></param>
+        </member>
+        <member name="M:WebUtilities.FaultedResponse.#ctor(System.Int32,System.String,System.Uri,System.Collections.Generic.IDictionary{System.String,System.Collections.Generic.IEnumerable{System.String}},System.Exception)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.FaultedResponse"/>.
+            </summary>
+            <param name="statusCode"></param>
+            <param name="reasonPhrase"></param>
+            <param name="requestUri"></param>
+            <param name="headers"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="T:WebUtilities.WebWrapper.WebClientContent">
+            <summary>
+            Wrapper for the content of a <see cref="T:WebUtilities.WebWrapper.WebClientResponseWrapper"/>.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientContent.#ctor(System.Net.HttpWebResponse)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebWrapper.WebClientContent"/> from the <paramref name="response"/>.
+            </summary>
+            <param name="response"></param>
+        </member>
+        <member name="F:WebUtilities.WebWrapper.WebClientContent._headers">
+            <summary>
+            Response headers.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientContent.Headers">
+            <summary>
+            A ReadOnlyDictionary of the response headers.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientContent.ContentType">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientContent.ContentLength">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientContent.ReadAsByteArrayAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientContent.ReadAsStreamAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientContent.ReadAsStringAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientContent.ReadAsFileAsync(System.String,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Downloads the provided HttpContent to the specified file.
+            </summary>
+            <param name="filePath"></param>
+            <param name="overwrite"></param>
+            <param name="cancellationToken"></param>
+            <exception cref="T:System.ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
+            <exception cref="T:System.IO.EndOfStreamException">Thrown when the downloaded file's size doesn't match the expected size</exception>
+            <exception cref="T:System.IO.IOException">Thrown when there's a problem writing the file.</exception>
+            <exception cref="T:System.OperationCanceledException"></exception>
+            <returns>Full path to the downloaded file</returns>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientContent.Dispose(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientContent.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:WebUtilities.WebWrapper.WebClientResponseWrapper">
+            <summary>
+            Response wrapper for <see cref="T:WebUtilities.WebWrapper.WebClientWrapper"/>.
+            </summary>
+        </member>
+        <member name="F:WebUtilities.WebWrapper.WebClientResponseWrapper._statusCodeOverride">
+            <summary>
+            Returns 0 if response was null and no status override was provided.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientResponseWrapper.StatusCode">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientResponseWrapper.IsSuccessStatusCode">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientResponseWrapper.Exception">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientResponseWrapper.RequestUri">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientResponseWrapper.EnsureSuccessStatusCode">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientResponseWrapper.Content">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientResponseWrapper.Headers">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientResponseWrapper.ReasonPhrase">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientResponseWrapper.#ctor(System.Net.HttpWebResponse,System.Net.HttpWebRequest,System.Exception,System.Nullable{System.Int32})">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebWrapper.WebClientResponseWrapper"/> with the given <see cref="T:System.Net.HttpWebResponse"/> and <see cref="T:System.Net.HttpWebRequest"/>.
+            </summary>
+            <param name="response"></param>
+            <param name="request"></param>
+            <param name="exception"></param>
+            <param name="statusCodeOverride"></param>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientResponseWrapper.Dispose(System.Boolean)">
+            <summary>
+            Disposes of the <see cref="P:WebUtilities.WebWrapper.WebClientResponseWrapper.Content"/> and wrapped response, if they exist.
+            </summary>
+            <param name="disposing"></param>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientResponseWrapper.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:WebUtilities.WebWrapper.WebClientWrapper">
+            <summary>
+            An <see cref="T:WebUtilities.IWebClient"/> that uses the <see cref="N:System.Net"/> library.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientWrapper.UserAgent">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.#ctor">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebWrapper.WebClientWrapper"/> with the default settings.
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.#ctor(System.Int32)">
+            <summary>
+            Creates a new <see cref="T:WebUtilities.WebWrapper.WebClientWrapper"/> with the given <paramref name="maxConnectionsPerServer"/>.
+            </summary>
+            <param name="maxConnectionsPerServer"></param>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.SetUserAgent(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientWrapper.Timeout">
+            <inheritdoc/>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientWrapper.MaxConcurrentConnections">
+            <summary>
+            Maximum number of concurrent connections to a server.
+            </summary>
+        </member>
+        <member name="P:WebUtilities.WebWrapper.WebClientWrapper.ErrorHandling">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.GetAsync(System.Uri,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.GetAsync(System.Uri)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.GetAsync(System.Uri,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.GetAsync(System.Uri,System.Int32)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.GetAsync(System.String,System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.GetAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.GetAsync(System.String,System.Threading.CancellationToken)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.Dispose(System.Boolean)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapper.Dispose">
+            <inheritdoc/>
+        </member>
+        <member name="T:WebUtilities.WebWrapper.WebClientWrapperExtensions">
+            <summary>
+            From: https://stackoverflow.com/a/19215782
+            </summary>
+        </member>
+        <member name="M:WebUtilities.WebWrapper.WebClientWrapperExtensions.GetResponseAsync(System.Net.HttpWebRequest,System.Threading.CancellationToken)">
+            <summary>
+            Gets a response from the <paramref name="request"/> asynchronously, allowing the use of a <see cref="T:System.Threading.CancellationToken"/>.
+            </summary>
+            <param name="request"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

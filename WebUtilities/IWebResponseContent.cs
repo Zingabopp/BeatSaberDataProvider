@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace WebUtilities
 {
+    /// <summary>
+    /// An interface defining content returned with an <see cref="IWebResponse"/>.
+    /// </summary>
     public interface IWebResponseContent : IDisposable
     {
         /// <summary>
@@ -32,6 +35,7 @@ namespace WebUtilities
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="overwrite"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown when the filename or response content are empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when there is no content to read or overwrite is false and the file already exists.</exception>
@@ -41,8 +45,17 @@ namespace WebUtilities
         /// <exception cref="OperationCanceledException">Thrown when the cancellationToken is triggered while downloading</exception>
         Task<string> ReadAsFileAsync(string filePath, bool overwrite, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Type of content reported by the response headers, if available.
+        /// </summary>
         string? ContentType { get; }
+        /// <summary>
+        /// Length of the content in bytes reported by the response headers, if available.
+        /// </summary>
         long? ContentLength { get; }
+        /// <summary>
+        /// The response content headers.
+        /// </summary>
         ReadOnlyDictionary<string, IEnumerable<string>> Headers { get; }
 
     }

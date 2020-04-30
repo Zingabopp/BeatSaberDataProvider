@@ -6,6 +6,9 @@ using System.Text;
 
 namespace WebUtilities.WebWrapper
 {
+    /// <summary>
+    /// Response wrapper for <see cref="WebClientWrapper"/>.
+    /// </summary>
     public class WebClientResponseWrapper : IWebResponseMessage
     {
         private HttpWebResponse? _response;
@@ -15,6 +18,7 @@ namespace WebUtilities.WebWrapper
         /// </summary>
         private int? _statusCodeOverride;
 
+        /// <inheritdoc/>
         public int StatusCode
         {
             get
@@ -25,15 +29,19 @@ namespace WebUtilities.WebWrapper
             }
         }
 
+        /// <inheritdoc/>
         public bool IsSuccessStatusCode
         {
             get { return (StatusCode >= 200) && (StatusCode <= 299); }
         }
 
+        /// <inheritdoc/>
         public Exception? Exception { get; protected set; }
 
+        /// <inheritdoc/>
         public Uri RequestUri { get; protected set; }
 
+        /// <inheritdoc/>
         public IWebResponseMessage EnsureSuccessStatusCode()
         {
             if (_response == null)
@@ -55,18 +63,28 @@ namespace WebUtilities.WebWrapper
             return this;
         }
 
+        /// <inheritdoc/>
         public IWebResponseContent? Content { get; protected set; }
 
         private Dictionary<string, IEnumerable<string>> _headers;
+        /// <inheritdoc/>
         public ReadOnlyDictionary<string, IEnumerable<string>> Headers
         {
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
 
+        /// <inheritdoc/>
         public string ReasonPhrase { get { return _response?.StatusDescription ?? Exception?.Message ?? "Unknown Error"; } }
-
+        /// <summary>
+        /// Creates a new <see cref="WebClientResponseWrapper"/> with the given <see cref="HttpWebResponse"/> and <see cref="HttpWebRequest"/>.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <param name="request"></param>
+        /// <param name="exception"></param>
+        /// <param name="statusCodeOverride"></param>
         public WebClientResponseWrapper(HttpWebResponse? response, HttpWebRequest request, Exception? exception = null, int? statusCodeOverride = null)
         {
+            _ = request ?? throw new ArgumentNullException(nameof(request), $"Request cannot be null when creating a {nameof(WebClientResponseWrapper)}");
             _response = response;
             _statusCodeOverride = statusCodeOverride;
             Exception = exception;
@@ -87,6 +105,10 @@ namespace WebUtilities.WebWrapper
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
+        /// <summary>
+        /// Disposes of the <see cref="Content"/> and wrapped response, if they exist.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -108,6 +130,7 @@ namespace WebUtilities.WebWrapper
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);

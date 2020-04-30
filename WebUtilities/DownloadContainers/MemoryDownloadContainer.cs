@@ -5,17 +5,38 @@ using System.Threading.Tasks;
 
 namespace WebUtilities
 {
+    /// <summary>
+    /// A <see cref="DownloadContainer"/> that stores the data in memory.
+    /// </summary>
     public class MemoryDownloadContainer : DownloadContainer
     {
         private byte[]? _data;
-
-        public override bool ResultAvailable { get => _data != null; }
-
-        public MemoryDownloadContainer() { }
-        public MemoryDownloadContainer(byte[] existingData) => _data = existingData;
+        /// <summary>
+        /// Set to true if data has been successfully received.
+        /// </summary>
+        protected bool dataReceived = false;
+        /// <summary>
+        /// Returns true if data was successfully received and is not null.
+        /// </summary>
+        public override bool ResultAvailable { get => dataReceived && _data != null; }
 
         /// <summary>
-        /// 
+        /// Creates an empty <see cref="MemoryDownloadContainer"/> that can receive data.
+        /// </summary>
+        public MemoryDownloadContainer() { }
+        /// <summary>
+        /// Creates a new <see cref="MemoryDownloadContainer"/> with existing data.
+        /// </summary>
+        /// <param name="existingData"></param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="existingData"/> is null.</exception>
+        public MemoryDownloadContainer(byte[] existingData)
+        {
+            _data = existingData ?? throw new ArgumentNullException(nameof(existingData), "Cannot create a MemoryDownloadContainer with null existingData");
+            dataReceived = true;
+        }
+
+        /// <summary>
+        /// Transfers the contents of <paramref name="inputStream"/> into this <see cref="MemoryDownloadContainer"/>.
         /// </summary>
         /// <param name="inputStream"></param>
         /// <param name="disposeInput"></param>
@@ -60,10 +81,11 @@ namespace WebUtilities
         }
 
         /// <summary>
-        /// 
+        /// Asynchronously transfers the contents of <paramref name="inputStream"/> into this <see cref="MemoryDownloadContainer"/>.
         /// </summary>
         /// <param name="inputStream"></param>
         /// <param name="disposeInput"></param>
+        /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
@@ -108,12 +130,23 @@ namespace WebUtilities
             }
         }
 
+        /// <summary>
+        /// Returns a stream with the data contained in this <see cref="MemoryDownloadContainer"/>.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if there is no data to retrieve.</exception>
         public override Stream GetResultStream()
         {
+            if (!ResultAvailable || _data == null)
+                throw new InvalidOperationException("There is not data to retrieve.");
             return new MemoryStream(_data);
         }
 
         bool disposed;
+        /// <summary>
+        /// Disposes this <see cref="MemoryDownloadContainer"/>.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             IsDisposed = true;

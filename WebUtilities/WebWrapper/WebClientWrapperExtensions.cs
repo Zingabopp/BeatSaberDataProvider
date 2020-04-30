@@ -13,6 +13,12 @@ namespace WebUtilities.WebWrapper
     /// </summary>
     public static class WebClientWrapperExtensions
     {
+        /// <summary>
+        /// Gets a response from the <paramref name="request"/> asynchronously, allowing the use of a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public static async Task<WebResponse> GetResponseAsync(this HttpWebRequest request, CancellationToken cancellationToken)
         {
             using (cancellationToken.Register(() => request.Abort(), useSynchronizationContext: false))

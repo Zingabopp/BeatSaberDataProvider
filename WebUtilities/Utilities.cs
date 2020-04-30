@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace WebUtilities
 {
+    /// <summary>
+    /// Class with some utility methods.
+    /// </summary>
     public static class Utilities
     {
         /// <summary>
@@ -22,8 +25,17 @@ namespace WebUtilities
             return tcs.Task;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="uri"></param>
+        /// <param name="targetFilePath"></param>
+        /// <param name="reportRate"></param>
+        /// <returns></returns>
+        [Obsolete("Use DownloadContainers instead.")]
         public static DownloadWithProgress CreateDownloadWithProgress(this IWebClient client, Uri uri, string targetFilePath, int reportRate = 50) => new DownloadWithProgress(client, uri, targetFilePath, reportRate);
-        public static string GetTimeoutMessage(Uri uri)
+        internal static string GetTimeoutMessage(Uri uri)
         {
             return $"Timeout occurred while waiting for {uri}";
         }

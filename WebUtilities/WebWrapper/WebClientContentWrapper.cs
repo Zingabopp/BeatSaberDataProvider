@@ -9,10 +9,17 @@ using System.Threading;
 
 namespace WebUtilities.WebWrapper
 {
+    /// <summary>
+    /// Wrapper for the content of a <see cref="WebClientResponseWrapper"/>.
+    /// </summary>
     public class WebClientContent : IWebResponseContent
     {
         private HttpWebResponse? _response;
-        public WebClientContent(HttpWebResponse response)
+        /// <summary>
+        /// Creates a new <see cref="WebClientContent"/> from the <paramref name="response"/>.
+        /// </summary>
+        /// <param name="response"></param>
+        public WebClientContent(HttpWebResponse? response)
         {
             _response = response;
             ContentLength = _response?.ContentLength ?? 0;
@@ -28,12 +35,19 @@ namespace WebUtilities.WebWrapper
             }
         }
 
+        /// <summary>
+        /// Response headers.
+        /// </summary>
         protected Dictionary<string, IEnumerable<string>> _headers;
+
+        /// <summary>
+        /// A ReadOnlyDictionary of the response headers.
+        /// </summary>
         public ReadOnlyDictionary<string, IEnumerable<string>> Headers
         {
             get { return new ReadOnlyDictionary<string, IEnumerable<string>>(_headers); }
         }
-
+        /// <inheritdoc/>
         public string ContentType
         {
             get
@@ -46,9 +60,9 @@ namespace WebUtilities.WebWrapper
                 return cType;
             }
         }
-
+        /// <inheritdoc/>
         public long? ContentLength { get; protected set; }
-
+        /// <inheritdoc/>
         public async Task<byte[]> ReadAsByteArrayAsync()
         {
             using (Stream stream = _response?.GetResponseStream() ?? throw new InvalidOperationException("There is no content to read."))
@@ -61,12 +75,12 @@ namespace WebUtilities.WebWrapper
                 }
             }
         }
-
+        /// <inheritdoc/>
         public Task<Stream> ReadAsStreamAsync()
         {
             return Task.Run(() => _response?.GetResponseStream() ?? throw new InvalidOperationException("There is no content to read."));
         }
-
+        /// <inheritdoc/>
         public async Task<string> ReadAsStringAsync()
         {
             using (Stream stream = _response?.GetResponseStream() ?? throw new InvalidOperationException("There is no content to read."))
@@ -82,6 +96,7 @@ namespace WebUtilities.WebWrapper
         /// </summary>
         /// <param name="filePath"></param>
         /// <param name="overwrite"></param>
+        /// <param name="cancellationToken"></param>
         /// <exception cref="ArgumentNullException">Thrown when content or the filename are null or empty.</exception>
         /// <exception cref="InvalidOperationException">Thrown when overwrite is false and a file at the provided path already exists.</exception>
         /// <exception cref="DirectoryNotFoundException">Thrown when the directory it's trying to save to doesn't exist.</exception>
@@ -141,7 +156,7 @@ namespace WebUtilities.WebWrapper
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
-
+        /// <inheritdoc/>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -150,6 +165,7 @@ namespace WebUtilities.WebWrapper
                 {
                     if (_response != null)
                     {
+                        // TODO: Should I be disposing of the response here? Not the content's responsibility?
                         _response.Dispose();
                         _response = null;
                     }
@@ -157,7 +173,7 @@ namespace WebUtilities.WebWrapper
                 disposedValue = true;
             }
         }
-
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);

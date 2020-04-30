@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebUtilities
 {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public struct DownloadProgress
     {
         public readonly long? TotalDownloadSize;
@@ -74,6 +75,7 @@ namespace WebUtilities
         /// Starts the download using the provided <paramref name="targetStream"/> as the output.
         /// </summary>
         /// <param name="targetStream"></param>
+        /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public virtual async Task StartDownload(Stream targetStream, IProgress<DownloadProgress>? progress, CancellationToken cancellationToken)
@@ -101,6 +103,7 @@ namespace WebUtilities
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
@@ -121,6 +124,7 @@ namespace WebUtilities
         /// 
         /// </summary>
         /// <param name="response"></param>
+        /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
@@ -139,6 +143,7 @@ namespace WebUtilities
         /// </summary>
         /// <param name="totalDownloadSize"></param>
         /// <param name="contentStream"></param>
+        /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
@@ -239,4 +244,6 @@ namespace WebUtilities
         #endregion
 
     }
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

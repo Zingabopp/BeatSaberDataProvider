@@ -5,11 +5,17 @@ using System.Threading.Tasks;
 
 namespace WebUtilities.WebWrapper
 {
+    /// <summary>
+    /// An <see cref="IWebClient"/> that uses the <see cref="System.Net"/> library.
+    /// </summary>
     public class WebClientWrapper : IWebClient, IDisposable
     {
-        //public ILogger Logger;
+        /// <inheritdoc/>
         public string? UserAgent { get; private set; }
 
+        /// <summary>
+        /// Creates a new <see cref="WebClientWrapper"/> with the default settings.
+        /// </summary>
         public WebClientWrapper()
         {
             //if (client == null)
@@ -20,21 +26,25 @@ namespace WebUtilities.WebWrapper
             MaxConcurrentConnections = int.MaxValue;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="WebClientWrapper"/> with the given <paramref name="maxConnectionsPerServer"/>.
+        /// </summary>
+        /// <param name="maxConnectionsPerServer"></param>
         public WebClientWrapper(int maxConnectionsPerServer)
             : this()
         {
             MaxConcurrentConnections = maxConnectionsPerServer > 0 ? maxConnectionsPerServer : 1;
         }
 
+        /// <inheritdoc/>
         public void SetUserAgent(string? userAgent)
         {
             UserAgent = userAgent;
         }
 
         private int _timeout = 30000;
-        /// <summary>
-        /// Timeout in milliseconds
-        /// </summary>
+
+        /// <inheritdoc/>
         public int Timeout
         {
             get { return _timeout; }
@@ -49,6 +59,9 @@ namespace WebUtilities.WebWrapper
         }
 
         private int _maxConcurrentConnections;
+        /// <summary>
+        /// Maximum number of concurrent connections to a server.
+        /// </summary>
         public int MaxConcurrentConnections
         {
             get { return _maxConcurrentConnections; }
@@ -58,19 +71,11 @@ namespace WebUtilities.WebWrapper
                 ServicePointManager.DefaultConnectionLimit = value;
             }
         }
+        /// <inheritdoc/>
         public ErrorHandling ErrorHandling { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <param name="completeOnHeaders"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="WebClientException">Thrown when there's a WebException.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="uri"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when cancelled by caller.</exception>
+
+        /// <inheritdoc/>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri), "uri cannot be null.");
@@ -252,19 +257,23 @@ namespace WebUtilities.WebWrapper
 
         #region GetAsyncOverloads
 
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri)
         {
             return GetAsync(uri, 0, CancellationToken.None);
         }
 
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
         {
             return GetAsync(uri, 0, cancellationToken);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri, int timeout)
         {
             return GetAsync(uri, timeout, CancellationToken.None);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url, int timeout, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(url))
@@ -272,14 +281,12 @@ namespace WebUtilities.WebWrapper
             Uri urlAsUri = new Uri(url);
             return GetAsync(urlAsUri, timeout, cancellationToken);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url)
         {
             return GetAsync(url, 0, CancellationToken.None);
         }
-        public Task<IWebResponseMessage> GetAsync(string url, int timeout)
-        {
-            return GetAsync(url, timeout, CancellationToken.None);
-        }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
         {
             return GetAsync(url, 0, cancellationToken);
@@ -289,6 +296,7 @@ namespace WebUtilities.WebWrapper
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
+        /// <inheritdoc/>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -301,6 +309,7 @@ namespace WebUtilities.WebWrapper
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);

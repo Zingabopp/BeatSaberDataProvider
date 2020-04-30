@@ -4,6 +4,9 @@ using System.Collections.ObjectModel;
 
 namespace WebUtilities
 {
+    /// <summary>
+    /// An interface defining a web response with content..
+    /// </summary>
     public interface IWebResponseMessage : IWebResponse, IDisposable
     {
         /// <summary>
@@ -20,6 +23,9 @@ namespace WebUtilities
         IWebResponseMessage EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    /// An interface defining a web response.
+    /// </summary>
     public interface IWebResponse
     {
         /// <summary>

@@ -5,30 +5,49 @@ using System.Threading.Tasks;
 
 namespace WebUtilities
 {
+    /// <summary>
+    /// A <see cref="DownloadContainer"/> that stores the data in a file.
+    /// </summary>
     public class FileDownloadContainer : DownloadContainer
     {
-        public string FilePath { get; private set; }
-        public bool Overwrite { get; private set; }
-
+        /// <summary>
+        /// Path to the file.
+        /// </summary>
+        public string FilePath { get; protected set; }
+        /// <summary>
+        /// If true, overwrites any existing file.
+        /// </summary>
+        public bool Overwrite { get; protected set; }
+        /// <summary>
+        /// If true, the target file is deleted when the <see cref="FileDownloadContainer"/> is disposed.
+        /// </summary>
+        public bool DeleteOnDispose { get; set; }
+        /// <summary>
+        /// Set to true if data has been successfully received.
+        /// </summary>
         protected bool dataReceived;
         /// <summary>
-        /// 
+        /// Creates a new <see cref="FileDownloadContainer"/> that targets the given <paramref name="filePath"/>.
         /// </summary>
-        /// <param name="filePath"></param>
-        /// <param name="overwrite"></param>
+        /// <param name="filePath">Path to the target file.</param>
+        /// <param name="overwrite">If true, overwrites any existing file when data is received.</param>
+        /// <param name="deleteOnDispose">If true, the target file is deleted when the <see cref="FileDownloadContainer"/> is disposed.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public FileDownloadContainer(string filePath, bool overwrite = true)
+        public FileDownloadContainer(string filePath, bool overwrite = true, bool deleteOnDispose = true)
         {
             if(string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath), "filePath cannot be null.");
             FilePath = filePath;
             Overwrite = overwrite;
+            DeleteOnDispose = deleteOnDispose;
             dataReceived = false;
         }
-
+        /// <summary>
+        /// Returns true if data was successfully received and the target file exists.
+        /// </summary>
         public override bool ResultAvailable { get => dataReceived && File.Exists(FilePath); }
 
         /// <summary>
-        /// 
+        /// Transfers the contents of <paramref name="inputStream"/> to the target file.
         /// </summary>
         /// <param name="inputStream"></param>
         /// <param name="disposeInput"></param>
@@ -71,10 +90,11 @@ namespace WebUtilities
         }
 
         /// <summary>
-        /// 
+        /// Asynchronously transfers the contents of <paramref name="inputStream"/> to the target file.
         /// </summary>
         /// <param name="inputStream"></param>
         /// <param name="disposeInput"></param>
+        /// <param name="progress"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
@@ -114,17 +134,31 @@ namespace WebUtilities
                 catch { }
             }
         }
-
+        /// <summary>
+        /// Returns a stream with the data contained in the target file.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if there is no data to retrieve.</exception>
         public override Stream GetResultStream()
         {
+            if (!ResultAvailable)
+                throw new InvalidOperationException("There is not data to retrieve.");
             return new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous);
         }
 
+        /// <summary>
+        /// Deconstructor for <see cref="FileDownloadContainer"/>.
+        /// </summary>
         ~FileDownloadContainer()
         {
             Dispose(false);
         }
+
         bool disposed;
+        /// <summary>
+        /// Disposes of the <see cref="FileDownloadContainer"/>, deleting the file.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected override void Dispose(bool disposing)
         {
             IsDisposed = true;
@@ -137,7 +171,7 @@ namespace WebUtilities
                 try
                 {
                     string file = FilePath;
-                    if (!string.IsNullOrEmpty(file) && File.Exists(file))
+                    if (DeleteOnDispose && !string.IsNullOrEmpty(file) && File.Exists(file))
                     {
                         File.Delete(file);
                     }

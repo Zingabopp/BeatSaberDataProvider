@@ -11,7 +11,7 @@ namespace WebUtilities.WebWrapper
 {
     public class WebClientContent : IWebResponseContent
     {
-        private HttpWebResponse _response;
+        private HttpWebResponse? _response;
         public WebClientContent(HttpWebResponse response)
         {
             _response = response;
@@ -51,7 +51,7 @@ namespace WebUtilities.WebWrapper
 
         public async Task<byte[]> ReadAsByteArrayAsync()
         {
-            using (Stream stream = _response.GetResponseStream())
+            using (Stream stream = _response?.GetResponseStream() ?? throw new InvalidOperationException("There is no content to read."))
             {
                 using (MemoryStream memStream = new MemoryStream())
                 {
@@ -64,15 +64,15 @@ namespace WebUtilities.WebWrapper
 
         public Task<Stream> ReadAsStreamAsync()
         {
-            return Task.Run(() => _response?.GetResponseStream());
+            return Task.Run(() => _response?.GetResponseStream() ?? throw new InvalidOperationException("There is no content to read."));
         }
 
         public async Task<string> ReadAsStringAsync()
         {
-            using (Stream stream = _response?.GetResponseStream())
+            using (Stream stream = _response?.GetResponseStream() ?? throw new InvalidOperationException("There is no content to read."))
             using (var sr = new StreamReader(stream))
             {
-                await Task.Yield();
+                await Task.Yield(); // TODO: Why?
                 return await sr.ReadToEndAsync().ConfigureAwait(false);
             }
         }
@@ -91,8 +91,7 @@ namespace WebUtilities.WebWrapper
         /// <returns>Full path to the downloaded file</returns>
         public async Task<string> ReadAsFileAsync(string filePath, bool overwrite, CancellationToken cancellationToken)
         {
-            if (_response == null)
-                throw new ArgumentNullException(nameof(_response), "content cannot be null for HttpContent.ReadAsFileAsync");
+            HttpWebResponse response = _response ?? throw new InvalidOperationException("There is no content to read.");
             if (string.IsNullOrEmpty(filePath?.Trim()))
                 throw new ArgumentNullException(nameof(filePath), "filename cannot be null or empty for HttpContent.ReadAsFileAsync");
             string pathname = Path.GetFullPath(filePath);
@@ -101,19 +100,19 @@ namespace WebUtilities.WebWrapper
                 throw new InvalidOperationException(string.Format("File {0} already exists.", pathname));
             }
 
-            FileStream fileStream = null;
+            FileStream? fileStream = null;
             try
             {
                 fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
-                var responseStream = _response.GetResponseStream();
+                var responseStream = response.GetResponseStream();
                 long expectedLength = 0;
-                if (_response.ContentLength > 0)
-                    expectedLength = _response.ContentLength;
+                if (response.ContentLength > 0)
+                    expectedLength = response.ContentLength;
                 // TODO: Timeouts don't seem to do anything.
                 //responseStream.ReadTimeout = 1;
                 //responseStream.WriteTimeout = 1;
                 string downloadedPath = string.Empty;
-                downloadedPath = await _response.GetResponseStream().CopyToAsync(fileStream, 81920, cancellationToken).ContinueWith(
+                downloadedPath = await response.GetResponseStream().CopyToAsync(fileStream, 81920, cancellationToken).ContinueWith(
                     (copyTask) =>
                     {
                         long fileStreamLength = fileStream.Length;

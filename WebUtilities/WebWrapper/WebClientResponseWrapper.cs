@@ -8,8 +8,8 @@ namespace WebUtilities.WebWrapper
 {
     public class WebClientResponseWrapper : IWebResponseMessage
     {
-        private HttpWebResponse _response;
-        private HttpWebRequest _request;
+        private HttpWebResponse? _response;
+        //private HttpWebRequest? _request;
         /// <summary>
         /// Returns 0 if response was null and no status override was provided.
         /// </summary>
@@ -30,7 +30,7 @@ namespace WebUtilities.WebWrapper
             get { return (StatusCode >= 200) && (StatusCode <= 299); }
         }
 
-        public Exception Exception { get; protected set; }
+        public Exception? Exception { get; protected set; }
 
         public Uri RequestUri { get; protected set; }
 
@@ -55,7 +55,7 @@ namespace WebUtilities.WebWrapper
             return this;
         }
 
-        public IWebResponseContent Content { get; protected set; }
+        public IWebResponseContent? Content { get; protected set; }
 
         private Dictionary<string, IEnumerable<string>> _headers;
         public ReadOnlyDictionary<string, IEnumerable<string>> Headers
@@ -65,15 +65,14 @@ namespace WebUtilities.WebWrapper
 
         public string ReasonPhrase { get { return _response?.StatusDescription ?? Exception?.Message ?? "Unknown Error"; } }
 
-        public WebClientResponseWrapper(HttpWebResponse response, HttpWebRequest request, Exception exception = null, int? statusCodeOverride = null)
+        public WebClientResponseWrapper(HttpWebResponse? response, HttpWebRequest request, Exception? exception = null, int? statusCodeOverride = null)
         {
             _response = response;
-            _request = request;
             _statusCodeOverride = statusCodeOverride;
             Exception = exception;
-            RequestUri = request?.RequestUri;
+            RequestUri = request.RequestUri;
             if(response != null)
-                Content = new WebClientContent(_response);
+                Content = new WebClientContent(response);
             _headers = new Dictionary<string, IEnumerable<string>>();
             if (_response?.Headers != null)
             {

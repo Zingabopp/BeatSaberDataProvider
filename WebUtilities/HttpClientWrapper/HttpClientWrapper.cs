@@ -9,13 +9,12 @@ namespace WebUtilities.HttpClientWrapper
 {
     public class HttpClientWrapper : IWebClient
     {
-        private HttpClient httpClient;
-        public string UserAgent { get; private set; }
+        private HttpClient? httpClient;
+        public string? UserAgent { get; private set; }
         //public ILogger Logger;
         public HttpClientWrapper()
         {
-            if (httpClient == null)
-                httpClient = new HttpClient();
+            httpClient = new HttpClient();
             if (!string.IsNullOrEmpty(UserAgent))
             {
                 httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd(UserAgent);
@@ -34,7 +33,7 @@ namespace WebUtilities.HttpClientWrapper
             httpClient.Timeout = _timeout;
         }
 
-        public void SetUserAgent(string userAgent)
+        public void SetUserAgent(string? userAgent)
         {
 
             if (httpClient != null)
@@ -85,23 +84,23 @@ namespace WebUtilities.HttpClientWrapper
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri), "uri cannot be null.");
             if (timeout < 0) throw new ArgumentOutOfRangeException(nameof(timeout), "timeout cannot be less than 0.");
-
+            HttpClient client = httpClient ?? throw new InvalidOperationException($"{nameof(httpClient)} is null.");
             if (timeout == 0)
                 timeout = Timeout;
             if (timeout == 0)
-                timeout = (int)httpClient.Timeout.TotalMilliseconds;
+                timeout = (int)client.Timeout.TotalMilliseconds;
             using (var timeoutCts = new CancellationTokenSource(timeout))
             {
                 var timeoutToken = timeoutCts.Token;
                 using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutToken))
                 {
-                    HttpResponseMessage response = null;
+                    HttpResponseMessage? response = null;
                     try
                     {
                         //TODO: Need testing for cancellation token
-                        response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
+                        response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
                         // response.EnsureSuccessStatusCode(); // Calling this disposes the content.
-                        
+
                         var wrappedResponse = new HttpResponseWrapper(response, uri);
                         if (ErrorHandling == ErrorHandling.ThrowOnException)
                             wrappedResponse.EnsureSuccessStatusCode();

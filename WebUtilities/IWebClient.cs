@@ -15,7 +15,7 @@ namespace WebUtilities
         /// <summary>
         /// The UserAgent string the client sends with request headers. Must start with "PRODUCT/VERSION" (No '\').
         /// </summary>
-        string UserAgent { get; }
+        string? UserAgent { get; }
         /// <summary>
         /// How the WebClient handles errors. TODO: May not be fully implemented.
         /// </summary>
@@ -25,7 +25,7 @@ namespace WebUtilities
         /// Should be in the format: Product/Version.
         /// </summary>
         /// <param name="userAgent"></param>
-        void SetUserAgent(string userAgent);
+        void SetUserAgent(string? userAgent);
 
         /// <summary>
         /// Send a GET request to the specified Uri as an asynchronous operation. If the server doesn't respond inside the provided timeout (milliseconds) or the provided CancellationToken is triggered, the operation is canceled.

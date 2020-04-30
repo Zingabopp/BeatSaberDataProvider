@@ -12,9 +12,9 @@ namespace WebUtilities.HttpClientWrapper
 {
     public class HttpContentWrapper : IWebResponseContent
     {
-        private HttpContent _content;
+        private HttpContent? _content;
 
-        public HttpContentWrapper(HttpContent content)
+        public HttpContentWrapper(HttpContent? content)
         {
             _content = content;
             _headers = new Dictionary<string, IEnumerable<string>>();
@@ -48,23 +48,20 @@ namespace WebUtilities.HttpClientWrapper
 
         public async Task<byte[]> ReadAsByteArrayAsync()
         {
-            if (_content == null)
-                return null;
-            return await _content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            HttpContent content = _content ?? throw new InvalidOperationException("There is no content to read.");
+            return await content.ReadAsByteArrayAsync().ConfigureAwait(false);
         }
 
-        public async Task<Stream> ReadAsStreamAsync()
+        public Task<Stream> ReadAsStreamAsync()
         {
-            if (_content == null)
-                return null;
-            return await _content.ReadAsStreamAsync().ConfigureAwait(false);
+            HttpContent content = _content ?? throw new InvalidOperationException("There is no content to read.");
+            return content.ReadAsStreamAsync();
         }
 
         public async Task<string> ReadAsStringAsync()
         {
-            if (_content == null)
-                return null;
-            return await _content.ReadAsStringAsync().ConfigureAwait(false);
+            HttpContent content = _content ?? throw new InvalidOperationException("There is no content to read.");
+            return await content.ReadAsStringAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -78,8 +75,7 @@ namespace WebUtilities.HttpClientWrapper
         /// <returns>Full path to the downloaded file</returns>
         public async Task<string> ReadAsFileAsync(string filePath, bool overwrite, CancellationToken cancellationToken)
         {
-            if (_content == null)
-                throw new ArgumentNullException(nameof(_content), "content cannot be null for HttpContent.ReadAsFileAsync");
+            HttpContent? content = _content ?? throw new InvalidOperationException("There is no content to read.");
             if (string.IsNullOrEmpty(filePath?.Trim()))
                 throw new ArgumentNullException(nameof(filePath), "filename cannot be null or empty for HttpContent.ReadAsFileAsync");
             string pathname = Path.GetFullPath(filePath);
@@ -88,17 +84,16 @@ namespace WebUtilities.HttpClientWrapper
                 throw new InvalidOperationException(string.Format("File {0} already exists.", pathname));
             }
 
-            FileStream fileStream = null;
+            FileStream? fileStream = null;
             try
             {
                 fileStream = new FileStream(pathname, FileMode.Create, FileAccess.Write, FileShare.None);
                 if (cancellationToken.CanBeCanceled)
                     cancellationToken.Register(() => fileStream.Close());
-                long expectedLength = 0;
-                if ((_content?.Headers?.ContentLength ?? 0) > 0)
-                    expectedLength = _content.Headers.ContentLength ?? 0;
+                long expectedLength = Math.Max(0, _content?.Headers?.ContentLength ?? 0);
+
                 // TODO: Should this be awaited?
-                string downloadedPath = await _content.CopyToAsync(fileStream).ContinueWith(
+                string downloadedPath = await content.CopyToAsync(fileStream).ContinueWith(
                     (copyTask) =>
                     {
                         long fileStreamLength = fileStream.Length;

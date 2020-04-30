@@ -5,6 +5,8 @@
     <Authors>Zingabopp</Authors>
     <Copyright>Copyright © Zingabopp 2019</Copyright>
     <Platforms>AnyCPU;x64</Platforms>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETFRAMEWORK</DefineConstants>

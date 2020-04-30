@@ -22,8 +22,6 @@ namespace WebUtilities
             return tcs.Task;
         }
 
-        public static DownloadWithProgress CreateDownloadWithProgress(this IWebClient client, Uri uri, int reportRate = 50) => new DownloadWithProgress(client, uri, reportRate);
-
         public static DownloadWithProgress CreateDownloadWithProgress(this IWebClient client, Uri uri, string targetFilePath, int reportRate = 50) => new DownloadWithProgress(client, uri, targetFilePath, reportRate);
         public static string GetTimeoutMessage(Uri uri)
         {

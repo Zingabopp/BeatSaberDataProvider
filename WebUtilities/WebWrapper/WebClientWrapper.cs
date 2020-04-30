@@ -8,7 +8,7 @@ namespace WebUtilities.WebWrapper
     public class WebClientWrapper : IWebClient, IDisposable
     {
         //public ILogger Logger;
-        public string UserAgent { get; private set; }
+        public string? UserAgent { get; private set; }
 
         public WebClientWrapper()
         {
@@ -26,7 +26,7 @@ namespace WebUtilities.WebWrapper
             MaxConcurrentConnections = maxConnectionsPerServer > 0 ? maxConnectionsPerServer : 1;
         }
 
-        public void SetUserAgent(string userAgent)
+        public void SetUserAgent(string? userAgent)
         {
             UserAgent = userAgent;
         }
@@ -77,10 +77,10 @@ namespace WebUtilities.WebWrapper
             if (timeout < 0) throw new ArgumentOutOfRangeException(nameof(timeout), "timeout cannot be less than 0.");
             if (timeout == 0)
                 timeout = Timeout;
-            HttpWebRequest request = HttpWebRequest.CreateHttp(uri);
+            HttpWebRequest request = WebRequest.CreateHttp(uri);
             if (!string.IsNullOrEmpty(UserAgent))
                 request.UserAgent = UserAgent;
-            CancellationTokenSource timeoutSource = null;
+            CancellationTokenSource? timeoutSource = null;
             CancellationToken timeoutToken = CancellationToken.None;
             if (timeout != 0)
             {
@@ -92,7 +92,7 @@ namespace WebUtilities.WebWrapper
             if (cancellationToken.IsCancellationRequested)
                 throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
             bool wasCanceled = false;
-            bool timedOut = false;
+            //bool timedOut = false;
             try
             {
                 Task<WebResponse> getTask = request.GetResponseAsync(cancellationToken);
@@ -120,7 +120,7 @@ namespace WebUtilities.WebWrapper
                         if (!wasCanceled)
                         {
                             wasCanceled = true;
-                            timedOut = true;
+                            //timedOut = true;
                         }
                     });
                     timeoutSource.CancelAfter(timeout);
@@ -136,12 +136,12 @@ namespace WebUtilities.WebWrapper
                     throw;
                 else
                 {
-                    return new WebClientResponseWrapper(null, null, ex);
+                    return new WebClientResponseWrapper(null, request, ex);
                 }
             }
             catch (WebException ex)
             {
-                HttpWebResponse resp = ex.Response as HttpWebResponse;
+                HttpWebResponse? resp = ex.Response as HttpWebResponse;
                 int? statusOverride = WebExceptionStatusToHttpStatus(ex.Status);
                 // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
 

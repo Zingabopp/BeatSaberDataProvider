@@ -7,10 +7,16 @@ using System.Threading.Tasks;
 
 namespace WebUtilities
 {
+#pragma warning disable CA2237 // Mark ISerializable types with serializable
     public class WebClientException : InvalidOperationException
+#pragma warning restore CA2237 // Mark ISerializable types with serializable
     {
-        public FaultedResponse Response { get; }
-        public Uri Uri { get; }
+        public FaultedResponse? Response { get; }
+        public Uri? Uri { get; }
+
+        public WebClientException()
+        {
+        }
 
         public WebClientException(string message) : base(message)
         {
@@ -36,8 +42,8 @@ namespace WebUtilities
     public class FaultedResponse : IWebResponse
     {
         public int StatusCode { get; private set; }
-        public string ReasonPhrase { get; private set; }
-        public Exception Exception { get; private set; }
+        public string? ReasonPhrase { get; private set; }
+        public Exception? Exception { get; private set; }
         public bool IsSuccessStatusCode
         {
             get { return (StatusCode >= 200) && (StatusCode <= 299); }

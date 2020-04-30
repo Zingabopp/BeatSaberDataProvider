@@ -9,7 +9,7 @@ namespace WebUtilities
         /// <summary>
         /// Content of the response.
         /// </summary>
-        IWebResponseContent Content { get; }
+        IWebResponseContent? Content { get; }
 
 
         /// <summary>
@@ -30,12 +30,12 @@ namespace WebUtilities
         /// <summary>
         /// Reason phrase associated with the status code.
         /// </summary>
-        string ReasonPhrase { get; }
+        string? ReasonPhrase { get; }
 
         /// <summary>
         /// If an exception is thrown getting the response, store it here.
         /// </summary>
-        Exception Exception { get; }
+        Exception? Exception { get; }
 
         /// <summary>
         /// Returns true if the Http Status Code indicates success.

@@ -35,22 +35,24 @@ namespace WebUtilities
                 return $"{BytesRead} ({TotalBytesDownloaded})";
         }
     }
+
     /// <summary>
     /// From: https://stackoverflow.com/a/43169927
     /// </summary>
+    [Obsolete("Use DownloadContainers instead.")]
     public class DownloadWithProgress : IDisposable
     {
         private readonly Uri _downloadUri;
-        private readonly string _destinationFilePath;
-        private Stream _destinationStream;
+        private readonly string? _destinationFilePath;
+        private Stream? _destinationStream;
         private readonly int ReportRate;
         public bool DownloadStarted { get; protected set; }
-        protected CancellationTokenSource TokenSource { get; set; }
+        protected CancellationTokenSource? TokenSource { get; set; }
         public IWebClient WebClient { get; protected set; }
 
-        public event EventHandler<DownloadProgress> ProgressChanged;
+        public event EventHandler<DownloadProgress>? ProgressChanged;
 
-        public DownloadWithProgress(IWebClient client, Uri downloadUri, int reportRate = 50)
+        private DownloadWithProgress(IWebClient client, Uri downloadUri, int reportRate = 50)
         {
             ReportRate = Math.Min(reportRate, 1);
             WebClient = client ?? throw new ArgumentNullException(nameof(client), "client cannot be null for HttpClientDownloadWithProgress.");
@@ -74,7 +76,7 @@ namespace WebUtilities
         /// <param name="targetStream"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual async Task StartDownload(Stream targetStream, IProgress<DownloadProgress> progress, CancellationToken cancellationToken)
+        public virtual async Task StartDownload(Stream targetStream, IProgress<DownloadProgress>? progress, CancellationToken cancellationToken)
         {
             if (DownloadStarted) return;
             DownloadStarted = true;
@@ -102,7 +104,7 @@ namespace WebUtilities
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
-        public virtual async Task StartDownload(IProgress<DownloadProgress> progress, CancellationToken cancellationToken)
+        public virtual async Task StartDownload(IProgress<DownloadProgress>? progress, CancellationToken cancellationToken)
         {
             if (DownloadStarted) return;
             if (string.IsNullOrEmpty(_destinationFilePath))
@@ -122,13 +124,13 @@ namespace WebUtilities
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
-        private async Task DownloadFileFromHttpResponseMessage(IWebResponseMessage response, IProgress<DownloadProgress> progress, CancellationToken cancellationToken)
+        private async Task DownloadFileFromHttpResponseMessage(IWebResponseMessage response, IProgress<DownloadProgress>? progress, CancellationToken cancellationToken)
         {
             response.EnsureSuccessStatusCode();
+            IWebResponseContent content = response?.Content ?? throw new InvalidOperationException("Content is null.");
+            long? totalBytes = content.ContentLength;
 
-            long? totalBytes = response.Content.ContentLength;
-
-            using (Stream contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+            using (Stream contentStream = await content.ReadAsStreamAsync().ConfigureAwait(false))
                 await ProcessContentStream(totalBytes, contentStream, progress, cancellationToken).ConfigureAwait(false);
         }
 
@@ -140,7 +142,7 @@ namespace WebUtilities
         /// <param name="cancellationToken"></param>
         /// <exception cref="OperationCanceledException"></exception>
         /// <returns></returns>
-        private async Task ProcessContentStream(long? totalDownloadSize, Stream contentStream, IProgress<DownloadProgress> progress, CancellationToken cancellationToken)
+        private async Task ProcessContentStream(long? totalDownloadSize, Stream contentStream, IProgress<DownloadProgress>? progress, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             long totalBytesRead = 0L;
@@ -148,7 +150,8 @@ namespace WebUtilities
             byte[] buffer = new byte[8192];
             long progressBytesRead = 0L;
             bool isMoreToRead = true;
-            using (_destinationStream)
+            Stream destination = _destinationStream ?? throw new InvalidOperationException("Destination Stream is null.");
+            using (destination)
             {
                 do
                 {
@@ -161,7 +164,7 @@ namespace WebUtilities
                         continue;
                     }
 
-                    await _destinationStream.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
+                    await destination.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
 
                     totalBytesRead += bytesRead;
                     readCount += 1;
@@ -176,7 +179,7 @@ namespace WebUtilities
             }
         }
 
-        private void TriggerProgressChanged(long? totalDownloadSize, long bytesRead, long totalBytesRead, IProgress<DownloadProgress> progress)
+        private void TriggerProgressChanged(long? totalDownloadSize, long bytesRead, long totalBytesRead, IProgress<DownloadProgress>? progress)
         {
             if (ProgressChanged == null && progress == null)
                 return;
@@ -187,7 +190,7 @@ namespace WebUtilities
             DownloadProgress currentProgress = new DownloadProgress(totalDownloadSize, bytesRead, totalBytesRead);
 
             progress?.Report(currentProgress);
-            EventHandler<DownloadProgress> progressHandler = ProgressChanged;
+            EventHandler<DownloadProgress>? progressHandler = ProgressChanged;
             progressHandler?.Invoke(this, currentProgress);
 
         }

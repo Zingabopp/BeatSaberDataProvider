@@ -63,7 +63,6 @@ namespace SongFeedReadersTests.WebUtilsTests
                 }
                 return retStr;
             }).ToList();
-            var thing = WaitForRateLimitDict;
             foreach (var resp in responses)
             {
                 Console.WriteLine(resp);

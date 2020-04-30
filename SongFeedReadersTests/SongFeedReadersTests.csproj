@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SongFeedReaders\SongFeedReaders.csproj" />
-    <ProjectReference Include="..\WebUtilitiesTests\WebUtilitiesTests.csproj" />
   </ItemGroup>
 
   <ItemGroup>

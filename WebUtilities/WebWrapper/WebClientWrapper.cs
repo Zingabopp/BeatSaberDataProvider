@@ -192,7 +192,7 @@ namespace WebUtilities.WebWrapper
             }
             finally
             {
-                if(timeoutSource != null)
+                if (timeoutSource != null)
                 {
                     timeoutSource.Dispose();
                     timeoutSource = null;
@@ -204,55 +204,30 @@ namespace WebUtilities.WebWrapper
 
         private static int? WebExceptionStatusToHttpStatus(WebExceptionStatus status)
         {
-            switch (status)
+            return status switch
             {
-                case WebExceptionStatus.Success:
-                    return 200;
-                case WebExceptionStatus.Timeout:
-                    return 408;
-                /*
-            case WebExceptionStatus.NameResolutionFailure:
-                break;
-            case WebExceptionStatus.ConnectFailure:
-                break;
-            case WebExceptionStatus.ReceiveFailure:
-                break;
-            case WebExceptionStatus.SendFailure:
-                break;
-            case WebExceptionStatus.PipelineFailure:
-                break;
-            case WebExceptionStatus.RequestCanceled:
-                break;
-            case WebExceptionStatus.ProtocolError:
-                break;
-            case WebExceptionStatus.ConnectionClosed:
-                break;
-            case WebExceptionStatus.TrustFailure:
-                break;
-            case WebExceptionStatus.SecureChannelFailure:
-                break;
-            case WebExceptionStatus.ServerProtocolViolation:
-                break;
-            case WebExceptionStatus.KeepAliveFailure:
-                break;
-            case WebExceptionStatus.Pending:
-                break;
-            case WebExceptionStatus.ProxyNameResolutionFailure:
-                break;
-            case WebExceptionStatus.UnknownError:
-                break;
-            case WebExceptionStatus.MessageLengthLimitExceeded:
-                break;
-            case WebExceptionStatus.CacheEntryNotFound:
-                break;
-            case WebExceptionStatus.RequestProhibitedByCachePolicy:
-                break;
-            case WebExceptionStatus.RequestProhibitedByProxy:
-                break;
-                */
-                default:
-                    return null;
-            }
+                WebExceptionStatus.Success => 200,
+                WebExceptionStatus.Timeout => 408,
+                _ => null,
+            };
+            //case WebExceptionStatus.NameResolutionFailure:
+            //case WebExceptionStatus.ConnectFailure:
+            //case WebExceptionStatus.ReceiveFailure:
+            //case WebExceptionStatus.SendFailure:
+            //case WebExceptionStatus.PipelineFailure:
+            //case WebExceptionStatus.RequestCanceled:
+            //case WebExceptionStatus.ProtocolError:
+            //case WebExceptionStatus.ConnectionClosed:
+            //case WebExceptionStatus.SecureChannelFailure:
+            //case WebExceptionStatus.ServerProtocolViolation:
+            //case WebExceptionStatus.KeepAliveFailure:
+            //case WebExceptionStatus.Pending:
+            //case WebExceptionStatus.ProxyNameResolutionFailure:
+            //case WebExceptionStatus.UnknownError:
+            //case WebExceptionStatus.MessageLengthLimitExceeded:
+            //case WebExceptionStatus.CacheEntryNotFound:
+            //case WebExceptionStatus.RequestProhibitedByCachePolicy:
+            //case WebExceptionStatus.RequestProhibitedByProxy:
         }
 
         #region GetAsyncOverloads

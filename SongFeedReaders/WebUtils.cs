@@ -1,14 +1,11 @@
-﻿using System;
+﻿using SongFeedReaders.Logging;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Net;
-using SongFeedReaders.Logging;
-using WebUtilities;
-using System.Collections.Concurrent;
 using System.Threading;
+using System.Threading.Tasks;
+using WebUtilities;
 
 namespace SongFeedReaders
 {
@@ -17,8 +14,8 @@ namespace SongFeedReaders
     /// </summary>
     public static class WebUtils
     {
-        private static FeedReaderLoggerBase _logger;
-        public static FeedReaderLoggerBase Logger
+        private static FeedReaderLoggerBase? _logger;
+        public static FeedReaderLoggerBase? Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }
             set { _logger = value; }
@@ -50,14 +47,14 @@ namespace SongFeedReaders
             "/maps/uploader/*"
         };
 
-        public static string GetRateLimitedBase(string url)
+        public static string? GetRateLimitedBase(string url)
         {
             if (string.IsNullOrEmpty(url))
                 return null;
-            string baseUrl = null;
+            string? baseUrl = null;
             bool wildCard = false;
 
-            var route = RateLimitedRoutes.Where(r => url.Contains(r.EndsWith("*") ? r.Substring(0, r.Length - 1) : r)).SingleOrDefault();
+            string? route = RateLimitedRoutes.Where(r => url.Contains(r.EndsWith("*") ? r.Substring(0, r.Length - 1) : r)).SingleOrDefault();
             if (string.IsNullOrEmpty(route))
                 return string.Empty;
             if (wildCard = route.EndsWith("*"))
@@ -70,8 +67,8 @@ namespace SongFeedReaders
             if (wildCard)
             {
                 string addition = string.Empty;
-                var afterRoute = url.Substring(url.IndexOf(route) + route.Length);
-                var firstSlash = afterRoute.IndexOf("/");
+                string afterRoute = url.Substring(url.IndexOf(route) + route.Length);
+                int firstSlash = afterRoute.IndexOf("/");
                 if (firstSlash > 0)
                     addition = afterRoute.Substring(0, firstSlash);
                 else
@@ -81,11 +78,11 @@ namespace SongFeedReaders
             return baseUrl;
         }
 
-        public static string GetRateLimitedBase(Uri uri)
+        public static string? GetRateLimitedBase(Uri uri)
         {
             return GetRateLimitedBase(uri.ToString());
         }
-        private static IWebClient _webClient;
+        private static IWebClient? _webClient;
 
         /// <summary>
         /// Returns the WebClient, throws a <see cref="NullReferenceException"/> if WebClient is null.
@@ -109,8 +106,8 @@ namespace SongFeedReaders
         /// Stores known rate limit remaining time for BeatSaver's routes.
         /// Key is the base URL calculated by <see cref="GetRateLimitedBase(string)"/>.
         /// </summary>
-        public static ConcurrentDictionary<string, RateLimitPair> WaitForRateLimitDict = new ConcurrentDictionary<string, RateLimitPair>();
-        public class RateLimitPair
+        internal static ConcurrentDictionary<string, RateLimitPair> WaitForRateLimitDict = new ConcurrentDictionary<string, RateLimitPair>();
+        internal class RateLimitPair
         {
             public RateLimitPair(int callsRemaining, DateTime timeToReset)
             {
@@ -121,10 +118,10 @@ namespace SongFeedReaders
                 }
             }
 
-            public RateLimitPair(RateLimit rateLimit)
+            public RateLimitPair(RateLimit? rateLimit)
             {
-                var _resetTime = rateLimit?.TimeToReset ?? DateTime.Now;
-                var _callsRemaining = rateLimit?.CallsRemaining ?? 0;
+                DateTime _resetTime = rateLimit?.TimeToReset ?? DateTime.Now;
+                int _callsRemaining = rateLimit?.CallsRemaining ?? 0;
                 lock (_updateLock)
                 {
                     if (_resetTime >= TimeToReset)
@@ -135,12 +132,12 @@ namespace SongFeedReaders
                 }
             }
 
-            public void Update(RateLimit rateLimit)
+            public void Update(RateLimit? rateLimit)
             {
                 if (rateLimit == null)
                     return;
-                var _resetTime = rateLimit.TimeToReset;
-                var _callsRemaining = rateLimit.CallsRemaining;
+                DateTime _resetTime = rateLimit.TimeToReset;
+                int _callsRemaining = rateLimit.CallsRemaining;
                 lock (_updateLock)
                 {
                     if (_resetTime >= TimeToReset)
@@ -161,9 +158,9 @@ namespace SongFeedReaders
         /// <param name="cancellationToken"></param>
         /// <exception cref="TaskCanceledException"></exception>
         /// <returns></returns>
-        public static async Task WaitForRateLimit(string baseUrl, RateLimit rateLimit, CancellationToken cancellationToken)
+        public static async Task WaitForRateLimit(string? baseUrl, RateLimit? rateLimit, CancellationToken cancellationToken)
         {
-            var existing = UpdateRateLimit(baseUrl, rateLimit);
+            RateLimitPair existing = UpdateRateLimit(baseUrl, rateLimit);
             if (existing == null || existing.CallsRemaining > 0)
                 return;
             TimeSpan delay = existing.TimeToReset - DateTime.Now;
@@ -178,11 +175,11 @@ namespace SongFeedReaders
             return;
         }
 
-        public static RateLimitPair UpdateRateLimit(string baseUrl, RateLimit rateLimit)
+        private static RateLimitPair? UpdateRateLimit(string? baseUrl, RateLimit? rateLimit)
         {
-            if (string.IsNullOrEmpty(baseUrl))
+            if (string.IsNullOrEmpty(baseUrl) || baseUrl == null)
                 return null;
-            var existing = WaitForRateLimitDict.GetOrAdd(baseUrl, (f) => new RateLimitPair(rateLimit));
+            RateLimitPair existing = WaitForRateLimitDict.GetOrAdd(baseUrl, (f) => new RateLimitPair(rateLimit));
             existing.Update(rateLimit);
             return existing;
         }
@@ -201,7 +198,7 @@ namespace SongFeedReaders
             cancellationToken.ThrowIfCancellationRequested();
             bool retry = false;
             int tries = 0;
-            IWebResponseMessage response = null;
+            IWebResponseMessage? response = null;
             string baseUrl = GetRateLimitedBase(uri)
                 ?? throw new ArgumentNullException(nameof(uri), "uri cannot be null for WebUtils.GetBeatSaverAsync");
             await WaitForRateLimit(baseUrl, null, cancellationToken).ConfigureAwait(false); // Wait for an existing rate limit if it exists
@@ -214,7 +211,7 @@ namespace SongFeedReaders
                     response = await WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
                     try
                     {
-                        var rateLimit = ParseBeatSaverRateLimit(response.Headers);
+                        RateLimit rateLimit = ParseBeatSaverRateLimit(response.Headers);
                         UpdateRateLimit(baseUrl, rateLimit);
                     }
                     catch (Exception ex)
@@ -224,15 +221,15 @@ namespace SongFeedReaders
                 }
                 catch (WebClientException ex)
                 {
-                    var statusCode = ex.Response?.StatusCode ?? 0;
+                    int statusCode = ex.Response?.StatusCode ?? 0;
                     if (tries >= retries && (statusCode != 429 || statusCode != 0))
                         throw;
-                    var errorCode = ex.Response?.StatusCode ?? 0;
+                    int errorCode = ex.Response?.StatusCode ?? 0;
                     if (errorCode == 429 && tries < retries)
                     {
 
                         retry = true;
-                        var rateLimit = ParseBeatSaverRateLimit(ex.Response.Headers);
+                        RateLimit? rateLimit = ParseBeatSaverRateLimit(ex.Response?.Headers);
 
                         WaitForRateLimitDict.AddOrUpdate(baseUrl, u => new RateLimitPair(rateLimit), (url, rateLimitPair) =>
                         {
@@ -242,7 +239,7 @@ namespace SongFeedReaders
                         if (rateLimit != null)
                         {
                             TimeSpan delay = new TimeSpan(0);
-                            var calcDelay = rateLimit.TimeToReset.Add(RateLimitPadding) - DateTime.Now;
+                            TimeSpan calcDelay = rateLimit.TimeToReset.Add(RateLimitPadding) - DateTime.Now;
                             if (calcDelay > TimeSpan.Zero) // Make sure the delay is > 0
                                 delay = calcDelay;
                             if (maxSecondsToWait != 0 && delay.TotalSeconds > maxSecondsToWait)
@@ -275,7 +272,7 @@ namespace SongFeedReaders
                         throw ex;
                     }
                 }
-                
+
             } while (retry);
             return response;
         }
@@ -307,7 +304,7 @@ namespace SongFeedReaders
         /// </summary>
         /// <param name="headers"></param>
         /// <returns></returns>
-        public static RateLimit ParseBeatSaverRateLimit(IDictionary<string, IEnumerable<string>> headers)
+        public static RateLimit? ParseBeatSaverRateLimit(IDictionary<string, IEnumerable<string>>? headers)
         {
             if (headers == null)
             {

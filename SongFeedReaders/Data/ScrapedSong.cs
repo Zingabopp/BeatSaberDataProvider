@@ -36,11 +36,11 @@ namespace SongFeedReaders.Data
             };
         }
 
-        private string _hash;
+        private string? _hash;
         /// <summary>
         /// Beat Saver hash of the song, always uppercase.
         /// </summary>
-        public string Hash
+        public string? Hash
         {
             get { return _hash; }
             set { _hash = value?.ToUpper(); }
@@ -48,28 +48,28 @@ namespace SongFeedReaders.Data
         /// <summary>
         /// Full URL to download song.
         /// </summary>
-        public Uri DownloadUri { get; set; }
+        public Uri? DownloadUri { get; set; }
         /// <summary>
         /// What web page this song was scraped from.
         /// </summary>
-        public Uri SourceUri { get; set; }
-        public string Name { get; set; }
-        private string _songKey;
+        public Uri? SourceUri { get; set; }
+        public string? Name { get; set; }
+        private string? _songKey;
         /// <summary>
         /// Beat Saver song key, always uppercase.
         /// </summary>
-        public string Key
+        public string? Key
         {
             get { return _songKey; }
             set { _songKey = value?.ToUpper(); }
         }
-        public string LevelAuthorName { get; set; }
+        public string? LevelAuthorName { get; set; }
         /// <summary>
         /// Data this song was scraped from in JSON form.
         /// </summary>
-        public string RawData => JsonData?.ToString();
+        public string? RawData => JsonData?.ToString();
 
-        public JObject JsonData { get; protected set; }
+        public JObject? JsonData { get; protected set; }
 
         public ScrapedSong() { }
         /// <summary>

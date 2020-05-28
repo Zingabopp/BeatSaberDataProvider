@@ -69,7 +69,6 @@ namespace WebUtilities.WebWrapper
             {
                 using (MemoryStream memStream = new MemoryStream())
                 {
-                    await Task.Yield();
                     await stream.CopyToAsync(memStream, int.MaxValue).ConfigureAwait(false);
                     return memStream.ToArray();
                 }
@@ -86,7 +85,6 @@ namespace WebUtilities.WebWrapper
             using (Stream stream = _response?.GetResponseStream() ?? throw new InvalidOperationException("There is no content to read."))
             using (var sr = new StreamReader(stream))
             {
-                await Task.Yield(); // TODO: Why?
                 return await sr.ReadToEndAsync().ConfigureAwait(false);
             }
         }

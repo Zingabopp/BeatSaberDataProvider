@@ -69,8 +69,8 @@ namespace SongFeedReaders.Readers.BeatSaver
                 _startingPage = value;
             }
         }
-        public Func<ScrapedSong, bool> Filter { get; set; }
-        public Func<ScrapedSong, bool> StopWhenAny { get; set; }
+        public Func<ScrapedSong, bool>? Filter { get; set; }
+        public Func<ScrapedSong, bool>? StopWhenAny { get; set; }
 
         public object Clone()
         {
@@ -81,8 +81,8 @@ namespace SongFeedReaders.Readers.BeatSaver
                 StartingPage = StartingPage,
                 SearchQuery = SearchQuery.GetValueOrDefault(),
                 AuthorId = AuthorId,
-                Filter = (Func<ScrapedSong, bool>)Filter?.Clone(),
-                StopWhenAny = (Func<ScrapedSong, bool>)StopWhenAny?.Clone(),
+                Filter = Filter != null ? (Func<ScrapedSong, bool>)Filter.Clone() : null,
+                StopWhenAny = StopWhenAny != null ? (Func<ScrapedSong, bool>)StopWhenAny.Clone() : null,
             };
         }
         #endregion
@@ -114,7 +114,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         }
 
         public BeatSaverSearchQuery? SearchQuery { get; set; }
-        public string AuthorId { get; set; }
+        public string? AuthorId { get; set; }
         /// <summary>
         /// Type of search to perform, only used for Search and Author feeds.
         /// Default is 'song' (song name, song subname, author)

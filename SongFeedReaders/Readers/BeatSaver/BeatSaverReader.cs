@@ -547,10 +547,10 @@ namespace SongFeedReaders.Readers.BeatSaver
         public static async Task<PageReadResult> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
             Uri uri = Utilities.GetBeatSaverDetailsByHash(hash);
-            ScrapedSong song = null;
+            ScrapedSong? song = null;
             PageErrorType pageError = PageErrorType.None;
-            Exception exception = null;
-            IWebResponseMessage response = null;
+            Exception? exception = null;
+            IWebResponseMessage? response = null;
             try
             {
                 response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);

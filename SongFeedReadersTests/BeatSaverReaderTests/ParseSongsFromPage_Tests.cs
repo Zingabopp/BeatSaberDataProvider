@@ -35,9 +35,9 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             }
             var firstSong = JObject.Parse(songs.First().RawData);
             string firstHash = firstSong["hash"]?.Value<string>();
-            Assert.IsTrue(firstHash == "27639680f92a9588b7cce843fc7aaa0f5dc720f8");
+            Assert.IsTrue(firstHash == "25170877f7b500369be0c2d1ffbdc8c6d1ad4227");
             string firstUploader = firstSong["uploader"]?["username"]?.Value<string>();
-            Assert.IsTrue(firstUploader == "latte");
+            Assert.IsTrue(firstUploader == "z-anesaber");
         }
     }
 }

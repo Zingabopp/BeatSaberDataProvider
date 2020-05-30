@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,27 +11,86 @@ namespace SongFeedReaders.Services
     {
         private readonly List<InfoProviderEntry> InfoProviders = new List<InfoProviderEntry>();
         private object _providerLock = new object();
-        public async Task<ScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if <see cref="SongInfoManager"/> has no providers.</exception>
+        public async Task<SongInfoResponse> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
             InfoProviderEntry[] infoProviders = GetProviders();
-            for(int i = 0; i < infoProviders.Length; i++)
-            {
-                ScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByHashAsync(hash, cancellationToken).ConfigureAwait(false);
-                if (song != null)
-                    return song;
-            }
-            return null;
-        }
-        public async Task<ScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
-        {
-            InfoProviderEntry[] infoProviders = GetProviders();
+            if (infoProviders.Length == 0) throw new InvalidOperationException("SongInfoManager has no providers.");
+            List<SongInfoResponse> failedResponses = new List<SongInfoResponse>();
+            SongInfoResponse? lastResponse = null;
             for (int i = 0; i < infoProviders.Length; i++)
             {
-                ScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByKeyAsync(key, cancellationToken).ConfigureAwait(false);
-                if (song != null)
-                    return song;
+                try
+                {
+                    ScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByHashAsync(hash, cancellationToken).ConfigureAwait(false);
+                    lastResponse = new SongInfoResponse(song, infoProviders[i].InfoProvider);
+                }
+                catch (Exception ex)
+                {
+                    lastResponse = new SongInfoResponse(null, infoProviders[i].InfoProvider, ex);
+                }
+                if (lastResponse.Success)
+                {
+                    break;
+                }
+                else
+                    failedResponses.Add(lastResponse);
             }
-            return null;
+            if (lastResponse != null)
+            {
+                if (failedResponses.Count > 0)
+                    lastResponse.FailedResponses = failedResponses.ToArray();
+                return lastResponse;
+            }
+            else
+                return SongInfoResponse.FailedResponse;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Thrown if <see cref="SongInfoManager"/> has no providers.</exception>
+        public async Task<SongInfoResponse> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
+        {
+            InfoProviderEntry[] infoProviders = GetProviders();
+            if (infoProviders.Length == 0) throw new InvalidOperationException("SongInfoManager has no providers.");
+            List<SongInfoResponse> failedResponses = new List<SongInfoResponse>();
+            SongInfoResponse? lastResponse = null;
+            for (int i = 0; i < infoProviders.Length; i++)
+            {
+                try
+                {
+                    ScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByKeyAsync(key, cancellationToken).ConfigureAwait(false);
+                    lastResponse = new SongInfoResponse(song, infoProviders[i].InfoProvider);
+                }
+                catch (Exception ex)
+                {
+                    lastResponse = new SongInfoResponse(null, infoProviders[i].InfoProvider, ex);
+                }
+                if (lastResponse.Success)
+                {
+                    break;
+                }
+                else
+                    failedResponses.Add(lastResponse);
+            }
+            if (lastResponse != null)
+            {
+                if (failedResponses.Count > 0)
+                    lastResponse.FailedResponses = failedResponses.ToArray();
+                return lastResponse;
+            }
+            else
+                return SongInfoResponse.FailedResponse;
         }
         public void AddProvider<T>() where T : ISongInfoProvider, new()
         {
@@ -48,7 +106,7 @@ namespace SongFeedReaders.Services
                 defaultId = $"{typeof(T).Name}{idIndex}";
                 idIndex++;
             }
-            while (existingIds.Contains(defaultId)); 
+            while (existingIds.Contains(defaultId));
             lock (_providerLock)
             {
                 InfoProviders.Add(new InfoProviderEntry(new T(), defaultId) { Priority = 100 });
@@ -68,7 +126,7 @@ namespace SongFeedReaders.Services
             {
                 return InfoProviders.Remove(infoProviderEntry);
             }
-            
+
         }
 
         public bool RemoveProvider(string providerId)
@@ -86,7 +144,6 @@ namespace SongFeedReaders.Services
             {
                 return InfoProviders.OrderBy(e => e.Priority).ToArray();
             }
-            
         }
 
         public InfoProviderEntry[] GetProviders(Func<InfoProviderEntry, bool> predicate)
@@ -95,7 +152,6 @@ namespace SongFeedReaders.Services
             {
                 return InfoProviders.Where(p => predicate(p)).OrderBy(e => e.Priority).ToArray();
             }
-            
         }
 
         public InfoProviderEntry? GetProviderEntry(string providerId)
@@ -104,7 +160,7 @@ namespace SongFeedReaders.Services
             {
                 return InfoProviders.FirstOrDefault(p => p.ProviderID == providerId);
             }
-            
+
         }
         public InfoProviderEntry? GetProviderEntry<T>() where T : ISongInfoProvider
         {
@@ -112,7 +168,7 @@ namespace SongFeedReaders.Services
             {
                 return InfoProviders.FirstOrDefault(p => p.InfoProvider is T);
             }
-            
+
         }
         public InfoProviderEntry? GetProviderEntry<T>(string providerId) where T : ISongInfoProvider
         {
@@ -122,7 +178,35 @@ namespace SongFeedReaders.Services
                 return InfoProviders.FirstOrDefault(p => p.InfoProvider is T && p.ProviderID == providerId);
             }
         }
+
+        public Task<SongInfoResponse> GetSongByHashAsync(string hash) => GetSongByHashAsync(hash, CancellationToken.None);
+        public Task<SongInfoResponse> GetSongByKeyAsync(string key) => GetSongByKeyAsync(key, CancellationToken.None);
     }
+
+    public class SongInfoResponse
+    {
+        internal static SongInfoResponse FailedResponse = new SongInfoResponse(null, null);
+        internal static SongInfoResponse[] EmptyResponseAry = new SongInfoResponse[0];
+        public bool Success { get; }
+        public ScrapedSong? Song { get; }
+        public ISongInfoProvider? Source { get; }
+        internal SongInfoResponse[] FailedResponses;
+        public Exception? Exception { get; }
+        public SongInfoResponse[] GetFailedResponses() => FailedResponses;
+        internal SongInfoResponse(ScrapedSong? song, ISongInfoProvider? provider)
+        {
+            Song = song;
+            Source = provider;
+            Success = Song != null;
+            FailedResponses = EmptyResponseAry;
+        }
+        internal SongInfoResponse(ScrapedSong? song, ISongInfoProvider? provider, Exception? exception)
+            : this(song, provider)
+        {
+            Exception = exception;
+        }
+    }
+
     public class InfoProviderEntry
     {
         public InfoProviderEntry(ISongInfoProvider infoProvider, string providerId)

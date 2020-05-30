@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WebUtilities;
-
+using SongFeedReaders.Services;
 namespace SongFeedReaders
 {
     /// <summary>
@@ -14,6 +14,20 @@ namespace SongFeedReaders
     /// </summary>
     public static class WebUtils
     {
+        private static SongInfoManager? _songInfoManager;
+        public static SongInfoManager SongInfoManager
+        {
+            get
+            {
+                if(_songInfoManager == null)
+                {
+                    _songInfoManager = new SongInfoManager();
+                    _songInfoManager.AddProvider<BeatSaverSongInfoProvider>("BeatSaverProvider");
+                }
+                return _songInfoManager;
+            }
+        }
+
         private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase? Logger
         {

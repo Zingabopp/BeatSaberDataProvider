@@ -105,7 +105,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// </summary>
         /// <param name="pageText"></param>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri sourceUrl, bool storeRawData)
+        public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri? sourceUrl, bool storeRawData)
         {
             JObject result = new JObject();
             List<ScrapedSong> songs = new List<ScrapedSong>();
@@ -167,7 +167,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <param name="song"></param>
         /// <exception cref="ArgumentException">Thrown when a hash can't be found for the given song JObject.</exception>
         /// <returns></returns>
-        public static ScrapedSong ParseSongFromJson(JObject song, Uri sourceUri, bool storeRawData)
+        public static ScrapedSong ParseSongFromJson(JObject song, Uri? sourceUri, bool storeRawData)
         {
             if (song == null)
                 throw new ArgumentNullException(nameof(song), "song cannot be null for BeatSaverReader.ParseSongFromJson.");

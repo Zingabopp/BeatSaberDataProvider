@@ -47,6 +47,8 @@ namespace SongFeedReaders.Services
                 string errorText = string.Empty;
                 if (ex.Response != null)
                 {
+                    if (ex.Response.StatusCode == 404)
+                        return null;
                     errorText = ex.Response.StatusCode switch
                     {
                         408 => "Timeout",

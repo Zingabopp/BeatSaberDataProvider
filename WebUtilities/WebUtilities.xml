@@ -4,42 +4,42 @@
         <name>WebUtilities</name>
     </assembly>
     <members>
-        <member name="T:WebUtilities.DownloadContainer">
+        <member name="T:WebUtilities.DownloadContainers.DownloadContainer">
             <summary>
             A container to house the contents of a web download. This is an abstract class.
             </summary>
         </member>
-        <member name="P:WebUtilities.DownloadContainer.ResultAvailable">
+        <member name="P:WebUtilities.DownloadContainers.DownloadContainer.ResultAvailable">
             <summary>
             Returns true if data was successfully received and the target file exists.
             </summary>
         </member>
-        <member name="P:WebUtilities.DownloadContainer.IsDisposed">
+        <member name="P:WebUtilities.DownloadContainers.DownloadContainer.IsDisposed">
             <summary>
-            Returns true if the <see cref="T:WebUtilities.DownloadContainer"/> was disposed.
+            Returns true if the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/> was disposed.
             </summary>
         </member>
-        <member name="P:WebUtilities.DownloadContainer.ExpectedInputLength">
+        <member name="P:WebUtilities.DownloadContainers.DownloadContainer.ExpectedInputLength">
             <summary>
             The expected length in bytes of the content. May be null.
             </summary>
         </member>
-        <member name="P:WebUtilities.DownloadContainer.ActualBytesReceived">
+        <member name="P:WebUtilities.DownloadContainers.DownloadContainer.ActualBytesReceived">
             <summary>
             The length in bytes of the content received.
             </summary>
         </member>
-        <member name="P:WebUtilities.DownloadContainer.ProgressReportRate">
+        <member name="P:WebUtilities.DownloadContainers.DownloadContainer.ProgressReportRate">
             <summary>
-            Report rate of the <see cref="E:WebUtilities.DownloadContainer.ProgressChanged"/> handler and the progress callback. 0 to disable progress reporting.
+            Report rate of the <see cref="E:WebUtilities.DownloadContainers.DownloadContainer.ProgressChanged"/> handler and the progress callback. 0 to disable progress reporting.
             </summary>
         </member>
-        <member name="E:WebUtilities.DownloadContainer.ProgressChanged">
+        <member name="E:WebUtilities.DownloadContainers.DownloadContainer.ProgressChanged">
             <summary>
             Event invoked for progress updates.
             </summary>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ProcessContentStreamAsync(System.IO.Stream,System.IO.Stream,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ProcessContentStreamAsync(System.IO.Stream,System.IO.Stream,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
             <summary>
             Asynchronously transfers the contents of <paramref name="contentStream"/> to <paramref name="destinationStream"/>.
             </summary>
@@ -50,17 +50,17 @@
             <returns></returns>
             <exception cref="T:System.OperationCanceledException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.TriggerProgressChanged(System.Int64,System.Int64,System.IProgress{WebUtilities.DownloadProgress})">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.TriggerProgressChanged(System.Int64,System.Int64,System.IProgress{WebUtilities.DownloadProgress})">
             <summary>
-            Invokes the <see cref="E:WebUtilities.DownloadContainer.ProgressChanged"/> event and the <paramref name="progress"/> if provided.
+            Invokes the <see cref="E:WebUtilities.DownloadContainers.DownloadContainer.ProgressChanged"/> event and the <paramref name="progress"/> if provided.
             </summary>
             <param name="bytesRead">Bytes read since the last progress change.</param>
             <param name="totalBytesRead">Total bytes transferred into the container.</param>
             <param name="progress">Progress callback to invoke.</param>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
             <summary>
-            Transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <param name="disposeInput"></param>
@@ -70,9 +70,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
             <summary>
-            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <param name="disposeInput"></param>
@@ -84,9 +84,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
             <summary>
-            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="webResponseContent"></param>
             <param name="disposeInput"></param>
@@ -99,25 +99,25 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.GetResultStream">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.GetResultStream">
             <summary>
-            Returns a stream with the data contained in this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            Returns a stream with the data contained in this <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/>.
             </summary>
             <returns></returns>
             <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.TryGetResultStream(System.IO.Stream@,System.Exception@)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.TryGetResultStream(System.IO.Stream@,System.Exception@)">
             <summary>
-            Tries to get a stream with the data contained in this <see cref="T:WebUtilities.MemoryDownloadContainer"/>. Returns false if there is no data.
+            Tries to get a stream with the data contained in this <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/>. Returns false if there is no data.
             </summary>
             <param name="stream"><see cref="T:System.IO.Stream"/> with the data.</param>
             <param name="exception">Any <see cref="T:System.Exception"/> thrown when getting the data stream.</param>
             <returns></returns>
             <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveData(System.IO.Stream)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveData(System.IO.Stream)">
             <summary>
-            Transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <returns></returns>
@@ -126,9 +126,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(System.IO.Stream)">
             <summary>
-            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <returns></returns>
@@ -137,9 +137,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Threading.CancellationToken)">
             <summary>
-            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <param name="cancellationToken"></param>
@@ -149,9 +149,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.Threading.CancellationToken)">
             <summary>
-            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of <paramref name="inputStream"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <param name="disposeInput"></param>
@@ -162,9 +162,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent)">
             <summary>
-            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="webResponseContent"></param>
             <returns></returns>
@@ -174,9 +174,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Threading.CancellationToken)">
             <summary>
-            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="webResponseContent"></param>
             <param name="cancellationToken"></param>
@@ -187,9 +187,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Boolean,System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.ReceiveDataAsync(WebUtilities.IWebResponseContent,System.Boolean,System.Threading.CancellationToken)">
             <summary>
-            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Asynchronously transfers the contents of the <paramref name="webResponseContent"/> to the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
             <param name="webResponseContent"></param>
             <param name="disposeInput"></param>
@@ -201,56 +201,56 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.Dispose">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.Dispose">
             <summary>
-            Disposes of the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Disposes of the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
         </member>
-        <member name="M:WebUtilities.DownloadContainer.Dispose(System.Boolean)">
+        <member name="M:WebUtilities.DownloadContainers.DownloadContainer.Dispose(System.Boolean)">
             <summary>
-            Disposes of the <see cref="T:WebUtilities.DownloadContainer"/>.
+            Disposes of the <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/>.
             </summary>
         </member>
-        <member name="T:WebUtilities.FileDownloadContainer">
+        <member name="T:WebUtilities.DownloadContainers.FileDownloadContainer">
             <summary>
-            A <see cref="T:WebUtilities.DownloadContainer"/> that stores the data in a file.
+            A <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/> that stores the data in a file.
             </summary>
         </member>
-        <member name="P:WebUtilities.FileDownloadContainer.FilePath">
+        <member name="P:WebUtilities.DownloadContainers.FileDownloadContainer.FilePath">
             <summary>
             Path to the file.
             </summary>
         </member>
-        <member name="P:WebUtilities.FileDownloadContainer.Overwrite">
+        <member name="P:WebUtilities.DownloadContainers.FileDownloadContainer.Overwrite">
             <summary>
             If true, overwrites any existing file.
             </summary>
         </member>
-        <member name="P:WebUtilities.FileDownloadContainer.DeleteOnDispose">
+        <member name="P:WebUtilities.DownloadContainers.FileDownloadContainer.DeleteOnDispose">
             <summary>
-            If true, the target file is deleted when the <see cref="T:WebUtilities.FileDownloadContainer"/> is disposed.
+            If true, the target file is deleted when the <see cref="T:WebUtilities.DownloadContainers.FileDownloadContainer"/> is disposed.
             </summary>
         </member>
-        <member name="F:WebUtilities.FileDownloadContainer.dataReceived">
+        <member name="F:WebUtilities.DownloadContainers.FileDownloadContainer.dataReceived">
             <summary>
             Set to true if data has been successfully received.
             </summary>
         </member>
-        <member name="M:WebUtilities.FileDownloadContainer.#ctor(System.String,System.Boolean,System.Boolean)">
+        <member name="M:WebUtilities.DownloadContainers.FileDownloadContainer.#ctor(System.String,System.Boolean,System.Boolean)">
             <summary>
-            Creates a new <see cref="T:WebUtilities.FileDownloadContainer"/> that targets the given <paramref name="filePath"/>.
+            Creates a new <see cref="T:WebUtilities.DownloadContainers.FileDownloadContainer"/> that targets the given <paramref name="filePath"/>.
             </summary>
             <param name="filePath">Path to the target file.</param>
             <param name="overwrite">If true, overwrites any existing file when data is received.</param>
-            <param name="deleteOnDispose">If true, the target file is deleted when the <see cref="T:WebUtilities.FileDownloadContainer"/> is disposed.</param>
+            <param name="deleteOnDispose">If true, the target file is deleted when the <see cref="T:WebUtilities.DownloadContainers.FileDownloadContainer"/> is disposed.</param>
             <exception cref="T:System.ArgumentNullException"></exception>
         </member>
-        <member name="P:WebUtilities.FileDownloadContainer.ResultAvailable">
+        <member name="P:WebUtilities.DownloadContainers.FileDownloadContainer.ResultAvailable">
             <summary>
             Returns true if data was successfully received and the target file exists.
             </summary>
         </member>
-        <member name="M:WebUtilities.FileDownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
+        <member name="M:WebUtilities.DownloadContainers.FileDownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
             <summary>
             Transfers the contents of <paramref name="inputStream"/> to the target file.
             </summary>
@@ -262,7 +262,7 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.FileDownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.FileDownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
             <summary>
             Asynchronously transfers the contents of <paramref name="inputStream"/> to the target file.
             </summary>
@@ -277,54 +277,54 @@
             <exception cref="T:System.InvalidOperationException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.FileDownloadContainer.GetResultStream">
+        <member name="M:WebUtilities.DownloadContainers.FileDownloadContainer.GetResultStream">
             <summary>
             Returns a stream with the data contained in the target file.
             </summary>
             <returns></returns>
             <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
         </member>
-        <member name="M:WebUtilities.FileDownloadContainer.Finalize">
+        <member name="M:WebUtilities.DownloadContainers.FileDownloadContainer.Finalize">
             <summary>
-            Deconstructor for <see cref="T:WebUtilities.FileDownloadContainer"/>.
+            Deconstructor for <see cref="T:WebUtilities.DownloadContainers.FileDownloadContainer"/>.
             </summary>
         </member>
-        <member name="M:WebUtilities.FileDownloadContainer.Dispose(System.Boolean)">
+        <member name="M:WebUtilities.DownloadContainers.FileDownloadContainer.Dispose(System.Boolean)">
             <summary>
-            Disposes of the <see cref="T:WebUtilities.FileDownloadContainer"/>, deleting the file.
+            Disposes of the <see cref="T:WebUtilities.DownloadContainers.FileDownloadContainer"/>, deleting the file.
             </summary>
             <param name="disposing"></param>
         </member>
-        <member name="T:WebUtilities.MemoryDownloadContainer">
+        <member name="T:WebUtilities.DownloadContainers.MemoryDownloadContainer">
             <summary>
-            A <see cref="T:WebUtilities.DownloadContainer"/> that stores the data in memory.
+            A <see cref="T:WebUtilities.DownloadContainers.DownloadContainer"/> that stores the data in memory.
             </summary>
         </member>
-        <member name="F:WebUtilities.MemoryDownloadContainer.dataReceived">
+        <member name="F:WebUtilities.DownloadContainers.MemoryDownloadContainer.dataReceived">
             <summary>
             Set to true if data has been successfully received.
             </summary>
         </member>
-        <member name="P:WebUtilities.MemoryDownloadContainer.ResultAvailable">
+        <member name="P:WebUtilities.DownloadContainers.MemoryDownloadContainer.ResultAvailable">
             <summary>
             Returns true if data was successfully received and is not null.
             </summary>
         </member>
-        <member name="M:WebUtilities.MemoryDownloadContainer.#ctor">
+        <member name="M:WebUtilities.DownloadContainers.MemoryDownloadContainer.#ctor">
             <summary>
-            Creates an empty <see cref="T:WebUtilities.MemoryDownloadContainer"/> that can receive data.
+            Creates an empty <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/> that can receive data.
             </summary>
         </member>
-        <member name="M:WebUtilities.MemoryDownloadContainer.#ctor(System.Byte[])">
+        <member name="M:WebUtilities.DownloadContainers.MemoryDownloadContainer.#ctor(System.Byte[])">
             <summary>
-            Creates a new <see cref="T:WebUtilities.MemoryDownloadContainer"/> with existing data.
+            Creates a new <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/> with existing data.
             </summary>
             <param name="existingData"></param>
             <exception cref="T:System.ArgumentNullException">Thrown if <paramref name="existingData"/> is null.</exception>
         </member>
-        <member name="M:WebUtilities.MemoryDownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
+        <member name="M:WebUtilities.DownloadContainers.MemoryDownloadContainer.ReceiveData(System.IO.Stream,System.Boolean)">
             <summary>
-            Transfers the contents of <paramref name="inputStream"/> into this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            Transfers the contents of <paramref name="inputStream"/> into this <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <param name="disposeInput"></param>
@@ -334,9 +334,9 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.MemoryDownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
+        <member name="M:WebUtilities.DownloadContainers.MemoryDownloadContainer.ReceiveDataAsync(System.IO.Stream,System.Boolean,System.IProgress{WebUtilities.DownloadProgress},System.Threading.CancellationToken)">
             <summary>
-            Asynchronously transfers the contents of <paramref name="inputStream"/> into this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            Asynchronously transfers the contents of <paramref name="inputStream"/> into this <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/>.
             </summary>
             <param name="inputStream"></param>
             <param name="disposeInput"></param>
@@ -348,16 +348,16 @@
             <exception cref="T:System.ObjectDisposedException"></exception>
             <exception cref="T:System.IO.IOException"></exception>
         </member>
-        <member name="M:WebUtilities.MemoryDownloadContainer.GetResultStream">
+        <member name="M:WebUtilities.DownloadContainers.MemoryDownloadContainer.GetResultStream">
             <summary>
-            Returns a stream with the data contained in this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            Returns a stream with the data contained in this <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/>.
             </summary>
             <returns></returns>
             <exception cref="T:System.InvalidOperationException">Thrown if there is no data to retrieve.</exception>
         </member>
-        <member name="M:WebUtilities.MemoryDownloadContainer.Dispose(System.Boolean)">
+        <member name="M:WebUtilities.DownloadContainers.MemoryDownloadContainer.Dispose(System.Boolean)">
             <summary>
-            Disposes this <see cref="T:WebUtilities.MemoryDownloadContainer"/>.
+            Disposes this <see cref="T:WebUtilities.DownloadContainers.MemoryDownloadContainer"/>.
             </summary>
             <param name="disposing"></param>
         </member>

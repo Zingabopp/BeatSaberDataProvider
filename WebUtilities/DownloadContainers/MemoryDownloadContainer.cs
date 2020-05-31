@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebUtilities
+namespace WebUtilities.DownloadContainers
 {
     /// <summary>
     /// A <see cref="DownloadContainer"/> that stores the data in memory.

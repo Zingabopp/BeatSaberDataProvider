@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebUtilities
+namespace WebUtilities.DownloadContainers
 {
     /// <summary>
     /// A container to house the contents of a web download. This is an abstract class.

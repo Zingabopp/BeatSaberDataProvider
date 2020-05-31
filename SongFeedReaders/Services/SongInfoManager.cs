@@ -21,7 +21,7 @@ namespace SongFeedReaders.Services
         /// <exception cref="InvalidOperationException">Thrown if <see cref="SongInfoManager"/> has no providers.</exception>
         public async Task<SongInfoResponse> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
-            InfoProviderEntry[] infoProviders = GetProviders();
+            InfoProviderEntry[] infoProviders = GetProvidersEntries();
             if (infoProviders.Length == 0) throw new InvalidOperationException("SongInfoManager has no providers.");
             List<SongInfoResponse> failedResponses = new List<SongInfoResponse>();
             SongInfoResponse? lastResponse = null;
@@ -61,7 +61,7 @@ namespace SongFeedReaders.Services
         /// <exception cref="InvalidOperationException">Thrown if <see cref="SongInfoManager"/> has no providers.</exception>
         public async Task<SongInfoResponse> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
         {
-            InfoProviderEntry[] infoProviders = GetProviders();
+            InfoProviderEntry[] infoProviders = GetProvidersEntries();
             if (infoProviders.Length == 0) throw new InvalidOperationException("SongInfoManager has no providers.");
             List<SongInfoResponse> failedResponses = new List<SongInfoResponse>();
             SongInfoResponse? lastResponse = null;
@@ -138,7 +138,7 @@ namespace SongFeedReaders.Services
                 return false;
         }
 
-        public InfoProviderEntry[] GetProviders()
+        public InfoProviderEntry[] GetProvidersEntries()
         {
             lock (_providerLock)
             {
@@ -146,7 +146,15 @@ namespace SongFeedReaders.Services
             }
         }
 
-        public InfoProviderEntry[] GetProviders(Func<InfoProviderEntry, bool> predicate)
+        public InfoProviderEntry[] GetProvidersEntries<T>() where T : ISongInfoProvider
+        {
+            lock (_providerLock)
+            {
+                return InfoProviders.Where(p => p.InfoProvider is T).OrderBy(e => e.Priority).ToArray();
+            }
+        }
+
+        public InfoProviderEntry[] GetProvidersEntries(Func<InfoProviderEntry, bool> predicate)
         {
             lock (_providerLock)
             {

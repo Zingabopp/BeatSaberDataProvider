@@ -362,6 +362,7 @@ namespace SongFeedReaders
             if (!IsInitialized || _webClient == null)
             {
                 _webClient = client;
+                _ = SongInfoManager;
                 IsInitialized = true;
             }
         }

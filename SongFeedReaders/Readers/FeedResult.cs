@@ -17,7 +17,7 @@ namespace SongFeedReaders.Readers
         /// <summary>
         /// Distinct page errors.
         /// </summary>
-        public IReadOnlyList<PageErrorType> PageErrors { get; private set; }
+        public IReadOnlyList<PageErrorType>? PageErrors { get; private set; }
         public int PagesChecked { get { return PageResults?.Count() ?? 0; } }
         public IReadOnlyDictionary<string, ScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
@@ -27,9 +27,9 @@ namespace SongFeedReaders.Readers
         /// <summary>
         /// Exception when something goes wrong in the feed readers. More specific exceptions may be stored in InnerException.
         /// </summary>
-        public FeedReaderException Exception { get; private set; }
+        public FeedReaderException? Exception { get; private set; }
 
-        public FeedResult(Dictionary<string, ScrapedSong> songs, IList<PageReadResult> pageResults)
+        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult> pageResults)
         {
             PageResults = new ReadOnlyCollection<PageReadResult>(pageResults ?? new PageReadResult[0]);
             if(songs == null)
@@ -71,7 +71,7 @@ namespace SongFeedReaders.Readers
             FaultedResults = new ReadOnlyCollection<PageReadResult>(faultedResults);
         }
 
-        public FeedResult(Dictionary<string, ScrapedSong> songs, IList<PageReadResult> pageResults, Exception exception, FeedResultError errorLevel)
+        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult> pageResults, Exception exception, FeedResultError errorLevel)
             : this(songs, pageResults)
         {
             if(ErrorCode < errorLevel)

@@ -28,20 +28,13 @@ namespace SongFeedReaders.Readers.BeatSaver
         private const string BEATSAVER_NIGHTLYDUMP_URL = "https://beatsaver.com/api/download/dump/maps";
 #pragma warning restore CA1823 // Remove unused private members
 #pragma warning restore IDE0051 // Remove unused private members
-
-        private const string DescriptionAuthor = "Retrieves songs by the specified map author.";
-        private const string DescriptionLatest = "Retrieves the latest beatmaps posted to BeatSaver.";
-        private const string DescriptionHot = "Retrieves songs ordered from most popular to least popular as determined by BeatSaver.";
-        private const string DescriptionPlays = "Retrieves the songs with the highest number of plays. (Play count is no longer updated by BeatSaver)";
-        private const string DescriptionDownloads = "Retrieves songs ordered from most downloaded to least downloaded.";
-        private const string DescriptionSearch = "Retrieves songs matching the provided search criteria from BeatSaver.";
         #endregion
 
         public static string NameKey => "BeatSaverReader";
         public static readonly string SourceKey = "BeatSaver";
         public static readonly Uri ReaderRootUri = new Uri("https://beatsaver.com");
 
-        private static FeedReaderLoggerBase _logger;
+        private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }
@@ -107,11 +100,11 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <returns></returns>
         public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri? sourceUrl, bool storeRawData)
         {
-            JObject result = new JObject();
+            JObject? result; ;
             List<ScrapedSong> songs = new List<ScrapedSong>();
             try
             {
-                result = JObject.Parse(pageText);
+                result = JObject.Parse(pageText) ?? new JObject();
 
             }
             catch (JsonReaderException ex)
@@ -139,7 +132,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
 
             // Array of songs in page text.
-            JToken[] songJSONAry = result["docs"]?.ToArray();
+            JToken[]? songJSONAry = result["docs"]?.ToArray();
 
             if (songJSONAry == null)
             {
@@ -263,7 +256,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             PageReadResult firstPage = await feedEnum.MoveNextAsync().ConfigureAwait(false);
             pageIndex++;
             bool continueLooping = true;
-            bool lastPageReached = false;
             if (!firstPage.Successful)
             {
                 pageResults = new List<PageReadResult>(1) { firstPage };
@@ -279,12 +271,9 @@ namespace SongFeedReaders.Readers.BeatSaver
                 else
                     return new FeedResult(null, pageResults, new FeedReaderException(message, firstPage.Exception, FeedReaderFailureCode.SourceFailed), FeedResultError.Error);
             }
-
-            bool lastPageKnown = false;
             int lastPage = 0;
             if (firstPage is BeatSaverPageResult bsPage && bsPage.LastPage > 0)
             {
-                lastPageKnown = true;
                 lastPage = bsPage.LastPage;
                 if (useMaxPages)
                     maxPages = Math.Min(maxPages, lastPage);
@@ -432,18 +421,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             return new FeedResult(newSongs, pageResults);
         }
 
-        public async Task<List<string>> GetAuthorNamesByIDAsync(string mapperId, CancellationToken cancellationToken)
-        {
-            List<string> authorNames = new List<string>();
-            SearchQueryBuilder query = new SearchQueryBuilder(BeatSaverSearchType.user, mapperId);
-            BeatSaverFeedSettings settings = new BeatSaverFeedSettings(BeatSaverFeedName.Search) { SearchQuery = query.GetQuery() };
-            FeedResult result = await GetSongsFromFeedAsync(settings, cancellationToken).ConfigureAwait(false);
-            authorNames = result.Songs.Values.Select(s => s.LevelAuthorName).Distinct().ToList();
-            //authorNames.ForEach(n => Logger?.Warning($"Found authorName: {n}"));
-            throw new NotImplementedException();
-            return authorNames;
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -457,7 +434,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 return string.Empty;
             if (_authors.ContainsKey(authorName))
                 return _authors[authorName];
-            string mapperId = string.Empty;
+            string? mapperId = string.Empty;
 
             int page = 0;
             int? totalResults;
@@ -473,7 +450,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 Logger?.Debug($"Checking page {page + 1} for the author ID.");
                 sourceUri = new Uri(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHTYPEKEY, "advanced").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
                 result = new JObject();
-                IWebResponseMessage response = null;
+                IWebResponseMessage? response = null;
                 try
                 {
                     response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false);
@@ -538,159 +515,20 @@ namespace SongFeedReaders.Readers.BeatSaver
                 Logger?.Warning($"No songs by {authorName} found, is the name spelled correctly?");
                 return string.Empty;
             }
-            mapperId = matchingSong["uploader"]["_id"].Value<string>();
-            _authors.TryAdd(authorName, mapperId);
+            mapperId = matchingSong["uploader"]?["_id"]?.Value<string>() ?? string.Empty;
+            if (!string.IsNullOrEmpty(mapperId))
+                _authors.TryAdd(authorName, mapperId);
 
             return mapperId;
         }
 
-        public static async Task<PageReadResult> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
-        {
-            Uri uri = Utilities.GetBeatSaverDetailsByHash(hash);
-            ScrapedSong? song = null;
-            PageErrorType pageError = PageErrorType.None;
-            Exception? exception = null;
-            IWebResponseMessage? response = null;
-            try
-            {
-                response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
-                string pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                song = ParseSongsFromPage(pageText, uri, true).FirstOrDefault();
-            }
-            catch (WebClientException ex)
-            {
-                string errorText = string.Empty;
-                if (ex.Response != null)
-                {
-                    switch (ex.Response.StatusCode)
-                    {
-                        case 408:
-                            errorText = "Timeout";
-                            break;
-                        default:
-                            errorText = "Site Error";
-                            break;
-                    }
-                }
-                string message = $"{errorText} while trying to populate fields for {hash}";
-                Logger?.Error(message);
-                exception = new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed);
-            }
-            catch (OperationCanceledException ex)
-            {
-                exception = new FeedReaderException(ex.Message, ex, FeedReaderFailureCode.Cancelled);
-            }
-            catch (AggregateException ae)
-            {
-                string message = $"Exception while trying to get details for {hash}";
-                ae.WriteExceptions(message);
-                exception = new FeedReaderException(message, ae, FeedReaderFailureCode.Generic);
-            }
-            catch (Exception ex)
-            {
-                string message = $"Exception getting page {uri.ToString()}";
-                Logger?.Exception(message, ex);
-                exception = new FeedReaderException(message, ex, FeedReaderFailureCode.Generic);
-            }
-            finally
-            {
-                response?.Dispose();
-                response = null;
-            }
-            List<ScrapedSong> retList = new List<ScrapedSong>();
-            if (song != null)
-                retList.Add(song);
-            return new PageReadResult(uri, retList, 0, exception, pageError);
-        }
-
-        public static async Task<ScrapedSong> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
-        {
-            Uri uri = Utilities.GetBeatSaverDetailsByKey(key);
-            string pageText = "";
-            ScrapedSong song = null;
-            IWebResponseMessage response = null;
-            try
-            {
-                response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
-                if (response.IsSuccessStatusCode)
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                else
-                {
-                    Logger?.Error($"Error getting song by key, {uri} responded with {response.StatusCode}:{response.ReasonPhrase}");
-                    return song;
-                }
-                if (string.IsNullOrEmpty(pageText))
-                {
-                    Logger?.Warning($"Unable to get web page at {uri}");
-                    return null;
-                }
-            }
-            catch (WebClientException ex)
-            {
-                string errorText = string.Empty;
-                if (ex.Response != null)
-                {
-                    switch (ex.Response.StatusCode)
-                    {
-                        case 404:
-                            errorText = $"Song {key} was not found on BeatSaver.";
-                            break;
-                        case 408:
-                            errorText = "Timeout while trying to populate fields for {key}";
-                            break;
-                        default:
-                            errorText = "Site Error while trying to populate fields for {key}";
-                            break;
-                    }
-                }
-                Logger?.Error(errorText);
-                return null;
-            }
-            catch (AggregateException ae)
-            {
-                ae.WriteExceptions($"Exception while trying to get details for {key}");
-            }
-            catch (Exception ex)
-            {
-                Logger?.Exception($"Exception getting page {uri}", ex);
-                throw;
-            }
-            finally
-            {
-                response?.Dispose();
-                response = null;
-            }
-            song = ParseSongsFromPage(pageText, uri, true).FirstOrDefault();
-            return song;
-        }
-
-        [Obsolete("This isn't even finished.")]
+        [Obsolete("Not implemented.")]
         public static async Task<List<JToken>> ScrapeBeatSaver(int timeBetweenRequests, CancellationToken cancellationToken, DateTime? stopAtDate = null)
         {
             throw new NotImplementedException("Not finished");
         }
 
         #endregion
-
-
-
-
-        public List<string> GetAuthorNamesByID(string mapperId)
-        {
-            return GetAuthorNamesByIDAsync(mapperId, CancellationToken.None).Result;
-        }
-
-        public static string GetAuthorID(string authorName)
-        {
-            return GetAuthorIDAsync(authorName, CancellationToken.None).Result;
-        }
-
-        public static PageReadResult GetSongByHash(string hash)
-        {
-            return GetSongByHashAsync(hash, CancellationToken.None).Result;
-        }
-
         #endregion
 
     }

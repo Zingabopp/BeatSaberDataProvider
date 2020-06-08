@@ -8,6 +8,15 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <DocumentationFile>WebUtilities.xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug_netstandard2.0;Release_netstandard2.0</Configurations>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_netstandard2.0|AnyCPU'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_netstandard2.0|AnyCPU'">
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>NETFRAMEWORK</DefineConstants>

@@ -177,7 +177,6 @@ namespace SongFeedReaders.Readers.BeatSaver
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
             string pageText;
-
             JObject result;
             List<ScrapedSong> newSongs;
             Uri pageUri;
@@ -189,6 +188,8 @@ namespace SongFeedReaders.Readers.BeatSaver
             {
                 throw;
             }
+
+            Logger.Debug($"Getting songs from '{pageUri}'");
             int? lastPage;
             bool isLastPage = false;
             IWebResponseMessage response = null;

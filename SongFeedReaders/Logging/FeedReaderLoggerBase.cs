@@ -44,33 +44,42 @@ namespace SongFeedReaders.Logging
             }
         }
 
+        public abstract void Log(string message, LogLevel logLevel,
+            [CallerFilePath] string file = "",
+            [CallerMemberName] string member = "",
+            [CallerLineNumber] int line = 0);
 
-        public abstract void Trace(string message,
+        public abstract void Log(string message, Exception e, LogLevel logLevel,
             [CallerFilePath] string file = "",
             [CallerMemberName] string member = "",
             [CallerLineNumber] int line = 0);
-        public abstract void Debug(string message,
+
+        public void Trace(string message,
             [CallerFilePath] string file = "",
             [CallerMemberName] string member = "",
-            [CallerLineNumber] int line = 0);
-        public abstract void Info(string message,
+            [CallerLineNumber] int line = 0) => Log(message, LogLevel.Trace, file, member, line);
+        public void Debug(string message,
             [CallerFilePath] string file = "",
             [CallerMemberName] string member = "",
-            [CallerLineNumber] int line = 0);
-        public abstract void Warning(string message,
+            [CallerLineNumber] int line = 0) => Log(message, LogLevel.Debug, file, member, line);
+        public void Info(string message,
             [CallerFilePath] string file = "",
             [CallerMemberName] string member = "",
-            [CallerLineNumber] int line = 0);
+            [CallerLineNumber] int line = 0) => Log(message, LogLevel.Info, file, member, line);
+        public void Warning(string message,
+            [CallerFilePath] string file = "",
+            [CallerMemberName] string member = "",
+            [CallerLineNumber] int line = 0) => Log(message, LogLevel.Warning, file, member, line);
 #pragma warning disable CA1716 // Identifiers should not match keywords
-        public abstract void Error(string message,
+        public void Error(string message,
 #pragma warning restore CA1716 // Identifiers should not match keywords
             [CallerFilePath] string file = "",
             [CallerMemberName] string member = "",
-            [CallerLineNumber] int line = 0);
-        public abstract void Exception(string message, Exception e,
+            [CallerLineNumber] int line = 0) => Log(message, LogLevel.Error, file, member, line);
+        public void Exception(string message, Exception e,
             [CallerFilePath] string file = "",
             [CallerMemberName] string member = "",
-            [CallerLineNumber] int line = 0);
+            [CallerLineNumber] int line = 0) => Log(message, e, LogLevel.Exception, file, member, line);
 
     }
     public enum LogLevel

@@ -171,6 +171,8 @@ namespace SongFeedReaders.Readers.BeastSaber
             {
                 throw;
             }
+
+            Logger.Debug($"Getting songs from '{feedUri}'");
             ContentType contentType = ContentType.Unknown;
             string? contentTypeStr;
             IWebResponseMessage? response = null;

@@ -156,6 +156,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             }
             string pageText = "";
 
+            Logger.Debug($"Getting songs from '{uri}'");
             IWebResponseMessage? response = null;
 
             try

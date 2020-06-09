@@ -20,7 +20,7 @@ namespace SongFeedReaders.Data
         /// <param name="songHash"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="key"/> is null or empty.</exception>
-        public static ScrapedSong CreateFromKey(string key, string songName, string mapperName, Uri downloadUri, Uri sourceUri, JObject jsonData = null, string songHash = null)
+        public static ScrapedSong CreateFromKey(string key, string songName, string mapperName, Uri downloadUri, Uri sourceUri, JObject? jsonData = null, string? songHash = null)
         {
             if(string.IsNullOrEmpty(key))
                 throw new ArgumentNullException(nameof(key), $"{nameof(key)} cannot be null for ScrapedSong.CreateFromKey.");
@@ -91,7 +91,7 @@ namespace SongFeedReaders.Data
         /// <param name="mapperName"></param>
         /// 
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hash"/> is null or empty.</exception>
-        public ScrapedSong(string hash, string songName, string mapperName)
+        public ScrapedSong(string hash, string? songName, string? mapperName)
             : this(hash)
         {
             Name = songName;
@@ -103,7 +103,7 @@ namespace SongFeedReaders.Data
         /// <param name="hash"></param>
         /// <param name="songName"></param>
         /// <param name="mapperName"></param>
-        public ScrapedSong(string hash, string songName, string mapperName, string songKey)
+        public ScrapedSong(string hash, string? songName, string? mapperName, string? songKey)
            : this(hash, songName, mapperName)
         {
             Key = songKey;
@@ -117,7 +117,7 @@ namespace SongFeedReaders.Data
         /// <param name="downloadUri"></param>
         /// <param name="sourceUri"></param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hash"/> is null or empty.</exception>
-        public ScrapedSong(string hash, string songName, string mapperName, Uri downloadUri, Uri sourceUri)
+        public ScrapedSong(string hash, string? songName, string? mapperName, Uri? downloadUri, Uri? sourceUri)
             : this(hash, songName, mapperName)
         {
             DownloadUri = downloadUri;
@@ -133,7 +133,7 @@ namespace SongFeedReaders.Data
         /// <param name="sourceUri"></param>
         /// <param name="jsonData"></param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="hash"/> is null or empty.</exception>
-        public ScrapedSong(string hash, string songName, string mapperName, Uri downloadUri, Uri sourceUri, JObject jsonData)
+        public ScrapedSong(string hash, string? songName, string? mapperName, Uri? downloadUri, Uri? sourceUri, JObject? jsonData)
             : this(hash, songName, mapperName, downloadUri, sourceUri)
         {
             JsonData = jsonData;

@@ -156,7 +156,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             }
             string pageText = "";
 
-            IWebResponseMessage response = null;
+            IWebResponseMessage? response = null;
 
             try
             {

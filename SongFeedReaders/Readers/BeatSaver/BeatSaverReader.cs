@@ -165,11 +165,11 @@ namespace SongFeedReaders.Readers.BeatSaver
             if (song == null)
                 throw new ArgumentNullException(nameof(song), "song cannot be null for BeatSaverReader.ParseSongFromJson.");
             //JSONObject song = (JSONObject) aKeyValue;
-            string songKey = song["key"]?.Value<string>();
-            string songHash = song["hash"]?.Value<string>().ToUpper();
-            string songName = song["name"]?.Value<string>();
-            string mapperName = song["uploader"]?["username"]?.Value<string>();
-            if (string.IsNullOrEmpty(songHash))
+            string? songKey = song["key"]?.Value<string>();
+            string? songHash = song["hash"]?.Value<string>().ToUpper();
+            string? songName = song["name"]?.Value<string>();
+            string? mapperName = song["uploader"]?["username"]?.Value<string>();
+            if (songHash == null || songHash.Length == 0)
                 throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
             Uri downloadUri = Utilities.GetDownloadUriByHash(songHash);
             ScrapedSong newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song : null)
@@ -438,7 +438,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
             int page = 0;
             int? totalResults;
-            Uri sourceUri = null;
+            Uri? sourceUri = null;
             string pageText;
             JObject result;
             JToken matchingSong;
@@ -455,6 +455,11 @@ namespace SongFeedReaders.Readers.BeatSaver
                 {
                     response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false);
                     response.EnsureSuccessStatusCode();
+                    if (response.Content == null)
+                    {
+                        Logger?.Error($"WebResponse Content was null getting UploaderID from author name {authorName}");
+                        return string.Empty;
+                    }
                     pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                     result = JObject.Parse(pageText);
                 }
@@ -523,7 +528,9 @@ namespace SongFeedReaders.Readers.BeatSaver
         }
 
         [Obsolete("Not implemented.")]
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public static async Task<List<JToken>> ScrapeBeatSaver(int timeBetweenRequests, CancellationToken cancellationToken, DateTime? stopAtDate = null)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             throw new NotImplementedException("Not finished");
         }

@@ -172,8 +172,8 @@ namespace SongFeedReaders.Readers.BeastSaber
                 throw;
             }
             ContentType contentType = ContentType.Unknown;
-            string contentTypeStr;
-            IWebResponseMessage response = null;
+            string? contentTypeStr;
+            IWebResponseMessage? response = null;
             //PageReadResult result = null;
             try
             {
@@ -186,12 +186,15 @@ namespace SongFeedReaders.Readers.BeastSaber
                     await Task.Delay(20000).ConfigureAwait(false);
                     response = await WebUtils.WebClient.GetAsync(feedUri, cancellationToken).ConfigureAwait(false);
                 }
+                if (response == null) throw new WebClientException($"Response was null for '{feedUri}'.");
                 response.EnsureSuccessStatusCode();
-                contentTypeStr = response.Content.ContentType.ToLower();
-                if (ContentDictionary.ContainsKey(contentTypeStr))
+                contentTypeStr = response.Content?.ContentType?.ToLower();
+                if (contentTypeStr != null && ContentDictionary.ContainsKey(contentTypeStr))
                     contentType = ContentDictionary[contentTypeStr];
                 else
                     contentType = ContentType.Unknown;
+
+                if (response.Content == null) throw new WebClientException($"Response content was null for '{feedUri}'.");
                 pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             }
@@ -300,7 +303,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 return new List<ScrapedSong>();
             bool retry = false;
             var songsOnPage = new List<ScrapedSong>();
-            XmlDocument xmlDocument = null;
+            XmlDocument? xmlDocument = null;
             do
             {
                 try
@@ -330,6 +333,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                     //File.WriteAllText("ErrorText.xml", pageText);
                 }
             } while (retry == true);
+            if (xmlDocument == null) throw new XmlException($"xmlDocument was null for '{sourceUri}'.");
             XmlNodeList xmlNodeList = xmlDocument.DocumentElement.SelectNodes("/rss/channel/item");
             foreach (object obj in xmlNodeList)
             {
@@ -340,23 +344,25 @@ namespace SongFeedReaders.Readers.BeastSaber
                 }
                 else
                 {
-                    string songName = node[XML_TITLE_KEY].InnerText;
-                    string downloadUrl = node[XML_DOWNLOADURL_KEY]?.InnerText;
-                    string hash = node[XML_HASH_KEY]?.InnerText?.ToUpper();
-                    string mapperName = node[XML_AUTHOR_KEY]?.InnerText;
-                    string songKey = node[XML_SONGKEY_KEY]?.InnerText;
-                    if (downloadUrl.Contains("dl.php"))
+                    string? songName = node[XML_TITLE_KEY].InnerText;
+                    string? downloadUrl = node[XML_DOWNLOADURL_KEY]?.InnerText;
+                    string? hash = node[XML_HASH_KEY]?.InnerText?.ToUpper();
+                    string? mapperName = node[XML_AUTHOR_KEY]?.InnerText;
+                    string? songKey = node[XML_SONGKEY_KEY]?.InnerText;
+                    if(hash == null || hash.Length == 0) // TODO: Could use Key if Hash was null.
+                    {
+                        Logger?.Warning($"Skipping BeastSaber song with null hash.");
+                        continue;
+                    }
+                    if (downloadUrl?.Contains("dl.php") ?? true)
                     {
                         Logger?.Warning("Skipping BeastSaber download with old url format!");
                     }
                     else
                     {
-                        //string songIndex = !string.IsNullOrEmpty(songKey) ? songKey : downloadUrl.Substring(downloadUrl.LastIndexOf('/') + 1);
-                        //string mapper = !string.IsNullOrEmpty(authorName) ? authorName : GetMapperFromBsaber(node.InnerText);
-                        //string songUrl = !string.IsNullOrEmpty(downloadUrl) ? downloadUrl : BeatSaverDownloadURL_Base + songIndex;
                         if (!string.IsNullOrEmpty(hash))
                         {
-                            JObject jObject = null;
+                            JObject? jObject = null;
                             if (storeRawData)
                             {
                                 jObject = new JObject();
@@ -400,23 +406,22 @@ namespace SongFeedReaders.Readers.BeastSaber
             foreach (JObject bSong in songs)
             {
                 // Try to get the song hash from BeastSaber
-                string songHash = bSong["hash"]?.Value<string>();
-                string songKey = bSong["song_key"]?.Value<string>();
-                string songName = bSong["title"]?.Value<string>();
-                string mapperName = bSong["level_author_name"]?.Value<string>();
-                Uri downloadUri = null;
-                if (!string.IsNullOrEmpty(songHash))
+                string? songHash = bSong["hash"]?.Value<string>();
+                string? songKey = bSong["song_key"]?.Value<string>();
+                string? songName = bSong["title"]?.Value<string>();
+                string? mapperName = bSong["level_author_name"]?.Value<string>();
+                Uri? downloadUri = null;
+                if (songHash != null && songHash.Length > 0)
                 {
                     downloadUri = Utilities.GetDownloadUriByHash(songHash);
-                }
-                else if (!string.IsNullOrEmpty(songKey))
-                {
-                    downloadUri = Utilities.GetDownloadUriByKey(songKey);
-                }
-                if (!string.IsNullOrEmpty(songHash))
-                {
                     songsOnPage.Add(new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? bSong : null));
                 }
+                // TODO: This will break if songHash is null
+                //else if (songKey != null && songKey.Length > 0)
+                //{
+                //    downloadUri = Utilities.GetDownloadUriByKey(songKey);
+                //    songsOnPage.Add(new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? bSong : null) { Key = songKey });
+                //}
             }
             return songsOnPage;
         }

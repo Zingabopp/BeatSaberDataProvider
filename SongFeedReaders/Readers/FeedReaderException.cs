@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace SongFeedReaders.Readers
 {
+#pragma warning disable CA2237 // Mark ISerializable types with serializable
     public class FeedReaderException : Exception
+#pragma warning restore CA2237 // Mark ISerializable types with serializable
     {
         /// <summary>
         /// A <see cref="FeedReaderFailureCode"/> associated with the exception.
@@ -32,11 +34,11 @@ namespace SongFeedReaders.Readers
             : base(message)
         { }
 
-        public FeedReaderException(string message, Exception innerException)
+        public FeedReaderException(string message, Exception? innerException)
             : base(message, innerException)
         { }
 
-        public FeedReaderException(string message, Exception innerException, FeedReaderFailureCode reason)
+        public FeedReaderException(string message, Exception? innerException, FeedReaderFailureCode reason)
             : base(message, innerException)
         {
             FailureCode = reason;

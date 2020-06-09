@@ -7,12 +7,12 @@ namespace SongFeedReaders.Logging
 {
     public abstract class FeedReaderLoggerBase
     {
-        private string _loggerName;
+        private string? _loggerName;
         private LogLevel? _logLevel;
         private bool? _shortSource;
         private bool? _enableTimeStamp;
 
-        public string LoggerName
+        public string? LoggerName
         {
             get { return _loggerName ?? LogController?.LoggerName; }
             set { _loggerName = value; }
@@ -32,7 +32,7 @@ namespace SongFeedReaders.Logging
             get { return _enableTimeStamp ?? LogController?.EnableTimestamp ?? true; }
             set { _enableTimeStamp = value; }
         }
-        private LoggingController _loggingController;
+        private LoggingController? _loggingController;
         public LoggingController LogController
         {
             get { return _loggingController ?? LoggingController.DefaultLogController; }

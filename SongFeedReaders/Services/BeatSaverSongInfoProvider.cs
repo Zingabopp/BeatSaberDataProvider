@@ -58,7 +58,7 @@ namespace SongFeedReaders.Services
                 string message = $"Exception getting page: '{uri}'";
                 throw new SongInfoProviderException(message, ex);
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException)
             {
                 throw;
             }

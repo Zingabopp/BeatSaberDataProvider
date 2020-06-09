@@ -11,7 +11,7 @@ namespace SongFeedReaders.Readers
 {
     public class PageReadResult
     {
-        private static FeedReaderLoggerBase _logger;
+        private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }
@@ -19,17 +19,17 @@ namespace SongFeedReaders.Readers
         }
         public Uri Uri { get; private set; }
         public int Page { get; }
-        public List<ScrapedSong> Songs { get; private set; }
+        public List<ScrapedSong>? Songs { get; private set; }
 
         public bool IsLastPage { get; private set; }
 
         public PageErrorType PageError { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
-        public FeedReaderException Exception { get; private set; }
+        public FeedReaderException? Exception { get; private set; }
 
         private bool _successful;
         public bool Successful { get { return _successful && Exception == null; } }
-        public PageReadResult(Uri uri, List<ScrapedSong> songs, int page, bool isLastPage = false)
+        public PageReadResult(Uri uri, List<ScrapedSong>? songs, int page, bool isLastPage = false)
         {
             Page = page;
             IsLastPage = isLastPage;
@@ -44,7 +44,7 @@ namespace SongFeedReaders.Readers
             Songs = songs;
         }
 
-        public PageReadResult(Uri uri, List<ScrapedSong> songs, int page, Exception exception, PageErrorType pageError, bool isLastPage = false)
+        public PageReadResult(Uri uri, List<ScrapedSong>? songs, int page, Exception? exception, PageErrorType pageError, bool isLastPage = false)
             : this(uri, songs, page, isLastPage)
         {
 
@@ -72,7 +72,7 @@ namespace SongFeedReaders.Readers
             return $"{Uri} | {Songs?.Count.ToString() ?? "<NULL>"}";
         }
 
-        public static PageReadResult FromWebClientException(WebClientException ex, Uri requestUri, int page)
+        public static PageReadResult FromWebClientException(WebClientException? ex, Uri requestUri, int page)
         {
             PageErrorType pageError = PageErrorType.SiteError;
             string errorText = string.Empty;
@@ -94,7 +94,7 @@ namespace SongFeedReaders.Readers
             string message = $"{errorText} getting page {requestUri}.";
             Logger?.Debug(message);
             // No need for a stacktrace if it's one of these errors.
-            if (!(pageError == PageErrorType.Timeout || statusCode == 500))
+            if (!(pageError == PageErrorType.Timeout || statusCode == 500) && ex != null)
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
             return new PageReadResult(requestUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), pageError);
         }

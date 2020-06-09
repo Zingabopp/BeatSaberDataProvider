@@ -9,7 +9,7 @@ namespace SongFeedReaders
 {
     public static class FileOps
     {
-        private static FeedReaderLoggerBase _logger;
+        private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }
@@ -22,12 +22,12 @@ namespace SongFeedReaders
         /// <param name="uri"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static async Task<string> DownloadFileAsync(Uri uri, string path, CancellationToken cancellationToken, bool overwrite = true)
+        public static async Task<string?> DownloadFileAsync(Uri uri, string path, CancellationToken cancellationToken, bool overwrite = true)
         {
             string actualPath = path;
             using (var response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false))
             {
-                if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode || response.Content == null)
                     return null;
                 actualPath = await response.Content.ReadAsFileAsync(path, overwrite, cancellationToken).ConfigureAwait(false);
             }

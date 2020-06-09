@@ -1,11 +1,9 @@
-﻿using System;
+﻿using SongFeedReaders.Data;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SongFeedReaders.Data;
 
 namespace SongFeedReaders.Readers
 {
@@ -123,7 +121,7 @@ namespace SongFeedReaders.Readers
         private bool TryGetCachedPage(int page, out Task<PageReadResult> cachedTask)
         {
             cachedTask = null;
-            if (EnablePageCache && CachedPages.TryGetValue(page, out var cache))
+            if (EnablePageCache && CachedPages.TryGetValue(page, out Task<PageReadResult>? cache))
             {
                 if (cache != null)
                 {
@@ -136,7 +134,7 @@ namespace SongFeedReaders.Readers
                     }
                     else if (!cache.IsFaulted)
                     {
-                        var cachedResult = cache.Result;
+                        PageReadResult? cachedResult = cache.Result;
                         if (cachedResult.Successful)
                         {
                             cachedTask = cache;
@@ -166,14 +164,14 @@ namespace SongFeedReaders.Readers
             }
 
             Task<PageReadResult> pageTask;
-            PageReadResult result = null;
-            if (TryGetCachedPage(page, out var cachedTask))
+            PageReadResult? result = null;
+            if (TryGetCachedPage(page, out Task<PageReadResult>? cachedTask))
             {
                 if (cachedTask.IsCompleted)
                     return await cachedTask.ConfigureAwait(false);
                 else
                 {
-                    using (var tcs = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    using (CancellationTokenSource? tcs = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                     {
                         bool completed = await Utilities.WaitUntil(() => cachedTask.IsCompleted, tcs.Token).ConfigureAwait(false);
                         if (completed)
@@ -224,14 +222,14 @@ namespace SongFeedReaders.Readers
                 return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
             }
             Task<PageReadResult> pageTask;
-            PageReadResult result = null;
-            if (TryGetCachedPage(page, out var cachedTask))
+            PageReadResult? result = null;
+            if (TryGetCachedPage(page, out Task<PageReadResult>? cachedTask))
             {
                 if (cachedTask.IsCompleted)
                     return await cachedTask.ConfigureAwait(false);
                 else
                 {
-                    using (var tcs = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    using (CancellationTokenSource? tcs = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                     {
                         bool completed = await Utilities.WaitUntil(() => cachedTask.IsCompleted, tcs.Token).ConfigureAwait(false);
                         if (completed)

@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SongFeedReaders.Logging;
 using SongFeedReaders.Data;
+using SongFeedReaders.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WebUtilities;
@@ -203,9 +202,9 @@ namespace SongFeedReaders.Readers.ScoreSaber
             bool isLastPage;
             try
             {
-                var diffs = GetSongsFromPageText(pageText, uri, StoreRawData);
+                List<ScrapedSong>? diffs = GetSongsFromPageText(pageText, uri, Settings.StoreRawData || StoreRawData);
                 isLastPage = diffs.Count < SongsPerPage;
-                foreach (var diff in diffs)
+                foreach (ScrapedSong? diff in diffs)
                 {
                     if (!songs.ContainsKey(diff.Hash) && (Settings.Filter == null || Settings.Filter(diff)))
                         songs.Add(diff.Hash, diff);
@@ -238,7 +237,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         /// <returns></returns>
         /// <exception cref="JsonReaderException"></exception>
         /// 
-        public static List<ScrapedSong> GetSongsFromPageText(string pageText, Uri sourceUri, bool storeRawData)
+        public static List<ScrapedSong>? GetSongsFromPageText(string pageText, Uri sourceUri, bool storeRawData)
         {
             JObject result;
             List<ScrapedSong> songs = new List<ScrapedSong>();
@@ -253,7 +252,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 //Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
                 //return new PageReadResult(sourceUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
-            var songJSONAry = result["songs"]?.ToArray();
+            JToken[]? songJSONAry = result["songs"]?.ToArray();
             if (songJSONAry == null)
             {
                 string message = "Invalid page text: 'songs' field not found.";
@@ -262,9 +261,9 @@ namespace SongFeedReaders.Readers.ScoreSaber
             }
             foreach (JObject song in songJSONAry)
             {
-                var hash = song["id"]?.Value<string>();
-                var songName = song["name"]?.Value<string>();
-                var mapperName = song["levelAuthorName"]?.Value<string>();
+                string? hash = song["id"]?.Value<string>();
+                string? songName = song["name"]?.Value<string>();
+                string? mapperName = song["levelAuthorName"]?.Value<string>();
 
                 if (!string.IsNullOrEmpty(hash))
                     songs.Add(new ScrapedSong(hash, songName, mapperName, Utilities.GetDownloadUriByHash(hash), sourceUri, storeRawData ? song : null));
@@ -291,7 +290,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             {
                 urlReplacements.Add(QUERYKEY, SearchQuery);
             }
-            foreach (var pair in urlReplacements)
+            foreach (KeyValuePair<string, string> pair in urlReplacements)
             {
                 url = url.Replace(pair.Key, pair.Value);
             }

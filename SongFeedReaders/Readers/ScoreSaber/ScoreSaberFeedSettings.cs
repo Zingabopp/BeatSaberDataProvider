@@ -82,6 +82,8 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 _startingPage = value;
             }
         }
+
+        public bool StoreRawData { get; set; }
         public Func<ScrapedSong, bool>? Filter { get; set; }
         public Func<ScrapedSong, bool>? StopWhenAny { get; set; }
 
@@ -95,6 +97,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 SongsPerPage = SongsPerPage,
                 SearchQuery = SearchQuery,
                 RankedOnly = RankedOnly,
+                StoreRawData = StoreRawData,
                 Filter = (Func<ScrapedSong, bool>?)Filter?.Clone(),
                 StopWhenAny = (Func<ScrapedSong, bool>?)StopWhenAny?.Clone(),
             };

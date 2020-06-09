@@ -24,6 +24,11 @@ namespace SongFeedReaders.Readers
         int StartingPage { get; set; }
 
         /// <summary>
+        /// Indicates to the FeedReader that it should store the raw scraped data.
+        /// </summary>
+        bool StoreRawData { get; set; }
+
+        /// <summary>
         /// Only return songs that return true for this function.
         /// </summary>
         Func<ScrapedSong, bool>? Filter { get; set; }

@@ -69,6 +69,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 _startingPage = value;
             }
         }
+        public bool StoreRawData { get; set; }
         public Func<ScrapedSong, bool>? Filter { get; set; }
         public Func<ScrapedSong, bool>? StopWhenAny { get; set; }
 
@@ -81,6 +82,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 StartingPage = StartingPage,
                 SearchQuery = SearchQuery.GetValueOrDefault(),
                 AuthorId = AuthorId,
+                StoreRawData = StoreRawData,
                 Filter = Filter != null ? (Func<ScrapedSong, bool>)Filter.Clone() : null,
                 StopWhenAny = StopWhenAny != null ? (Func<ScrapedSong, bool>)StopWhenAny.Clone() : null,
             };

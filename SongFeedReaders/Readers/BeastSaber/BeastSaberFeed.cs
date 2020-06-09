@@ -223,7 +223,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             List<ScrapedSong> newSongs;
             try
             {
-                var scrapedSongs = GetSongsFromPageText(pageText, feedUri, contentType, StoreRawData);
+                var scrapedSongs = GetSongsFromPageText(pageText, feedUri, contentType, Settings.StoreRawData || StoreRawData);
                 isLastPage = scrapedSongs.Count == 0;
                 newSongs = new List<ScrapedSong>();
                 foreach (var song in scrapedSongs)

@@ -211,7 +211,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 }
                 isLastPage = page >= lastPage.Value;
                 newSongs = new List<ScrapedSong>();
-                var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri, StoreRawData);
+                var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri, Settings.StoreRawData || StoreRawData);
                 foreach (var song in scrapedSongs)
                 {
                     if (Settings.Filter == null || Settings.Filter(song))

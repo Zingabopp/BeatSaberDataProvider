@@ -69,6 +69,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 _startingPage = value;
             }
         }
+        public bool StoreRawData { get; set; }
         public Func<ScrapedSong, bool>? Filter { get; set; }
         public Func<ScrapedSong, bool>? StopWhenAny { get; set; }
 
@@ -80,6 +81,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 MaxSongs = MaxSongs,
                 StartingPage = StartingPage,
                 Username = Username,
+                StoreRawData = StoreRawData,
                 Filter = (Func<ScrapedSong, bool>?)Filter?.Clone(),
                 StopWhenAny = (Func<ScrapedSong, bool>?)StopWhenAny?.Clone(),
             };

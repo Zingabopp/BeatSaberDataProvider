@@ -88,7 +88,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             return BeatSaverFeed.Feeds[ssSettings.Feed].DisplayName;
         }
 
-        public static List<ScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl, bool storeRawData)
+        public static List<IScrapedSong> ParseSongsFromPage(string pageText, string sourceUrl, bool storeRawData)
         {
             return ParseSongsFromPage(pageText, Utilities.GetUriFromString(sourceUrl), storeRawData);
         }
@@ -98,10 +98,10 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// </summary>
         /// <param name="pageText"></param>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri? sourceUrl, bool storeRawData)
+        public static List<IScrapedSong> ParseSongsFromPage(string pageText, Uri? sourceUrl, bool storeRawData)
         {
             JObject? result; ;
-            List<ScrapedSong> songs = new List<ScrapedSong>();
+            List<IScrapedSong> songs = new List<IScrapedSong>();
             try
             {
                 result = JObject.Parse(pageText) ?? new JObject();
@@ -112,7 +112,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 Logger?.Exception("Unable to parse JSON from text", ex);
                 return songs;
             }
-            ScrapedSong newSong;
+            IScrapedSong newSong;
             int? resultTotal = result["totalDocs"]?.Value<int>();
             if (resultTotal == null) resultTotal = 0;
 
@@ -149,7 +149,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             return songs;
         }
 
-        public static ScrapedSong ParseSongFromJson(JObject song, string sourceUrl, bool storeRawData)
+        public static IScrapedSong ParseSongFromJson(JObject song, string sourceUrl, bool storeRawData)
         {
             return ParseSongFromJson(song, Utilities.GetUriFromString(sourceUrl), storeRawData);
         }
@@ -160,7 +160,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <param name="song"></param>
         /// <exception cref="ArgumentException">Thrown when a hash can't be found for the given song JObject.</exception>
         /// <returns></returns>
-        public static ScrapedSong ParseSongFromJson(JObject song, Uri? sourceUri, bool storeRawData)
+        public static IScrapedSong ParseSongFromJson(JObject song, Uri? sourceUri, bool storeRawData)
         {
             if (song == null)
                 throw new ArgumentNullException(nameof(song), "song cannot be null for BeatSaverReader.ParseSongFromJson.");
@@ -172,7 +172,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             if (songHash == null || songHash.Length == 0)
                 throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
             Uri downloadUri = Utilities.GetDownloadUriByHash(songHash);
-            ScrapedSong newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song : null)
+            IScrapedSong newSong = new IScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song : null)
             {
                 Key = songKey
             };
@@ -252,7 +252,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
             FeedAsyncEnumerator feedEnum = feed.GetEnumerator();
             List<PageReadResult> pageResults;
-            Dictionary<string, ScrapedSong> newSongs = new Dictionary<string, ScrapedSong>();
+            Dictionary<string, IScrapedSong> newSongs = new Dictionary<string, IScrapedSong>();
             PageReadResult firstPage = await feedEnum.MoveNextAsync().ConfigureAwait(false);
             pageIndex++;
             bool continueLooping = true;
@@ -285,7 +285,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             if (estimatedPageResults == int.MaxValue)
                 estimatedPageResults = 10;
             pageResults = new List<PageReadResult>(estimatedPageResults) { firstPage };
-            foreach (ScrapedSong song in firstPage.Songs)
+            foreach (IScrapedSong song in firstPage.Songs)
             {
                 if (!newSongs.ContainsKey(song.Hash))
                     newSongs.Add(song.Hash, song);
@@ -384,7 +384,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                             {
                                 // Logger?.Debug($"Receiving {pageResult.Count} potential songs from {pageResult.Uri}");
                                 // TODO: Process PageReadResults for better error feedback.
-                                foreach (ScrapedSong song in pageResult.Songs)
+                                foreach (IScrapedSong song in pageResult.Songs)
                                 {
                                     if (!newSongs.ContainsKey(song.Hash))
                                     {

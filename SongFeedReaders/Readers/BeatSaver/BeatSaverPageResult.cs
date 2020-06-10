@@ -13,13 +13,13 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// Last Beat Saver page, starting from page 1.
         /// </summary>
         public int LastPage { get; }
-        public BeatSaverPageResult(Uri uri, List<ScrapedSong> songs, int page, int lastPage)
+        public BeatSaverPageResult(Uri uri, List<IScrapedSong> songs, int page, int lastPage)
             : base(uri, songs, page, page > lastPage)
         {
             LastPage = lastPage;
         }
 
-        public BeatSaverPageResult(Uri uri, List<ScrapedSong> songs, int page, Exception exception, PageErrorType pageError, int lastPage)
+        public BeatSaverPageResult(Uri uri, List<IScrapedSong> songs, int page, Exception exception, PageErrorType pageError, int lastPage)
             : this(uri, songs, page, lastPage)
         { }
     }

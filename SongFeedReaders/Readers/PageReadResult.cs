@@ -19,7 +19,7 @@ namespace SongFeedReaders.Readers
         }
         public Uri Uri { get; private set; }
         public int Page { get; }
-        public List<ScrapedSong>? Songs { get; private set; }
+        public List<IScrapedSong>? Songs { get; private set; }
 
         public bool IsLastPage { get; private set; }
 
@@ -29,7 +29,7 @@ namespace SongFeedReaders.Readers
 
         private bool _successful;
         public bool Successful { get { return _successful && Exception == null; } }
-        public PageReadResult(Uri uri, List<ScrapedSong>? songs, int page, bool isLastPage = false)
+        public PageReadResult(Uri uri, List<IScrapedSong>? songs, int page, bool isLastPage = false)
         {
             Page = page;
             IsLastPage = isLastPage;
@@ -37,14 +37,14 @@ namespace SongFeedReaders.Readers
             if (songs == null)
             {
                 _successful = false;
-                songs = new List<ScrapedSong>();
+                songs = new List<IScrapedSong>();
             }
             else
                 _successful = true;
             Songs = songs;
         }
 
-        public PageReadResult(Uri uri, List<ScrapedSong>? songs, int page, Exception? exception, PageErrorType pageError, bool isLastPage = false)
+        public PageReadResult(Uri uri, List<IScrapedSong>? songs, int page, Exception? exception, PageErrorType pageError, bool isLastPage = false)
             : this(uri, songs, page, isLastPage)
         {
 
@@ -101,7 +101,7 @@ namespace SongFeedReaders.Readers
 
         public static PageReadResult CancelledResult(Uri requestUri, int page)
         {
-            return new PageReadResult(requestUri, new List<ScrapedSong>(), page, new OperationCanceledException(), PageErrorType.Cancelled);
+            return new PageReadResult(requestUri, new List<IScrapedSong>(), page, new OperationCanceledException(), PageErrorType.Cancelled);
         }
     }
 

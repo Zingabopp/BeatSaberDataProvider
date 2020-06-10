@@ -143,7 +143,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
             if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page cannot be less than 1.");
-            Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
+            Dictionary<string, IScrapedSong> songs = new Dictionary<string, IScrapedSong>();
             Uri uri;
             try
             {
@@ -192,7 +192,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting the first page in ScoreSaberReader.GetSongsFromScoreSaberAsync(): {ex.Message}";
-                return new PageReadResult(uri, new List<ScrapedSong>(), page, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.Unknown);
+                return new PageReadResult(uri, new List<IScrapedSong>(), page, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.Unknown);
             }
             finally
             {
@@ -202,9 +202,9 @@ namespace SongFeedReaders.Readers.ScoreSaber
             bool isLastPage;
             try
             {
-                List<ScrapedSong>? diffs = GetSongsFromPageText(pageText, uri, Settings.StoreRawData || StoreRawData);
+                List<IScrapedSong>? diffs = GetSongsFromPageText(pageText, uri, Settings.StoreRawData || StoreRawData);
                 isLastPage = diffs.Count < SongsPerPage;
-                foreach (ScrapedSong? diff in diffs)
+                foreach (IScrapedSong? diff in diffs)
                 {
                     if (!songs.ContainsKey(diff.Hash) && (Settings.Filter == null || Settings.Filter(diff)))
                         songs.Add(diff.Hash, diff);
@@ -237,10 +237,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
         /// <returns></returns>
         /// <exception cref="JsonReaderException"></exception>
         /// 
-        public static List<ScrapedSong>? GetSongsFromPageText(string pageText, Uri sourceUri, bool storeRawData)
+        public static List<IScrapedSong>? GetSongsFromPageText(string pageText, Uri sourceUri, bool storeRawData)
         {
             JObject result;
-            List<ScrapedSong> songs = new List<ScrapedSong>();
+            List<IScrapedSong> songs = new List<IScrapedSong>();
             try
             {
                 result = JObject.Parse(pageText);
@@ -266,11 +266,17 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 string? mapperName = song["levelAuthorName"]?.Value<string>();
 
                 if (!string.IsNullOrEmpty(hash))
-                    songs.Add(new ScrapedSong(hash, songName, mapperName, Utilities.GetDownloadUriByHash(hash), sourceUri, storeRawData ? song : null));
+                {
+                    IScrapedSong scrapedSong = new IScrapedSong(hash, songName, mapperName, Utilities.GetDownloadUriByHash(hash), sourceUri, storeRawData ? song : null);
+                    songs.Add(scrapedSong);
+                }
             }
             return songs;
         }
 
+
+
+        private static string[] StoredValues = new string[] { "id", "name", "levelAuthorName" };
         /// <summary>
         /// 
         /// </summary>
@@ -306,7 +312,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             return GetEnumerator(false);
         }
 
-        public static List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, bool storeRawData)
+        public static List<IScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, bool storeRawData)
         {
             return GetSongsFromPageText(pageText, new Uri(sourceUrl), storeRawData);
         }

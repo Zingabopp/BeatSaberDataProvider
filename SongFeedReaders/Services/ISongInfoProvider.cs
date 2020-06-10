@@ -24,7 +24,7 @@ namespace SongFeedReaders.Services
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="SongInfoProviderException"></exception>
-        Task<ScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken);
+        Task<IScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken);
         /// <summary>
         /// 
         /// </summary>
@@ -33,7 +33,7 @@ namespace SongFeedReaders.Services
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="SongInfoProviderException"></exception>
-        Task<ScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken);
+        Task<IScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken);
         /// <summary>
         /// 
         /// </summary>
@@ -41,7 +41,7 @@ namespace SongFeedReaders.Services
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="SongInfoProviderException"></exception>
-        Task<ScrapedSong?> GetSongByHashAsync(string hash);
+        Task<IScrapedSong?> GetSongByHashAsync(string hash);
         /// <summary>
         /// 
         /// </summary>
@@ -49,7 +49,7 @@ namespace SongFeedReaders.Services
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="SongInfoProviderException"></exception>
-        Task<ScrapedSong?> GetSongByKeyAsync(string key);
+        Task<IScrapedSong?> GetSongByKeyAsync(string key);
     }
 
     /// <summary>

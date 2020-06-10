@@ -31,12 +31,12 @@ namespace SongFeedReaders.Readers
         /// <summary>
         /// Only return songs that return true for this function.
         /// </summary>
-        Func<ScrapedSong, bool>? Filter { get; set; }
+        Func<IScrapedSong, bool>? Filter { get; set; }
 
         /// <summary>
-        /// If this returns true for any <see cref="ScrapedSong"/>, treat that page as the last.
+        /// If this returns true for any <see cref="IScrapedSong"/>, treat that page as the last.
         /// </summary>
-        Func<ScrapedSong, bool>? StopWhenAny { get; set; }
+        Func<IScrapedSong, bool>? StopWhenAny { get; set; }
     }
 
     /// <summary>

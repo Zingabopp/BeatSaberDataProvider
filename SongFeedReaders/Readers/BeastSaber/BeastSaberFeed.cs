@@ -220,12 +220,12 @@ namespace SongFeedReaders.Readers.BeastSaber
                 response?.Dispose();
                 response = null;
             }
-            List<ScrapedSong> newSongs;
+            List<IScrapedSong> newSongs;
             try
             {
                 var scrapedSongs = GetSongsFromPageText(pageText, feedUri, contentType, Settings.StoreRawData || StoreRawData);
                 isLastPage = scrapedSongs.Count == 0;
-                newSongs = new List<ScrapedSong>();
+                newSongs = new List<IScrapedSong>();
                 foreach (var song in scrapedSongs)
                 {
                     if (Settings.Filter == null || Settings.Filter(song))
@@ -271,9 +271,9 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <exception cref="XmlException">Invalid XML in pageText.</exception>
         /// <exception cref="JsonReaderException">Invalid JSON in page text.</exception>
         /// <returns></returns>
-        public static List<ScrapedSong> GetSongsFromPageText(string pageText, Uri sourceUri, ContentType contentType, bool storeRawData)
+        public static List<IScrapedSong> GetSongsFromPageText(string pageText, Uri sourceUri, ContentType contentType, bool storeRawData)
         {
-            List<ScrapedSong> songsOnPage = new List<ScrapedSong>();
+            List<IScrapedSong> songsOnPage = new List<IScrapedSong>();
             if (string.IsNullOrEmpty(pageText))
             {
                 Logger?.Warning($"Null or empty string passed to GetSongsFromPageText. SourceUri: {sourceUri?.ToString()}");
@@ -299,12 +299,12 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <param name="pageText"></param>
         /// <exception cref="XmlException"></exception>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseXMLPage(string pageText, Uri sourceUri, bool storeRawData)
+        public static List<IScrapedSong> ParseXMLPage(string pageText, Uri sourceUri, bool storeRawData)
         {
             if (string.IsNullOrEmpty(pageText))
-                return new List<ScrapedSong>();
+                return new List<IScrapedSong>();
             bool retry = false;
-            var songsOnPage = new List<ScrapedSong>();
+            var songsOnPage = new List<IScrapedSong>();
             XmlDocument? xmlDocument = null;
             do
             {
@@ -375,7 +375,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                                 jObject.Add(XML_SONGKEY_KEY, songKey);
                             }
 
-                            songsOnPage.Add(new ScrapedSong(hash, songName, mapperName, Utilities.GetUriFromString(downloadUrl), sourceUri, jObject));
+                            songsOnPage.Add(new IScrapedSong(hash, songName, mapperName, Utilities.GetUriFromString(downloadUrl), sourceUri, jObject));
                         }
                     }
                 }
@@ -390,10 +390,10 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <param name="sourceUri"></param>
         /// <exception cref="JsonReaderException">Thrown when the page text is unable to parsed.</exception>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseJsonPage(string pageText, Uri sourceUri, bool storeRawData)
+        public static List<IScrapedSong> ParseJsonPage(string pageText, Uri sourceUri, bool storeRawData)
         {
             JObject result = new JObject();
-            var songsOnPage = new List<ScrapedSong>();
+            var songsOnPage = new List<IScrapedSong>();
             //try
             //{
             result = JObject.Parse(pageText);
@@ -416,7 +416,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 if (songHash != null && songHash.Length > 0)
                 {
                     downloadUri = Utilities.GetDownloadUriByHash(songHash);
-                    songsOnPage.Add(new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? bSong : null));
+                    songsOnPage.Add(new IScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? bSong : null));
                 }
                 // TODO: This will break if songHash is null
                 //else if (songKey != null && songKey.Length > 0)
@@ -445,7 +445,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <param name="sourceUrl"></param>
         /// <exception cref="JsonReaderException"></exception>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseJsonPage(string pageText, string sourceUrl, bool storeRawData)
+        public static List<IScrapedSong> ParseJsonPage(string pageText, string sourceUrl, bool storeRawData)
         {
             return ParseJsonPage(pageText, Utilities.GetUriFromString(sourceUrl), storeRawData);
         }
@@ -456,7 +456,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <param name="sourceUrl"></param>
         /// <exception cref="XmlException"></exception>
         /// <returns></returns>
-        public static List<ScrapedSong> ParseXMLPage(string pageText, string sourceUrl, bool storeRawData)
+        public static List<IScrapedSong> ParseXMLPage(string pageText, string sourceUrl, bool storeRawData)
         {
             return ParseXMLPage(pageText, Utilities.GetUriFromString(sourceUrl), storeRawData);
         }
@@ -467,7 +467,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <exception cref="XmlException">Invalid XML in pageText</exception>
         /// <exception cref="JsonReaderException">Invalid JSON in pageText</exception>
         /// <returns></returns>
-        public static List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, ContentType contentType, bool storeRawData)
+        public static List<IScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, ContentType contentType, bool storeRawData)
         {
             return GetSongsFromPageText(pageText, Utilities.GetUriFromString(sourceUrl), contentType, storeRawData);
         }

@@ -104,7 +104,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             {
                 return new FeedResult(null, null, ex, FeedResultError.Error);
             }
-            Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
+            Dictionary<string, IScrapedSong> songs = new Dictionary<string, IScrapedSong>();
             
             var pageResults = new List<PageReadResult>();
 
@@ -191,7 +191,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             if (!((settings.FeedIndex >= 0 && settings.FeedIndex <= 3) || settings.FeedIndex == 99)) // Validate FeedIndex
                 throw new ArgumentOutOfRangeException(nameof(_settings), "_settings contains an invalid FeedIndex value for ScoreSaberReader");
-            Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
+            Dictionary<string, IScrapedSong> retDict = new Dictionary<string, IScrapedSong>();
             if (settings.Feed == ScoreSaberFeedName.TopRanked || settings.Feed == ScoreSaberFeedName.LatestRanked)
                 settings.RankedOnly = true;
             if (settings.Feed == ScoreSaberFeedName.Search)

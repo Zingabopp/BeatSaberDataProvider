@@ -7,7 +7,7 @@ namespace SongFeedReaders.Filtering
 {
     public static class BuiltInFilters
     {
-        public static Func<ScrapedSong, bool> ThreeSixtyDegree => new Func<ScrapedSong, bool>(song =>
+        public static Func<IScrapedSong, bool> ThreeSixtyDegree => new Func<IScrapedSong, bool>(song =>
         {
             JToken? meta = song?.JsonData?["metadata"];
             JToken? chara = meta?["characteristics"];
@@ -15,7 +15,7 @@ namespace SongFeedReaders.Filtering
             return chara.Any(t => (t["name"]?.Value<string>() ?? string.Empty) == "360Degree");
         });
 
-        public static Func<ScrapedSong, bool> NinetyDegree => new Func<ScrapedSong, bool>(song =>
+        public static Func<IScrapedSong, bool> NinetyDegree => new Func<IScrapedSong, bool>(song =>
         {
             JToken? meta = song?.JsonData?["metadata"];
             JToken? chara = meta?["characteristics"];
@@ -23,7 +23,7 @@ namespace SongFeedReaders.Filtering
             return chara.Any(t => (t["name"]?.Value<string>() ?? string.Empty) == "90Degree");
         });
 
-        public static Func<ScrapedSong, bool> OneSaber => new Func<ScrapedSong, bool>(song =>
+        public static Func<IScrapedSong, bool> OneSaber => new Func<IScrapedSong, bool>(song =>
         {
             JToken? meta = song?.JsonData?["metadata"];
             JToken? chara = meta?["characteristics"];

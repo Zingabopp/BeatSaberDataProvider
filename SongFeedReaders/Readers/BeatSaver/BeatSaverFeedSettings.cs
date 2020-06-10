@@ -70,8 +70,8 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
         }
         public bool StoreRawData { get; set; }
-        public Func<ScrapedSong, bool>? Filter { get; set; }
-        public Func<ScrapedSong, bool>? StopWhenAny { get; set; }
+        public Func<IScrapedSong, bool>? Filter { get; set; }
+        public Func<IScrapedSong, bool>? StopWhenAny { get; set; }
 
         public object Clone()
         {
@@ -83,8 +83,8 @@ namespace SongFeedReaders.Readers.BeatSaver
                 SearchQuery = SearchQuery.GetValueOrDefault(),
                 AuthorId = AuthorId,
                 StoreRawData = StoreRawData,
-                Filter = Filter != null ? (Func<ScrapedSong, bool>)Filter.Clone() : null,
-                StopWhenAny = StopWhenAny != null ? (Func<ScrapedSong, bool>)StopWhenAny.Clone() : null,
+                Filter = Filter != null ? (Func<IScrapedSong, bool>)Filter.Clone() : null,
+                StopWhenAny = StopWhenAny != null ? (Func<IScrapedSong, bool>)StopWhenAny.Clone() : null,
             };
         }
         #endregion

@@ -31,7 +31,7 @@ namespace SongFeedReaders.Services
         /// <inheritdoc/>
         public bool Available => true;
 
-        protected static async Task<ScrapedSong?> GetSongFromUriAsync(Uri uri, CancellationToken cancellationToken)
+        protected static async Task<IScrapedSong?> GetSongFromUriAsync(Uri uri, CancellationToken cancellationToken)
         {
             IWebResponseMessage? response = null;
             try
@@ -79,23 +79,23 @@ namespace SongFeedReaders.Services
         }
 
         /// <inheritdoc/>
-        public Task<ScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
+        public Task<IScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
             Uri uri = Utilities.GetBeatSaverDetailsByHash(hash);
             return GetSongFromUriAsync(uri, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task<ScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
+        public Task<IScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
         {
             Uri uri = Utilities.GetBeatSaverDetailsByKey(key);
             return GetSongFromUriAsync(uri, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task<ScrapedSong?> GetSongByHashAsync(string hash) => GetSongByHashAsync(hash, CancellationToken.None);
+        public Task<IScrapedSong?> GetSongByHashAsync(string hash) => GetSongByHashAsync(hash, CancellationToken.None);
 
         /// <inheritdoc/>
-        public Task<ScrapedSong?> GetSongByKeyAsync(string key) => GetSongByKeyAsync(key, CancellationToken.None);
+        public Task<IScrapedSong?> GetSongByKeyAsync(string key) => GetSongByKeyAsync(key, CancellationToken.None);
     }
 }

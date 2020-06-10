@@ -29,7 +29,7 @@ namespace SongFeedReaders.Services
             {
                 try
                 {
-                    ScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByHashAsync(hash, cancellationToken).ConfigureAwait(false);
+                    IScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByHashAsync(hash, cancellationToken).ConfigureAwait(false);
                     lastResponse = new SongInfoResponse(song, infoProviders[i].InfoProvider);
                 }
                 catch (Exception ex)
@@ -69,7 +69,7 @@ namespace SongFeedReaders.Services
             {
                 try
                 {
-                    ScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByKeyAsync(key, cancellationToken).ConfigureAwait(false);
+                    IScrapedSong? song = await infoProviders[i].InfoProvider.GetSongByKeyAsync(key, cancellationToken).ConfigureAwait(false);
                     lastResponse = new SongInfoResponse(song, infoProviders[i].InfoProvider);
                 }
                 catch (Exception ex)
@@ -196,19 +196,19 @@ namespace SongFeedReaders.Services
         internal static SongInfoResponse FailedResponse = new SongInfoResponse(null, null);
         internal static SongInfoResponse[] EmptyResponseAry = new SongInfoResponse[0];
         public bool Success { get; }
-        public ScrapedSong? Song { get; }
+        public IScrapedSong? Song { get; }
         public ISongInfoProvider? Source { get; }
         internal SongInfoResponse[] FailedResponses;
         public Exception? Exception { get; }
         public SongInfoResponse[] GetFailedResponses() => FailedResponses;
-        internal SongInfoResponse(ScrapedSong? song, ISongInfoProvider? provider)
+        internal SongInfoResponse(IScrapedSong? song, ISongInfoProvider? provider)
         {
             Song = song;
             Source = provider;
             Success = Song != null;
             FailedResponses = EmptyResponseAry;
         }
-        internal SongInfoResponse(ScrapedSong? song, ISongInfoProvider? provider, Exception? exception)
+        internal SongInfoResponse(IScrapedSong? song, ISongInfoProvider? provider, Exception? exception)
             : this(song, provider)
         {
             Exception = exception;

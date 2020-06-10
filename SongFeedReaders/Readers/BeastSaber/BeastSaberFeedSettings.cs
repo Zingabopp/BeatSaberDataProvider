@@ -70,8 +70,8 @@ namespace SongFeedReaders.Readers.BeastSaber
             }
         }
         public bool StoreRawData { get; set; }
-        public Func<ScrapedSong, bool>? Filter { get; set; }
-        public Func<ScrapedSong, bool>? StopWhenAny { get; set; }
+        public Func<IScrapedSong, bool>? Filter { get; set; }
+        public Func<IScrapedSong, bool>? StopWhenAny { get; set; }
 
         public object Clone()
         {
@@ -82,8 +82,8 @@ namespace SongFeedReaders.Readers.BeastSaber
                 StartingPage = StartingPage,
                 Username = Username,
                 StoreRawData = StoreRawData,
-                Filter = (Func<ScrapedSong, bool>?)Filter?.Clone(),
-                StopWhenAny = (Func<ScrapedSong, bool>?)StopWhenAny?.Clone(),
+                Filter = (Func<IScrapedSong, bool>?)Filter?.Clone(),
+                StopWhenAny = (Func<IScrapedSong, bool>?)StopWhenAny?.Clone(),
             };
         }
         #endregion

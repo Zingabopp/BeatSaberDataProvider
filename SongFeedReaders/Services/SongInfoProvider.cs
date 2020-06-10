@@ -14,12 +14,12 @@ namespace SongFeedReaders.Services
 
         public abstract bool Available { get; }
 
-        public abstract Task<ScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken);
+        public abstract Task<IScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken);
 
 
-        public abstract Task<ScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken);
+        public abstract Task<IScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken);
 
-        public Task<ScrapedSong?> GetSongByHashAsync(string hash) => GetSongByHashAsync(hash, CancellationToken.None);
-        public Task<ScrapedSong?> GetSongByKeyAsync(string key) => GetSongByKeyAsync(key, CancellationToken.None);
+        public Task<IScrapedSong?> GetSongByHashAsync(string hash) => GetSongByHashAsync(hash, CancellationToken.None);
+        public Task<IScrapedSong?> GetSongByKeyAsync(string key) => GetSongByKeyAsync(key, CancellationToken.None);
     }
 }

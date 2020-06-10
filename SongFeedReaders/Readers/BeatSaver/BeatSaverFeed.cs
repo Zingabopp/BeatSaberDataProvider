@@ -178,7 +178,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         {
             string pageText;
             JObject result;
-            List<ScrapedSong> newSongs;
+            List<IScrapedSong> newSongs;
             Uri pageUri;
             try
             {
@@ -210,7 +210,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                     return new PageReadResult(pageUri, null, page, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 isLastPage = page >= lastPage.Value;
-                newSongs = new List<ScrapedSong>();
+                newSongs = new List<IScrapedSong>();
                 var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri, Settings.StoreRawData || StoreRawData);
                 foreach (var song in scrapedSongs)
                 {

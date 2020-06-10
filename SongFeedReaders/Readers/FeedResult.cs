@@ -19,7 +19,7 @@ namespace SongFeedReaders.Readers
         /// </summary>
         public IReadOnlyList<PageErrorType>? PageErrors { get; private set; }
         public int PagesChecked { get { return PageResults?.Count() ?? 0; } }
-        public IReadOnlyDictionary<string, ScrapedSong> Songs { get; private set; }
+        public IReadOnlyDictionary<string, IScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
         public FeedResultError ErrorCode { get; private set; }
         private bool _successful;
@@ -29,11 +29,11 @@ namespace SongFeedReaders.Readers
         /// </summary>
         public FeedReaderException? Exception { get; private set; }
 
-        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult> pageResults)
+        public FeedResult(Dictionary<string, IScrapedSong>? songs, IList<PageReadResult> pageResults)
         {
             PageResults = new ReadOnlyCollection<PageReadResult>(pageResults ?? new PageReadResult[0]);
             if(songs == null)
-                songs = new Dictionary<string, ScrapedSong>();
+                songs = new Dictionary<string, IScrapedSong>();
             var pageErrors = new List<PageErrorType>();
             var faultedResults = new List<PageReadResult>();
             if (PageResults != null)
@@ -67,11 +67,11 @@ namespace SongFeedReaders.Readers
                         ErrorCode = FeedResultError.Warning;
                 }
             }
-            Songs = new ReadOnlyDictionary<string, ScrapedSong>(songs);
+            Songs = new ReadOnlyDictionary<string, IScrapedSong>(songs);
             FaultedResults = new ReadOnlyCollection<PageReadResult>(faultedResults);
         }
 
-        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult> pageResults, Exception exception, FeedResultError errorLevel)
+        public FeedResult(Dictionary<string, IScrapedSong>? songs, IList<PageReadResult> pageResults, Exception exception, FeedResultError errorLevel)
             : this(songs, pageResults)
         {
             if(ErrorCode < errorLevel)

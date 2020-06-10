@@ -112,7 +112,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 return FeedResult.CancelledResult;
             if (settings == null)
                 throw new ArgumentNullException(nameof(settings), "settings cannot be null for BeastSaberReader.GetSongsFromFeedAsync.");
-            Dictionary<string, ScrapedSong> retDict = new Dictionary<string, ScrapedSong>();
+            Dictionary<string, IScrapedSong> retDict = new Dictionary<string, IScrapedSong>();
             if (!(settings is BeastSaberFeedSettings _settings))
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             if (_settings.Feed != BeastSaberFeedName.CuratorRecommended && string.IsNullOrEmpty(_settings.Username))

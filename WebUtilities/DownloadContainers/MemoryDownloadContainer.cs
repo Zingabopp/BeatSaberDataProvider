@@ -111,6 +111,7 @@ namespace WebUtilities.DownloadContainers
                     memoryStream.Seek(0, SeekOrigin.Begin);
                     _data = memoryStream.ToArray();
                     actualBytesReceived = memoryStream.Length;
+                    dataReceived = true;
                     return actualBytesReceived;
                 }
             }
@@ -138,7 +139,7 @@ namespace WebUtilities.DownloadContainers
         public override Stream GetResultStream()
         {
             if (!ResultAvailable || _data == null)
-                throw new InvalidOperationException("There is not data to retrieve.");
+                throw new InvalidOperationException("There is no data to retrieve.");
             return new MemoryStream(_data);
         }
 

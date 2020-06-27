@@ -26,7 +26,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
 
         private IFeedReader GetDefaultReader() { return new BeastSaberReader("Zingabopp", DefaultMaxConcurrency); }
 
-        private async Task<IWebResponseMessage> GetResponseSafeAsync(Uri uri)
+        private async Task<IWebResponseMessage?> GetResponseSafeAsync(Uri uri)
         {
             try
             {

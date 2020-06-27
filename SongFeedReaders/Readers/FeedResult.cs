@@ -29,7 +29,7 @@ namespace SongFeedReaders.Readers
         /// </summary>
         public FeedReaderException? Exception { get; private set; }
 
-        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult> pageResults)
+        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults)
         {
             PageResults = new ReadOnlyCollection<PageReadResult>(pageResults ?? new PageReadResult[0]);
             if(songs == null)
@@ -71,7 +71,7 @@ namespace SongFeedReaders.Readers
             FaultedResults = new ReadOnlyCollection<PageReadResult>(faultedResults);
         }
 
-        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult> pageResults, Exception exception, FeedResultError errorLevel)
+        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults, Exception? exception, FeedResultError errorLevel)
             : this(songs, pageResults)
         {
             if(ErrorCode < errorLevel)

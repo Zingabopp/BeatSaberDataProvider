@@ -95,7 +95,7 @@ namespace SongFeedReaders.Readers
 
         public bool EnablePageCache { get; }
 
-        private ConcurrentDictionary<int, Task<PageReadResult>> CachedPages;
+        private ConcurrentDictionary<int, Task<PageReadResult>>? CachedPages;
 
         //public int MaxCachedPages { get; set; }
 
@@ -118,10 +118,11 @@ namespace SongFeedReaders.Readers
             CanMoveNext = true;
         }
 
-        private bool TryGetCachedPage(int page, out Task<PageReadResult> cachedTask)
+        private bool TryGetCachedPage(int page, out Task<PageReadResult>? cachedTask)
         {
             cachedTask = null;
-            if (EnablePageCache && CachedPages.TryGetValue(page, out Task<PageReadResult>? cache))
+            Task<PageReadResult>? cache = null;
+            if (EnablePageCache && (CachedPages?.TryGetValue(page, out cache) ?? false))
             {
                 if (cache != null)
                 {
@@ -165,7 +166,7 @@ namespace SongFeedReaders.Readers
 
             Task<PageReadResult> pageTask;
             PageReadResult? result = null;
-            if (TryGetCachedPage(page, out Task<PageReadResult>? cachedTask))
+            if (TryGetCachedPage(page, out Task<PageReadResult>? cachedTask) && cachedTask != null)
             {
                 if (cachedTask.IsCompleted)
                     return await cachedTask.ConfigureAwait(false);
@@ -193,7 +194,7 @@ namespace SongFeedReaders.Readers
                     return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
                 }
                 pageTask = Feed.GetSongsFromPageAsync(page, cancellationToken);
-                if (EnablePageCache)
+                if (EnablePageCache && CachedPages != null)
                     CachedPages.TryAdd(page, pageTask);
                 result = await pageTask.ConfigureAwait(false);
             }
@@ -223,7 +224,7 @@ namespace SongFeedReaders.Readers
             }
             Task<PageReadResult> pageTask;
             PageReadResult? result = null;
-            if (TryGetCachedPage(page, out Task<PageReadResult>? cachedTask))
+            if (TryGetCachedPage(page, out Task<PageReadResult>? cachedTask) && cachedTask != null)
             {
                 if (cachedTask.IsCompleted)
                     return await cachedTask.ConfigureAwait(false);
@@ -251,7 +252,7 @@ namespace SongFeedReaders.Readers
                     return PageReadResult.CancelledResult(Feed.GetUriForPage(page), page);
                 }
                 pageTask = Feed.GetSongsFromPageAsync(page, cancellationToken);
-                if (EnablePageCache)
+                if (EnablePageCache && CachedPages != null)
                     CachedPages.TryAdd(page, pageTask);
                 result = await pageTask.ConfigureAwait(false);
             }

@@ -88,7 +88,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             get { return EnsureValidSettings(false); }
         }
 
-        private bool EnsureValidSettings(bool throwException = true)
+        protected bool EnsureValidSettings(bool throwException = true)
         {
             string message = string.Empty;
             bool valid = true;
@@ -192,7 +192,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             Logger.Debug($"Getting songs from '{pageUri}'");
             int? lastPage;
             bool isLastPage = false;
-            IWebResponseMessage response = null;
+            IWebResponseMessage? response = null;
             try
             {
                 response = await GetBeatSaverAsync(pageUri, cancellationToken).ConfigureAwait(false);

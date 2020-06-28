@@ -239,7 +239,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                 maxPages += pageIndex - 1; // Add starting page to maxPages so we actually get songs if maxPages < starting page
             if (settings.Feed == BeatSaverFeedName.Author && string.IsNullOrEmpty(settings.AuthorId))
             {
-                settings.AuthorId = await GetAuthorIDAsync(settings.SearchQuery.Value.Criteria, cancellationToken).ConfigureAwait(false);
+                string? uploaderName = settings.SearchQuery?.Criteria;
+                if (uploaderName == null || uploaderName.Length == 0)
+                    throw new ArgumentException("SearchQuery.Criteria is null or empty for Author feed.", nameof(_settings));
+                settings.AuthorId = await GetAuthorIDAsync(uploaderName, cancellationToken).ConfigureAwait(false);
             }
             BeatSaverFeed feed = new BeatSaverFeed(settings) { StoreRawData = true };
             try

@@ -190,6 +190,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                 if (uploaderName == null || uploaderName.Length == 0)
                     throw new ArgumentException("SearchQuery.Criteria is null or empty for Author feed.", nameof(_settings));
                 settings.AuthorId = await GetAuthorIDAsync(uploaderName, cancellationToken).ConfigureAwait(false);
+                if (settings.AuthorId == null || settings.AuthorId.Length == 0)
+                {
+                    return new FeedResult(null, null, new FeedReaderException($"Unable to get uploader ID for '{uploaderName}' from Beat Saver", null, FeedReaderFailureCode.SourceFailed), FeedResultError.Error);
+                }
             }
             BeatSaverFeed feed = new BeatSaverFeed(settings) { StoreRawData = true };
             try
@@ -204,47 +208,59 @@ namespace SongFeedReaders.Readers.BeatSaver
             List<PageReadResult> pageResults = new List<PageReadResult>();
             Dictionary<string, ScrapedSong> newSongs = new Dictionary<string, ScrapedSong>();
             bool continueLooping = true;
-
-            do
+            int erroredPages = 0;
+            try
             {
-                if (cancellationToken.IsCancellationRequested)
-                    continueLooping = false;
-                PageReadResult pageResult = await feedEnum.MoveNextAsync(cancellationToken).ConfigureAwait(false);
-                pageResults.Add(pageResult);
-                if (Utilities.IsPaused)
-                    await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
-                if (pageResult.IsLastPage) // TODO: This will trigger if a single page has an error.
+                do
                 {
-                    Logger?.Debug("Last page reached.");
-                    continueLooping = false;
-                    if (pageResult == null)
-                        break;
-                }
-                int songsAdded = 0;
-                if (pageResult.Songs != null && pageResult.Count > 0)
-                {
-                    foreach (ScrapedSong song in pageResult.Songs)
+                    cancellationToken.ThrowIfCancellationRequested();
+                    PageReadResult pageResult = await feedEnum.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+                    pageResults.Add(pageResult);
+                    if (!pageResult.Successful)
                     {
-                        string? songHash = song.Hash;
-                        if (songHash == null || songHash.Length == 0)
-                            continue;
-                        if (!newSongs.ContainsKey(songHash))
+                        erroredPages++;
+                        if (erroredPages > 3)
+                            return new FeedResult(newSongs, pageResults, pageResult.Exception, FeedResultError.Warning);
+                    }
+                    if (Utilities.IsPaused)
+                        await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
+                    if (pageResult.IsLastPage)
+                    {
+                        Logger?.Debug("Last page reached.");
+                        continueLooping = false;
+                        if (pageResult == null)
+                            break;
+                    }
+                    int songsAdded = 0;
+                    if (pageResult.Songs != null && pageResult.Count > 0)
+                    {
+                        foreach (ScrapedSong song in pageResult.Songs)
                         {
-                            if (newSongs.Count < settings.MaxSongs || settings.MaxSongs == 0)
+                            string? songHash = song.Hash;
+                            if (songHash == null || songHash.Length == 0)
+                                continue;
+                            if (!newSongs.ContainsKey(songHash))
                             {
-                                newSongs.Add(songHash, song);
-                                songsAdded++;
-                            }
-                            if ((useMaxSongs && newSongs.Count >= settings.MaxSongs))
-                            {
-                                continueLooping = false;
-                                break;
+                                if (newSongs.Count < settings.MaxSongs || settings.MaxSongs == 0)
+                                {
+                                    newSongs.Add(songHash, song);
+                                    songsAdded++;
+                                }
+                                if ((useMaxSongs && newSongs.Count >= settings.MaxSongs))
+                                {
+                                    continueLooping = false;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                progress?.Report(new ReaderProgress(pageResult.Page, songsAdded));
-            } while (continueLooping);
+                    progress?.Report(new ReaderProgress(pageResult.Page, songsAdded));
+                } while (continueLooping);
+            }
+            catch (OperationCanceledException ex)
+            {
+                return new FeedResult(newSongs, pageResults, ex, FeedResultError.Cancelled);
+            }
             return new FeedResult(newSongs, pageResults);
         }
 

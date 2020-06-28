@@ -46,26 +46,8 @@ namespace SongFeedReaders.Readers.BeatSaver
         public override Uri RootUri => ReaderRootUri;
         public override bool Ready { get; protected set; }
 
-        public int MaxConcurrency { get; set; }
-
         private static ConcurrentDictionary<string, string> _authors = new ConcurrentDictionary<string, string>();
         // { (BeatSaverFeeds)99, new FeedInfo("search-by-author", "https://beatsaver.com/api/songs/search/user/" + AUTHORKEY) }
-
-        public BeatSaverReader()
-        {
-            MaxConcurrency = 3;
-        }
-
-        public BeatSaverReader(int maxConcurrency)
-        {
-            if (maxConcurrency < 1)
-            {
-                Logger?.Warning($"{nameof(maxConcurrency)} cannot be less than 1, using 1 instead.");
-                MaxConcurrency = 1;
-            }
-            else
-                MaxConcurrency = maxConcurrency;
-        }
 
         public override void PrepareReader()
         {
@@ -178,38 +160,6 @@ namespace SongFeedReaders.Readers.BeatSaver
             };
             return newSong;
         }
-
-        private static int CalcMaxSongs(int maxPages, int maxSongs)
-        {
-            int retVal = 0;
-            if (maxPages > 0)
-                retVal = maxPages * SongsPerPage;
-            if (maxSongs > 0)
-            {
-                if (retVal == 0)
-                    retVal = maxSongs;
-                else
-                    retVal = Math.Min(retVal, maxSongs);
-            }
-            return retVal;
-        }
-
-        private static int CalcMaxPages(int maxPages, int maxSongs)
-        {
-            int retVal = 0;
-            if (maxPages > 0)
-                retVal = maxPages;
-            if (maxSongs > 0)
-            {
-                int pagesForSongs = (int)Math.Ceiling(maxSongs / (float)SongsPerPage);
-                if (retVal == 0)
-                    retVal = pagesForSongs;
-                else
-                    retVal = Math.Min(retVal, pagesForSongs);
-            }
-            return retVal;
-        }
-
         #region Web Requests
 
         #region Async
@@ -228,15 +178,12 @@ namespace SongFeedReaders.Readers.BeatSaver
                 throw new ArgumentNullException(nameof(_settings), "Settings cannot be null for BeatSaverReader.GetSongsFromFeedAsync");
             if (!(_settings is BeatSaverFeedSettings settings))
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
-            int pageIndex = settings.StartingPage;
             int maxPages = settings.MaxPages;
             int maxSongs = settings.MaxSongs;
             bool useMaxPages = maxPages != 0;
             bool useMaxSongs = maxSongs != 0;
 
             int estimatedPageResults = Math.Min(useMaxSongs ? maxSongs / 10 : int.MaxValue, useMaxPages ? maxPages : int.MaxValue);
-            if (pageIndex > 1 && useMaxPages)
-                maxPages += pageIndex - 1; // Add starting page to maxPages so we actually get songs if maxPages < starting page
             if (settings.Feed == BeatSaverFeedName.Author && string.IsNullOrEmpty(settings.AuthorId))
             {
                 string? uploaderName = settings.SearchQuery?.Criteria;
@@ -254,173 +201,50 @@ namespace SongFeedReaders.Readers.BeatSaver
                 return new FeedResult(null, null, ex, FeedResultError.Error);
             }
             FeedAsyncEnumerator feedEnum = feed.GetEnumerator();
-            List<PageReadResult> pageResults;
+            List<PageReadResult> pageResults = new List<PageReadResult>();
             Dictionary<string, ScrapedSong> newSongs = new Dictionary<string, ScrapedSong>();
-            PageReadResult firstPage = await feedEnum.MoveNextAsync().ConfigureAwait(false);
-            pageIndex++;
             bool continueLooping = true;
-            if (!firstPage.Successful)
-            {
-                pageResults = new List<PageReadResult>(1) { firstPage };
-                string message = $"Error getting first page {firstPage.Uri}: {firstPage.PageError.ToString()}";
-                Logger?.Error(message);
-                if (firstPage.Exception != null)
-                {
-                    Logger?.Error(firstPage.Exception.Message);
-                    Logger?.Debug(firstPage.Exception.ToString());
-                }
-                if (firstPage.Exception is FeedReaderException feedReaderException)
-                    return new FeedResult(null, pageResults, feedReaderException, FeedResultError.Error);
-                else
-                    return new FeedResult(null, pageResults, new FeedReaderException(message, firstPage.Exception, FeedReaderFailureCode.SourceFailed), FeedResultError.Error);
-            }
-            int lastPage = 0;
-            if (firstPage is BeatSaverPageResult bsPage && bsPage.LastPage > 0)
-            {
-                lastPage = bsPage.LastPage;
-                if (useMaxPages)
-                    maxPages = Math.Min(maxPages, lastPage);
-                else
-                    maxPages = lastPage;
-
-                estimatedPageResults = Math.Min(estimatedPageResults, lastPage - pageIndex + 3);
-            }
-            if (estimatedPageResults == int.MaxValue)
-                estimatedPageResults = 10;
-            pageResults = new List<PageReadResult>(estimatedPageResults) { firstPage };
-            foreach (ScrapedSong song in firstPage.Songs)
-            {
-                if (!newSongs.ContainsKey(song.Hash))
-                    newSongs.Add(song.Hash, song);
-                if ((useMaxSongs && newSongs.Count >= maxSongs) || (settings.StopWhenAny != null && settings.StopWhenAny(song)))
-                {
-                    continueLooping = false;
-                    break;
-                }
-            }
-            progress?.Report(new ReaderProgress(pageResults.Last().Page, newSongs.Count));
-            //if (firstPage.Count > 0)
-            //    Logger?.Debug($"Receiving {firstPage.Count} potential songs from {firstPage.Uri}");
-            //else
-            //    Logger?.Debug($"Did not find any songs on page {firstPage.Page} of {Name}.{settings.FeedName}.");
-            if (pageIndex > maxPages)
-                continueLooping = false;
-            if (!continueLooping)
-                return new FeedResult(newSongs, pageResults);
-            TransformBlock<Task<PageReadResult>, PageReadResult> ProcessPageBlock = new TransformBlock<Task<PageReadResult>, PageReadResult>(async pageTask =>
-            {
-                return await pageTask.ConfigureAwait(false);
-
-            }, new ExecutionDataflowBlockOptions
-            {
-                MaxDegreeOfParallelism = MaxConcurrency,
-                BoundedCapacity = MaxConcurrency,
-                CancellationToken = cancellationToken
-                //#if NETSTANDARD
-                //                , EnsureOrdered = true
-                //#endif
-            });
-            int itemsInBlock = 0;
 
             do
             {
-
                 if (cancellationToken.IsCancellationRequested)
                     continueLooping = false;
-                while (continueLooping)
+                PageReadResult pageResult = await feedEnum.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+                pageResults.Add(pageResult);
+                if (Utilities.IsPaused)
+                    await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
+                if (pageResult.IsLastPage) // TODO: This will trigger if a single page has an error.
                 {
-                    if (Utilities.IsPaused)
-                        await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        continueLooping = false;
+                    Logger?.Debug("Last page reached.");
+                    continueLooping = false;
+                    if (pageResult == null)
                         break;
-                    }
-                    if (!(useMaxPages && pageIndex > maxPages) && !cancellationToken.IsCancellationRequested)
-                    {
-                        await ProcessPageBlock.SendAsync(feedEnum.MoveNextAsync(cancellationToken), cancellationToken).ConfigureAwait(false); // TODO: Need check with SongsPerPage
-                        itemsInBlock++;
-                        pageIndex++;
-                    }
-                    else
-                    {
-                        ProcessPageBlock.Complete();
-                        if (itemsInBlock == 0)
-                        {
-                            continueLooping = false;
-                            break;
-                        }
-                    }
-                    //if ((useMaxPages && pageIndex > maxPages) || cancellationToken.IsCancellationRequested)
-                    //continueLooping = false;
-
-                    // TODO: Better http error handling, what if only a single page is broken and returns 0 songs?
-                    while ((ProcessPageBlock.OutputCount > 0 || itemsInBlock == MaxConcurrency))
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            continueLooping = false;
-                            break;
-                        }
-                        if (itemsInBlock <= 0)
-                            break;
-                        bool hasOutput = await ProcessPageBlock.OutputAvailableAsync(cancellationToken).ConfigureAwait(false);
-                        if (!hasOutput) break;
-                        while (continueLooping && ProcessPageBlock.TryReceive(out PageReadResult pageResult))
-                        {
-                            if (pageResult != null)
-                                pageResults.Add(pageResult);
-                            if (Utilities.IsPaused)
-                                await Utilities.WaitUntil(() => !Utilities.IsPaused, 500, cancellationToken).ConfigureAwait(false);
-                            itemsInBlock--;
-                            if (pageResult == null || pageResult.IsLastPage) // TODO: This will trigger if a single page has an error.
-                            {
-                                Logger?.Debug("Last page reached.");
-                                ProcessPageBlock.Complete();
-                                itemsInBlock = 0;
-                                continueLooping = false;
-                                if (pageResult == null)
-                                    break;
-                            }
-                            int songsAdded = 0;
-                            if (pageResult.Count > 0)
-                            {
-                                // Logger?.Debug($"Receiving {pageResult.Count} potential songs from {pageResult.Uri}");
-                                // TODO: Process PageReadResults for better error feedback.
-                                foreach (ScrapedSong song in pageResult.Songs)
-                                {
-                                    if (!newSongs.ContainsKey(song.Hash))
-                                    {
-                                        if (newSongs.Count < settings.MaxSongs || settings.MaxSongs == 0)
-                                        {
-                                            newSongs.Add(song.Hash, song);
-                                            songsAdded++;
-                                        }
-                                        if ((useMaxSongs && newSongs.Count >= settings.MaxSongs))
-                                        {
-                                            continueLooping = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            //else
-                            //{
-                            //    //Logger?.Debug($"Did not find any songs on page {pageResult.Page} of {Name}.{settings.FeedName}.");
-                            //}
-
-                            progress?.Report(new ReaderProgress(pageResult.Page, songsAdded));
-                            //if (!useMaxPages || pageIndex <= maxPages)
-                            //    if (newSongs.Count < settings.MaxSongs)
-                            //        continueLooping = true;
-                        }
-                        if (!continueLooping)
-                            break;
-                    }
-
                 }
-            }
-            while (continueLooping);
+                int songsAdded = 0;
+                if (pageResult.Songs != null && pageResult.Count > 0)
+                {
+                    foreach (ScrapedSong song in pageResult.Songs)
+                    {
+                        string? songHash = song.Hash;
+                        if (songHash == null || songHash.Length == 0)
+                            continue;
+                        if (!newSongs.ContainsKey(songHash))
+                        {
+                            if (newSongs.Count < settings.MaxSongs || settings.MaxSongs == 0)
+                            {
+                                newSongs.Add(songHash, song);
+                                songsAdded++;
+                            }
+                            if ((useMaxSongs && newSongs.Count >= settings.MaxSongs))
+                            {
+                                continueLooping = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+                progress?.Report(new ReaderProgress(pageResult.Page, songsAdded));
+            } while (continueLooping);
             return new FeedResult(newSongs, pageResults);
         }
 

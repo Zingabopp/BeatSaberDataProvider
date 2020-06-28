@@ -168,8 +168,35 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         public async Task Downloads_PageLimit()
         {
             BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
-            int maxPages = 5;
+            int maxPages = 3;
             BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) { MaxPages = maxPages };
+            Progress<ReaderProgress> progress = new Progress<ReaderProgress>(p =>
+            {
+                if (p.SongCount > 0)
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} found {p.SongCount} songs.");
+                else
+                    Console.WriteLine($"Progress: Page {p.CurrentPage} did not have any songs.");
+            });
+            CancellationTokenSource cts = new CancellationTokenSource();
+            FeedResult result = await reader.GetSongsFromFeedAsync(settings, progress, cts.Token).ConfigureAwait(false);
+            Assert.AreEqual(settings.MaxPages * BeatSaverFeed.GlobalSongsPerPage, result.Songs.Count);
+            int expectedPages = maxPages;
+            Assert.AreEqual(expectedPages, result.PagesChecked);
+            await Task.Delay(100).ConfigureAwait(false);
+            //foreach (ScrapedSong song in result.Songs.Values)
+            //{
+            //    Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
+            //}
+        }
+
+        [TestMethod]
+        public async Task Downloads_PageLimitStartingPage()
+        {
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
+            int maxPages = 3;
+            int startingPage = 3;
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Downloads) 
+            { MaxPages = maxPages, StartingPage = startingPage };
             Progress<ReaderProgress> progress = new Progress<ReaderProgress>(p =>
             {
                 if (p.SongCount > 0)

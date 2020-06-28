@@ -165,8 +165,15 @@ namespace SongFeedReaders.Readers.BeatSaver
             if ((Feed == BeatSaverFeedName.Search || Feed == BeatSaverFeedName.Author) && !BeatSaverFeedSettings.SearchQuery.HasValue)
                 throw new ArgumentException(nameof(settings), $"SearchQuery cannot be null in settings for feed {FeedInfo.DisplayName}.");
             SearchQuery = BeatSaverFeedSettings.SearchQuery;
+            if (settings.MaxPages > 0)
+            {
+                if (settings.StartingPage == 1)
+                    configuredLastPage = settings.MaxPages;
+                else
+                    configuredLastPage = settings.StartingPage + settings.MaxPages - 1;
+            }
         }
-
+        private int configuredLastPage = 0;
         /// <summary>
         /// 
         /// </summary>
@@ -209,7 +216,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                     Logger?.Warning($"Error checking Beat Saver's {Name} feed.");
                     return new PageReadResult(pageUri, null, page, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
-                isLastPage = page >= lastPage.Value;
+                if (configuredLastPage > 0)
+                    isLastPage = Math.Min(configuredLastPage, lastPage.Value) <= page;
+                else
+                    isLastPage = page >= lastPage.Value;
                 newSongs = new List<ScrapedSong>();
                 var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri, Settings.StoreRawData || StoreRawData);
                 foreach (var song in scrapedSongs)

@@ -32,7 +32,10 @@ namespace WebUtilities.HttpClientWrapper
             : this()
         {
             if (!string.IsNullOrEmpty(userAgent))
+            {
                 UserAgent = userAgent;
+                SetUserAgent(UserAgent);
+            }
         }
 
         /// <summary>

@@ -143,6 +143,35 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
                 Console.WriteLine($"{song.Name} by {song.LevelAuthorName}, {song.Hash}");
             }
         }
+
+        [TestMethod]
+        public void CancelledImmediate()
+        {
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true }; 
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+            int maxSongs = 50;
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Plays) { MaxSongs = maxSongs };
+            FeedResult result = reader.GetSongsFromFeed(settings, cts.Token);
+            Assert.IsFalse(result.Successful);
+            Assert.AreEqual(FeedResultError.Cancelled, result.ErrorCode);
+            cts.Dispose();
+        }
+
+        [TestMethod]
+        public void CancelledInProgress()
+        {
+            BeatSaverReader reader = new BeatSaverReader() { StoreRawData = true };
+            var cts = new CancellationTokenSource(500);
+            int maxSongs = 50;
+            BeatSaverFeedSettings settings = new BeatSaverFeedSettings((int)BeatSaverFeedName.Plays) { MaxSongs = maxSongs };
+            FeedResult result = reader.GetSongsFromFeed(settings, cts.Token);
+            Assert.IsFalse(result.Successful);
+            Assert.IsTrue(result.Count > 0);
+            Assert.AreEqual(FeedResultError.Cancelled, result.ErrorCode);
+            cts.Dispose();
+        }
+
         [TestMethod]
         public void Success_Plays()
         {

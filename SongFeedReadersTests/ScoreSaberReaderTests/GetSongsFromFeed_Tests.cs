@@ -6,6 +6,8 @@ using SongFeedReaders;
 using Newtonsoft.Json.Linq;
 using System;
 using SongFeedReaders.Readers.ScoreSaber;
+using System.Threading;
+using SongFeedReaders.Readers;
 
 namespace SongFeedReadersTests.ScoreSaberReaderTests
 {
@@ -26,6 +28,33 @@ namespace SongFeedReadersTests.ScoreSaberReaderTests
             var songList = reader.GetSongsFromFeed(settings);
             Assert.IsTrue(songList.Count == maxSongs);
             Assert.IsFalse(songList.Songs.Keys.Any(k => string.IsNullOrEmpty(k)));
+        }
+
+        [TestMethod]
+        public void CancelledImmediate()
+        {
+            var reader = new ScoreSaberReader();
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+            int maxSongs = 50;
+            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.LatestRanked) { MaxSongs = maxSongs, SongsPerPage = 40, RankedOnly = true };
+            var result = reader.GetSongsFromFeed(settings, cts.Token);
+            Assert.IsFalse(result.Successful);
+            Assert.AreEqual(FeedResultError.Cancelled, result.ErrorCode);
+            cts.Dispose();
+        }
+
+        [TestMethod]
+        public void CancelledInProgress()
+        {
+            var reader = new ScoreSaberReader();
+            var cts = new CancellationTokenSource(500);
+            int maxSongs = 50;
+            var settings = new ScoreSaberFeedSettings((int)ScoreSaberFeedName.LatestRanked) { MaxSongs = maxSongs, SongsPerPage = 10, RankedOnly = true };
+            var result = reader.GetSongsFromFeed(settings, cts.Token);
+            Assert.IsFalse(result.Successful);
+            Assert.AreEqual(FeedResultError.Cancelled, result.ErrorCode);
+            cts.Dispose();
         }
 
         [TestMethod]

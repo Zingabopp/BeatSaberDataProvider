@@ -122,8 +122,8 @@ namespace WebUtilitiesTests.IWebClientTests
             var url = "https://beatsaver.com/cdn/5317/aaa14fb7dcaeda7a688db77617045a24d7baa151d.zip";
             bool expectedResponseSuccess = false;
             int expectedStatus = 404;
-            string expectedContentType = "text/plain";// null;
-            long? expectedContentLength = 14;// null;
+            string expectedContentType = "";// null;
+            long? expectedContentLength = 0;// null;
             bool? actualResponseSuccess = null;
             string actualReasonPhrase = null;
             int? actualStatus = null;

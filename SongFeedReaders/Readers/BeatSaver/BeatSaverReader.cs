@@ -259,7 +259,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
             catch (OperationCanceledException ex)
             {
-                return new FeedResult(newSongs, pageResults, ex, FeedResultError.Cancelled);
+                return FeedResult.GetCancelledResult(newSongs, pageResults, ex);
             }
             return new FeedResult(newSongs, pageResults);
         }

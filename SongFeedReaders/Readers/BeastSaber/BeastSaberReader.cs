@@ -222,6 +222,8 @@ namespace SongFeedReaders.Readers.BeastSaber
                 }
             }
             while (continueLooping);
+            if (pageResults.Any(r => r.PageError == PageErrorType.Cancelled))
+                return FeedResult.GetCancelledResult(retDict, pageResults);
             return new FeedResult(retDict, pageResults);
         }
 

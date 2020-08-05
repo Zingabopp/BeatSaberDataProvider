@@ -164,6 +164,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 response.EnsureSuccessStatusCode();
                 pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             }
+            catch(OperationCanceledException ex)
+            {
+                return PageReadResult.CancelledResult(uri, page, ex);
+            }
             catch (WebClientException ex)
             {
                 string errorText = string.Empty;

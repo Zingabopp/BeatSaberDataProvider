@@ -23,7 +23,7 @@ namespace SongFeedReaders.Readers
         public int Count { get { return Songs?.Count ?? 0; } }
         public FeedResultError ErrorCode { get; private set; }
         private bool _successful;
-        public bool Successful { get { return _successful && ErrorCode != FeedResultError.Error; } }
+        public bool Successful { get { return _successful && ErrorCode != FeedResultError.Error && ErrorCode != FeedResultError.Cancelled; } }
         /// <summary>
         /// Exception when something goes wrong in the feed readers. More specific exceptions may be stored in InnerException.
         /// </summary>
@@ -93,7 +93,16 @@ namespace SongFeedReaders.Readers
             }
         }
 
-        public static FeedResult CancelledResult { get { return new FeedResult(null, null, new OperationCanceledException("Feed was cancelled before completion"), FeedResultError.Cancelled); } }
+        public static FeedResult GetCancelledResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults, OperationCanceledException ex)
+        {
+            return new FeedResult(songs, pageResults, ex, FeedResultError.Cancelled);
+        }
+        public static FeedResult GetCancelledResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults)
+        {
+            return new FeedResult(songs, pageResults, new OperationCanceledException("Feed was cancelled before completion"), FeedResultError.Cancelled);
+        }
+
+        public static FeedResult CancelledResult => GetCancelledResult(null, null);
     }
     public enum FeedResultError
     {

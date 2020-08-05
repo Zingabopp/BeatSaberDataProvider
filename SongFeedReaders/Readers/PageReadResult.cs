@@ -99,6 +99,11 @@ namespace SongFeedReaders.Readers
             return new PageReadResult(requestUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), pageError);
         }
 
+        public static PageReadResult CancelledResult(Uri requestUri, int page, OperationCanceledException ex)
+        {
+            return new PageReadResult(requestUri, new List<ScrapedSong>(), page, ex, PageErrorType.Cancelled);
+        }
+
         public static PageReadResult CancelledResult(Uri requestUri, int page)
         {
             return new PageReadResult(requestUri, new List<ScrapedSong>(), page, new OperationCanceledException(), PageErrorType.Cancelled);

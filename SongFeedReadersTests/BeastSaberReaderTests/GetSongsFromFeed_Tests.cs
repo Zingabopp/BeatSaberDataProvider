@@ -193,13 +193,26 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         }
 
         [TestMethod]
-        public void Followings_OperationCanceled()
+        public void CancelledImmediate()
         {
             var cts = new CancellationTokenSource();
             cts.Cancel();
             IFeedReader reader = GetDefaultReader();
             int maxSongs = 60;
             var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.Following) { MaxSongs = maxSongs };
+            var result = reader.GetSongsFromFeed(settings, cts.Token);
+            Assert.IsFalse(result.Successful);
+            Assert.AreEqual(FeedResultError.Cancelled, result.ErrorCode);
+            cts.Dispose();
+        }
+
+        [TestMethod]
+        public void CancelledInProgress()
+        {
+            var cts = new CancellationTokenSource(500);
+            IFeedReader reader = new BeastSaberReader("Zingabopp", 1);
+            int maxSongs = 300;
+            var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.CuratorRecommended) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeed(settings, cts.Token);
             Assert.IsFalse(result.Successful);
             Assert.AreEqual(FeedResultError.Cancelled, result.ErrorCode);

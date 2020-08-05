@@ -132,6 +132,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 // TODO: Handle PageReadResult here
                 var pageResult = await feed.GetSongsFromPageAsync(pageNum, cancellationToken).ConfigureAwait(false);
                 pageResults.Add(pageResult);
+                if(pageResult.PageError == PageErrorType.Cancelled)
+                {
+                    return FeedResult.GetCancelledResult(songs, pageResults);
+                }
                 int uniqueSongCount = 0;
                 foreach (var song in pageResult.Songs)
                 {
@@ -169,6 +173,8 @@ namespace SongFeedReaders.Readers.ScoreSaber
             } while (continueLooping);
 
 
+            if (pageResults.Any(r => r.PageError == PageErrorType.Cancelled))
+                return FeedResult.GetCancelledResult(songs, pageResults);
             return new FeedResult(songs, pageResults);
         }
 

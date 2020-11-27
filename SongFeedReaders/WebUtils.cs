@@ -313,6 +313,8 @@ namespace SongFeedReaders
 #pragma warning restore IDE0051 // Remove unused private members
         private static readonly string[] RateLimitKeys = new string[] { RATE_LIMIT_REMAINING_KEY, RATE_LIMIT_RESET_KEY, RATE_LIMIT_TOTAL_KEY };
 
+        private const string X_RATELIMIT_RESET_KEY = "X-Ratelimit-Reset";
+
         /// <summary>
         /// Parse the rate limit from Beat Saver's response headers.
         /// </summary>
@@ -325,6 +327,7 @@ namespace SongFeedReaders
                 return null;
                 //throw new ArgumentNullException(nameof(headers), "headers cannot be null for WebUtils.ParseRateLimit");
             }
+            // Try the old style first, it has the most info
             if (RateLimitKeys.All(k => headers.Keys.Contains(k)))
             {
                 try
@@ -343,8 +346,16 @@ namespace SongFeedReaders
                 }
 
             }
-            else
-                return null;
+            // Old style failed, use the more limited new style
+            if (headers.Keys.Contains(X_RATELIMIT_RESET_KEY)) {
+                return new RateLimit()
+                {
+                    CallsRemaining = 0,
+                    TimeToReset = UnixTimeStampToDateTime(double.Parse(headers[X_RATELIMIT_RESET_KEY].FirstOrDefault()) / 1000),
+                    CallsPerReset = 1,
+                };
+            }
+            return null;
         }
 
         /// <summary>

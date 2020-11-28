@@ -89,7 +89,7 @@ namespace SongFeedReadersTests.WebUtilsTests
             string expectedBaseUrl;
             Uri url;
             string baseUrl;
-            expectedBaseUrl = "https://beatsaver.com/api/maps/detail/5317";
+            expectedBaseUrl = "https://beatsaver.com/api/maps/detail/";
             url = new Uri(@"https://beatsaver.com/api/maps/detail/5317");
             baseUrl = GetRateLimitedBase(url);
             Assert.AreEqual(expectedBaseUrl, baseUrl);

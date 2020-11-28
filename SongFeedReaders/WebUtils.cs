@@ -56,8 +56,8 @@ namespace SongFeedReaders
             "/maps/plays",
             "/maps/hot",
             "/maps/rating",
-            "/maps/detail/*",
-            "/maps/by-hash/*",
+            "/maps/detail/",
+            "/maps/by-hash/",
             "/maps/uploader/*"
         };
 
@@ -174,7 +174,7 @@ namespace SongFeedReaders
         /// <returns></returns>
         public static async Task WaitForRateLimit(string? baseUrl, RateLimit? rateLimit, CancellationToken cancellationToken)
         {
-            RateLimitPair existing = UpdateRateLimit(baseUrl, rateLimit);
+            RateLimitPair? existing = UpdateRateLimit(baseUrl, rateLimit);
             if (existing == null || existing.CallsRemaining > 0)
                 return;
             TimeSpan delay = existing.TimeToReset - DateTime.Now;
@@ -225,13 +225,14 @@ namespace SongFeedReaders
                     response = await WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
                     try
                     {
-                        RateLimit rateLimit = ParseBeatSaverRateLimit(response.Headers);
+                        RateLimit? rateLimit = ParseBeatSaverRateLimit(response.Headers);
                         UpdateRateLimit(baseUrl, rateLimit);
                     }
                     catch (Exception ex)
                     {
                         Logger?.Debug($"Error parsing rate limit for {uri}: {ex.Message}");
                     }
+                    response.EnsureSuccessStatusCode();
                 }
                 catch (WebClientException ex)
                 {
@@ -243,7 +244,7 @@ namespace SongFeedReaders
                     {
 
                         retry = true;
-                        RateLimit? rateLimit = ParseBeatSaverRateLimit(ex.Response?.Headers);
+                        RateLimit? rateLimit = ParseBeatSaverRateLimit(ex.Response?.Headers) ?? new RateLimit() { CallsPerReset = 50, CallsRemaining = 0, TimeToReset = DateTime.Now + TimeSpan.FromSeconds(20) };
 
                         WaitForRateLimitDict.AddOrUpdate(baseUrl, u => new RateLimitPair(rateLimit), (url, rateLimitPair) =>
                         {
@@ -372,6 +373,7 @@ namespace SongFeedReaders
     {
         public int CallsRemaining { get; set; }
         public DateTime TimeToReset { get; set; }
+        // public TimeSpan ResetAfter { get; set; }
         public int CallsPerReset { get; set; }
     }
 }

@@ -22,7 +22,6 @@ namespace SongFeedReaders
                 if(_songInfoManager == null)
                 {
                     _songInfoManager = new SongInfoManager();
-                    _songInfoManager.AddProvider<AndruzzScrapedInfoProvider>("AndruzzScrapedInfo", 50);
                     _songInfoManager.AddProvider<BeatSaverSongInfoProvider>("BeatSaverProvider", 500);
                 }
                 return _songInfoManager;

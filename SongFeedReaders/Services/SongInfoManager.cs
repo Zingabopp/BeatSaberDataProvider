@@ -92,8 +92,14 @@ namespace SongFeedReaders.Services
             else
                 return SongInfoResponse.FailedResponse;
         }
-        public void AddProvider<T>() where T : ISongInfoProvider, new()
+        public void AddProvider<T>() where T : ISongInfoProvider, new() => AddProvider(new T());
+        public void AddProvider<T>(string providerId, int priority = 100) where T : ISongInfoProvider, new()
+            => AddProvider(new T(), providerId, priority);
+
+        public void AddProvider(ISongInfoProvider provider)
         {
+            if (provider == null)
+                throw new ArgumentNullException(nameof(provider));
             string[] existingIds;
             lock (_providerLock)
             {
@@ -103,20 +109,22 @@ namespace SongFeedReaders.Services
             string defaultId;
             do
             {
-                defaultId = $"{typeof(T).Name}{idIndex}";
+                defaultId = $"{provider.GetType().Name}{idIndex}";
                 idIndex++;
             }
             while (existingIds.Contains(defaultId));
             lock (_providerLock)
             {
-                InfoProviders.Add(new InfoProviderEntry(new T(), defaultId) { Priority = 100 });
+                InfoProviders.Add(new InfoProviderEntry(provider, defaultId) { Priority = 100 });
             }
         }
-        public void AddProvider<T>(string providerId, int priority = 100) where T : ISongInfoProvider, new()
+        public void AddProvider(ISongInfoProvider provider, string providerId, int priority = 100)
         {
+            if (provider == null)
+                throw new ArgumentNullException(nameof(provider));
             lock (_providerLock)
             {
-                InfoProviders.Add(new InfoProviderEntry(new T(), providerId) { Priority = priority });
+                InfoProviders.Add(new InfoProviderEntry(provider, providerId) { Priority = priority });
             }
         }
 

@@ -83,6 +83,9 @@
     <None Update="Data\BeastSaber\followings9_empty.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\beatSaverScrappedData.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\BeatSaver\author_5cff0b7398cc5a672c84f1d8_0.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

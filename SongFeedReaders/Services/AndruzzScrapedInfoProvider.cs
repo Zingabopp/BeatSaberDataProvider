@@ -47,6 +47,7 @@ namespace SongFeedReaders.Services
             Stream? scrapeStream = null;
             Stream? jsonStream = null;
             ZipArchive? zip = null;
+            List<AndruzzScrapedSong>? songList = null;
             try
             {
                 if (FilePath != null && File.Exists(FilePath))
@@ -54,37 +55,50 @@ namespace SongFeedReaders.Services
                     try
                     {
                         jsonStream = File.OpenRead(FilePath);
+                        songList = ParseJson(jsonStream);
                     }
-                    catch { }
-                }
-                if (jsonStream == null)
-                {
-                    WebUtilities.IWebResponseMessage? downloadResponse = await WebUtils.WebClient.GetAsync(ScrapedDataUrl).ConfigureAwait(false);
-                    downloadResponse.EnsureSuccessStatusCode();
-                    if (downloadResponse.Content != null)
+                    catch (Exception ex)
                     {
-                        scrapeStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                        zip = new ZipArchive(scrapeStream, ZipArchiveMode.Read);
-                        jsonStream = zip.GetEntry(dataFileName).Open();
+                        Logger?.Warning($"Error reading song info json file at '{FilePath}': {ex.Message}");
                     }
                 }
-
-                if (jsonStream != null)
+                if (songList == null || songList.Count == 0)
                 {
-                    using StreamReader? sr = new StreamReader(jsonStream);
-                    using JsonTextReader? jr = new JsonTextReader(sr);
-                    List<AndruzzScrapedSong>? songList = JsonSerializer.Deserialize<List<AndruzzScrapedSong>>(jr);
-                    if (songList != null)
+                    try
                     {
-                        foreach (AndruzzScrapedSong? song in songList)
+                        WebUtilities.IWebResponseMessage? downloadResponse = await WebUtils.WebClient.GetAsync(ScrapedDataUrl).ConfigureAwait(false);
+                        downloadResponse.EnsureSuccessStatusCode();
+                        if (downloadResponse.Content != null)
                         {
-                            if (song.Hash != null)
-                                _byHash[song.Hash] = song;
-                            if (song.Key != null)
-                                _byKey[song.Key] = song;
+                            scrapeStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                            zip = new ZipArchive(scrapeStream, ZipArchiveMode.Read);
+                            jsonStream = zip.GetEntry(dataFileName).Open();
+                            songList = ParseJson(jsonStream);
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        Logger?.Warning($"Error loading Andruzz's Scrapped Data from GitHub: {ex.Message}");
+                    }
                 }
+                if (songList != null)
+                {
+                    foreach (AndruzzScrapedSong? song in songList)
+                    {
+                        if (song.Hash != null)
+                            _byHash[song.Hash] = song;
+                        if (song.Key != null)
+                            _byKey[song.Key] = song;
+                    }
+                }
+                else
+                {
+                    Logger?.Warning("Unable to load Andruzz's Scrapped Data.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger?.Warning($"Error loading Andruzz's Scrapped Data: {ex.Message}");
             }
             finally
             {
@@ -94,6 +108,13 @@ namespace SongFeedReaders.Services
             }
 
             return true;
+        }
+
+        private List<AndruzzScrapedSong>? ParseJson(Stream jsonStream)
+        {
+            using StreamReader? sr = new StreamReader(jsonStream);
+            using JsonTextReader? jr = new JsonTextReader(sr);
+            return JsonSerializer.Deserialize<List<AndruzzScrapedSong>>(jr);
         }
 
         private bool _available = true;

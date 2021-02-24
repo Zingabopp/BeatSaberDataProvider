@@ -26,7 +26,7 @@ namespace SongFeedReadersTests.SongInfoProviderTests
         {
             
             var manager = new SongInfoManager();
-            var andruzz = new AndruzzScrapedInfoProvider();// Path.Combine("Data", "beatSaverScrappedData.json"));
+            var andruzz = new AndruzzScrapedInfoProvider(Path.Combine("Data", "beatSaverScrappedData.json"));
             manager.AddProvider(andruzz);
             var response = await manager.GetSongByKeyAsync("b");
             Assert.IsTrue(response.Success);

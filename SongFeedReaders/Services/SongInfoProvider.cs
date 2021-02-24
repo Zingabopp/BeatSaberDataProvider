@@ -1,4 +1,5 @@
 ﻿using SongFeedReaders.Data;
+using SongFeedReaders.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,13 @@ namespace SongFeedReaders.Services
 {
     public abstract class SongInfoProvider : ISongInfoProvider
     {
+        private static FeedReaderLoggerBase? _logger;
+        public static FeedReaderLoggerBase? Logger
+        {
+            get { return _logger ?? LoggingController.DefaultLogger; }
+            set { _logger = value; }
+        }
+
         public int Priority { get; set; }
 
         public abstract bool Available { get; }

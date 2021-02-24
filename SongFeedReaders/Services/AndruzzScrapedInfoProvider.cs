@@ -37,12 +37,8 @@ namespace SongFeedReaders.Services
                 return initializeTask;
             else
             {
-                // Causes deadlock
-                //Console.WriteLine("Initializing data");
-                //TaskCompletionSource<bool> cancellationTask = new TaskCompletionSource<bool>();
-                //using CancellationTokenRegistration cancel = cancellationToken.Register(() => cancellationTask.TrySetResult(false));
-                //Task<bool>? finished = await Task<bool>.WhenAny(initializeTask, cancellationTask.Task).ConfigureAwait(false);
-                return initializeTask;
+                var finished = Task.Run(async () => await initializeTask.ConfigureAwait(false), cancellationToken);
+                return finished;
             }
         }
 

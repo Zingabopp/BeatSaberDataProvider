@@ -56,6 +56,7 @@ namespace SongFeedReaders.Services
                     {
                         jsonStream = File.OpenRead(FilePath);
                         songList = ParseJson(jsonStream);
+                        Logger?.Debug($"{songList?.Count ?? 0} songs data loaded from '{FilePath}'");
                     }
                     catch (Exception ex)
                     {
@@ -74,6 +75,7 @@ namespace SongFeedReaders.Services
                             zip = new ZipArchive(scrapeStream, ZipArchiveMode.Read);
                             jsonStream = zip.GetEntry(dataFileName).Open();
                             songList = ParseJson(jsonStream);
+                            Logger?.Debug($"{songList?.Count ?? 0} songs data loaded from GitHub.");
                         }
                     }
                     catch (Exception ex)

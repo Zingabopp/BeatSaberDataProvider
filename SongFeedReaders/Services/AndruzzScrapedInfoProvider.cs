@@ -26,7 +26,7 @@ namespace SongFeedReaders.Services
             FilePath = filePath;
         }
 
-        protected async Task<bool> InitializeData(CancellationToken cancellationToken)
+        protected Task<bool> InitializeData(CancellationToken cancellationToken)
         {
             lock (_initializeLock)
             {
@@ -34,12 +34,16 @@ namespace SongFeedReaders.Services
                     initializeTask = InitializeDataInternal();
             }
             if (initializeTask.IsCompleted)
-                return await initializeTask;
-            TaskCompletionSource<bool> cancellationTask = new TaskCompletionSource<bool>();
-            using CancellationTokenRegistration cancel = cancellationToken.Register(() => cancellationTask.TrySetResult(false));
-            Task<bool>? finished = await Task<bool>.WhenAny(initializeTask, cancellationTask.Task);
-            return await finished;
-
+                return initializeTask;
+            else
+            {
+                // Causes deadlock
+                //Console.WriteLine("Initializing data");
+                //TaskCompletionSource<bool> cancellationTask = new TaskCompletionSource<bool>();
+                //using CancellationTokenRegistration cancel = cancellationToken.Register(() => cancellationTask.TrySetResult(false));
+                //Task<bool>? finished = await Task<bool>.WhenAny(initializeTask, cancellationTask.Task).ConfigureAwait(false);
+                return initializeTask;
+            }
         }
 
         private async Task<bool> InitializeDataInternal()

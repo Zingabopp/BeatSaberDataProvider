@@ -54,7 +54,7 @@ namespace WebUtilities.WebWrapper
                 else if (Exception is WebException wException)
                     webException = wException;
                 else
-                    webException = new WebException($"The remove server returned an error: ({(int)_response.StatusCode}) {ReasonPhrase}.");
+                    webException = new WebException($"The remote server returned an error: ({(int)_response.StatusCode}) {ReasonPhrase}.");
                 var faultedResponse = new FaultedResponse(this);
                 _response.Dispose();
                 _response = null;

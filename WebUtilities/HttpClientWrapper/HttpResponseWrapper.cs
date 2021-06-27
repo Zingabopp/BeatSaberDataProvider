@@ -50,7 +50,7 @@ namespace WebUtilities.HttpClientWrapper
                 {
                     HttpRequestException httpException;
                     if(((int)_response.StatusCode) > 0)
-                        httpException = new HttpRequestException($"The remove server returned an error: ({(int)_response.StatusCode}) {_response.ReasonPhrase}.");
+                        httpException = new HttpRequestException($"The remote server returned an error: ({(int)_response.StatusCode}) {_response.ReasonPhrase}.");
                     else
                         httpException = new HttpRequestException($"Error getting a response: {_response.ReasonPhrase}.");
                     var faultedResponse = new FaultedResponse(this);

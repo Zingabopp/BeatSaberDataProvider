@@ -415,7 +415,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 Uri? downloadUri = null;
                 if (songHash != null && songHash.Length > 0)
                 {
-                    downloadUri = Utilities.GetDownloadUriByHash(songHash);
+                    downloadUri = WebUtils.GetDownloadUriByHash(songHash);
                     songsOnPage.Add(new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? bSong : null) { Key = songKey });
                 }
                 // TODO: This will break if songHash is null

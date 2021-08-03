@@ -23,7 +23,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             { BeatSaverSearchType.song, $"(name:{CRITERIA_KEY} metadata.songName:{CRITERIA_KEY} metadata.songSubName:{CRITERIA_KEY} metadata.songAuthorName:{CRITERIA_KEY}"},
             { BeatSaverSearchType.key, $"key:{CRITERIA_KEY}"},
             { BeatSaverSearchType.custom, CRITERIA_KEY },
-            { BeatSaverSearchType.all, $""}
+            { BeatSaverSearchType.all, $"{CRITERIA_KEY}"}
         };
 
         private string SearchBase => SearchBases[SearchType];

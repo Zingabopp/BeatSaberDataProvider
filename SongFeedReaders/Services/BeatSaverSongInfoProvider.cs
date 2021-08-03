@@ -13,16 +13,27 @@ namespace SongFeedReaders.Services
 {
     public class BeatSaverSongInfoProvider : ISongInfoProvider
     {
-        public static string BeatSaverDetailsFromKeyBaseUrl => "https://beatsaver.com/api/maps/detail/";
-        public static string BeatSaverDetailsFromHashBaseUrl => "https://beatsaver.com/api/maps/by-hash/";
-        protected static Uri GetBeatSaverDetailsByKey(string key)
+        public Uri BeatSaverUri { get; private set; }
+        public BeatSaverSongInfoProvider()
+            : this(WebUtils.BeatSaverApiUri)
         {
-            return new Uri(BeatSaverDetailsFromKeyBaseUrl + key.ToLower());
+
+        }
+        public BeatSaverSongInfoProvider(Uri apiUri)
+        {
+            BeatSaverUri = apiUri ?? throw new ArgumentNullException(nameof(apiUri));
         }
 
-        protected static Uri GetBeatSaverDetailsByHash(string hash)
+        public static string BeatSaverDetailsFromKeyBaseUrl => "maps/beatsaver/key";
+        public static string BeatSaverDetailsFromHashBaseUrl => "maps/hash/";
+        protected Uri GetBeatSaverDetailsByKey(string key)
         {
-            return new Uri(BeatSaverDetailsFromHashBaseUrl + hash.ToLower());
+            return new Uri(BeatSaverUri, BeatSaverDetailsFromKeyBaseUrl + key.ToLower());
+        }
+
+        protected Uri GetBeatSaverDetailsByHash(string hash)
+        {
+            return new Uri(BeatSaverUri, BeatSaverDetailsFromHashBaseUrl + hash.ToLower());
         }
 
         /// <inheritdoc/>
@@ -81,14 +92,14 @@ namespace SongFeedReaders.Services
         /// <inheritdoc/>
         public Task<ScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
-            Uri uri = Utilities.GetBeatSaverDetailsByHash(hash);
+            Uri uri = WebUtils.GetBeatSaverDetailsByHash(hash);
             return GetSongFromUriAsync(uri, cancellationToken);
         }
 
         /// <inheritdoc/>
         public Task<ScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
         {
-            Uri uri = Utilities.GetBeatSaverDetailsByKey(key);
+            Uri uri = WebUtils.GetBeatSaverDetailsByKey(key);
             return GetSongFromUriAsync(uri, cancellationToken);
         }
 

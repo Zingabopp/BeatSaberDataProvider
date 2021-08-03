@@ -13,21 +13,21 @@ using SongFeedReaders.Data;
 namespace SongFeedReadersTests.SongInfoProviderTests
 {
     [TestClass]
-    public class AndruzzInfoProvider_Tests
+    public class BeatSaverProvider_Tests
     {
-        static AndruzzInfoProvider_Tests()
+        static BeatSaverProvider_Tests()
         {
             TestSetup.Initialize();
         }
 
         [TestMethod]
-        public async Task AndruzzProviderTest()
+        public async Task BeatSaverProviderTest()
         {
             
             var manager = new SongInfoManager();
             SongFeedReaders.Logging.LoggingController.DefaultLogger = new SongFeedReaders.Logging.FeedReaderLogger();
-            var andruzz = new AndruzzScrapedInfoProvider(Path.Combine("Data", "beatSaverScrappedData.json"));
-            manager.AddProvider(andruzz);
+            var beatSaver = new BeatSaverSongInfoProvider();
+            manager.AddProvider(beatSaver);
             var response = await manager.GetSongByKeyAsync("b");
             Assert.IsTrue(response.Success);
             ScrapedSong song = response.Song ?? throw new AssertFailedException("Song is null");

@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SongFeedReaders.Data;
-using SongFeedReaders.DataflowAlternative;
 using SongFeedReaders.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -21,18 +20,18 @@ namespace SongFeedReaders.Readers.BeatSaver
         private const string PAGEKEY = "{PAGE}";
         private const string SEARCHTYPEKEY = "{SEARCHTYPE}"; // text or advanced
         private const string SEARCHQUERY = "{SEARCHQUERY}";
-        public static readonly int SongsPerPage = 10;
+        public static readonly int SongsPerPage = 20;
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a BeatSaverFeedSettings.";
 #pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable CA1823 // Remove unused private members
-        private const string BEATSAVER_NIGHTLYDUMP_URL = "https://beatsaver.com/api/download/dump/maps";
+        //private const string BEATSAVER_NIGHTLYDUMP_URL = "https://beatsaver.com/api/download/dump/maps";
 #pragma warning restore CA1823 // Remove unused private members
 #pragma warning restore IDE0051 // Remove unused private members
         #endregion
 
         public static string NameKey => "BeatSaverReader";
         public static readonly string SourceKey = "BeatSaver";
-        public static readonly Uri ReaderRootUri = new Uri("https://beatsaver.com");
+        public static readonly Uri ReaderRootUri = WebUtils.BeatSaverUri;
 
         private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
@@ -83,25 +82,35 @@ namespace SongFeedReaders.Readers.BeatSaver
         public static List<ScrapedSong> ParseSongsFromPage(string pageText, Uri? sourceUrl, bool storeRawData)
         {
             JObject? result; ;
-            List<ScrapedSong> songs = new List<ScrapedSong>();
             try
             {
                 result = JObject.Parse(pageText) ?? new JObject();
-
+                return ParseSongsFromJson(result, sourceUrl, storeRawData);
             }
             catch (JsonReaderException ex)
             {
                 Logger?.Exception("Unable to parse JSON from text", ex);
-                return songs;
+                return new List<ScrapedSong>();
             }
+
+        }
+
+
+        /// <summary>
+        /// Parses out a List of ScrapedSongs from the json. Also works if the page is for a single song.
+        /// </summary>
+        /// <param name="pageText"></param>
+        /// <returns></returns>
+        public static List<ScrapedSong> ParseSongsFromJson(JToken result, Uri? sourceUrl, bool storeRawData)
+        {
+
+            List<ScrapedSong> songs = new List<ScrapedSong>();
             ScrapedSong newSong;
-            int? resultTotal = result["totalDocs"]?.Value<int>();
-            if (resultTotal == null) resultTotal = 0;
 
             // Single song in page text.
-            if (resultTotal == 0)
+            if (result["docs"] == null && result.Type != JTokenType.Array)
             {
-                if (result["key"] != null)
+                if (result["id"] != null)
                 {
                     newSong = ParseSongFromJson(result, sourceUrl, storeRawData);
                     if (newSong != null)
@@ -118,7 +127,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
             if (songJSONAry == null)
             {
-                Logger?.Error("Invalid page text: 'songs' field not found.");
+                Logger?.Error("Invalid page text: 'docs' field not found.");
                 return songs;
             }
 
@@ -131,7 +140,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             return songs;
         }
 
-        public static ScrapedSong ParseSongFromJson(JObject song, string sourceUrl, bool storeRawData)
+        public static ScrapedSong ParseSongFromJson(JToken song, string sourceUrl, bool storeRawData)
         {
             return ParseSongFromJson(song, Utilities.GetUriFromString(sourceUrl), storeRawData);
         }
@@ -142,24 +151,52 @@ namespace SongFeedReaders.Readers.BeatSaver
         /// <param name="song"></param>
         /// <exception cref="ArgumentException">Thrown when a hash can't be found for the given song JObject.</exception>
         /// <returns></returns>
-        public static ScrapedSong ParseSongFromJson(JObject song, Uri? sourceUri, bool storeRawData)
+        public static ScrapedSong ParseSongFromJson(JToken song, Uri? sourceUri, bool storeRawData)
         {
             if (song == null)
                 throw new ArgumentNullException(nameof(song), "song cannot be null for BeatSaverReader.ParseSongFromJson.");
-            //JSONObject song = (JSONObject) aKeyValue;
-            string? songKey = song["key"]?.Value<string>();
-            string? songHash = song["hash"]?.Value<string>().ToUpper();
-            string? songName = song["name"]?.Value<string>();
-            string? mapperName = song["uploader"]?["username"]?.Value<string>();
-            if (songHash == null || songHash.Length == 0)
-                throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
-            Uri downloadUri = Utilities.GetDownloadUriByHash(songHash);
-            ScrapedSong newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song : null)
+            if (song["versions"] is JArray versions && versions.Count > 0)
             {
-                Key = songKey
-            };
-            return newSong;
+                JObject latest = GetLatestSongVersion(song);
+                //JSONObject song = (JSONObject) aKeyValue;
+                string? songKey = latest["key"]?.Value<string>();
+                string? songHash = latest["hash"]?.Value<string>().ToUpper();
+                string? songName = song["metadata"]?["songName"]?.Value<string>();
+                string? mapperName = song["uploader"]?["name"]?.Value<string>();
+                if (songHash == null || songHash.Length == 0)
+                    throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
+                Uri downloadUri = WebUtils.GetDownloadUriByHash(songHash);
+                ScrapedSong newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song as JObject : null)
+                {
+                    Key = songKey
+                };
+                return newSong;
+            }
+            else
+                throw new ArgumentException("Song does not appear to have any versions available.", nameof(song));
         }
+
+        public static JObject GetLatestSongVersion(JToken song)
+        {
+            if (song == null)
+                throw new ArgumentNullException(nameof(song), "song cannot be null for BeatSaverReader.ParseSongFromJson.");
+            if (song["versions"] is JArray versions && versions.Count > 0)
+            {
+                // take latest version
+                if (versions.Where(VersionIsPublished).LastOrDefault() is JObject latest)
+                    return latest;
+                throw new Exception("Song has no published versions.");
+            }
+            else
+                throw new ArgumentException("Song does not appear to have any versions available.", nameof(song));
+        }
+
+        private static bool VersionIsPublished(JToken v)
+        {
+            JToken? state = v["state"];
+            return state != null && state.Value<string>().Equals("Published", StringComparison.OrdinalIgnoreCase);
+        }
+
         #region Web Requests
 
         #region Async
@@ -183,7 +220,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             bool useMaxPages = maxPages != 0;
             bool useMaxSongs = maxSongs != 0;
 
-            int estimatedPageResults = Math.Min(useMaxSongs ? maxSongs / 10 : int.MaxValue, useMaxPages ? maxPages : int.MaxValue);
+            int estimatedPageResults = Math.Min(useMaxSongs ? maxSongs / SongsPerPage : int.MaxValue, useMaxPages ? maxPages : int.MaxValue);
             if (settings.Feed == BeatSaverFeedName.Author && string.IsNullOrEmpty(settings.AuthorId))
             {
                 string? uploaderName = settings.SearchQuery?.Criteria;
@@ -279,95 +316,74 @@ namespace SongFeedReaders.Readers.BeatSaver
                 return _authors[authorName];
             string? mapperId = string.Empty;
 
-            int page = 0;
-            int? totalResults;
-            Uri? sourceUri = null;
             string pageText;
-            JObject result;
-            JToken matchingSong;
-            JToken[] songJSONAry;
-            SearchQueryBuilder queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.author, authorName);
+            JObject? result = null;
+            SearchQueryBuilder queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.all, authorName);
 
-            do
+            Logger?.Debug($"Checking response for the author ID.");
+            Uri? sourceUri = new Uri(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHTYPEKEY, "text").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, 0.ToString()));
+            IWebResponseMessage? response = null;
+            try
             {
-                Logger?.Debug($"Checking page {page + 1} for the author ID.");
-                sourceUri = new Uri(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHTYPEKEY, "advanced").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
-                result = new JObject();
-                IWebResponseMessage? response = null;
-                try
+                response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+                if (response.Content == null)
                 {
-                    response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false);
-                    response.EnsureSuccessStatusCode();
-                    if (response.Content == null)
-                    {
-                        Logger?.Error($"WebResponse Content was null getting UploaderID from author name {authorName}");
-                        return string.Empty;
-                    }
-                    pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    result = JObject.Parse(pageText);
-                }
-                catch (WebClientException ex)
-                {
-                    string errorText = string.Empty;
-                    if (ex.Response != null)
-                    {
-                        switch (ex.Response.StatusCode)
-                        {
-                            case 408:
-                                errorText = "Timeout";
-                                break;
-                            default:
-                                errorText = "Site Error";
-                                break;
-                        }
-                    }
-                    Logger?.Error($"{errorText} getting UploaderID from author name, {sourceUri} responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
+                    Logger?.Error($"WebResponse Content was null getting UploaderID from author name {authorName}");
                     return string.Empty;
                 }
-                catch (JsonReaderException ex)
-                {
-                    // TODO: Should I break the loop here, or keep trying?
-                    Logger?.Exception("Unable to parse JSON from text", ex);
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    Logger?.Error($"Uncaught error getting UploaderID from author name {authorName}");
-                    Logger?.Debug($"{ex}");
-                    return string.Empty;
-                }
-                finally
-                {
-                    response?.Dispose();
-                    response = null;
-                }
-                totalResults = result["totalDocs"]?.Value<int>(); // TODO: Check this
-                if (totalResults == null || totalResults == 0)
-                {
-                    Logger?.Warning($"No songs by {authorName} found, is the name spelled correctly?");
-                    return string.Empty;
-                }
-                songJSONAry = result["docs"].ToArray();
-                matchingSong = (JObject)songJSONAry.FirstOrDefault(c => c["uploader"]?["username"]?.Value<string>()?.ToLower() == authorName.ToLower());
-
-                page++;
-                sourceUri = new Uri(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHQUERY, authorName).Replace(PAGEKEY, (page * SongsPerPage).ToString()));
-            } while ((matchingSong == null) && page * SongsPerPage < totalResults);
-
-
-            if (matchingSong == null)
+                pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                result = JObject.Parse(pageText);
+            }
+            catch (WebClientException ex)
             {
-                Logger?.Warning($"No songs by {authorName} found, is the name spelled correctly?");
+                string errorText = string.Empty;
+                if (ex.Response != null)
+                {
+                    switch (ex.Response.StatusCode)
+                    {
+                        case 408:
+                            errorText = "Timeout";
+                            break;
+                        default:
+                            errorText = "Site Error";
+                            break;
+                    }
+                }
+                Logger?.Error($"{errorText} getting UploaderID from author name, {sourceUri} responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
                 return string.Empty;
             }
-            mapperId = matchingSong["uploader"]?["_id"]?.Value<string>() ?? string.Empty;
-            if (!string.IsNullOrEmpty(mapperId))
-                _authors.TryAdd(authorName, mapperId);
+            catch (JsonReaderException ex)
+            {
+                // TODO: Should I break the loop here, or keep trying?
+                Logger?.Exception("Unable to parse JSON from text", ex);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger?.Error($"Uncaught error getting UploaderID from author name {authorName}");
+                Logger?.Debug($"{ex}");
+                return string.Empty;
+            }
+            finally
+            {
+                response?.Dispose();
+                response = null;
+            }
+            if(result?["user"] is JObject user && user["id"] is JToken idProp)
+            {
+                int mapperIdInt = idProp.Value<int>();
+                if (mapperIdInt > 0)
+                {
+                    mapperId = idProp.Value<string>();
+                    _authors[authorName] = mapperId;
+                }
+            }
 
-            return mapperId;
+            return mapperId ?? string.Empty;
         }
 
         [Obsolete("Not implemented.")]

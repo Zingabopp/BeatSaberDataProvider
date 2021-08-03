@@ -1,0 +1,196 @@
+﻿{
+  "docs": [
+    {
+      "automapper": true,
+      "curator": "string",
+      "description": "string",
+      "id": 0,
+      "metadata": {
+        "bpm": {},
+        "duration": 0,
+        "levelAuthorName": "string",
+        "songAuthorName": "string",
+        "songName": "string",
+        "songSubName": "string"
+      },
+      "name": "string",
+      "qualified": true,
+      "ranked": true,
+      "stats": {
+        "downloads": 0,
+        "downvotes": 0,
+        "plays": 0,
+        "score": {},
+        "upvotes": 0
+      },
+      "uploaded": {
+        "epochSeconds": 0,
+        "nanosecondsOfSecond": 0,
+        "value": "2021-08-03T12:49:47.528Z"
+      },
+      "uploader": {
+        "avatar": "string",
+        "hash": "string",
+        "id": 0,
+        "name": "string",
+        "stats": {
+          "avgBpm": {},
+          "avgDuration": {},
+          "avgScore": {},
+          "diffStats": {
+            "easy": 0,
+            "expert": 0,
+            "expertPlus": 0,
+            "hard": 0,
+            "normal": 0,
+            "total": 0
+          },
+          "firstUpload": {
+            "epochSeconds": 0,
+            "nanosecondsOfSecond": 0,
+            "value": "2021-08-03T12:49:47.528Z"
+          },
+          "lastUpload": {
+            "epochSeconds": 0,
+            "nanosecondsOfSecond": 0,
+            "value": "2021-08-03T12:49:47.528Z"
+          },
+          "rankedMaps": 0,
+          "totalDownvotes": 0,
+          "totalMaps": 0,
+          "totalUpvotes": 0
+        },
+        "testplay": true
+      },
+      "versions": [
+        {
+          "createdAt": {
+            "epochSeconds": 0,
+            "nanosecondsOfSecond": 0,
+            "value": "2021-08-03T12:49:47.528Z"
+          },
+          "diffs": [
+            {
+              "bombs": 0,
+              "characteristic": "Standard",
+              "chroma": true,
+              "cinema": true,
+              "difficulty": "Easy",
+              "events": 0,
+              "length": 0,
+              "me": true,
+              "ne": true,
+              "njs": {},
+              "notes": 0,
+              "nps": 0,
+              "obstacles": 0,
+              "offset": {},
+              "paritySummary": {
+                "errors": 0,
+                "resets": 0,
+                "warns": 0
+              },
+              "seconds": 0,
+              "stars": {}
+            }
+          ],
+          "feedback": "string",
+          "hash": "string",
+          "key": "string",
+          "sageScore": {},
+          "state": "Uploaded",
+          "testplayAt": {
+            "epochSeconds": 0,
+            "nanosecondsOfSecond": 0,
+            "value": "2021-08-03T12:49:47.528Z"
+          },
+          "testplays": [
+            {
+              "createdAt": {
+                "epochSeconds": 0,
+                "nanosecondsOfSecond": 0,
+                "value": "2021-08-03T12:49:47.528Z"
+              },
+              "feedback": "string",
+              "feedbackAt": {
+                "epochSeconds": 0,
+                "nanosecondsOfSecond": 0,
+                "value": "2021-08-03T12:49:47.528Z"
+              },
+              "user": {
+                "avatar": "string",
+                "hash": "string",
+                "id": 0,
+                "name": "string",
+                "stats": {
+                  "avgBpm": {},
+                  "avgDuration": {},
+                  "avgScore": {},
+                  "diffStats": {
+                    "easy": 0,
+                    "expert": 0,
+                    "expertPlus": 0,
+                    "hard": 0,
+                    "normal": 0,
+                    "total": 0
+                  },
+                  "firstUpload": {
+                    "epochSeconds": 0,
+                    "nanosecondsOfSecond": 0,
+                    "value": "2021-08-03T12:49:47.528Z"
+                  },
+                  "lastUpload": {
+                    "epochSeconds": 0,
+                    "nanosecondsOfSecond": 0,
+                    "value": "2021-08-03T12:49:47.528Z"
+                  },
+                  "rankedMaps": 0,
+                  "totalDownvotes": 0,
+                  "totalMaps": 0,
+                  "totalUpvotes": 0
+                },
+                "testplay": true
+              },
+              "video": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "redirect": 0,
+  "user": {
+    "avatar": "string",
+    "hash": "string",
+    "id": 0,
+    "name": "string",
+    "stats": {
+      "avgBpm": {},
+      "avgDuration": {},
+      "avgScore": {},
+      "diffStats": {
+        "easy": 0,
+        "expert": 0,
+        "expertPlus": 0,
+        "hard": 0,
+        "normal": 0,
+        "total": 0
+      },
+      "firstUpload": {
+        "epochSeconds": 0,
+        "nanosecondsOfSecond": 0,
+        "value": "2021-08-03T12:49:47.528Z"
+      },
+      "lastUpload": {
+        "epochSeconds": 0,
+        "nanosecondsOfSecond": 0,
+        "value": "2021-08-03T12:49:47.528Z"
+      },
+      "rankedMaps": 0,
+      "totalDownvotes": 0,
+      "totalMaps": 0,
+      "totalUpvotes": 0
+    },
+    "testplay": true
+  }
+}

@@ -270,7 +270,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 string? mapperName = song["levelAuthorName"]?.Value<string>();
 
                 if (!string.IsNullOrEmpty(hash))
-                    songs.Add(new ScrapedSong(hash, songName, mapperName, Utilities.GetDownloadUriByHash(hash), sourceUri, storeRawData ? song : null));
+                    songs.Add(new ScrapedSong(hash, songName, mapperName, WebUtils.GetDownloadUriByHash(hash), sourceUri, storeRawData ? song : null));
             }
             return songs;
         }

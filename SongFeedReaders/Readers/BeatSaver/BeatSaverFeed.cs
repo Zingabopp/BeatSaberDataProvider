@@ -15,7 +15,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 {
     public class BeatSaverFeed : IFeed
     {
-        private static FeedReaderLoggerBase _logger;
+        private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }
@@ -37,26 +37,17 @@ namespace SongFeedReaders.Readers.BeatSaver
         private const string DescriptionSearch = "Retrieves songs matching the provided search criteria from BeatSaver.";
         #endregion
 
-        private static Dictionary<BeatSaverFeedName, FeedInfo> _feeds;
-        public static Dictionary<BeatSaverFeedName, FeedInfo> Feeds
-        {
-            get
+        private static readonly Dictionary<BeatSaverFeedName, FeedInfo> _feeds = new Dictionary<BeatSaverFeedName, FeedInfo>()
             {
-                if (_feeds == null)
-                {
-                    _feeds = new Dictionary<BeatSaverFeedName, FeedInfo>()
-                    {
-                        { (BeatSaverFeedName)0, new FeedInfo("Author", "BeatSaver Authors", "https://beatsaver.com/api/maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY, DescriptionAuthor)},
-                        { (BeatSaverFeedName)1, new FeedInfo("Latest", "BeatSaver Latest", "https://beatsaver.com/api/maps/latest/" + PAGEKEY, DescriptionLatest) },
-                        { (BeatSaverFeedName)2, new FeedInfo("Hot", "BeatSaver Hot", "https://beatsaver.com/api/maps/hot/" + PAGEKEY, DescriptionHot) },
-                        { (BeatSaverFeedName)3, new FeedInfo("Plays", "BeatSaver Plays", "https://beatsaver.com/api/maps/plays/" + PAGEKEY, DescriptionPlays) },
-                        { (BeatSaverFeedName)4, new FeedInfo("Downloads", "BeatSaver Downloads", "https://beatsaver.com/api/maps/downloads/" + PAGEKEY, DescriptionDownloads) },
-                        { (BeatSaverFeedName)98, new FeedInfo("Search", "BeatSaver Search", $"https://beatsaver.com/api/search/{SEARCHTYPEKEY}/{PAGEKEY}/?q={SEARCHQUERYKEY}", DescriptionSearch) },
-                    };
-                }
-                return _feeds;
-            }
-        }
+                { (BeatSaverFeedName)0, new FeedInfo("Author", "BeatSaver Authors", WebUtils.BeatSaverApiUri + "maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY, DescriptionAuthor)},
+                { (BeatSaverFeedName)1, new FeedInfo("Latest", "BeatSaver Latest", WebUtils.BeatSaverApiUri + "maps/latest/" + PAGEKEY, DescriptionLatest) },
+                //{ (BeatSaverFeedName)2, new FeedInfo("Hot", "BeatSaver Hot", WebUtils.BeatSaverUri.AbsolutePath + "/maps/hot/" + PAGEKEY, DescriptionHot) },
+                { (BeatSaverFeedName)3, new FeedInfo("Plays", "BeatSaver Plays", WebUtils.BeatSaverApiUri + "maps/plays/" + PAGEKEY, DescriptionPlays) },
+                //{ (BeatSaverFeedName)4, new FeedInfo("Downloads", "BeatSaver Downloads", WebUtils.BeatSaverUri.AbsolutePath + "/maps/downloads/" + PAGEKEY, DescriptionDownloads) },
+                { (BeatSaverFeedName)98, new FeedInfo("Search", "BeatSaver Search", WebUtils.BeatSaverApiUri + $"search/{SEARCHTYPEKEY}/{PAGEKEY}?q={SEARCHQUERYKEY}", DescriptionSearch) },
+            };
+
+        public static Dictionary<BeatSaverFeedName, FeedInfo> Feeds => _feeds;
 
         public BeatSaverFeedName Feed { get; }
         public FeedInfo FeedInfo { get; }
@@ -197,7 +188,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
 
             Logger.Debug($"Getting songs from '{pageUri}'");
-            int? lastPage;
+            //int? lastPage;
             bool isLastPage = false;
             IWebResponseMessage? response = null;
             try
@@ -205,23 +196,22 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response = await GetBeatSaverAsync(pageUri, cancellationToken).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 result = JObject.Parse(pageText);
-                int? numSongs = result["totalDocs"]?.Value<int>();
-                lastPage = result["lastPage"]?.Value<int>();
-                if (lastPage.HasValue)
-                    lastPage = lastPage.Value + 1; // BeatSaver pages start at 0, Readers at 1.
-                if (numSongs == null || lastPage == null || numSongs == 0)
+
+                if (result?["docs"] == null)
                 {
                     Logger?.Warning($"Error checking Beat Saver's {Name} feed.");
                     return new PageReadResult(pageUri, null, page, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
-                if (configuredLastPage > 0)
-                    isLastPage = Math.Min(configuredLastPage, lastPage.Value) <= page;
-                else
-                    isLastPage = page >= lastPage.Value;
+                //if (configuredLastPage > 0)
+                //    isLastPage = Math.Min(configuredLastPage, lastPage.Value) <= page;
+                //else
+                //    isLastPage = page >= lastPage.Value;
                 newSongs = new List<ScrapedSong>();
-                var scrapedSongs = BeatSaverReader.ParseSongsFromPage(pageText, pageUri, Settings.StoreRawData || StoreRawData);
+                var scrapedSongs = BeatSaverReader.ParseSongsFromJson(result, pageUri, Settings.StoreRawData || StoreRawData);
                 foreach (var song in scrapedSongs)
                 {
                     if (Settings.Filter == null || Settings.Filter(song))
@@ -232,6 +222,8 @@ namespace SongFeedReaders.Readers.BeatSaver
                         break;
                     }
                 }
+                if (scrapedSongs.Count == 0)
+                    isLastPage = true;
             }
             catch (WebClientException ex)
             {
@@ -274,10 +266,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response?.Dispose();
                 response = null;
             }
-            if (lastPage.HasValue && !isLastPage)
-                return new BeatSaverPageResult(pageUri, newSongs, page, lastPage.Value);
-            else
-                return new PageReadResult(pageUri, newSongs, page, isLastPage);
+            //if (lastPage.HasValue && !isLastPage)
+            //    return new BeatSaverPageResult(pageUri, newSongs, page, lastPage.Value);
+            //else
+            return new PageReadResult(pageUri, newSongs, page, isLastPage);
         }
         /// <summary>
         /// 

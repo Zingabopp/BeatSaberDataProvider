@@ -14,12 +14,44 @@ namespace SongFeedReaders
     /// </summary>
     public static class WebUtils
     {
+        private static Uri beatSaverUri = null!;
+        private static Uri beatSaverApiUri = null!;
+        private static Uri beatSaverDownloadUri = null!;
+        private static Uri beatSaverDetailsFromKeyBaseUrl = null!;
+        private static Uri beatSaverDetailsFromHashBaseUrl = null!;
+
+        public static Uri BeatSaverUri
+        {
+            get => beatSaverUri;
+            set
+            {
+                if (value != beatSaverUri && value != null)
+                {
+                    beatSaverUri = value;
+                    beatSaverApiUri = new Uri($"{value.Scheme}://api.{value.Host}", UriKind.Absolute);
+                    beatSaverDownloadUri = new Uri($"{value.Scheme}://cdn.{value.Host}", UriKind.Absolute);
+                    beatSaverDetailsFromKeyBaseUrl = new Uri(beatSaverApiUri, "/maps/beatsaver/");
+                    beatSaverDetailsFromHashBaseUrl = new Uri(beatSaverApiUri, "/maps/hash/");
+                }
+            }
+        }
+
+        public static Uri BeatSaverApiUri => beatSaverApiUri;
+        public static Uri BeatSaverDownloadUri => beatSaverDownloadUri;
+        public static Uri BeatSaverDetailsFromKeyBaseUrl => beatSaverDetailsFromKeyBaseUrl;
+        public static Uri BeatSaverDetailsFromHashBaseUrl => beatSaverDetailsFromHashBaseUrl;
+        static WebUtils()
+        {
+            BeatSaverUri = new Uri("https://beatmaps.io");
+        }
+
+
         private static SongInfoManager? _songInfoManager;
         public static SongInfoManager SongInfoManager
         {
             get
             {
-                if(_songInfoManager == null)
+                if (_songInfoManager == null)
                 {
                     _songInfoManager = new SongInfoManager();
                     _songInfoManager.AddProvider<BeatSaverSongInfoProvider>("BeatSaverProvider", 500);
@@ -115,6 +147,7 @@ namespace SongFeedReaders
                 return _webClient;
             }
         }
+
 
         /// <summary>
         /// Stores known rate limit remaining time for BeatSaver's routes.
@@ -366,6 +399,23 @@ namespace SongFeedReaders
                 _ = SongInfoManager;
                 IsInitialized = true;
             }
+        }
+
+
+
+        public static Uri GetDownloadUriByHash(string hash)
+        {
+            return new Uri(BeatSaverDownloadUri, hash.ToLower() + ".zip");
+        }
+
+        public static Uri GetBeatSaverDetailsByKey(string key)
+        {
+            return new Uri(BeatSaverDetailsFromKeyBaseUrl + key.ToLower());
+        }
+
+        public static Uri GetBeatSaverDetailsByHash(string hash)
+        {
+            return new Uri(BeatSaverDetailsFromHashBaseUrl + hash.ToLower());
         }
     }
 

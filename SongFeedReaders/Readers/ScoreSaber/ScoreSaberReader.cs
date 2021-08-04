@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using SongFeedReaders.Logging;
 using SongFeedReaders.Data;
-using static SongFeedReaders.WebUtils;
 using Newtonsoft.Json;
 using WebUtilities;
 
@@ -30,7 +29,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
 
         private const string INVALIDFEEDSETTINGSMESSAGE = "The IFeedSettings passed is not a ScoreSaberFeedSettings.";
         #endregion
-        private static FeedReaderLoggerBase _logger;
+        private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }

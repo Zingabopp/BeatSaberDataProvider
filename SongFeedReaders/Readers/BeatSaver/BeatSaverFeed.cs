@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WebUtilities;
-using static SongFeedReaders.WebUtils;
 
 namespace SongFeedReaders.Readers.BeatSaver
 {
@@ -27,7 +26,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         public static readonly string PAGEKEY = "{PAGE}";
         public static readonly string SEARCHTYPEKEY = "{SEARCHTYPE}"; // text or advanced
         public static readonly string SEARCHQUERYKEY = "{SEARCHQUERY}";
-        public static readonly int GlobalSongsPerPage = 10;
+        public static readonly int GlobalSongsPerPage = 20;
 
         private const string DescriptionAuthor = "Retrieves songs by the specified map author.";
         private const string DescriptionLatest = "Retrieves the latest beatmaps posted to BeatSaver.";
@@ -37,14 +36,23 @@ namespace SongFeedReaders.Readers.BeatSaver
         private const string DescriptionSearch = "Retrieves songs matching the provided search criteria from BeatSaver.";
         #endregion
 
-        private static readonly Dictionary<BeatSaverFeedName, FeedInfo> _feeds = new Dictionary<BeatSaverFeedName, FeedInfo>()
+        private static readonly Dictionary<BeatSaverFeedName, FeedInfo> _feeds 
+            = new Dictionary<BeatSaverFeedName, FeedInfo>()
             {
-                { (BeatSaverFeedName)0, new FeedInfo("Author", "BeatSaver Authors", WebUtils.BeatSaverApiUri + "maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY, DescriptionAuthor)},
-                { (BeatSaverFeedName)1, new FeedInfo("Latest", "BeatSaver Latest", WebUtils.BeatSaverApiUri + "maps/latest/" + PAGEKEY, DescriptionLatest) },
+                { BeatSaverFeedName.Author, 
+                    new FeedInfo("Author", "BeatSaver Authors", 
+                        WebUtils.BeatSaverApiUri + "maps/uploader/" +  AUTHORIDKEY + "/" + PAGEKEY, DescriptionAuthor)},
+                { BeatSaverFeedName.Latest, 
+                    new FeedInfo("Latest", "BeatSaver Latest", 
+                        WebUtils.BeatSaverApiUri + "maps/latest/" + PAGEKEY, DescriptionLatest) },
                 //{ (BeatSaverFeedName)2, new FeedInfo("Hot", "BeatSaver Hot", WebUtils.BeatSaverUri.AbsolutePath + "/maps/hot/" + PAGEKEY, DescriptionHot) },
-                { (BeatSaverFeedName)3, new FeedInfo("Plays", "BeatSaver Plays", WebUtils.BeatSaverApiUri + "maps/plays/" + PAGEKEY, DescriptionPlays) },
+                { BeatSaverFeedName.Plays, 
+                    new FeedInfo("Plays", "BeatSaver Plays", 
+                        WebUtils.BeatSaverApiUri + "maps/plays/" + PAGEKEY, DescriptionPlays) },
                 //{ (BeatSaverFeedName)4, new FeedInfo("Downloads", "BeatSaver Downloads", WebUtils.BeatSaverUri.AbsolutePath + "/maps/downloads/" + PAGEKEY, DescriptionDownloads) },
-                { (BeatSaverFeedName)98, new FeedInfo("Search", "BeatSaver Search", WebUtils.BeatSaverApiUri + $"search/{SEARCHTYPEKEY}/{PAGEKEY}?q={SEARCHQUERYKEY}", DescriptionSearch) },
+                { BeatSaverFeedName.Search, 
+                    new FeedInfo("Search", "BeatSaver Search", 
+                        WebUtils.BeatSaverApiUri + $"search/{SEARCHTYPEKEY}/{PAGEKEY}?q={SEARCHQUERYKEY}", DescriptionSearch) },
             };
 
         public static Dictionary<BeatSaverFeedName, FeedInfo> Feeds => _feeds;
@@ -193,7 +201,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             IWebResponseMessage? response = null;
             try
             {
-                response = await GetBeatSaverAsync(pageUri, cancellationToken).ConfigureAwait(false);
+                response = await WebUtils.GetBeatSaverAsync(pageUri, cancellationToken).ConfigureAwait(false);
 
                 response.EnsureSuccessStatusCode();
 #pragma warning disable CS8602 // Dereference of a possibly null reference.

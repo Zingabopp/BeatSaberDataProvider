@@ -31,7 +31,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public static string NameKey => "BeatSaverReader";
         public static readonly string SourceKey = "BeatSaver";
-        public static readonly Uri ReaderRootUri = WebUtils.BeatSaverUri;
+        public static Uri ReaderRootUri => WebUtils.BeatSaverUri;
 
         private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger

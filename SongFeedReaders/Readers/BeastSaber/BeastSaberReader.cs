@@ -36,7 +36,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         
         #endregion
 
-        private static FeedReaderLoggerBase _logger;
+        private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }

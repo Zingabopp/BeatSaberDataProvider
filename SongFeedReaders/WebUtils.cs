@@ -42,7 +42,7 @@ namespace SongFeedReaders
         public static Uri BeatSaverDetailsFromHashBaseUrl => beatSaverDetailsFromHashBaseUrl;
         static WebUtils()
         {
-            BeatSaverUri = new Uri("https://beatmaps.io");
+            BeatSaverUri = new Uri("https://beatsaver.com");
         }
 
 

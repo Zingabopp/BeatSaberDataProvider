@@ -64,6 +64,12 @@ namespace SongFeedReaders.Data
             set { _songKey = value?.ToUpper(); }
         }
         public string? LevelAuthorName { get; set; }
+
+        /// <summary>
+        /// Upload date of the song. Uses <see cref="DateTime.MinValue"/> if not set;
+        /// </summary>
+        public DateTime UploadDate { get; set; } = DateTime.MinValue;
+
         /// <summary>
         /// Data this song was scraped from in JSON form.
         /// </summary>

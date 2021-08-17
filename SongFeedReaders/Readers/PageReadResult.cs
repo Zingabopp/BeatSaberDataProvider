@@ -18,7 +18,6 @@ namespace SongFeedReaders.Readers
             set { _logger = value; }
         }
         public Uri Uri { get; private set; }
-        public int Page { get; }
         public List<ScrapedSong>? Songs { get; private set; }
 
         public bool IsLastPage { get; private set; }
@@ -29,9 +28,8 @@ namespace SongFeedReaders.Readers
 
         private bool _successful;
         public bool Successful { get { return _successful && Exception == null; } }
-        public PageReadResult(Uri uri, List<ScrapedSong>? songs, int page, bool isLastPage = false)
+        public PageReadResult(Uri uri, List<ScrapedSong>? songs, bool isLastPage = false)
         {
-            Page = page;
             IsLastPage = isLastPage;
             Uri = uri;
             if (songs == null)
@@ -44,8 +42,8 @@ namespace SongFeedReaders.Readers
             Songs = songs;
         }
 
-        public PageReadResult(Uri uri, List<ScrapedSong>? songs, int page, Exception? exception, PageErrorType pageError, bool isLastPage = false)
-            : this(uri, songs, page, isLastPage)
+        public PageReadResult(Uri uri, List<ScrapedSong>? songs, Exception? exception, PageErrorType pageError, bool isLastPage = false)
+            : this(uri, songs, isLastPage)
         {
 
             if (exception != null)
@@ -72,7 +70,7 @@ namespace SongFeedReaders.Readers
             return $"{Uri} | {Songs?.Count.ToString() ?? "<NULL>"}";
         }
 
-        public static PageReadResult FromWebClientException(WebClientException? ex, Uri requestUri, int page)
+        public static PageReadResult FromWebClientException(WebClientException? ex, Uri requestUri)
         {
             PageErrorType pageError = PageErrorType.SiteError;
             string errorText = string.Empty;
@@ -91,22 +89,22 @@ namespace SongFeedReaders.Readers
                         break;
                 }
             }
-            string message = $"{errorText} getting page {requestUri}.";
+            string message = $"{errorText} getting page '{requestUri}'.";
             Logger?.Debug(message);
             // No need for a stacktrace if it's one of these errors.
             if (!(pageError == PageErrorType.Timeout || statusCode == 500) && ex != null)
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-            return new PageReadResult(requestUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), pageError);
+            return new PageReadResult(requestUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), pageError);
         }
 
-        public static PageReadResult CancelledResult(Uri requestUri, int page, OperationCanceledException ex)
+        public static PageReadResult CancelledResult(Uri requestUri, OperationCanceledException ex)
         {
-            return new PageReadResult(requestUri, new List<ScrapedSong>(), page, ex, PageErrorType.Cancelled);
+            return new PageReadResult(requestUri, new List<ScrapedSong>(), ex, PageErrorType.Cancelled);
         }
 
-        public static PageReadResult CancelledResult(Uri requestUri, int page)
+        public static PageReadResult CancelledResult(Uri requestUri)
         {
-            return new PageReadResult(requestUri, new List<ScrapedSong>(), page, new OperationCanceledException(), PageErrorType.Cancelled);
+            return new PageReadResult(requestUri, new List<ScrapedSong>(), new OperationCanceledException(), PageErrorType.Cancelled);
         }
     }
 

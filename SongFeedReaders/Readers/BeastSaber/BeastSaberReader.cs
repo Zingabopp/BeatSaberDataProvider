@@ -128,6 +128,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             }
             int pageIndex = settings.StartingPage;
             int maxPages = _settings.MaxPages;
+            int pagesChecked = 0;
             bool useMaxSongs = _settings.MaxSongs != 0;
             bool useMaxPages = maxPages != 0;
             if (useMaxPages && pageIndex > 1)
@@ -197,7 +198,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                             if (pageResult.Count > 0)
                                 Logger?.Debug($"Receiving {pageResult.Count} potential songs from {pageResult.Uri}");
                             else
-                                Logger?.Debug($"Did not find any songs on page {pageResult.Page} of {Name}.{settings.FeedName}.");
+                                Logger?.Debug($"Did not find any songs on page '{pageResult.Uri}' of {Name}.{settings.FeedName}.");
 
                             // TODO: Process PageReadResults for better error feedback.
                             foreach (var song in pageResult.Songs)
@@ -213,7 +214,8 @@ namespace SongFeedReaders.Readers.BeastSaber
                                         continueLooping = false;
                                 }
                             }
-                            progress?.Report(new ReaderProgress(pageResult.Page, songsAdded));
+                            int prog = Interlocked.Increment(ref pagesChecked);
+                            progress?.Report(new ReaderProgress(prog, songsAdded));
                             if (!useMaxPages || pageIndex <= maxPages)
                                 if (retDict.Count < settings.MaxSongs)
                                     continueLooping = true;

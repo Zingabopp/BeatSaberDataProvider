@@ -243,12 +243,12 @@ namespace SongFeedReaders
         public static async Task<IWebResponseMessage> GetBeatSaverAsync(Uri uri, CancellationToken cancellationToken, int maxSecondsToWait = 0, int retries = 5)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            bool retry = false;
+            bool retry;
             int tries = 0;
-            IWebResponseMessage? response = null;
-            string baseUrl = GetRateLimitedBase(uri)
-                ?? throw new ArgumentNullException(nameof(uri), "uri cannot be null for WebUtils.GetBeatSaverAsync");
-            await WaitForRateLimit(baseUrl, null, cancellationToken).ConfigureAwait(false); // Wait for an existing rate limit if it exists
+            IWebResponseMessage? response = null!;
+            //string baseUrl = GetRateLimitedBase(uri)
+            //    ?? throw new ArgumentNullException(nameof(uri), "uri cannot be null for WebUtils.GetBeatSaverAsync");
+            //await WaitForRateLimit(baseUrl, null, cancellationToken).ConfigureAwait(false); // Wait for an existing rate limit if it exists
             do
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -256,15 +256,15 @@ namespace SongFeedReaders
                 try
                 {
                     response = await WebClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
-                    try
-                    {
-                        RateLimit? rateLimit = ParseBeatSaverRateLimit(response.Headers);
-                        UpdateRateLimit(baseUrl, rateLimit);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.Debug($"Error parsing rate limit for {uri}: {ex.Message}");
-                    }
+                    //try
+                    //{
+                    //    RateLimit? rateLimit = ParseBeatSaverRateLimit(response.Headers);
+                    //    UpdateRateLimit(baseUrl, rateLimit);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    Logger?.Debug($"Error parsing rate limit for {uri}: {ex.Message}");
+                    //}
                     response.EnsureSuccessStatusCode();
                 }
                 catch (WebClientException ex)
@@ -277,34 +277,37 @@ namespace SongFeedReaders
                     {
 
                         retry = true;
-                        RateLimit? rateLimit = ParseBeatSaverRateLimit(ex.Response?.Headers) ?? new RateLimit() { CallsPerReset = 50, CallsRemaining = 0, TimeToReset = DateTime.Now + TimeSpan.FromSeconds(20) };
+                        tries++;
+                        Logger?.Warning($"BeatSaver responded with '(429) Too Many Requests' on URL '{uri.OriginalString}', retrying after 10s...");
+                        await Task.Delay(10000).ConfigureAwait(false);
+                        //RateLimit? rateLimit = ParseBeatSaverRateLimit(ex.Response?.Headers) ?? new RateLimit() { CallsPerReset = 50, CallsRemaining = 0, TimeToReset = DateTime.Now + TimeSpan.FromSeconds(20) };
 
-                        WaitForRateLimitDict.AddOrUpdate(baseUrl, u => new RateLimitPair(rateLimit), (url, rateLimitPair) =>
-                        {
-                            rateLimitPair.Update(rateLimit);
-                            return rateLimitPair;
-                        });
-                        if (rateLimit != null)
-                        {
-                            TimeSpan delay = new TimeSpan(0);
-                            TimeSpan calcDelay = rateLimit.TimeToReset.Add(RateLimitPadding) - DateTime.Now;
-                            if (calcDelay > TimeSpan.Zero) // Make sure the delay is > 0
-                                delay = calcDelay;
-                            if (maxSecondsToWait != 0 && delay.TotalSeconds > maxSecondsToWait)
-                            {
-                                Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, delay of {(int)delay.TotalSeconds} seconds is too long, cancelling...");
-                                throw ex;
-                            }
-                            Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {(int)delay.TotalSeconds} seconds");
-                            await Task.Delay(delay).ConfigureAwait(false);
-                            tries++;
-                            continue;
-                        }
-                        else
-                        {
-                            Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, could not parse rate limit, not retrying.");
-                            throw ex;
-                        }
+                        //WaitForRateLimitDict.AddOrUpdate(baseUrl, u => new RateLimitPair(rateLimit), (url, rateLimitPair) =>
+                        //{
+                        //    rateLimitPair.Update(rateLimit);
+                        //    return rateLimitPair;
+                        //});
+                        //if (rateLimit != null)
+                        //{
+                        //    TimeSpan delay = new TimeSpan(0);
+                        //    TimeSpan calcDelay = rateLimit.TimeToReset.Add(RateLimitPadding) - DateTime.Now;
+                        //    if (calcDelay > TimeSpan.Zero) // Make sure the delay is > 0
+                        //        delay = calcDelay;
+                        //    if (maxSecondsToWait != 0 && delay.TotalSeconds > maxSecondsToWait)
+                        //    {
+                        //        Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, delay of {(int)delay.TotalSeconds} seconds is too long, cancelling...");
+                        //        throw ex;
+                        //    }
+                        //    Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, retrying in {(int)delay.TotalSeconds} seconds");
+                        //    await Task.Delay(delay).ConfigureAwait(false);
+                        //    tries++;
+                        //    continue;
+                        //}
+                        //else
+                        //{
+                        //    Logger?.Warning($"Try {tries}: Rate limit exceeded on url, {uri.ToString()}, could not parse rate limit, not retrying.");
+                        //    throw ex;
+                        //}
                     }
                     else if (errorCode == 0 && tries < retries)
                     {

@@ -15,9 +15,9 @@ using WebUtilities;
 
 namespace SongFeedReaders.Readers.BeastSaber
 {
-    public class BeastSaberFeed : IFeed
+    public class BeastSaberFeed : IPagedFeed
     {
-        private static FeedReaderLoggerBase _logger;
+        private static FeedReaderLoggerBase? _logger;
         public static FeedReaderLoggerBase Logger
         {
             get { return _logger ?? LoggingController.DefaultLogger; }
@@ -158,37 +158,49 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <returns></returns>
         public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            string pageText = "";
-            Uri feedUri;
-            bool isLastPage = false;
+
             try
             {
-                feedUri = GetUriForPage(page);
+                Uri pageUri = GetUriForPage(page);
+                return await GetSongsAsync(pageUri, cancellationToken);
             }
             catch (InvalidFeedSettingsException)
             {
                 throw;
             }
+        }
 
-            Logger.Debug($"Getting songs from '{feedUri}'");
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
+        /// <returns></returns>
+        public async Task<PageReadResult> GetSongsAsync(Uri pageUri, CancellationToken cancellationToken)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            string pageText = "";
+            bool isLastPage = false;
+
+            Logger.Debug($"Getting songs from '{pageUri}'");
             ContentType contentType = ContentType.Unknown;
             string? contentTypeStr;
             IWebResponseMessage? response = null;
             //PageReadResult result = null;
             try
             {
-                response = await WebUtils.WebClient.GetAsync(feedUri, cancellationToken).ConfigureAwait(false);
+                response = await WebUtils.WebClient.GetAsync(pageUri, cancellationToken).ConfigureAwait(false);
                 if ((response?.StatusCode ?? 500) == 500)
                 {
                     response?.Dispose();
                     response = null;
-                    Logger?.Warning($"Internal server error on {feedUri}, retrying in 20 seconds");
+                    Logger?.Warning($"Internal server error on {pageUri}, retrying in 20 seconds");
                     await Task.Delay(20000).ConfigureAwait(false);
-                    response = await WebUtils.WebClient.GetAsync(feedUri, cancellationToken).ConfigureAwait(false);
+                    response = await WebUtils.WebClient.GetAsync(pageUri, cancellationToken).ConfigureAwait(false);
                 }
-                if (response == null) throw new WebClientException($"Response was null for '{feedUri}'.");
+                if (response == null) throw new WebClientException($"Response was null for '{pageUri}'.");
                 response.EnsureSuccessStatusCode();
                 contentTypeStr = response.Content?.ContentType?.ToLower();
                 if (contentTypeStr != null && ContentDictionary.ContainsKey(contentTypeStr))
@@ -196,24 +208,24 @@ namespace SongFeedReaders.Readers.BeastSaber
                 else
                     contentType = ContentType.Unknown;
 
-                if (response.Content == null) throw new WebClientException($"Response content was null for '{feedUri}'.");
+                if (response.Content == null) throw new WebClientException($"Response content was null for '{pageUri}'.");
                 pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             }
             catch (WebClientException ex)
             {
-                return PageReadResult.FromWebClientException(ex, feedUri, page);
+                return PageReadResult.FromWebClientException(ex, pageUri);
             }
             catch (OperationCanceledException)
             {
-                return new PageReadResult(feedUri, null, page, new FeedReaderException("Page read was cancelled.", new OperationCanceledException(), FeedReaderFailureCode.Cancelled), PageErrorType.Cancelled);
+                return new PageReadResult(pageUri, null, new FeedReaderException("Page read was cancelled.", new OperationCanceledException(), FeedReaderFailureCode.Cancelled), PageErrorType.Cancelled);
             }
             catch (Exception ex)
             {
-                string message = $"Error downloading {feedUri} in TransformBlock.";
+                string message = $"Error downloading {pageUri} in TransformBlock.";
                 Logger?.Debug(message);
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
+                return new PageReadResult(pageUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
             }
             finally
             {
@@ -223,7 +235,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             List<ScrapedSong> newSongs;
             try
             {
-                var scrapedSongs = GetSongsFromPageText(pageText, feedUri, contentType, Settings.StoreRawData || StoreRawData);
+                var scrapedSongs = GetSongsFromPageText(pageText, pageUri, contentType, Settings.StoreRawData || StoreRawData);
                 isLastPage = scrapedSongs.Count == 0;
                 newSongs = new List<ScrapedSong>();
                 foreach (var song in scrapedSongs)
@@ -237,31 +249,31 @@ namespace SongFeedReaders.Readers.BeastSaber
             catch (JsonReaderException ex)
             {
                 // TODO: Probably don't need a logger message here, caller can deal with it.
-                string message = $"Error parsing page text for {feedUri} in TransformBlock.";
+                string message = $"Error parsing page text for {pageUri} in TransformBlock.";
                 Logger?.Debug(message);
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                return new PageReadResult(pageUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
             catch (XmlException ex)
             {
                 // TODO: Probably don't need a logger message here, caller can deal with it.
-                string message = $"Error parsing page text for {feedUri} in TransformBlock.";
+                string message = $"Error parsing page text for {pageUri} in TransformBlock.";
                 Logger?.Debug(message);
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                return new PageReadResult(pageUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
             catch (Exception ex)
             {
                 // TODO: Probably don't need a logger message here, caller can deal with it.
-                string message = $"Uncaught error parsing page text for {feedUri} in TransformBlock.";
+                string message = $"Uncaught error parsing page text for {pageUri} in TransformBlock.";
                 Logger?.Debug(message);
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(feedUri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
+                return new PageReadResult(pageUri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.Unknown);
             }
             sw.Stop();
             //Logger?.Debug($"Task for {feedUrl} completed in {sw.ElapsedMilliseconds}ms");
 
-            return new PageReadResult(feedUri, newSongs, page, isLastPage);
+            return new PageReadResult(pageUri, newSongs, isLastPage);
         }
 
         /// <summary>
@@ -430,7 +442,7 @@ namespace SongFeedReaders.Readers.BeastSaber
 
         public FeedAsyncEnumerator GetEnumerator(bool cachePages)
         {
-            return new FeedAsyncEnumerator(this, Settings.StartingPage, cachePages);
+            return new PagedFeedAsyncEnumerator(this, Settings.StartingPage, cachePages);
         }
         public FeedAsyncEnumerator GetEnumerator()
         {

@@ -90,6 +90,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             int pageNum = settings.StartingPage;
             //int maxPages = (int)Math.Ceiling(settings.MaxSongs / ((float)songsPerPage));
             int maxPages = settings.MaxPages;
+            int pagesChecked = 0;
             if (pageNum > 1 && maxPages != 0)
                 maxPages = maxPages + pageNum - 1;
             //if (settings.MaxPages > 0)
@@ -106,8 +107,8 @@ namespace SongFeedReaders.Readers.ScoreSaber
             Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
             
             var pageResults = new List<PageReadResult>();
-
-            PageReadResult result = await feed.GetSongsFromPageAsync(1, cancellationToken).ConfigureAwait(false);
+            Uri uri = feed.GetUriForPage(1);
+            PageReadResult result = await feed.GetSongsAsync(uri, cancellationToken).ConfigureAwait(false);
             pageResults.Add(result);
             foreach (var song in result.Songs)
             {
@@ -116,7 +117,8 @@ namespace SongFeedReaders.Readers.ScoreSaber
                     songs.Add(song.Hash, song);
                 }
             }
-            progress?.Report(new ReaderProgress(result.Page, songs.Count));
+            pagesChecked++;
+            progress?.Report(new ReaderProgress(pagesChecked, songs.Count));
             bool continueLooping = true;
 
             do
@@ -129,7 +131,8 @@ namespace SongFeedReaders.Readers.ScoreSaber
                     await Utilities.WaitUntil(() => !Utilities.IsPaused, 500).ConfigureAwait(false);
 
                 // TODO: Handle PageReadResult here
-                var pageResult = await feed.GetSongsFromPageAsync(pageNum, cancellationToken).ConfigureAwait(false);
+                uri = feed.GetUriForPage(pageNum);
+                var pageResult = await feed.GetSongsAsync(uri, cancellationToken).ConfigureAwait(false);
                 pageResults.Add(pageResult);
                 if(pageResult.PageError == PageErrorType.Cancelled)
                 {
@@ -146,11 +149,12 @@ namespace SongFeedReaders.Readers.ScoreSaber
                     }
                 }
 
-                progress?.Report(new ReaderProgress(pageResult.Page, uniqueSongCount));
+                int prog = Interlocked.Increment(ref pagesChecked);
+                progress?.Report(new ReaderProgress(prog, uniqueSongCount));
                 if (uniqueSongCount > 0)
                     Logger?.Debug($"Receiving {uniqueSongCount} potential songs from {pageResult.Uri}");
                 else
-                    Logger?.Debug($"Did not find any new songs on page {pageResult.Page} of {Name}.{settings.FeedName}.");
+                    Logger?.Debug($"Did not find any new songs on page '{pageResult.Uri}' of {Name}.{settings.FeedName}.");
                 if (pageResult.IsLastPage)
                 {
                     Logger?.Debug($"Last page reached.");

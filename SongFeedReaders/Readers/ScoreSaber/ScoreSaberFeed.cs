@@ -11,7 +11,7 @@ using WebUtilities;
 
 namespace SongFeedReaders.Readers.ScoreSaber
 {
-    public class ScoreSaberFeed : IFeed
+    public class ScoreSaberFeed : IPagedFeed
     {
         private const string TOP_RANKED_KEY = "Top Ranked";
         private const string TRENDING_KEY = "Trending";
@@ -140,21 +140,10 @@ namespace SongFeedReaders.Readers.ScoreSaber
         /// <param name="cancellationToken"></param>
         /// <exception cref="InvalidFeedSettingsException">Thrown when the feed's settings aren't valid.</exception>
         /// <returns></returns>
-        public async Task<PageReadResult> GetSongsFromPageAsync(int page, CancellationToken cancellationToken)
+        public async Task<PageReadResult> GetSongsAsync(Uri uri, CancellationToken cancellationToken)
         {
-            if (page < 1) throw new ArgumentOutOfRangeException(nameof(page), "Page cannot be less than 1.");
-            Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
-            Uri uri;
-            try
-            {
-                uri = GetUriForPage(page);
-            }
-            catch (InvalidFeedSettingsException)
-            {
-                throw;
-            }
             string pageText = "";
-
+            Dictionary<string, ScrapedSong> songs = new Dictionary<string, ScrapedSong>();
             Logger.Debug($"Getting songs from '{uri}'");
             IWebResponseMessage? response = null;
 
@@ -166,7 +155,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             }
             catch(OperationCanceledException ex)
             {
-                return PageReadResult.CancelledResult(uri, page, ex);
+                return PageReadResult.CancelledResult(uri, ex);
             }
             catch (WebClientException ex)
             {
@@ -191,12 +180,12 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 // No need for a stacktrace if it's one of these errors.
                 if (!(statusCode == 404 || statusCode == 408 || statusCode == 500))
                     Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return PageReadResult.FromWebClientException(ex, uri, page);
+                return PageReadResult.FromWebClientException(ex, uri);
             }
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting the first page in ScoreSaberReader.GetSongsFromScoreSaberAsync(): {ex.Message}";
-                return new PageReadResult(uri, new List<ScrapedSong>(), page, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.Unknown);
+                return new PageReadResult(uri, new List<ScrapedSong>(), new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.Unknown);
             }
             finally
             {
@@ -220,16 +209,16 @@ namespace SongFeedReaders.Readers.ScoreSaber
             {
                 string message = "Unable to parse JSON from text";
                 Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(uri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                return new PageReadResult(uri, null,  new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
             catch (Exception ex)
             {
                 string message = $"Unhandled exception from GetSongsFromPageText() while parsing {uri}";
                 Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(uri, null, page, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
 
-            return new PageReadResult(uri, songs.Values.ToList(), page, isLastPage);
+            return new PageReadResult(uri, songs.Values.ToList(), isLastPage);
         }
 
         /// <summary>
@@ -303,14 +292,14 @@ namespace SongFeedReaders.Readers.ScoreSaber
 
         public FeedAsyncEnumerator GetEnumerator(bool cachePages)
         {
-            return new FeedAsyncEnumerator(this, Settings.StartingPage, cachePages);
+            return new PagedFeedAsyncEnumerator(this, Settings.StartingPage, cachePages);
         }
         public FeedAsyncEnumerator GetEnumerator()
         {
             return GetEnumerator(false);
         }
 
-        public static List<ScrapedSong> GetSongsFromPageText(string pageText, string sourceUrl, bool storeRawData)
+        public static List<ScrapedSong>? GetSongsFromPageText(string pageText, string sourceUrl, bool storeRawData)
         {
             return GetSongsFromPageText(pageText, new Uri(sourceUrl), storeRawData);
         }

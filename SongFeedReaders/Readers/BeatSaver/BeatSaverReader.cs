@@ -163,12 +163,14 @@ namespace SongFeedReaders.Readers.BeatSaver
                 string? songHash = latest["hash"]?.Value<string>().ToUpper();
                 string? songName = song["metadata"]?["songName"]?.Value<string>();
                 string? mapperName = song["uploader"]?["name"]?.Value<string>();
+                DateTime uploadDate = song["uploaded"]?.Value<DateTime>() ?? DateTime.MinValue;
                 if (songHash == null || songHash.Length == 0)
                     throw new ArgumentException("Unable to find hash for the provided song, is this a valid song JObject?");
                 Uri downloadUri = WebUtils.GetDownloadUriByHash(songHash);
                 ScrapedSong newSong = new ScrapedSong(songHash, songName, mapperName, downloadUri, sourceUri, storeRawData ? song as JObject : null)
                 {
-                    Key = songKey
+                    Key = songKey,
+                    UploadDate = uploadDate
                 };
                 return newSong;
             }
@@ -217,6 +219,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 throw new InvalidCastException(INVALIDFEEDSETTINGSMESSAGE);
             int maxPages = settings.MaxPages;
             int maxSongs = settings.MaxSongs;
+            int pagesChecked = 0;
             bool useMaxPages = maxPages != 0;
             bool useMaxSongs = maxSongs != 0;
 
@@ -252,6 +255,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     PageReadResult pageResult = await feedEnum.MoveNextAsync(cancellationToken).ConfigureAwait(false);
+                    pagesChecked++;
                     pageResults.Add(pageResult);
                     if (!pageResult.Successful)
                     {
@@ -291,7 +295,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                             }
                         }
                     }
-                    progress?.Report(new ReaderProgress(pageResult.Page, songsAdded));
+                    progress?.Report(new ReaderProgress(pagesChecked, songsAdded));
                 } while (continueLooping);
             }
             catch (OperationCanceledException ex)
@@ -312,8 +316,11 @@ namespace SongFeedReaders.Readers.BeatSaver
         {
             if (string.IsNullOrEmpty(authorName))
                 return string.Empty;
-            if (_authors.ContainsKey(authorName))
-                return _authors[authorName];
+            if (_authors.TryGetValue(authorName, out string authorId))
+            {
+                Logger.Debug($"Author '{authorName}' in cache with ID '{authorId}'");
+                return authorId;
+            }
             string? mapperId = string.Empty;
 
             string pageText;
@@ -329,7 +336,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response.EnsureSuccessStatusCode();
                 if (response.Content == null)
                 {
-                    Logger?.Error($"WebResponse Content was null getting UploaderID from author name {authorName}");
+                    Logger?.Error($"WebResponse Content was null getting UploaderID from author name '{authorName}'");
                     return string.Empty;
                 }
                 pageText = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -350,7 +357,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                             break;
                     }
                 }
-                Logger?.Error($"{errorText} getting UploaderID from author name, {sourceUri} responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
+                Logger?.Error($"{errorText} getting UploaderID from author name, '{sourceUri}' responded with {ex.Response?.StatusCode}:{ex.Response?.ReasonPhrase}");
                 return string.Empty;
             }
             catch (JsonReaderException ex)
@@ -364,7 +371,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
             catch (Exception ex)
             {
-                Logger?.Error($"Uncaught error getting UploaderID from author name {authorName}");
+                Logger?.Error($"Uncaught error getting UploaderID from author name '{authorName}'");
                 Logger?.Debug($"{ex}");
                 return string.Empty;
             }
@@ -373,13 +380,14 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response?.Dispose();
                 response = null;
             }
-            if(result?["user"] is JObject user && user["id"] is JToken idProp)
+            if (result?["user"] is JObject user && user["id"] is JToken idProp)
             {
                 int mapperIdInt = idProp.Value<int>();
                 if (mapperIdInt > 0)
                 {
                     mapperId = idProp.Value<string>();
                     _authors[authorName] = mapperId;
+                    Logger?.Debug($"Matched author '{authorName}' to ID '{mapperId}'");
                 }
             }
 

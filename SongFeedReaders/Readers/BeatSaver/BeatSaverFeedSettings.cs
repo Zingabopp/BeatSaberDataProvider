@@ -115,6 +115,9 @@ namespace SongFeedReaders.Readers.BeatSaver
             }
         }
 
+        public DateTime? StartBeforeDate { get; set; }
+        public DateTime? StartAfterDate { get; set; }
+
         public BeatSaverSearchQuery? SearchQuery { get; set; }
         public string? AuthorId { get; set; }
         /// <summary>

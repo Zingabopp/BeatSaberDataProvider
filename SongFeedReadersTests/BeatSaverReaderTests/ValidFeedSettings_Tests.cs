@@ -22,23 +22,23 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
             Console.WriteLine(ex.Message);
         }
 
-        [TestMethod]
-        public void Downloads()
-        {
-            var settings = new BeatSaverFeedSettings(BeatSaverFeedName.Downloads);
-            var feed = new BeatSaverFeed(settings);
-            feed.EnsureValidSettings();
-            Assert.IsTrue(feed.HasValidSettings);
-        }
+        //[TestMethod]
+        //public void Downloads()
+        //{
+        //    var settings = new BeatSaverFeedSettings(BeatSaverFeedName.Downloads);
+        //    var feed = new BeatSaverFeed(settings);
+        //    feed.EnsureValidSettings();
+        //    Assert.IsTrue(feed.HasValidSettings);
+        //}
 
-        [TestMethod]
-        public void Hot()
-        {
-            var settings = new BeatSaverFeedSettings(BeatSaverFeedName.Hot);
-            var feed = new BeatSaverFeed(settings);
-            feed.EnsureValidSettings();
-            Assert.IsTrue(feed.HasValidSettings);
-        }
+        //[TestMethod]
+        //public void Hot()
+        //{
+        //    var settings = new BeatSaverFeedSettings(BeatSaverFeedName.Hot);
+        //    var feed = new BeatSaverFeed(settings);
+        //    feed.EnsureValidSettings();
+        //    Assert.IsTrue(feed.HasValidSettings);
+        //}
 
         [TestMethod]
         public void Plays()
@@ -61,7 +61,7 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void UnusedQuery()
         {
-            var querylessFeeds = new BeatSaverFeedName[] { BeatSaverFeedName.Downloads, BeatSaverFeedName.Hot, BeatSaverFeedName.Latest, BeatSaverFeedName.Plays };
+            var querylessFeeds = new BeatSaverFeedName[] { BeatSaverFeedName.Latest, BeatSaverFeedName.Plays };
             var queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.all, "test");
             foreach (var feedType in querylessFeeds)
             {

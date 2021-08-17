@@ -21,10 +21,11 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
         [TestMethod]
         public void Success()
         {
-            string pageText = File.ReadAllText(@"Data\BeatSaverListPage.json");
+            string path = Path.Combine("Data", "NewBeatSaver", "List", "Latest", "Latest_0.json");
+            string pageText = File.ReadAllText(path);
             Uri uri = null;
             var songs = BeatSaverReader.ParseSongsFromPage(pageText, uri, true);
-            Assert.IsTrue(songs.Count == 10);
+            Assert.AreEqual(20, songs.Count);
             foreach (var song in songs)
             {
                 Assert.IsFalse(song.DownloadUri == null);
@@ -34,10 +35,10 @@ namespace SongFeedReadersTests.BeatSaverReaderTests
                 Assert.IsFalse(string.IsNullOrEmpty(song.Name));
             }
             var firstSong = JObject.Parse(songs.First().RawData);
-            string firstHash = firstSong["hash"]?.Value<string>();
-            Assert.IsTrue(firstHash == "25170877f7b500369be0c2d1ffbdc8c6d1ad4227");
-            string firstUploader = firstSong["uploader"]?["username"]?.Value<string>();
-            Assert.IsTrue(firstUploader == "z-anesaber");
+            string firstHash = firstSong["versions"].First()["hash"]?.Value<string>();
+            Assert.AreEqual("e2512e6fbf85059d9fd9b429f62b2e618dd4d7e9", firstHash);
+            string firstUploader = firstSong["uploader"]?["name"]?.Value<string>();
+            Assert.AreEqual("itzrimuru", firstUploader);
         }
     }
 }

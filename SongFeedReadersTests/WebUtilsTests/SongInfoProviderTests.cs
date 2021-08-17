@@ -21,14 +21,14 @@ namespace SongFeedReadersTests.WebUtilsTests
         {
             SongInfoManager? manager = new SongInfoManager();
             manager.AddProvider<BeatSaverSongInfoProvider>();
-            manager.AddProvider<MockInfoProvider>("MockInfoProvoder", 50);
+            manager.AddProvider<MockInfoProvider>("MockInfoProvider", 50);
             return manager;
         }
         [TestMethod]
         public async Task GetByKeyFromMock()
         {
             SongInfoManager manager = GetDefaultManager();
-            string key = "ac78";
+            string key = "1ade0";
             SongInfoResponse response = await manager.GetSongByKeyAsync(key).ConfigureAwait(false);
             Assert.IsTrue(response.Success);
             Assert.IsTrue(response.Source is MockInfoProvider);
@@ -63,7 +63,7 @@ namespace SongFeedReadersTests.WebUtilsTests
         public async Task GetByHashFromMock()
         {
             SongInfoManager manager = GetDefaultManager();
-            string hash = "25170877f7b500369be0c2d1ffbdc8c6d1ad4227";
+            string hash = "e2512e6fbf85059d9fd9b429f62b2e618dd4d7e9";
             SongInfoResponse response = await manager.GetSongByHashAsync(hash).ConfigureAwait(false);
             Assert.IsTrue(response.Success);
             Assert.IsTrue(response.Source is MockInfoProvider);
@@ -100,7 +100,8 @@ namespace SongFeedReadersTests.WebUtilsTests
         public static ScrapedSong[] Songs;
         static MockInfoProvider()
         {
-            string pageText = File.ReadAllText(@"Data\BeatSaverListPage.json");
+            string path = Path.Combine("Data", "NewBeatSaver", "List", "Latest", "Latest_0.json");
+            string pageText = File.ReadAllText(path);
             Uri? uri = null;
             Songs = BeatSaverReader.ParseSongsFromPage(pageText, uri, true).ToArray();
         }

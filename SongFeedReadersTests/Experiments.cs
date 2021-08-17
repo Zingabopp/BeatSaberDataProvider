@@ -23,33 +23,34 @@ namespace SongFeedReadersTests
         [TestMethod]
         public void AdvancedSearch()
         {
-            var url = @"https://beatsaver.com/api/search/advanced?q=uploaded:[2019-01-01 TO 2019-01-02] AND metadata.difficulties.easy:true AND metadata.songName:*e*";
-            var response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
-            var uri = WebUtils.BeatSaverUri;
-            var uri2 = WebUtils.BeatSaverApiUri;
-            var uri3 = WebUtils.BeatSaverDownloadUri;
-            var uri4 = WebUtils.GetDownloadUriByHash("hashy");
-            var uri5 = WebUtils.GetBeatSaverDetailsByHash("hashy");
-            var uri6 = WebUtils.GetBeatSaverDetailsByKey("keything");
+            Assert.Fail("Needs to be refactored for new Beat Saver");
+            //var url = @"https://beatsaver.com/api/search/advanced?q=uploaded:[2019-01-01 TO 2019-01-02] AND metadata.difficulties.easy:true AND metadata.songName:*e*";
+            //var response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
+            //var uri = WebUtils.BeatSaverUri;
+            //var uri2 = WebUtils.BeatSaverApiUri;
+            //var uri3 = WebUtils.BeatSaverDownloadUri;
+            //var uri4 = WebUtils.GetDownloadUriByHash("hashy");
+            //var uri5 = WebUtils.GetBeatSaverDetailsByHash("hashy");
+            //var uri6 = WebUtils.GetBeatSaverDetailsByKey("keything");
 
-            WebUtils.BeatSaverUri = new Uri("https://beatsaver.com");
-            uri = WebUtils.BeatSaverUri;
-            uri2 = WebUtils.BeatSaverApiUri;
-            uri3 = WebUtils.BeatSaverDownloadUri;
-            uri4 = WebUtils.GetDownloadUriByHash("asdf");
-            uri5 = WebUtils.GetBeatSaverDetailsByHash("hashy");
-            uri6 = WebUtils.GetBeatSaverDetailsByKey("keything");
+            //WebUtils.BeatSaverUri = new Uri("https://beatsaver.com");
+            //uri = WebUtils.BeatSaverUri;
+            //uri2 = WebUtils.BeatSaverApiUri;
+            //uri3 = WebUtils.BeatSaverDownloadUri;
+            //uri4 = WebUtils.GetDownloadUriByHash("asdf");
+            //uri5 = WebUtils.GetBeatSaverDetailsByHash("hashy");
+            //uri6 = WebUtils.GetBeatSaverDetailsByKey("keything");
 
-            var songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
-            url = @"https://beatsaver.com/api/search/advanced?q=uploaded:[2019-01-01 TO 2019-01-02] AND metadata.difficulties.easy:true AND metadata.songName:e";
-            response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
-            songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
-            url = @"https://beatsaver.com/api/search/advanced?q=metadata.songName:bomb";
-            response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
-            songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
-            url = @"https://beatsaver.com/api/search/text/?q=bomb";
-            response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
-            songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
+            //var songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
+            //url = @"https://beatsaver.com/api/search/advanced?q=uploaded:[2019-01-01 TO 2019-01-02] AND metadata.difficulties.easy:true AND metadata.songName:e";
+            //response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
+            //songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
+            //url = @"https://beatsaver.com/api/search/advanced?q=metadata.songName:bomb";
+            //response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
+            //songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
+            //url = @"https://beatsaver.com/api/search/text/?q=bomb";
+            //response = WebUtils.GetBeatSaverAsync(new Uri(url), CancellationToken.None).Result;
+            //songs = BeatSaverReader.ParseSongsFromPage(response.Content.ReadAsStringAsync().Result, url, true);
         }
 
         [TestMethod]

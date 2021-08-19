@@ -56,9 +56,7 @@ namespace SongFeedReaders.Services
                 {
                     using Stream? fs = File.OpenRead(filePath);
                     songContainer = ParseProtobuf(fs);
-                    if (songContainer != null)
-                        Logger?.Debug($"{songContainer.songs?.Length ?? 0} songs data loaded from '{filePath}', format version {songContainer.formatVersion}, last updated {songContainer.ScrapeTime:g}");
-                    else
+                    if (songContainer == null)
                         Logger?.Warning($"Failed to load song info protobuf file at '{filePath}'");
                 }
                 catch (Exception ex)
@@ -69,40 +67,53 @@ namespace SongFeedReaders.Services
             return songContainer;
         }
 
+        private static async Task<AndruzzProtobufContainer?> ParseGzipWebSource(Uri uri)
+        {
+            AndruzzProtobufContainer? songContainer = null;
+            try
+            {
+                WebUtilities.IWebResponseMessage? downloadResponse = await WebUtils.WebClient.GetAsync(uri).ConfigureAwait(false);
+                downloadResponse.EnsureSuccessStatusCode();
+                if (downloadResponse.Content != null)
+                {
+                    using Stream scrapeStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    using GZipStream gstream = new GZipStream(scrapeStream, CompressionMode.Decompress);
+                    songContainer = ParseProtobuf(gstream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger?.Warning($"Error loading Andruzz's Scrapped Data from GitHub: {ex.Message}");
+            }
+            return songContainer;
+        }
+
         private async Task<bool> InitializeDataInternal()
         {
             Stream? scrapeStream = null;
             Stream? protobuf = null;
             AndruzzProtobufContainer? songContainer = null;
-            DataSource source;
+            DataSource source = DataSource.GitHub;
+            TimeSpan dataAge = TimeSpan.MaxValue;
             try
             {
                 string? filePath = FilePath;
                 if (filePath != null && filePath.Length > 0)
                 {
                     songContainer = ParseFile(filePath);
-                    source = DataSource.File;
+                    if(songContainer != null)
+                    {
+                        source = DataSource.File;
+                        dataAge = DateTime.UtcNow - songContainer.ScrapeTime;
+                    }
                 }
+
                 if (songContainer?.songs == null 
                     || songContainer.songs.Length == 0 
-                    || (DateTime.UtcNow - songContainer.ScrapeTime) > MaxAge)
+                    || dataAge > MaxAge)
                 {
-                    try
-                    {
-                        WebUtilities.IWebResponseMessage? downloadResponse = await WebUtils.WebClient.GetAsync(ScrapedDataUrl).ConfigureAwait(false);
-                        downloadResponse.EnsureSuccessStatusCode();
-                        if (downloadResponse.Content != null)
-                        {
-                            scrapeStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            using GZipStream gstream = new GZipStream(scrapeStream, CompressionMode.Decompress);
-                            songContainer = ParseProtobuf(gstream);
-                            Logger?.Debug($"{songContainer?.songs?.Length ?? 0} songs data loaded from GitHub.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.Warning($"Error loading Andruzz's Scrapped Data from GitHub: {ex.Message}");
-                    }
+                    songContainer = await ParseGzipWebSource(new Uri(ScrapedDataUrl)).ConfigureAwait(false);
+                    source = DataSource.GitHub;
                 }
                 if (songContainer?.songs != null)
                 {
@@ -116,6 +127,8 @@ namespace SongFeedReaders.Services
                             _byKey[song.Key] = song;
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
                     }
+
+                    Logger?.Debug($"{songContainer.songs?.Length ?? 0} songs data loaded from '{source}', format version {songContainer.formatVersion}, last updated {songContainer.ScrapeTime:g}");
                 }
                 else
                 {
@@ -131,7 +144,6 @@ namespace SongFeedReaders.Services
                 protobuf?.Dispose();
                 scrapeStream?.Dispose();
             }
-
             return true;
         }
 

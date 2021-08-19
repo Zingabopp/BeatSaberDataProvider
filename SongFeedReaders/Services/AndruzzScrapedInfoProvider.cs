@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using ProtoBuf;
+﻿using ProtoBuf;
 using SongFeedReaders.Data;
 using System;
 using System.Collections.Generic;
@@ -14,13 +13,13 @@ namespace SongFeedReaders.Services
     {
         private const string ScrapedDataUrl = @"https://raw.githubusercontent.com/andruzzzhka/BeatSaberScrappedData/master/songDetails2.gz";
         private const string dataFileName = "songDetails2.gz";
-        private Dictionary<string, ScrapedSong> _byHash = new Dictionary<string, ScrapedSong>(StringComparer.OrdinalIgnoreCase);
-        private Dictionary<string, ScrapedSong> _byKey = new Dictionary<string, ScrapedSong>(StringComparer.OrdinalIgnoreCase);
-        private static JsonSerializer JsonSerializer = new JsonSerializer();
+        private Dictionary<string, ScrapedSong>? _byHash;
+        private Dictionary<string, ScrapedSong>? _byKey;
         private object _initializeLock = new object();
         private Task<bool>? initializeTask;
 
-        private string? FilePath;
+        private readonly string? FilePath;
+        public TimeSpan MaxAge { get; set; } = TimeSpan.FromDays(2);
         public AndruzzScrapedInfoProvider() { }
         public AndruzzScrapedInfoProvider(string filePath)
         {
@@ -42,28 +41,51 @@ namespace SongFeedReaders.Services
                 return finished;
             }
         }
+        private enum DataSource
+        {
+            GitHub,
+            File
+        }
+
+        private static AndruzzProtobufContainer? ParseFile(string filePath)
+        {
+            AndruzzProtobufContainer? songContainer = null;
+            if (filePath != null && File.Exists(filePath))
+            {
+                try
+                {
+                    using Stream? fs = File.OpenRead(filePath);
+                    songContainer = ParseProtobuf(fs);
+                    if (songContainer != null)
+                        Logger?.Debug($"{songContainer.songs?.Length ?? 0} songs data loaded from '{filePath}', format version {songContainer.formatVersion}, last updated {songContainer.ScrapeTime:g}");
+                    else
+                        Logger?.Warning($"Failed to load song info protobuf file at '{filePath}'");
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Warning($"Error reading song info protobuf file at '{filePath}': {ex.Message}");
+                }
+            }
+            return songContainer;
+        }
 
         private async Task<bool> InitializeDataInternal()
         {
             Stream? scrapeStream = null;
-            Stream? protobu = null;
+            Stream? protobuf = null;
             AndruzzProtobufContainer? songContainer = null;
+            DataSource source;
             try
             {
-                if (FilePath != null && File.Exists(FilePath))
+                string? filePath = FilePath;
+                if (filePath != null && filePath.Length > 0)
                 {
-                    try
-                    {
-                        protobu = File.OpenRead(FilePath);
-                        songContainer = ParseProtobuf(protobu);
-                        Logger?.Debug($"{songContainer?.songs.Length ?? 0} songs data loaded from '{FilePath}'");
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger?.Warning($"Error reading song info json file at '{FilePath}': {ex.Message}");
-                    }
+                    songContainer = ParseFile(filePath);
+                    source = DataSource.File;
                 }
-                if (songContainer?.songs == null || songContainer.songs.Length == 0)
+                if (songContainer?.songs == null 
+                    || songContainer.songs.Length == 0 
+                    || (DateTime.UtcNow - songContainer.ScrapeTime) > MaxAge)
                 {
                     try
                     {
@@ -82,14 +104,17 @@ namespace SongFeedReaders.Services
                         Logger?.Warning($"Error loading Andruzz's Scrapped Data from GitHub: {ex.Message}");
                     }
                 }
-                if (songContainer != null)
+                if (songContainer?.songs != null)
                 {
-                    foreach (AndruzzProtobufSong? song in songContainer.songs)
+                    CreateDictionaries(songContainer.songs.Length);
+                    foreach (AndruzzProtobufSong song in songContainer.songs)
                     {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                         if (song.Hash != null)
                             _byHash[song.Hash] = song;
-                        if (song.Key != null)
+                        if (song.Key != null && song.Key.Length > 0)
                             _byKey[song.Key] = song;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                     }
                 }
                 else
@@ -103,14 +128,22 @@ namespace SongFeedReaders.Services
             }
             finally
             {
-                protobu?.Dispose();
+                protobuf?.Dispose();
                 scrapeStream?.Dispose();
             }
 
             return true;
         }
 
-        private AndruzzProtobufContainer? ParseProtobuf(Stream protobufStream)
+        private void CreateDictionaries(int size)
+        {
+            if (_byHash == null)
+                _byHash = new Dictionary<string, ScrapedSong>(size, StringComparer.OrdinalIgnoreCase);
+            if (_byKey == null)
+                _byKey = new Dictionary<string, ScrapedSong>(size, StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static AndruzzProtobufContainer? ParseProtobuf(Stream protobufStream)
         {
             return Serializer.Deserialize<AndruzzProtobufContainer>(protobufStream);
         }
@@ -121,17 +154,17 @@ namespace SongFeedReaders.Services
         public override async Task<ScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken)
         {
             await InitializeData(cancellationToken).ConfigureAwait(false);
-            if (_byHash.TryGetValue(hash, out ScrapedSong song))
-                return song;
-            return null;
+            ScrapedSong? song = null;
+            _byHash?.TryGetValue(hash, out song);
+            return song;
         }
 
         public override async Task<ScrapedSong?> GetSongByKeyAsync(string key, CancellationToken cancellationToken)
         {
             await InitializeData(cancellationToken).ConfigureAwait(false);
-            if (_byKey.TryGetValue(key, out ScrapedSong song))
-                return song;
-            return null;
+            ScrapedSong? song = null;
+            _byKey?.TryGetValue(key, out song);
+            return song;
         }
     }
 }

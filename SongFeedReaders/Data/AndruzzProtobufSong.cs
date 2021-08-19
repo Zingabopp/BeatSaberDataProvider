@@ -20,8 +20,8 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-using System;
 using ProtoBuf;
+using System;
 
 namespace SongFeedReaders.Data
 {
@@ -34,12 +34,15 @@ namespace SongFeedReaders.Data
         public readonly uint scrapeEndedTimeUnix;
         [ProtoMember(4)]
         public readonly AndruzzProtobufSong[] songs = null!;
+
+        public DateTime ScrapeTime => AndruzzProtobufSong.epoch.AddSeconds(scrapeEndedTimeUnix);
+
     }
 
     [ProtoContract]
     public class AndruzzProtobufSong : ScrapedSong
     {
-        private static readonly DateTime epoch = new DateTime(1970,1,1,0,0,0,0).ToLocalTime();
+        internal static readonly DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0).ToLocalTime();
         public enum RankedStatus : uint { Unranked, Ranked = 1, Qualified = 2 }
 
         [ProtoMember(1)]
@@ -120,8 +123,8 @@ namespace SongFeedReaders.Data
         [ProtoMember(15)]
         public readonly RankedStatus rankedState;
 
-        [ProtoMember(13, OverwriteList = true)]
-        internal readonly AndruzzProtobufDiff[] difficulties = null!;
+        //[ProtoMember(13, OverwriteList = true)]
+        //internal readonly AndruzzProtobufDiff[] difficulties = null!;
 
         AndruzzProtobufSong()
         {
@@ -129,7 +132,7 @@ namespace SongFeedReaders.Data
             rankedState = RankedStatus.Unranked;
         }
     }
-
+    /* Unneeded for now.
     [ProtoContract]
     public class AndruzzProtobufDiff
     {
@@ -138,6 +141,34 @@ namespace SongFeedReaders.Data
 
         [Flags]
         public enum MapMods : uint { NoodleExtensions = 1, MappingExtensions = 1 << 1, Chroma = 1 << 2, Cinema = 1 << 3 }
+#pragma warning disable 649
+        [ProtoMember(1)] 
+        public readonly MapCharacteristic characteristic = MapCharacteristic.Standard;
+        [ProtoMember(2)] 
+        public readonly MapDifficulty difficulty;
 
+        [ProtoMember(4)] 
+        public readonly uint starsT100;
+
+        [ProtoMember(6)] 
+        public readonly uint njsT100;
+
+        [ProtoMember(7)] 
+        public readonly uint bombs;
+        [ProtoMember(8)] 
+        public readonly uint notes;
+        [ProtoMember(9)] 
+        public readonly uint obstacles;
+
+        [ProtoMember(10)] 
+        public readonly MapMods mods;
+#pragma warning restore
+
+        AndruzzProtobufDiff()
+        {
+            difficulty = MapDifficulty.ExpertPlus;
+            characteristic = MapCharacteristic.Standard;
+        }
     }
+    */
 }

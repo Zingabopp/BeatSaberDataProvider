@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using ProtoBuf;
 using SongFeedReaders.Data;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,8 @@ namespace SongFeedReaders.Services
 {
     public class AndruzzScrapedInfoProvider : SongInfoProvider
     {
-        private const string ScrapedDataUrl = @"https://raw.githubusercontent.com/andruzzzhka/BeatSaberScrappedData/master/beatSaverScrappedData.zip";
-        private const string dataFileName = "beatSaverScrappedData.json";
+        private const string ScrapedDataUrl = @"https://raw.githubusercontent.com/andruzzzhka/BeatSaberScrappedData/master/songDetails2.gz";
+        private const string dataFileName = "songDetails2.gz";
         private Dictionary<string, ScrapedSong> _byHash = new Dictionary<string, ScrapedSong>(StringComparer.OrdinalIgnoreCase);
         private Dictionary<string, ScrapedSong> _byKey = new Dictionary<string, ScrapedSong>(StringComparer.OrdinalIgnoreCase);
         private static JsonSerializer JsonSerializer = new JsonSerializer();
@@ -45,25 +46,24 @@ namespace SongFeedReaders.Services
         private async Task<bool> InitializeDataInternal()
         {
             Stream? scrapeStream = null;
-            Stream? jsonStream = null;
-            ZipArchive? zip = null;
-            List<AndruzzScrapedSong>? songList = null;
+            Stream? protobu = null;
+            AndruzzProtobufContainer? songContainer = null;
             try
             {
                 if (FilePath != null && File.Exists(FilePath))
                 {
                     try
                     {
-                        jsonStream = File.OpenRead(FilePath);
-                        songList = ParseJson(jsonStream);
-                        Logger?.Debug($"{songList?.Count ?? 0} songs data loaded from '{FilePath}'");
+                        protobu = File.OpenRead(FilePath);
+                        songContainer = ParseProtobuf(protobu);
+                        Logger?.Debug($"{songContainer?.songs.Length ?? 0} songs data loaded from '{FilePath}'");
                     }
                     catch (Exception ex)
                     {
                         Logger?.Warning($"Error reading song info json file at '{FilePath}': {ex.Message}");
                     }
                 }
-                if (songList == null || songList.Count == 0)
+                if (songContainer?.songs == null || songContainer.songs.Length == 0)
                 {
                     try
                     {
@@ -72,10 +72,9 @@ namespace SongFeedReaders.Services
                         if (downloadResponse.Content != null)
                         {
                             scrapeStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            zip = new ZipArchive(scrapeStream, ZipArchiveMode.Read);
-                            jsonStream = zip.GetEntry(dataFileName).Open();
-                            songList = ParseJson(jsonStream);
-                            Logger?.Debug($"{songList?.Count ?? 0} songs data loaded from GitHub.");
+                            using GZipStream gstream = new GZipStream(scrapeStream, CompressionMode.Decompress);
+                            songContainer = ParseProtobuf(gstream);
+                            Logger?.Debug($"{songContainer?.songs?.Length ?? 0} songs data loaded from GitHub.");
                         }
                     }
                     catch (Exception ex)
@@ -83,9 +82,9 @@ namespace SongFeedReaders.Services
                         Logger?.Warning($"Error loading Andruzz's Scrapped Data from GitHub: {ex.Message}");
                     }
                 }
-                if (songList != null)
+                if (songContainer != null)
                 {
-                    foreach (AndruzzScrapedSong? song in songList)
+                    foreach (AndruzzProtobufSong? song in songContainer.songs)
                     {
                         if (song.Hash != null)
                             _byHash[song.Hash] = song;
@@ -104,19 +103,16 @@ namespace SongFeedReaders.Services
             }
             finally
             {
-                jsonStream?.Dispose();
-                zip?.Dispose();
+                protobu?.Dispose();
                 scrapeStream?.Dispose();
             }
 
             return true;
         }
 
-        private List<AndruzzScrapedSong>? ParseJson(Stream jsonStream)
+        private AndruzzProtobufContainer? ParseProtobuf(Stream protobufStream)
         {
-            using StreamReader? sr = new StreamReader(jsonStream);
-            using JsonTextReader? jr = new JsonTextReader(sr);
-            return JsonSerializer.Deserialize<List<AndruzzScrapedSong>>(jr);
+            return Serializer.Deserialize<AndruzzProtobufContainer>(protobufStream);
         }
 
         private bool _available = true;

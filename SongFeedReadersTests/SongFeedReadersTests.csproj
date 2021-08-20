@@ -168,7 +168,7 @@
     <None Update="Data\ScoreSaber\trending0.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Data\SongInfoProvider\songDetails2">
+    <None Update="Data\SongInfoProvider\songDetails2_20210817">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -159,7 +159,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             {
                 JObject latest = GetLatestSongVersion(song);
                 //JSONObject song = (JSONObject) aKeyValue;
-                string? songKey = latest["key"]?.Value<string>();
+                string? songKey = song["id"]?.Value<string>();
                 string? songHash = latest["hash"]?.Value<string>().ToUpper();
                 string? songName = song["metadata"]?["songName"]?.Value<string>();
                 string? mapperName = song["uploader"]?["name"]?.Value<string>();

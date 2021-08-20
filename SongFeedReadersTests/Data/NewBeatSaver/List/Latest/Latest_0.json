@@ -1,0 +1,1616 @@
+﻿{
+  "docs": [
+    {
+      "id": 109459,
+      "name": "AirBron Robots ",
+      "description": "Not Final Version",
+      "uploader": {
+        "id": 77233,
+        "name": "itzrimuru",
+        "hash": "608e7ef812772e0006e2bafc",
+        "avatar": "https://www.gravatar.com/avatar/608e7ef812772e0006e2bafc?d=retro"
+      },
+      "metadata": {
+        "bpm": 200.0,
+        "duration": 270,
+        "songName": "Airborn Robots",
+        "songSubName": "",
+        "songAuthorName": "F-777",
+        "levelAuthorName": "ItzRimuru"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 41,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T20:36:22.804Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "e2512e6fbf85059d9fd9b429f62b2e618dd4d7e9",
+          "key": "1ade0",
+          "state": "Published",
+          "createdAt": "2021-08-02T20:36:22.804Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 20.0,
+              "offset": -0.29,
+              "notes": 1986,
+              "bombs": 0,
+              "obstacles": 55,
+              "nps": 10.177,
+              "length": 650.5,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 6,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 195.15,
+              "paritySummary": {
+                "errors": 9,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109455,
+      "name": "Trapped in the past",
+      "description": "tried to make the choruses more fun, bit harder now tho\nplease let know if bad or gud: muffn#2345\nwill probably be reuploaded again before rank\n!\n:D",
+      "uploader": {
+        "id": 1733,
+        "name": "nomuffn",
+        "hash": "5cff0b7498cc5a672c850ceb",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7498cc5a672c850ceb?d=retro"
+      },
+      "metadata": {
+        "bpm": 180.0,
+        "duration": 231,
+        "songName": "Trapped in the Past",
+        "songSubName": "",
+        "songAuthorName": "TUYU",
+        "levelAuthorName": "muffn"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 24,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T20:16:22.418Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "42440e55f9028cbbd1decd213b812123ee57784f",
+          "key": "1addd",
+          "state": "Published",
+          "createdAt": "2021-08-02T20:16:22.418Z",
+          "sageScore": 5,
+          "diffs": [
+            {
+              "njs": 16.0,
+              "offset": 0.0,
+              "notes": 1337,
+              "bombs": 0,
+              "obstacles": 12,
+              "nps": 5.962,
+              "length": 672.771,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 6112,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 224.257,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 18.0,
+              "offset": -0.3,
+              "notes": 1733,
+              "bombs": 0,
+              "obstacles": 13,
+              "nps": 7.728,
+              "length": 672.75,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 6112,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 224.25,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 20.0,
+              "offset": -0.53,
+              "notes": 1728,
+              "bombs": 0,
+              "obstacles": 15,
+              "nps": 7.706,
+              "length": 672.75,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 6112,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 224.25,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109454,
+      "name": "Fire And Earth (WIP 5)",
+      "description": "",
+      "uploader": {
+        "id": 4235008,
+        "name": "honored",
+        "hash": "61071ee2b85f2d0006317991",
+        "avatar": "https://www.gravatar.com/avatar/61071ee2b85f2d0006317991?d=retro"
+      },
+      "metadata": {
+        "bpm": 189.0,
+        "duration": 127,
+        "songName": "Fire & Earth",
+        "songSubName": "(OST Mix)",
+        "songAuthorName": "RainbowDragonEyes",
+        "levelAuthorName": "Rusty"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 3,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T19:48:06.656Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "d3cb2617dbd5288ad250f06889ec5c669157bb32",
+          "key": "1addc",
+          "state": "Published",
+          "createdAt": "2021-08-02T19:48:06.656Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 18.0,
+              "offset": 0.0,
+              "notes": 920,
+              "bombs": 136,
+              "obstacles": 502,
+              "nps": 10.854,
+              "length": 267.0,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 0,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 84.762,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109450,
+      "name": "German Spongebob Yelling",
+      "description": "very cursed.. not my proudest moment",
+      "uploader": {
+        "id": 72516,
+        "name": "salatokind",
+        "hash": "60684e2b12772e0006e18756",
+        "avatar": "https://www.gravatar.com/avatar/60684e2b12772e0006e18756?d=retro"
+      },
+      "metadata": {
+        "bpm": 90.0,
+        "duration": 6,
+        "songName": "German Spongebob Yelling",
+        "songSubName": "",
+        "songAuthorName": "nickelodeon",
+        "levelAuthorName": "Salat_"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 4,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T19:40:06.505Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "54d8b698d7ec292cb2fd62754367ac2c80ba639c",
+          "key": "1adda",
+          "state": "Published",
+          "createdAt": "2021-08-02T19:40:06.505Z",
+          "sageScore": -1,
+          "diffs": [
+            {
+              "njs": 16.0,
+              "offset": 0.0,
+              "notes": 38,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 7.369,
+              "length": 7.735,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 0,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 5.157,
+              "paritySummary": {
+                "errors": 3,
+                "warns": 6,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109453,
+      "name": "Apashe - Good news",
+      "description": "(Chroma Lightshow)\n\nPlease use it. This lightshow took me forever to make and if you play this with static lights or no flickering we can't be friends :/",
+      "uploader": {
+        "id": 74956,
+        "name": "vadez",
+        "hash": "607c93b2cd73ba00060b137f",
+        "avatar": "https://www.gravatar.com/avatar/607c93b2cd73ba00060b137f?d=retro"
+      },
+      "metadata": {
+        "bpm": 140.0,
+        "duration": 257,
+        "songName": "Good news",
+        "songSubName": "",
+        "songAuthorName": "Apashe",
+        "levelAuthorName": "Vadez"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 5,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 0.5942
+      },
+      "uploaded": "2021-08-02T19:39:01.524Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "5597ddbbda884f9e80f5d265c6f8b875c20eba04",
+          "key": "1add9",
+          "state": "Published",
+          "createdAt": "2021-08-02T19:39:01.524Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 20.0,
+              "offset": 0.0,
+              "notes": 706,
+              "bombs": 228,
+              "obstacles": 0,
+              "nps": 3.101,
+              "length": 531.188,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 8477,
+              "chroma": true,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 227.652,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 58
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109452,
+      "name": "BTS - Butter",
+      "description": "oddloop#4211 on discord for feedback and such.\r\n",
+      "uploader": {
+        "id": 1071,
+        "name": "oddloop",
+        "hash": "5cff0b7398cc5a672c84fd45",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7398cc5a672c84fd45?d=retro"
+      },
+      "metadata": {
+        "bpm": 110.0,
+        "duration": 166,
+        "songName": "Butter",
+        "songSubName": "",
+        "songAuthorName": "BTS",
+        "levelAuthorName": "Oddloop"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 24,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T19:36:02.995Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "c9c3715f26e564b595d7c3152c23d64a5be488c5",
+          "key": "1add8",
+          "state": "Published",
+          "createdAt": "2021-08-02T19:36:02.995Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 16.0,
+              "offset": 0.0,
+              "notes": 407,
+              "bombs": 0,
+              "obstacles": 34,
+              "nps": 2.529,
+              "length": 295.0,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 958,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 160.909,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 18.0,
+              "offset": 0.0,
+              "notes": 624,
+              "bombs": 8,
+              "obstacles": 18,
+              "nps": 3.878,
+              "length": 295.0,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 958,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 160.909,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 19.0,
+              "offset": 0.0,
+              "notes": 846,
+              "bombs": 0,
+              "obstacles": 103,
+              "nps": 5.244,
+              "length": 295.75,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 996,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 161.318,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109449,
+      "name": "Diabolic Phantasma - Invasion of Amorphous Trepidation",
+      "description": "hi i made another metal this time 300bpm have fun ft. burchase\n\n\n\n\n\ndibl#4737 for feedback",
+      "uploader": {
+        "id": 1141,
+        "name": "dibl",
+        "hash": "5e4491c2521acf00067e5409",
+        "avatar": "https://www.gravatar.com/avatar/5e4491c2521acf00067e5409?d=retro"
+      },
+      "metadata": {
+        "bpm": 300.0,
+        "duration": 323,
+        "songName": "Invasion of Amorphous Trepidation",
+        "songSubName": "",
+        "songAuthorName": "Diabolic Phantasma",
+        "levelAuthorName": "dibl & Burchase"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 9,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T19:28:58.476Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "3cd690206fa393d81dcd9ef238b5024a67159f25",
+          "key": "1add7",
+          "state": "Published",
+          "createdAt": "2021-08-02T19:28:58.476Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 21.0,
+              "offset": -1.75,
+              "notes": 3736,
+              "bombs": 28,
+              "obstacles": 93,
+              "nps": 11.849,
+              "length": 1576.567,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 13827,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 315.313,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 8
+              }
+            },
+            {
+              "njs": 23.0,
+              "offset": 0.05,
+              "notes": 4590,
+              "bombs": 46,
+              "obstacles": 212,
+              "nps": 14.56,
+              "length": 1576.241,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 13955,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 315.248,
+              "paritySummary": {
+                "errors": 1,
+                "warns": 0,
+                "resets": 9
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109448,
+      "name": "DM DOKURO - Reality Check Through The Skull",
+      "description": "oh em gee it the hardest song in da game!!!!!1!!!!!!!1!111\n\nfinally a good map of this song\n\nthere is no break at 1:45\n\ncry about it",
+      "uploader": {
+        "id": 81779,
+        "name": "bizzyy",
+        "hash": "60afdfb912772e0006e3be44",
+        "avatar": "https://www.gravatar.com/avatar/60afdfb912772e0006e3be44?d=retro"
+      },
+      "metadata": {
+        "bpm": 260.0,
+        "duration": 334,
+        "songName": "Reality Check Through The Skull",
+        "songSubName": "",
+        "songAuthorName": "DM DOKURO",
+        "levelAuthorName": "Bizzy"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 30,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 0.5942
+      },
+      "uploaded": "2021-08-02T19:18:21.181Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "61856079a53ab096c2943a4ca32638aab72edff5",
+          "key": "1add6",
+          "state": "Published",
+          "createdAt": "2021-08-02T19:18:21.181Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 21.5,
+              "offset": -0.28,
+              "notes": 2144,
+              "bombs": 297,
+              "obstacles": 380,
+              "nps": 6.996,
+              "length": 1328.0,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 3495,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 306.462,
+              "paritySummary": {
+                "errors": 3,
+                "warns": 0,
+                "resets": 27
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109446,
+      "name": "Deep Note",
+      "description": "",
+      "uploader": {
+        "id": 4235112,
+        "name": "awson95",
+        "hash": "6108445d12772e0006e5c270",
+        "avatar": "https://www.gravatar.com/avatar/6108445d12772e0006e5c270?d=retro"
+      },
+      "metadata": {
+        "bpm": 160.0,
+        "duration": 31,
+        "songName": "Deep Note",
+        "songSubName": "",
+        "songAuthorName": "THX",
+        "levelAuthorName": "Dawson Raehn"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 4,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T19:18:11.106Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "ef5c5de76286a7f2b60cf28c493599b81ed6056b",
+          "key": "1add5",
+          "state": "Published",
+          "createdAt": "2021-08-02T19:18:11.106Z",
+          "sageScore": 2,
+          "diffs": [
+            {
+              "njs": 15.0,
+              "offset": 0.0,
+              "notes": 504,
+              "bombs": 86,
+              "obstacles": 28,
+              "nps": 31.624,
+              "length": 42.5,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 50,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 15.938,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109442,
+      "name": "Do You Know De Way?",
+      "description": "I Don't Know De Way :(",
+      "uploader": {
+        "id": 4234721,
+        "name": "wolfystreams",
+        "hash": "61043b9112772e0006e59c20",
+        "avatar": "https://www.gravatar.com/avatar/61043b9112772e0006e59c20?d=retro"
+      },
+      "metadata": {
+        "bpm": 163.0,
+        "duration": 143,
+        "songName": "Do You Know De Way?",
+        "songSubName": "I Don't Know Da Way Do U?",
+        "songAuthorName": "CG5",
+        "levelAuthorName": "Charting: WolfyStreams Lights: WolfyStreams"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 4,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T18:39:44.182Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "0a74cff4f6b58ca234347909df87e9f8b6b3c5f0",
+          "key": "1add1",
+          "state": "Published",
+          "createdAt": "2021-08-02T18:39:44.182Z",
+          "sageScore": 2,
+          "diffs": [
+            {
+              "njs": 12.0,
+              "offset": 0.0,
+              "notes": 164,
+              "bombs": 4,
+              "obstacles": 241,
+              "nps": 4.087,
+              "length": 109.0,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 0,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 40.123,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109441,
+      "name": "Foozogz - Smile",
+      "description": "Reworked the map and added all the other difficulties, although generally every difficulty is harder than normally (: especially due to the later part in the song :)",
+      "uploader": {
+        "id": 2461,
+        "name": "petersome",
+        "hash": "5f935faa3dd2f00006d32c89",
+        "avatar": "https://www.gravatar.com/avatar/5f935faa3dd2f00006d32c89?d=retro"
+      },
+      "metadata": {
+        "bpm": 194.0,
+        "duration": 201,
+        "songName": "Smile",
+        "songSubName": "",
+        "songAuthorName": "Foozogz",
+        "levelAuthorName": "Petersome"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 8,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 0.6408
+      },
+      "uploaded": "2021-08-02T18:30:16.243Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "0fd88f66e21833215e9c0be5c9a23d2246eee591",
+          "key": "1adcf",
+          "state": "Published",
+          "createdAt": "2021-08-02T18:30:16.243Z",
+          "sageScore": 7,
+          "diffs": [
+            {
+              "njs": 10.0,
+              "offset": 0.0,
+              "notes": 392,
+              "bombs": 8,
+              "obstacles": 418,
+              "nps": 2.012,
+              "length": 630.0,
+              "characteristic": "Standard",
+              "difficulty": "Easy",
+              "events": 4544,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 194.845,
+              "paritySummary": {
+                "errors": 24,
+                "warns": 14,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 10.0,
+              "offset": 0.0,
+              "notes": 509,
+              "bombs": 0,
+              "obstacles": 329,
+              "nps": 2.612,
+              "length": 630.0,
+              "characteristic": "Standard",
+              "difficulty": "Normal",
+              "events": 4543,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 194.845,
+              "paritySummary": {
+                "errors": 19,
+                "warns": 15,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 13.0,
+              "offset": 0.0,
+              "notes": 801,
+              "bombs": 34,
+              "obstacles": 241,
+              "nps": 4.113,
+              "length": 629.762,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 4544,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 194.772,
+              "paritySummary": {
+                "errors": 4,
+                "warns": 1,
+                "resets": 3
+              }
+            },
+            {
+              "njs": 18.0,
+              "offset": 0.0,
+              "notes": 1107,
+              "bombs": 0,
+              "obstacles": 288,
+              "nps": 5.681,
+              "length": 630.012,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 4544,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 194.849,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 2,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 21.0,
+              "offset": -0.25,
+              "notes": 1663,
+              "bombs": 0,
+              "obstacles": 207,
+              "nps": 8.535,
+              "length": 630.0,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 4544,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 194.845,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109440,
+      "name": "Echolocation, Meganeko and Shirobon [Chroma 2.4.10]",
+      "description": "It's so cold and beautiful\n\nReupload\n\n-Cooler environment\n-More chill chorus and outtro\n-Easier angles in some places\n-Double note usage changed\n-Some scary bursts replaced with sliders\n-Other small revisions\n\nPSY2K EP by Meganeko, Shirobon: https://meganeko.bandcamp.com/album/psy2k\nExpert+\n\n",
+      "uploader": {
+        "id": 3063,
+        "name": "tacky",
+        "hash": "5eb8b0ed2a34090006bb015a",
+        "avatar": "https://www.gravatar.com/avatar/5eb8b0ed2a34090006bb015a?d=retro"
+      },
+      "metadata": {
+        "bpm": 140.0,
+        "duration": 277,
+        "songName": "Echolocation [Chroma]",
+        "songSubName": "",
+        "songAuthorName": "Meganeko, Shirobon",
+        "levelAuthorName": "Tacky"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 7,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 0.6408
+      },
+      "uploaded": "2021-08-02T18:19:05.284Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "e6606314fc5f91a9f208783242b63e0542eb6e74",
+          "key": "1adce",
+          "state": "Published",
+          "createdAt": "2021-08-02T18:19:05.284Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 20.7,
+              "offset": -0.7,
+              "notes": 1557,
+              "bombs": 78,
+              "obstacles": 63,
+              "nps": 6.052,
+              "length": 600.25,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 1684,
+              "chroma": true,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 257.25,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109439,
+      "name": "LeaF - Doppelganger",
+      "description": "my best map\nend wall is real so just pause and move out of the way",
+      "uploader": {
+        "id": 48,
+        "name": "waterbottle7",
+        "hash": "5cff0b7698cc5a672c85513e",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7698cc5a672c85513e?d=retro"
+      },
+      "metadata": {
+        "bpm": 280.0,
+        "duration": 146,
+        "songName": "Doppelganger",
+        "songSubName": "",
+        "songAuthorName": "LeaF",
+        "levelAuthorName": "Water"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 4,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T18:17:18.963Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "fd42471b610cbcd08e6b70a808c107b1ac1841f6",
+          "key": "1adcd",
+          "state": "Published",
+          "createdAt": "2021-08-02T18:17:18.963Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 22.0,
+              "offset": 0.33306,
+              "notes": 2136,
+              "bombs": 27,
+              "obstacles": 1,
+              "nps": 14.878,
+              "length": 670.0,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 0,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 143.571,
+              "paritySummary": {
+                "errors": 45,
+                "warns": 64,
+                "resets": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109437,
+      "name": "Let Me Through V2",
+      "description": "A Fnaf Song\nUpdate 1.0 - First Release Not Finshed Updates In Futre\nUpdate 1.1 - Removed Some Bombs And Moved The CG5 Logo Down And Added More To The Song\nUpdate 1.2 - Add More To The Map And Fixed Some Hard Parts\nUpdate 1.3 - Fixed Walls Bombs And Added More To The Song\nUpdate 1.4 - Added More To Map And Added The End\nUpdate 1.5 - Added More To Map, Removed Bombs Fix CG5 Logo At Start And Made Some Parts Easier\nUpdate 1.6 - Fixed Some Mistakes And Made It Easier (Sort Of)",
+      "uploader": {
+        "id": 4234721,
+        "name": "wolfystreams",
+        "hash": "61043b9112772e0006e59c20",
+        "avatar": "https://www.gravatar.com/avatar/61043b9112772e0006e59c20?d=retro"
+      },
+      "metadata": {
+        "bpm": 108.0,
+        "duration": 227,
+        "songName": "Let Me Through V2",
+        "songSubName": "A Five Night's At Freddy's Song Based On Foxy Who Runs Down Your Hallway In The Game By Scott Cawthounth",
+        "songAuthorName": "CG5 (ft. Dolvondo)",
+        "levelAuthorName": "Charting: WolfyStreams Lights: WolfyStreams"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 0,
+        "downvotes": 1,
+        "score": 0.4058
+      },
+      "uploaded": "2021-08-02T18:01:12.074Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "427a0d118bca576a5bf401bc3da6ecaf2a6b41ac",
+          "key": "1adcb",
+          "state": "Published",
+          "createdAt": "2021-08-02T18:01:12.074Z",
+          "sageScore": 1,
+          "diffs": [
+            {
+              "njs": 18.0,
+              "offset": 0.0,
+              "notes": 599,
+              "bombs": 200,
+              "obstacles": 126,
+              "nps": 5.015,
+              "length": 215.0,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 0,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 119.444,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109434,
+      "name": "The Light",
+      "description": "Song is an absolute Jammer and i ahd a great time mapping it.\r\nStill don't know how to downmap Kappa.\r\n\r\nNormal (Glimmer): 2.57 Nps\r\nHard (Glow): 4.28 Nps\r\nExpert (Light): 6.76 Nps\r\nExpert + (Darkness): 7.38 Nps\r\n\r\nThanks to Roy White, Biscuit, Alicachan, Revs, Beni1194, SirAlpha and Bentai for testing and Feedback.",
+      "uploader": {
+        "id": 20806,
+        "name": "arombolosch",
+        "hash": "5ddab4e9137f26000659de41",
+        "avatar": "https://www.gravatar.com/avatar/5ddab4e9137f26000659de41?d=retro"
+      },
+      "metadata": {
+        "bpm": 160.0,
+        "duration": 166,
+        "songName": "The Light",
+        "songSubName": "",
+        "songAuthorName": "W&W ft. Kizuna AI",
+        "levelAuthorName": "Arombolosch"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 4,
+        "upvotes": 10,
+        "downvotes": 0,
+        "score": 0.7571
+      },
+      "uploaded": "2021-08-02T17:15:33.330Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "a48a121ef06fa16638e3ff891be260f5c1360a16",
+          "key": "1adc8",
+          "state": "Published",
+          "createdAt": "2021-08-02T17:15:33.330Z",
+          "sageScore": 1,
+          "diffs": [
+            {
+              "njs": 14.0,
+              "offset": 0.4,
+              "notes": 428,
+              "bombs": 50,
+              "obstacles": 147,
+              "nps": 2.938,
+              "length": 388.5,
+              "characteristic": "Standard",
+              "difficulty": "Normal",
+              "events": 2233,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 145.688,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 16.0,
+              "offset": 0.0,
+              "notes": 714,
+              "bombs": 14,
+              "obstacles": 274,
+              "nps": 4.496,
+              "length": 423.5,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 2233,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 158.813,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 19.0,
+              "offset": -0.3,
+              "notes": 1127,
+              "bombs": 14,
+              "obstacles": 189,
+              "nps": 5.381,
+              "length": 558.5,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 2233,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 209.438,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 21.0,
+              "offset": -0.5,
+              "notes": 1229,
+              "bombs": 22,
+              "obstacles": 187,
+              "nps": 7.739,
+              "length": 423.5,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 2234,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 158.813,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109425,
+      "name": "[Queue] NF - THAT'S A JOKE",
+      "description": "muffy muffo did le guest differino yay (yay!) 2 expert+'s on their way to ranked\n\n\ncheers fvrwvrd & Cobayo for the sick RT mods and jaack_bs for the helpful QAT mod on the top diff",
+      "uploader": {
+        "id": 101,
+        "name": "fatbeanzoop",
+        "hash": "5cff0b7398cc5a672c84fbc5",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7398cc5a672c84fbc5?d=retro"
+      },
+      "metadata": {
+        "bpm": 278.0,
+        "duration": 229,
+        "songName": "THAT'S A JOKE",
+        "songSubName": "",
+        "songAuthorName": "NF",
+        "levelAuthorName": "FatBeanzoop & muffn"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 1,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 0.7217
+      },
+      "uploaded": "2021-08-02T16:20:03.934Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "904dc5804a4b9a901c29bfc29f435598dbd7abfd",
+          "key": "1adc0",
+          "state": "Published",
+          "createdAt": "2021-08-02T16:20:03.934Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 16.0,
+              "offset": -1.4,
+              "notes": 1028,
+              "bombs": 21,
+              "obstacles": 222,
+              "nps": 4.671,
+              "length": 1019.812,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 5986,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 220.103,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 2
+              }
+            },
+            {
+              "njs": 20.5,
+              "offset": -1.79,
+              "notes": 1491,
+              "bombs": 4,
+              "obstacles": 223,
+              "nps": 6.753,
+              "length": 1023.0,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 5986,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 220.791,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 20.5,
+              "offset": -1.95,
+              "notes": 1661,
+              "bombs": 12,
+              "obstacles": 242,
+              "nps": 7.524,
+              "length": 1022.812,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 5986,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 220.751,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109423,
+      "name": "おもちゃのチャチャチャ",
+      "description": "",
+      "uploader": {
+        "id": 63897,
+        "name": "aruru",
+        "hash": "6028cc26686b9f0006a11bec",
+        "avatar": "https://www.gravatar.com/avatar/6028cc26686b9f0006a11bec?d=retro"
+      },
+      "metadata": {
+        "bpm": 134.18,
+        "duration": 123,
+        "songName": "Omocha no cha cha cha",
+        "songSubName": "",
+        "songAuthorName": "Nobuyoshi Koshibe",
+        "levelAuthorName": "aruru & BigSlick"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 2,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 0.6706
+      },
+      "uploaded": "2021-08-02T16:02:47.542Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "f4c2953d807162b4ee5f2a2c73260ba8bfb40dc4",
+          "key": "1adbd",
+          "state": "Published",
+          "createdAt": "2021-08-02T16:02:47.542Z",
+          "sageScore": 5,
+          "diffs": [
+            {
+              "njs": 15.0,
+              "offset": -0.3,
+              "notes": 497,
+              "bombs": 18,
+              "obstacles": 2,
+              "nps": 4.242,
+              "length": 262.0,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 2157,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 117.156,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 4,
+                "resets": 3
+              }
+            },
+            {
+              "njs": 16.0,
+              "offset": -0.55,
+              "notes": 740,
+              "bombs": 52,
+              "obstacles": 6,
+              "nps": 6.316,
+              "length": 262.0,
+              "characteristic": "Lawless",
+              "difficulty": "Easy",
+              "events": 862,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 117.156,
+              "paritySummary": {
+                "errors": 55,
+                "warns": 52,
+                "resets": 7
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109422,
+      "name": "Butterfly - Marnik",
+      "description": "I hope you enjoy :)",
+      "uploader": {
+        "id": 4235087,
+        "name": "illuminoushd",
+        "hash": "610810fa46eb150006dedc73",
+        "avatar": "https://www.gravatar.com/avatar/610810fa46eb150006dedc73?d=retro"
+      },
+      "metadata": {
+        "bpm": 135.0,
+        "duration": 171,
+        "songName": "Butterfly",
+        "songSubName": "",
+        "songAuthorName": "Marnik, Hard Lights",
+        "levelAuthorName": "IlluminousHD"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 5,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 0.7217
+      },
+      "uploaded": "2021-08-02T15:41:10.479Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "eac7498aba8aa9ea169bbaf4e775d173cae433d6",
+          "key": "1adbc",
+          "state": "Published",
+          "createdAt": "2021-08-02T15:41:10.479Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 18.0,
+              "offset": 0.0,
+              "notes": 640,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 3.881,
+              "length": 371.0,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 3453,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 164.889,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 20.0,
+              "offset": -0.6,
+              "notes": 953,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 5.78,
+              "length": 371.0,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 3496,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 164.889,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109420,
+      "name": "{Chroma 2.4} Seven Lions, Tyler Graves, Mazare - Only Now (Mazare Remix)",
+      "description": "Light go brrr\n\nVideo: https://youtu.be/Y-tvnMPPqA8",
+      "uploader": {
+        "id": 2940,
+        "name": "swifter1243",
+        "hash": "5dcf3af29eccad0006a0b45f",
+        "avatar": "https://www.gravatar.com/avatar/5dcf3af29eccad0006a0b45f?d=retro"
+      },
+      "metadata": {
+        "bpm": 175.0,
+        "duration": 201,
+        "songName": "Only Now",
+        "songSubName": "(Mazare Remix)",
+        "songAuthorName": "Seven Lions, Tyler Graves, Mazare",
+        "levelAuthorName": "Swifter1243"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 1,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 0.7217
+      },
+      "uploaded": "2021-08-02T15:14:18.806Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "764f0893dc5b6a20fb0f30d6d1172eb418af34b3",
+          "key": "1adba",
+          "state": "Published",
+          "createdAt": "2021-08-02T15:14:18.806Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 19.0,
+              "offset": -0.25,
+              "notes": 800,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 4.054,
+              "length": 575.5,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 15614,
+              "chroma": true,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 197.314,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 109421,
+      "name": "Loadsamoney (Doin' Up the House)",
+      "description": "My magnum opus\n\nhardest meme map I've made so far",
+      "uploader": {
+        "id": 62893,
+        "name": "roadmanreginald",
+        "hash": "5d74c59ffffdb800068788ae",
+        "avatar": "https://www.gravatar.com/avatar/5d74c59ffffdb800068788ae?d=retro"
+      },
+      "metadata": {
+        "bpm": 115.348,
+        "duration": 229,
+        "songName": "Loadsamoney",
+        "songSubName": "(Doin' Up the House)",
+        "songAuthorName": "Harry Enfield",
+        "levelAuthorName": "RoadmanReginald"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 2,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-08-02T15:10:40.028Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "0d634616a9901ef1fb4337ea1f0195821642bb86",
+          "key": "1adb9",
+          "state": "Published",
+          "createdAt": "2021-08-02T15:10:40.028Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 15.0,
+              "offset": -0.9,
+              "notes": 4633,
+              "bombs": 757,
+              "obstacles": 18,
+              "nps": 20.423,
+              "length": 436.125,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 1,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 226.857,
+              "paritySummary": {
+                "errors": 550,
+                "warns": 238,
+                "resets": 20
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

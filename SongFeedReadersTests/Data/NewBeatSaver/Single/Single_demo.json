@@ -1,0 +1,63 @@
+﻿{
+  "id": 109459,
+  "name": "AirBron Robots ",
+  "description": "Not Final Version",
+  "uploader": {
+    "id": 77233,
+    "name": "itzrimuru",
+    "hash": "608e7ef812772e0006e2bafc",
+    "avatar": "https://www.gravatar.com/avatar/608e7ef812772e0006e2bafc?d=retro"
+  },
+  "metadata": {
+    "bpm": 200.0,
+    "duration": 270,
+    "songName": "Airborn Robots",
+    "songSubName": "",
+    "songAuthorName": "F-777",
+    "levelAuthorName": "ItzRimuru"
+  },
+  "stats": {
+    "plays": 0,
+    "downloads": 41,
+    "upvotes": 0,
+    "downvotes": 0,
+    "score": 0.5
+  },
+  "uploaded": "2021-08-02T20:36:22.804Z",
+  "automapper": false,
+  "ranked": false,
+  "qualified": false,
+  "versions": [
+    {
+      "hash": "e2512e6fbf85059d9fd9b429f62b2e618dd4d7e9",
+      "key": "1ade0",
+      "state": "Published",
+      "createdAt": "2021-08-02T20:36:22.804Z",
+      "sageScore": 3,
+      "diffs": [
+        {
+          "njs": 20.0,
+          "offset": -0.29,
+          "notes": 1986,
+          "bombs": 0,
+          "obstacles": 55,
+          "nps": 10.177,
+          "length": 650.5,
+          "characteristic": "Standard",
+          "difficulty": "ExpertPlus",
+          "events": 6,
+          "chroma": false,
+          "me": false,
+          "ne": false,
+          "cinema": false,
+          "seconds": 195.15,
+          "paritySummary": {
+            "errors": 9,
+            "warns": 0,
+            "resets": 0
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -15,6 +16,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Data\NewBeatSaver\List\Latest_0.json" />
+    <None Remove="Data\NewBeatSaver\List\Latest_demo.json" />
+    <None Remove="Data\NewBeatSaver\Single\Single_0.json" />
+    <None Remove="Data\NewBeatSaver\Single\Single_demo.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
@@ -22,7 +30,21 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SongFeedReaders\SongFeedReaders.csproj" />
-    <ProjectReference Include="..\WebUtilitiesTests\WebUtilitiesTests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\NewBeatSaver\List\Latest\Latest_0.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\NewBeatSaver\List\Latest\Latest_demo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\NewBeatSaver\Single\Single_0.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\NewBeatSaver\Single\Single_demo.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -83,6 +105,9 @@
     <None Update="Data\BeastSaber\followings9_empty.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Data\SongInfoProvider\beatSaverScrappedData.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Data\BeatSaver\author_5cff0b7398cc5a672c84f1d8_0.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -142,6 +167,12 @@
     </None>
     <None Update="Data\ScoreSaber\trending0.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\SongInfoProvider\songDetails2_20210817">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\SongInfoProvider\songDetails2_20210819.gz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

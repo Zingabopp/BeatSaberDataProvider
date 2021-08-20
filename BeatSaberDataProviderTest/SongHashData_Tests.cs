@@ -18,7 +18,7 @@ namespace BeatSaberDataProviderTest
         [TestMethod]
         public void GenerateDirectoryHash_Test()
         {
-            string testDir = @"H:\SteamApps\SteamApps\common\Beat Saber\Beat Saber_Data\CustomLevels\1001-675 Party Rock Anthem";
+            string testDir = @"I:\Steam\SteamApps\common\Beat Saber\Beat Saber_Data\CustomLevels\1001-675 Party Rock Anthem";
             var testSong = new SongHashData() { Directory = testDir };
             testSong.GenerateDirectoryHash();
             testSong.GenerateHash();

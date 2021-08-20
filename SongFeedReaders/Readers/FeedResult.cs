@@ -2,8 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SongFeedReaders.Data;
 
 namespace SongFeedReaders.Readers
 {
@@ -18,19 +17,19 @@ namespace SongFeedReaders.Readers
         /// <summary>
         /// Distinct page errors.
         /// </summary>
-        public IReadOnlyList<PageErrorType> PageErrors { get; private set; }
+        public IReadOnlyList<PageErrorType>? PageErrors { get; private set; }
         public int PagesChecked { get { return PageResults?.Count() ?? 0; } }
         public IReadOnlyDictionary<string, ScrapedSong> Songs { get; private set; }
         public int Count { get { return Songs?.Count ?? 0; } }
         public FeedResultError ErrorCode { get; private set; }
         private bool _successful;
-        public bool Successful { get { return _successful && Exception == null && ErrorCode != FeedResultError.Error; } }
+        public bool Successful { get { return _successful && ErrorCode != FeedResultError.Error && ErrorCode != FeedResultError.Cancelled; } }
         /// <summary>
         /// Exception when something goes wrong in the feed readers. More specific exceptions may be stored in InnerException.
         /// </summary>
-        public FeedReaderException Exception { get; private set; }
+        public FeedReaderException? Exception { get; private set; }
 
-        public FeedResult(Dictionary<string, ScrapedSong> songs, IList<PageReadResult> pageResults)
+        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults)
         {
             PageResults = new ReadOnlyCollection<PageReadResult>(pageResults ?? new PageReadResult[0]);
             if(songs == null)
@@ -72,11 +71,12 @@ namespace SongFeedReaders.Readers
             FaultedResults = new ReadOnlyCollection<PageReadResult>(faultedResults);
         }
 
-        public FeedResult(Dictionary<string, ScrapedSong> songs, IList<PageReadResult> pageResults, Exception exception, FeedResultError errorLevel)
+        public FeedResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults, Exception? exception, FeedResultError errorLevel)
             : this(songs, pageResults)
         {
             if(ErrorCode < errorLevel)
                 ErrorCode = errorLevel;
+
             if (exception != null)
             {
                 if (exception is FeedReaderException frException)
@@ -93,7 +93,16 @@ namespace SongFeedReaders.Readers
             }
         }
 
-        public static FeedResult CancelledResult { get { return new FeedResult(null, null, new OperationCanceledException("Feed was cancelled before completion"), FeedResultError.Cancelled); } }
+        public static FeedResult GetCancelledResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults, OperationCanceledException ex)
+        {
+            return new FeedResult(songs, pageResults, ex, FeedResultError.Cancelled);
+        }
+        public static FeedResult GetCancelledResult(Dictionary<string, ScrapedSong>? songs, IList<PageReadResult>? pageResults)
+        {
+            return new FeedResult(songs, pageResults, new OperationCanceledException("Feed was cancelled before completion"), FeedResultError.Cancelled);
+        }
+
+        public static FeedResult CancelledResult => GetCancelledResult(null, null);
     }
     public enum FeedResultError
     {

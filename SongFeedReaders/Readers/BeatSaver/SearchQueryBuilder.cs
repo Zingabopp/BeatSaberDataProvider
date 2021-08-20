@@ -8,7 +8,12 @@ namespace SongFeedReaders.Readers.BeatSaver
 {
     public class SearchQueryBuilder
     {
-        private const string CRITERIA_KEY = "{CRITERIA}";
+        private static readonly string CRITERIA_KEY = "{CRITERIA}";
+        //private static readonly string SEARCHTYPEKEY = BeatSaverFeed.SEARCHTYPEKEY; // text or advanced
+        private static readonly string SEARCHQUERYKEY = BeatSaverFeed.PARAMETERSKEY;
+        private static readonly string PAGEKEY = BeatSaverFeed.PAGEKEY;
+        private static readonly string BaseUrl = BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl;
+
         public static Dictionary<BeatSaverSearchType, string> SearchBases = new Dictionary<BeatSaverSearchType, string>()
         {
             { BeatSaverSearchType.author, $"(uploader.username:{CRITERIA_KEY} metadata.levelAuthorName:{CRITERIA_KEY})"},
@@ -18,21 +23,41 @@ namespace SongFeedReaders.Readers.BeatSaver
             { BeatSaverSearchType.song, $"(name:{CRITERIA_KEY} metadata.songName:{CRITERIA_KEY} metadata.songSubName:{CRITERIA_KEY} metadata.songAuthorName:{CRITERIA_KEY}"},
             { BeatSaverSearchType.key, $"key:{CRITERIA_KEY}"},
             { BeatSaverSearchType.custom, CRITERIA_KEY },
-            { BeatSaverSearchType.all, $""}
+            { BeatSaverSearchType.all, $"{CRITERIA_KEY}"}
         };
 
-        private string _searchBase;
-        private string _searchCriteria;
+        private string SearchBase => SearchBases[SearchType];
+        public string Criteria { get; set; }
+
+        public BeatSaverSearchType SearchType { get; set; }
+
 
         public string GetQueryString()
         {
-            return _searchBase.Replace(CRITERIA_KEY, _searchCriteria);
+            return SearchBase.Replace(CRITERIA_KEY, Criteria);
+        }
+
+        public string GetBaseUrl()
+        {
+            string url = BaseUrl;
+            //if (SearchType == BeatSaverSearchType.all)
+            //    return url.Replace(SEARCHTYPEKEY, "text").Replace(CRITERIA_KEY, Criteria);
+
+            //url = url.Replace(SEARCHTYPEKEY, "advanced");
+            //url = url.Replace(SEARCHQUERYKEY, GetQueryString());
+            url = url.Replace(SEARCHQUERYKEY, Criteria);
+            return url;
+        }
+
+        public BeatSaverSearchQuery GetQuery()
+        {
+            return new BeatSaverSearchQuery(GetBaseUrl(), GetQueryString(), Criteria, SearchType);
         }
 
         public SearchQueryBuilder(BeatSaverSearchType searchType, string criteria)
         {
-            _searchBase = SearchBases[searchType];
-            _searchCriteria = criteria;
+            SearchType = searchType;
+            Criteria = criteria;
         }
 
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using WebUtilities;
+using WebUtilities.DownloadContainers;
 using WebUtilities.HttpClientWrapper;
 
 namespace WebUtilitiesTests.HttpClientDownloadWithProgressTests
@@ -12,38 +13,32 @@ namespace WebUtilitiesTests.HttpClientDownloadWithProgressTests
     public class HttpClientDownloadWithProgress_Tests
     {
         private static readonly string TestOutputPath = Path.GetFullPath(@"Output\HttpClientDownloadWithProgressTests");
+        private static readonly IWebClient Client = new HttpClientWrapper();
 
         [TestMethod]
-        public void CanceledDownload()
+        public async Task CustomStream_Canceled()
         {
-            IWebClient client = new HttpClientWrapper();
-            var uri = new Uri("http://releases.ubuntu.com/18.04.3/ubuntu-18.04.3-desktop-amd64.iso");
-            var cts = new CancellationTokenSource(1500);
-            string directory = Path.Combine(TestOutputPath, "CanceledDownload");
-            Directory.CreateDirectory(directory);
-            string filePath = Path.Combine(directory, "CanceledDownload.iso");
-
-            var progressDownload = new HttpClientDownloadWithProgress(client, uri, filePath);
-            progressDownload.ProgressChanged += (long? totalFileSize, long totalBytesDownloaded, double? progressPercentage) =>
+            Uri uri = new Uri("http://releases.ubuntu.com/18.04.3/ubuntu-18.04.3-desktop-amd64.iso");
+            CancellationTokenSource cts = new CancellationTokenSource(1500);
+            Directory.CreateDirectory(TestOutputPath);
+            string filePath = Path.Combine(TestOutputPath, "CustomStream.iso");
+            DownloadContainer downloadContainer = new MemoryDownloadContainer();
+            Progress<DownloadProgress> progressHandler = new Progress<DownloadProgress>(p =>
             {
-                Console.WriteLine($"{totalBytesDownloaded}/{totalFileSize} : {progressPercentage}%");
-            };
-
+                Console.WriteLine($"IProgress: {p.TotalBytesDownloaded}/{p.TotalDownloadSize} : {p.ProgressPercent}%");
+            });
             try
             {
-                progressDownload.StartDownload(cts.Token).Wait();
+                var response = await Client.GetAsync(uri, cts.Token);
+                await downloadContainer.ReceiveDataAsync(response.Content, true, progressHandler, cts.Token).ConfigureAwait(false);
             }
-            catch (AggregateException ex)
+            catch (OperationCanceledException)
             {
-                if (!(ex.InnerException is OperationCanceledException))
-                    Assert.Fail("Wrong exception thrown.");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Assert.Fail("Wrong exception thrown.");
+                Assert.Fail($"Wrong exception thrown: {ex.GetType().Name}: {ex.Message}");
             }
-
-
         }
     }
 }

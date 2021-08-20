@@ -1,16 +1,21 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
-using WebUtilities;
 
 namespace WebUtilities.WebWrapper
 {
+    /// <summary>
+    /// An <see cref="IWebClient"/> that uses the <see cref="System.Net"/> library.
+    /// </summary>
     public class WebClientWrapper : IWebClient, IDisposable
     {
-        //public ILogger Logger;
-        public string UserAgent { get; private set; }
+        /// <inheritdoc/>
+        public string? UserAgent { get; private set; }
 
+        /// <summary>
+        /// Creates a new <see cref="WebClientWrapper"/> with the default settings.
+        /// </summary>
         public WebClientWrapper()
         {
             //if (client == null)
@@ -21,28 +26,32 @@ namespace WebUtilities.WebWrapper
             MaxConcurrentConnections = int.MaxValue;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="WebClientWrapper"/> with the given <paramref name="maxConnectionsPerServer"/>.
+        /// </summary>
+        /// <param name="maxConnectionsPerServer"></param>
         public WebClientWrapper(int maxConnectionsPerServer)
             : this()
         {
             MaxConcurrentConnections = maxConnectionsPerServer > 0 ? maxConnectionsPerServer : 1;
         }
 
-        public void SetUserAgent(string userAgent)
+        /// <inheritdoc/>
+        public void SetUserAgent(string? userAgent)
         {
             UserAgent = userAgent;
         }
 
-        private int _timeout;
-        /// <summary>
-        /// Timeout in milliseconds
-        /// </summary>
+        private int _timeout = 30000;
+
+        /// <inheritdoc/>
         public int Timeout
         {
             get { return _timeout; }
             set
             {
-                if (value <= 0)
-                    value = 1;
+                if (value < 0)
+                    value = 30000;
                 if (_timeout == value)
                     return;
                 _timeout = value;
@@ -50,6 +59,9 @@ namespace WebUtilities.WebWrapper
         }
 
         private int _maxConcurrentConnections;
+        /// <summary>
+        /// Maximum number of concurrent connections to a server.
+        /// </summary>
         public int MaxConcurrentConnections
         {
             get { return _maxConcurrentConnections; }
@@ -59,29 +71,22 @@ namespace WebUtilities.WebWrapper
                 ServicePointManager.DefaultConnectionLimit = value;
             }
         }
+        /// <inheritdoc/>
         public ErrorHandling ErrorHandling { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <param name="completeOnHeaders"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="WebClientException">Thrown when there's a WebException.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="uri"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when cancelled by caller.</exception>
+
+        /// <inheritdoc/>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri), "uri cannot be null.");
             if (timeout < 0) throw new ArgumentOutOfRangeException(nameof(timeout), "timeout cannot be less than 0.");
             if (timeout == 0)
                 timeout = Timeout;
-            var request = HttpWebRequest.CreateHttp(uri);
+            HttpWebRequest request = WebRequest.CreateHttp(uri);
             if (!string.IsNullOrEmpty(UserAgent))
                 request.UserAgent = UserAgent;
-            Task cancelTask = null;
+            CancellationTokenSource? timeoutSource = null;
+            CancellationToken timeoutToken = CancellationToken.None;
             if (timeout != 0)
             {
                 request.Timeout = timeout;
@@ -91,27 +96,44 @@ namespace WebUtilities.WebWrapper
             }
             if (cancellationToken.IsCancellationRequested)
                 throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
+            bool wasCanceled = false;
+            //bool timedOut = false;
             try
             {
-                //var getTask = request.GetResponseAsync();
-                var getTask = Task.Run(() =>
-                {
-                    return request.GetResponse(); // Have to use synchronous call because GetResponseAsync() doesn't respect Timeout
-                });
+                Task<WebResponse> getTask = request.GetResponseAsync(cancellationToken);
+                //var getTask = Task.Run(() =>
+                //{
+                //    return request.GetResponse(); // Have to use synchronous call because GetResponseAsync() doesn't respect Timeout
+                //});
                 //TODO: Need testing for cancellation token
                 if (cancellationToken.CanBeCanceled)
                 {
-                    cancelTask = cancellationToken.AsTask();
-                    await Task.WhenAny(getTask, cancelTask).ConfigureAwait(false);
-                    if (!getTask.IsCompleted) // either getTask completed or cancelTask was triggered
+                    cancellationToken.Register(() =>
                     {
-                        throw new OperationCanceledException($"GetAsync canceled for Uri {uri}", cancellationToken);
-                    }
-                    //cancelTask?.Dispose(); Can't dispose of a task that isn't Completed
+                        request.Abort();
+                        wasCanceled = true;
+                    });
                 }
-                var response = await getTask.ConfigureAwait(false); // either there's no cancellationToken or it's already completed
+                cancellationToken.ThrowIfCancellationRequested();
+                if (timeout > 0)
+                {
+                    timeoutSource = new CancellationTokenSource();
+                    timeoutToken = timeoutSource.Token;
+                    timeoutToken.Register(() =>
+                    {
+                        request.Abort();
+                        if (!wasCanceled)
+                        {
+                            wasCanceled = true;
+                            //timedOut = true;
+                        }
+                    });
+                    timeoutSource.CancelAfter(timeout);
 
+                }
+                WebResponse response = await getTask.ConfigureAwait(false);
                 return new WebClientResponseWrapper(response as HttpWebResponse, request);
+
             }
             catch (ArgumentException ex)
             {
@@ -119,23 +141,29 @@ namespace WebUtilities.WebWrapper
                     throw;
                 else
                 {
-                    return new WebClientResponseWrapper(null, null, ex);
+                    return new WebClientResponseWrapper(null, request, ex);
                 }
             }
             catch (WebException ex)
             {
-                HttpWebResponse resp = ex.Response as HttpWebResponse;
-                var statusOverride = WebExceptionStatusToHttpStatus(ex.Status);
+                HttpWebResponse? resp = ex.Response as HttpWebResponse;
+                int? statusOverride = WebExceptionStatusToHttpStatus(ex.Status);
                 // This is thrown by HttpWebRequest.GetResponseAsync(), so we can't throw the exception here or the calling code won't be able to decide how to handle it...sorta
 
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                 {
                     string message = string.Empty;
                     Exception retException = ex;
-                    if (ex.Status == WebExceptionStatus.Timeout)
+                    if (ex.Status == WebExceptionStatus.RequestCanceled && (wasCanceled || timeoutToken.IsCancellationRequested))
                     {
-                        message = Utilities.GetTimeoutMessage(uri);
-                        retException = new TimeoutException(message);
+                        if (timeoutToken.IsCancellationRequested)
+                        {
+                            message = Utilities.GetTimeoutMessage(uri);
+                            statusOverride = 408;
+                            retException = new TimeoutException(message);
+                        }
+                        else
+                            cancellationToken.ThrowIfCancellationRequested();
                     }
                     else
                         message = ex.Message;
@@ -152,13 +180,9 @@ namespace WebUtilities.WebWrapper
                 Exception retException = ex;
                 if (ErrorHandling == ErrorHandling.ThrowOnException)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                        throw; // Cancelled by caller, rethrow
-                    else
-                    {
-                        retException = new TimeoutException(Utilities.GetTimeoutMessage(uri));
-                        throw new WebClientException(retException.Message, retException, new WebClientResponseWrapper(null, request, retException, 408));
-                    }
+                    cancellationToken.ThrowIfCancellationRequested();
+                    retException = new TimeoutException(Utilities.GetTimeoutMessage(uri));
+                    throw new WebClientException(retException.Message, retException, new WebClientResponseWrapper(null, request, retException, 408));
                 }
                 else
                 {
@@ -168,6 +192,11 @@ namespace WebUtilities.WebWrapper
             }
             finally
             {
+                if (timeoutSource != null)
+                {
+                    timeoutSource.Dispose();
+                    timeoutSource = null;
+                }
                 //if (cancelTask != null)
                 //    cancelTask.Dispose();
             }
@@ -175,87 +204,64 @@ namespace WebUtilities.WebWrapper
 
         private static int? WebExceptionStatusToHttpStatus(WebExceptionStatus status)
         {
-            switch (status)
+            return status switch
             {
-                case WebExceptionStatus.Success:
-                    return 200;
-                case WebExceptionStatus.Timeout:
-                    return 408;
-                /*
-            case WebExceptionStatus.NameResolutionFailure:
-                break;
-            case WebExceptionStatus.ConnectFailure:
-                break;
-            case WebExceptionStatus.ReceiveFailure:
-                break;
-            case WebExceptionStatus.SendFailure:
-                break;
-            case WebExceptionStatus.PipelineFailure:
-                break;
-            case WebExceptionStatus.RequestCanceled:
-                break;
-            case WebExceptionStatus.ProtocolError:
-                break;
-            case WebExceptionStatus.ConnectionClosed:
-                break;
-            case WebExceptionStatus.TrustFailure:
-                break;
-            case WebExceptionStatus.SecureChannelFailure:
-                break;
-            case WebExceptionStatus.ServerProtocolViolation:
-                break;
-            case WebExceptionStatus.KeepAliveFailure:
-                break;
-            case WebExceptionStatus.Pending:
-                break;
-            case WebExceptionStatus.ProxyNameResolutionFailure:
-                break;
-            case WebExceptionStatus.UnknownError:
-                break;
-            case WebExceptionStatus.MessageLengthLimitExceeded:
-                break;
-            case WebExceptionStatus.CacheEntryNotFound:
-                break;
-            case WebExceptionStatus.RequestProhibitedByCachePolicy:
-                break;
-            case WebExceptionStatus.RequestProhibitedByProxy:
-                break;
-                */
-                default:
-                    return null;
-            }
+                WebExceptionStatus.Success => 200,
+                WebExceptionStatus.Timeout => 408,
+                _ => null,
+            };
+            //case WebExceptionStatus.NameResolutionFailure:
+            //case WebExceptionStatus.ConnectFailure:
+            //case WebExceptionStatus.ReceiveFailure:
+            //case WebExceptionStatus.SendFailure:
+            //case WebExceptionStatus.PipelineFailure:
+            //case WebExceptionStatus.RequestCanceled:
+            //case WebExceptionStatus.ProtocolError:
+            //case WebExceptionStatus.ConnectionClosed:
+            //case WebExceptionStatus.SecureChannelFailure:
+            //case WebExceptionStatus.ServerProtocolViolation:
+            //case WebExceptionStatus.KeepAliveFailure:
+            //case WebExceptionStatus.Pending:
+            //case WebExceptionStatus.ProxyNameResolutionFailure:
+            //case WebExceptionStatus.UnknownError:
+            //case WebExceptionStatus.MessageLengthLimitExceeded:
+            //case WebExceptionStatus.CacheEntryNotFound:
+            //case WebExceptionStatus.RequestProhibitedByCachePolicy:
+            //case WebExceptionStatus.RequestProhibitedByProxy:
         }
 
         #region GetAsyncOverloads
 
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri)
         {
             return GetAsync(uri, 0, CancellationToken.None);
         }
 
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
         {
             return GetAsync(uri, 0, cancellationToken);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri, int timeout)
         {
             return GetAsync(uri, timeout, CancellationToken.None);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url, int timeout, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(url))
                 throw new ArgumentNullException(nameof(url), $"Url cannot be null for GetAsync()");
-            var urlAsUri = new Uri(url);
+            Uri urlAsUri = new Uri(url);
             return GetAsync(urlAsUri, timeout, cancellationToken);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url)
         {
             return GetAsync(url, 0, CancellationToken.None);
         }
-        public Task<IWebResponseMessage> GetAsync(string url, int timeout)
-        {
-            return GetAsync(url, timeout, CancellationToken.None);
-        }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
         {
             return GetAsync(url, 0, cancellationToken);
@@ -265,6 +271,7 @@ namespace WebUtilities.WebWrapper
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
+        /// <inheritdoc/>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -277,6 +284,7 @@ namespace WebUtilities.WebWrapper
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);

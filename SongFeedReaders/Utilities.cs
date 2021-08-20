@@ -14,6 +14,7 @@ namespace SongFeedReaders
             MaxAggregateExceptionDepth = 10;
         }
 
+        private const string WebTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'";
         public static bool IsPaused { get; internal set; }
 
         public static void Pause()
@@ -33,6 +34,9 @@ namespace SongFeedReaders
             set { _logger = value; }
         }
         public static int MaxAggregateExceptionDepth { get; set; }
+
+        public static string ToUTCWebTime(this DateTime dateTime)
+            => dateTime.ToUniversalTime().ToString(WebTimeFormat);
 
         public static void WriteExceptions(this AggregateException ae, string message)
         {
@@ -137,8 +141,6 @@ namespace SongFeedReaders
         /// <param name="condition"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="OperationCanceledException">Thrown if cancellationToken is triggered.</exception>
-        /// <exception cref="ObjectDisposedException">Thrown if the cancellationToken's source is disposed.</exception>
         public static Task<bool> WaitUntil(Func<bool> condition, CancellationToken cancellationToken)
         {
             return WaitUntil(condition, 25, cancellationToken);

@@ -41,9 +41,13 @@ namespace SongDownloadManagerTests
             string songHash = null;
             Uri downloadUri = new Uri("https://beatsaver.com/api/download/hash/2c908df9bb7aa93884ab9bfa8ddc598c3de479e9");
             string tempDirectory = "TempDir";
+            SongDownload song = new SongDownload()
+            {
+                Hash = songHash
+            };
             try
             {
-                var invalidJob = new DownloadJob(DefaultSong, downloadUri, tempDirectory);
+                var invalidJob = new DownloadJob(song, downloadUri, tempDirectory);
                 Assert.Fail("An ArgumentNullException should have been thrown.");
             }
             catch (AssertFailedException) { throw; }
@@ -63,9 +67,13 @@ namespace SongDownloadManagerTests
             string songHash = "";
             Uri downloadUri = new Uri("https://beatsaver.com/api/download/hash/2c908df9bb7aa93884ab9bfa8ddc598c3de479e9");
             string tempDirectory = "TempDir";
+            SongDownload song = new SongDownload()
+            {
+                Hash = songHash
+            };
             try
             {
-                var invalidJob = new DownloadJob(DefaultSong, downloadUri, tempDirectory);
+                var invalidJob = new DownloadJob(song, downloadUri, tempDirectory);
                 Assert.Fail("An ArgumentNullException should have been thrown.");
             }
             catch (AssertFailedException) { throw; }
@@ -85,9 +93,13 @@ namespace SongDownloadManagerTests
             string songHash = "     ";
             Uri downloadUri = new Uri("https://beatsaver.com/api/download/hash/2c908df9bb7aa93884ab9bfa8ddc598c3de479e9");
             string tempDirectory = "TempDir";
+            SongDownload song = new SongDownload()
+            {
+                Hash = songHash
+            };
             try
             {
-                var invalidJob = new DownloadJob(DefaultSong, downloadUri, tempDirectory);
+                var invalidJob = new DownloadJob(song, downloadUri, tempDirectory);
                 Assert.Fail("An ArgumentNullException should have been thrown.");
             }
             catch (AssertFailedException) { throw; }

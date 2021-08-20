@@ -19,6 +19,8 @@ namespace SongDownloadManager
         {
             if (song == null)
                 throw new ArgumentNullException(nameof(song), "song cannot be null for SongDownloadManager.QueueSongAsync.");
+            if (string.IsNullOrWhiteSpace(song.Hash))
+                throw new ArgumentNullException("songHash");
             if (string.IsNullOrEmpty(tempDirectory?.Trim()))
                 throw new ArgumentNullException(nameof(tempDirectory), "tempDirectory cannot be null for SongDownloadManager.QueueSongAsync.");
             DownloadUri = downloadUri ?? throw new ArgumentNullException(nameof(downloadUri), "downloadUri cannot be null for SongDownloadManager.QueueSongAsync.");

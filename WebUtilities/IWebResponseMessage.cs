@@ -4,12 +4,15 @@ using System.Collections.ObjectModel;
 
 namespace WebUtilities
 {
+    /// <summary>
+    /// An interface defining a web response with content..
+    /// </summary>
     public interface IWebResponseMessage : IWebResponse, IDisposable
     {
         /// <summary>
         /// Content of the response.
         /// </summary>
-        IWebResponseContent Content { get; }
+        IWebResponseContent? Content { get; }
 
 
         /// <summary>
@@ -20,6 +23,9 @@ namespace WebUtilities
         IWebResponseMessage EnsureSuccessStatusCode();
     }
 
+    /// <summary>
+    /// An interface defining a web response.
+    /// </summary>
     public interface IWebResponse
     {
         /// <summary>
@@ -30,12 +36,12 @@ namespace WebUtilities
         /// <summary>
         /// Reason phrase associated with the status code.
         /// </summary>
-        string ReasonPhrase { get; }
+        string? ReasonPhrase { get; }
 
         /// <summary>
         /// If an exception is thrown getting the response, store it here.
         /// </summary>
-        Exception Exception { get; }
+        Exception? Exception { get; }
 
         /// <summary>
         /// Returns true if the Http Status Code indicates success.

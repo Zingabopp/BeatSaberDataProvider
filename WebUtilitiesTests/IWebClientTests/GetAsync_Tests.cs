@@ -14,12 +14,11 @@ namespace WebUtilitiesTests.IWebClientTests
     public class GetAsync_Tests
     {
         private static readonly string TestOutputPath = Path.GetFullPath(@"Output\IWebClientTests");
-
         [TestMethod]
         public void Success_NullContentLength()
         {
-            var client1 = new WebClientWrapper();
-            var client2 = new HttpClientWrapper();
+            var client1 = TestUtilities.GetWebClient();
+            var client2 = TestUtilities.GetHttpClient();
             var url = "http://beatsaver.com/";
             bool expectedResponseSuccess = true;
             int expectedStatus = 200;
@@ -67,8 +66,8 @@ namespace WebUtilitiesTests.IWebClientTests
         [TestMethod]
         public void NotFound_ThrowOnException()
         {
-            var client1 = new WebClientWrapper();
-            var client2 = new HttpClientWrapper();
+            var client1 = TestUtilities.GetWebClient();
+            var client2 = TestUtilities.GetHttpClient();
             var url = "https://beatsaver.com/cdn/5317/aaa14fb7dcaeda7a688db77617045a24d7baa151d.zip";
             bool expectedResponseSuccess = false;
             int expectedStatus = 404;
@@ -118,13 +117,13 @@ namespace WebUtilitiesTests.IWebClientTests
         [TestMethod]
         public void NotFound_ReturnEmptyContent()
         {
-            var client1 = new WebClientWrapper();
-            var client2 = new HttpClientWrapper();
+            var client1 = TestUtilities.GetWebClient();
+            var client2 = TestUtilities.GetHttpClient();
             var url = "https://beatsaver.com/cdn/5317/aaa14fb7dcaeda7a688db77617045a24d7baa151d.zip";
             bool expectedResponseSuccess = false;
             int expectedStatus = 404;
-            string expectedContentType = "text/plain";// null;
-            long? expectedContentLength = 14;// null;
+            string expectedContentType = "text/html";// null;
+            long? expectedContentLength = null;
             bool? actualResponseSuccess = null;
             string actualReasonPhrase = null;
             int? actualStatus = null;
@@ -170,9 +169,9 @@ namespace WebUtilitiesTests.IWebClientTests
         [TestMethod]
         public void UsingWrapped_NotFound_ReturnEmptyContent()
         {
-            var client1 = new WebClientWrapper();
+            var client1 = TestUtilities.GetWebClient();
+            var client2 = TestUtilities.GetHttpClient();
             client1.ErrorHandling = ErrorHandling.ReturnEmptyContent;
-            var client2 = new HttpClientWrapper();
             var url = "https://beatsaver.com/cdn/5317/aaa14fb7dcaeda7a688db77617045a24d7baa151d.zip";
             bool expectedResponseSuccess = false;
             int expectedStatus = 404;
@@ -216,9 +215,9 @@ namespace WebUtilitiesTests.IWebClientTests
         [TestMethod]
         public void Canceled()
         {
-            var client1 = new WebClientWrapper();
-            var client2 = new HttpClientWrapper();
-            var cts = new CancellationTokenSource(500);
+            var client1 = TestUtilities.GetWebClient();
+            var client2 = TestUtilities.GetHttpClient();
+            var cts = new CancellationTokenSource(50);
             var url = "http://releases.ubuntu.com/18.04.3/ubuntu-18.04.3-desktop-amd64.iso";
             string directory = Path.Combine(TestOutputPath, "Canceled");
             Directory.CreateDirectory(directory);
@@ -239,8 +238,8 @@ namespace WebUtilitiesTests.IWebClientTests
                 try
                 {
                     response = await target.GetAsync(url, cts.Token).ConfigureAwait(false);
-                    await response.Content.ReadAsFileAsync(filePath, true, cts.Token);
                     Assert.Fail("Should've thrown exception");
+                    await response.Content.ReadAsFileAsync(filePath, true, cts.Token);
                 }
                 catch (WebClientException ex)
                 {
@@ -264,9 +263,9 @@ namespace WebUtilitiesTests.IWebClientTests
         [TestMethod]
         public void Timeout()
         {
-            var client1 = new WebClientWrapper();
+            var client1 = TestUtilities.GetWebClient();
+            var client2 = TestUtilities.GetHttpClient();
             client1.Timeout = 1;
-            var client2 = new HttpClientWrapper();
             client2.Timeout = 1;
             var url = "http://releases.ubuntu.com/18.04.3/ubuntu-18.04.3-desktop-amd64.iso";
             string directory = Path.Combine(TestOutputPath, "Canceled");

@@ -48,10 +48,12 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         [TestMethod]
         public void Success_XML()
         {
-            var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true };
+            //var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true };
+            var feedSettings = new BeastSaberFeedSettings(BeastSaberFeedName.Following, "Zingabopp");
+            var feed = new BeastSaberFeed(feedSettings);
             var text = File.ReadAllText("Data\\BeastSaberXMLPage.xml");
             Uri uri = null;
-            var songList = reader.GetSongsFromPageText(text, uri, BeastSaberReader.ContentType.XML);
+            var songList = BeastSaberFeed.GetSongsFromPageText(text, uri, ContentType.XML, true);
             Assert.IsTrue(songList.Count == 50);
             var firstHash = "74575254ae759f3f836eb521b4b80093ca52cd3d".ToUpper();
             var firstKey = "56ff";
@@ -85,19 +87,21 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         {
             var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency);
             var text = File.ReadAllText("Data\\BeastSaberJsonPage.json");
-            Uri uri = null;
-            var songList = reader.GetSongsFromPageText(text, uri, BeastSaberReader.ContentType.JSON);
+            Uri uri = new Uri("https://BeatSaver.com");
+            var songList = BeastSaberFeed.GetSongsFromPageText(text, uri, ContentType.JSON, true);
+
             Assert.IsTrue(songList.Count == 20);
             var firstHash = "a3bbbe2d6f64dfe8324c7098d5c35281d21fd20f".ToUpper();
-            var firstUrl = "https://beatsaver.com/api/download/key/5679";
+            var firstUrl = "https://cdn.beatsaver.com/a3bbbe2d6f64dfe8324c7098d5c35281d21fd20f.zip";
             Assert.IsTrue(songList.First().Hash == firstHash);
-            Assert.IsTrue(songList.First().DownloadUri.ToString() == firstUrl);
+            Assert.AreEqual(firstUrl, songList.First().DownloadUri?.ToString());
             var lastHash = "20b9326bd71db4454aba08df06b035ea536322a9".ToUpper();
-            var lastUrl = "https://beatsaver.com/api/download/key/55d1";
+            var lastUrl = "https://cdn.beatsaver.com/20b9326bd71db4454aba08df06b035ea536322a9.zip";
             Assert.IsTrue(songList.Last().Hash == lastHash);
-            Assert.IsTrue(songList.Last().DownloadUri.ToString() == lastUrl);
+            Assert.AreEqual(lastUrl, songList.Last().DownloadUri?.ToString());
             Assert.IsFalse(songList.Any(s => string.IsNullOrEmpty(s.Hash)));
             Assert.IsFalse(songList.Any(s => s.DownloadUri == null));
+
         }
     }
 }

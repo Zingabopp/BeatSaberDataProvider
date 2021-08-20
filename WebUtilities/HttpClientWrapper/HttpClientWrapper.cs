@@ -7,23 +7,41 @@ using static WebUtilities.Utilities;
 
 namespace WebUtilities.HttpClientWrapper
 {
+    /// <summary>
+    /// <see cref="IWebClient"/> wrapper for a <see cref="HttpClient"/>.
+    /// </summary>
     public class HttpClientWrapper : IWebClient
     {
-        private HttpClient httpClient;
-        public string UserAgent { get; private set; }
-        //public ILogger Logger;
+        private HttpClient? httpClient;
+        /// <inheritdoc/>
+        public string? UserAgent { get; private set; }
+        /// <summary>
+        /// Creates a new <see cref="HttpClientWrapper"/> with a default <see cref="HttpClient"/>.
+        /// </summary>
         public HttpClientWrapper()
         {
-            if (httpClient == null)
-                httpClient = new HttpClient();
-            if (!string.IsNullOrEmpty(UserAgent))
-            {
-                httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd(UserAgent);
-            }
-
+            httpClient = new HttpClient();
             ErrorHandling = ErrorHandling.ThrowOnException;
         }
 
+        /// <summary>
+        /// Creates a new <see cref="HttpClientWrapper"/> with a default <see cref="HttpClient"/> and sets the provided <paramref name="userAgent"/>.
+        /// </summary>
+        /// <param name="userAgent"></param>
+        public HttpClientWrapper(string userAgent)
+            : this()
+        {
+            if (!string.IsNullOrEmpty(userAgent))
+            {
+                UserAgent = userAgent;
+                SetUserAgent(UserAgent);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new <see cref="HttpClientWrapper"/> with the given <paramref name="client"/>.
+        /// </summary>
+        /// <param name="client"></param>
         public HttpClientWrapper(HttpClient client)
         {
             if (client == null)
@@ -33,8 +51,8 @@ namespace WebUtilities.HttpClientWrapper
             ErrorHandling = ErrorHandling.ThrowOnException;
             httpClient.Timeout = _timeout;
         }
-
-        public void SetUserAgent(string userAgent)
+        /// <inheritdoc/>
+        public void SetUserAgent(string? userAgent)
         {
 
             if (httpClient != null)
@@ -67,41 +85,31 @@ namespace WebUtilities.HttpClientWrapper
                     httpClient.Timeout = _timeout;
             }
         }
-
+        /// <inheritdoc/>
         public ErrorHandling ErrorHandling { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <param name="completeOnHeaders"></param>
-        /// <param name="cancellationToken"></param>
-        /// <exception cref="WebClientException">Thrown when there's a HttpRequestException.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="uri"/> is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown when the specified <paramref name="timeout"/> is less than 0.</exception>
-        /// <exception cref="OperationCanceledException">Thrown when cancelled by caller.</exception>
-        /// <returns></returns>
+        /// <inheritdoc/>
         public async Task<IWebResponseMessage> GetAsync(Uri uri, int timeout, CancellationToken cancellationToken)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri), "uri cannot be null.");
             if (timeout < 0) throw new ArgumentOutOfRangeException(nameof(timeout), "timeout cannot be less than 0.");
-
+            HttpClient client = httpClient ?? throw new InvalidOperationException($"{nameof(httpClient)} is null.");
             if (timeout == 0)
                 timeout = Timeout;
             if (timeout == 0)
-                timeout = (int)httpClient.Timeout.TotalMilliseconds;
+                timeout = (int)client.Timeout.TotalMilliseconds;
             using (var timeoutCts = new CancellationTokenSource(timeout))
             {
                 var timeoutToken = timeoutCts.Token;
                 using (var linkedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutToken))
                 {
-                    HttpResponseMessage response = null;
+                    HttpResponseMessage? response = null;
                     try
                     {
                         //TODO: Need testing for cancellation token
-                        response = await httpClient.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
+                        response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, linkedSource.Token).ConfigureAwait(false);
                         // response.EnsureSuccessStatusCode(); // Calling this disposes the content.
-                        
+
                         var wrappedResponse = new HttpResponseWrapper(response, uri);
                         if (ErrorHandling == ErrorHandling.ThrowOnException)
                             wrappedResponse.EnsureSuccessStatusCode();
@@ -147,18 +155,22 @@ namespace WebUtilities.HttpClientWrapper
         }
 
         #region GetAsyncOverloads
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri)
         {
             return GetAsync(uri, 0, CancellationToken.None);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri, CancellationToken cancellationToken)
         {
             return GetAsync(uri, 0, cancellationToken);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(Uri uri, int timeout)
         {
             return GetAsync(uri, timeout, CancellationToken.None);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url, int timeout, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(url))
@@ -166,14 +178,12 @@ namespace WebUtilities.HttpClientWrapper
             var urlAsUri = new Uri(url);
             return GetAsync(urlAsUri, timeout, cancellationToken);
         }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url)
         {
             return GetAsync(url, 0, CancellationToken.None);
         }
-        public Task<IWebResponseMessage> GetAsync(string url, int timeout)
-        {
-            return GetAsync(url, timeout, CancellationToken.None);
-        }
+        /// <inheritdoc/>
         public Task<IWebResponseMessage> GetAsync(string url, CancellationToken cancellationToken)
         {
             return GetAsync(url, 0, cancellationToken);
@@ -183,6 +193,10 @@ namespace WebUtilities.HttpClientWrapper
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
+        /// <summary>
+        /// Disposes the wrapped <see cref="HttpClient"/>.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -199,6 +213,7 @@ namespace WebUtilities.HttpClientWrapper
             }
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);

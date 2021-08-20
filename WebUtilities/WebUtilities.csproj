@@ -1,32 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Zingabopp</Authors>
     <Copyright>Copyright © Zingabopp 2019</Copyright>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platform>AnyCPU</Platform>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <DocumentationFile>WebUtilities.xml</DocumentationFile>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETFRAMEWORK</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net472'">
-    <DefineConstants>NETFRAMEWORK</DefineConstants>
-  </PropertyGroup>
-  <Choose>
-    <When Condition="'$(TargetFramework)' != 'netstandard2.0'">
-      <ItemGroup>
-        <Reference Include="System.Net.Http" />
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'netstandard1.3'">
-      <ItemGroup>
-        <PackageReference Include="System.Net.Http" Version="4.3.4" />
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Target Name="Thing" BeforeTargets="Build">
-    <Message Text="Target Framework: $(TargetFramework)" Importance="high" />
-  </Target>
 </Project>

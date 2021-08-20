@@ -17,7 +17,7 @@ namespace BeatSaberDataProviderTest
     [TestClass]
     public class ScrapedDataProviderTests
     {
-        [TestMethod]
+        //[TestMethod]
         public void BuildDatabaseFromJsonTest()
         {
             var bsScrape = @"TestData\BeatSaverScrape.json";

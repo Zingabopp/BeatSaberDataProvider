@@ -27,7 +27,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         {
             var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency);
             int maxSongs = 0;
-            var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.Bookmarks) { MaxSongs = maxSongs };
+            var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.Bookmarks) { MaxSongs = maxSongs };
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count > 0);
             Assert.IsFalse(songList.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
@@ -38,7 +38,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         {
             var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency);
             int maxSongs = 60;
-            var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.Bookmarks) { MaxSongs = maxSongs };
+            var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.Bookmarks) { MaxSongs = maxSongs };
             var songList = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(songList.Count > 0);
             Assert.IsFalse(songList.Count > maxSongs);
@@ -50,7 +50,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         {
             var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true };
             int maxSongs = 0;
-            var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.Following) { MaxSongs = maxSongs };
+            var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.Following) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(result.Count != 0);
             //Assert.IsFalse(songList.Count > maxSongs);
@@ -62,7 +62,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         {
             var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true };
             int maxSongs = 60;
-            var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.Following) { MaxSongs = maxSongs };
+            var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.Following) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(result.Count == maxSongs);
             //Assert.IsFalse(songList.Count > maxSongs);
@@ -74,7 +74,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         {
             var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true };
             int maxSongs = 0;
-            var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.CuratorRecommended) { MaxSongs = maxSongs };
+            var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.CuratorRecommended) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(result.Count != 0);
             Assert.IsFalse(result.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
@@ -90,7 +90,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
         {
             var reader = new BeastSaberReader("Zingabopp", DefaultMaxConcurrency) { StoreRawData = true };
             int maxSongs = 60;
-            var settings = new BeastSaberFeedSettings((int)BeastSaberFeed.CuratorRecommended) { MaxSongs = maxSongs };
+            var settings = new BeastSaberFeedSettings((int)BeastSaberFeedName.CuratorRecommended) { MaxSongs = maxSongs };
             var result = reader.GetSongsFromFeedAsync(settings).Result;
             Assert.IsTrue(result.Count == maxSongs);
             Assert.IsFalse(result.Songs.Any(s => string.IsNullOrEmpty(s.Key)));
@@ -109,6 +109,7 @@ namespace SongFeedReadersTests.BeastSaberReaderTests
                 Assert.AreEqual(3, result.PagesChecked);
             }
             var firstSong = result.Songs.First().Value;
+            Assert.IsFalse(string.IsNullOrEmpty(firstSong.RawData));
             var firstRawData = JToken.Parse(firstSong.RawData);
             Assert.IsTrue(firstRawData["hash"]?.Value<string>().ToUpper() == firstSong.Hash);
         }

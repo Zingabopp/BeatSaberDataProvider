@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -79,9 +78,9 @@ namespace SongFeedReaders.DataflowAlternative
                 {
                     lock (taskQueueLock)
                     {
-                        if (waitQueue.TryDequeue(out var input))
+                        if (waitQueue.TryDequeue(out TInput input))
                         {
-                            var task = blockFunction(input);
+                            Task<TOutput> task = blockFunction(input);
                             task.ContinueWith(OnTaskFinished);
                             taskQueue.Enqueue(task);
                         }
@@ -102,7 +101,7 @@ namespace SongFeedReaders.DataflowAlternative
         /// <returns></returns>
         public async Task<bool> SendAsync(TInput input, CancellationToken cancellationToken)
         {
-            using (var tcs = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, cancellationToken))
+            using (CancellationTokenSource tcs = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, cancellationToken))
             {
                 if (Completed || tcs.IsCancellationRequested)
                     return false;
@@ -136,7 +135,7 @@ namespace SongFeedReaders.DataflowAlternative
             // Finished task is not ready, if there are tasks running or waiting, wait for a finished task
             while (taskQueue.Count > 0 || waitQueue.Any())
             {
-                if (taskQueue.TryPeek(out var firstTask))
+                if (taskQueue.TryPeek(out Task<TOutput> firstTask))
                 {
                     // Wait until first task in the taskQueue is finished
                     try
@@ -173,11 +172,11 @@ namespace SongFeedReaders.DataflowAlternative
                 return false;
             lock (taskQueueLock)
             {
-                if (taskQueue.TryPeek(out var task))
+                if (taskQueue.TryPeek(out Task<TOutput> task))
                 {
                     if (task.IsCompleted)
                     {
-                        if (taskQueue.TryDequeue(out var retTask))
+                        if (taskQueue.TryDequeue(out Task<TOutput> retTask))
                         {
                             if (retTask.IsFaulted)
                                 if (retTask.Exception.InnerExceptions.Count == 1)
@@ -208,7 +207,7 @@ namespace SongFeedReaders.DataflowAlternative
                 wasReceived = false;
                 try
                 {
-                    wasReceived = TryReceive(out var output);
+                    wasReceived = TryReceive(out TOutput output);
                     if (wasReceived)
                     {
                         hasResult = true;

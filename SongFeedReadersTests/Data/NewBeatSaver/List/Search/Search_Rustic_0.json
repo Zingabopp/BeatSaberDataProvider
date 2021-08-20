@@ -1,0 +1,1734 @@
+﻿{
+  "docs": [
+    {
+      "id": 95229,
+      "name": "Aria Math Rustic (For quest players)",
+      "description": "Disable walls, Trust ME.",
+      "uploader": {
+        "id": 67807,
+        "name": "spacesuperj",
+        "hash": "6041728e46eb150006da0811",
+        "avatar": "https://www.gravatar.com/avatar/6041728e46eb150006da0811?d=retro"
+      },
+      "metadata": {
+        "bpm": 174,
+        "duration": 300,
+        "songName": "Aria Math",
+        "songSubName": "Protostar Remix",
+        "songAuthorName": "C418",
+        "levelAuthorName": "Rustic"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0.5
+      },
+      "uploaded": "2021-04-26T00:24:49.586Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "01b0d5d26ec296b3274fd8f7ef02a38ebaaf6350",
+          "key": "1731b",
+          "state": "Published",
+          "createdAt": "2021-04-26T00:24:49.586Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 17,
+              "offset": 1,
+              "notes": 0,
+              "bombs": 0,
+              "obstacles": 722,
+              "nps": 0,
+              "length": 0,
+              "characteristic": "Standard",
+              "difficulty": "Easy",
+              "events": 10700,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 0,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 17,
+              "offset": 1,
+              "notes": 419,
+              "bombs": 0,
+              "obstacles": 722,
+              "nps": 1.523,
+              "length": 798,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 10700,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 275.172,
+              "paritySummary": {
+                "errors": 40,
+                "warns": 32,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 95230,
+      "name": "Try - MitiS Feat. RØRY (For quest Players.)",
+      "description": " (Disable walls for quest, players) I managed to get Remie's song and disable the missing requirements feature so you can bypass it, it's still there but for quest players you need to disable walls.\nPls if you have noodle extensions and chroma then pls download Remie's song: https://beatsaver.com/beatmap/14d64 ,\nI'm not trying to copy, this is all of Remie's work, Remie if you tell me to disable this I will.\nI also did the same with (Aria Math - Rustic) : https://beatsaver.com/beatmap/1731b",
+      "uploader": {
+        "id": 67807,
+        "name": "spacesuperj",
+        "hash": "6041728e46eb150006da0811",
+        "avatar": "https://www.gravatar.com/avatar/6041728e46eb150006da0811?d=retro"
+      },
+      "metadata": {
+        "bpm": 132,
+        "duration": 273,
+        "songName": "Try",
+        "songSubName": "",
+        "songAuthorName": "MitiS Feat. RORY",
+        "levelAuthorName": "Remie & Lone"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 2,
+        "upvotes": 3,
+        "downvotes": 4,
+        "score": 0.4668
+      },
+      "uploaded": "2021-04-26T00:24:01.770Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "491e366c0aeb8106b4c2b565c8130bff7c3f525d",
+          "key": "1731a",
+          "state": "Published",
+          "createdAt": "2021-04-26T00:24:01.770Z",
+          "sageScore": 3,
+          "diffs": [
+            {
+              "njs": 17,
+              "offset": -0.7,
+              "notes": 1447,
+              "bombs": 21,
+              "obstacles": 17451,
+              "nps": 6.217,
+              "length": 512.083,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 36825,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 232.765,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 80672,
+      "name": "The Wall - (Buunshin Remix) [WALL MAP + CHROMA]",
+      "description": "Just wanna say that Rustic has inspired me, and  has made me want to start mapping a while back, and with that, it has brought me many opportunities, and many friends.\n\nPrograms used\nScuffedWalls: https://github.com/thelightdesigner/ScuffedWalls\nbeatwalls: https://github.com/spookyGh0st/beatwalls\n\nNoodleExtensions: https://github.com/Aeroluna/NoodleExtensions/releases\n\nPreview: https://youtu.be/lFxGmGO2kww",
+      "uploader": {
+        "id": 2552,
+        "name": "tall_chilis_boi",
+        "hash": "5dec6d85fffaa6000679dc23",
+        "avatar": "https://www.gravatar.com/avatar/5dec6d85fffaa6000679dc23?d=retro"
+      },
+      "metadata": {
+        "bpm": 172,
+        "duration": 270,
+        "songName": "The Wall",
+        "songSubName": "(Buunshin Remix)",
+        "songAuthorName": "ABIS & Signal & Tasha Baxter",
+        "levelAuthorName": "Tall_Chilis_Boi"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 6,
+        "upvotes": 479,
+        "downvotes": 1,
+        "score": 0.9203
+      },
+      "uploaded": "2021-02-08T08:27:12.773Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "9192703d277e652e3dc367bc87c68107967c6898",
+          "key": "13bea",
+          "state": "Published",
+          "createdAt": "2021-02-08T08:27:12.773Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 20,
+              "offset": -0.5,
+              "notes": 768,
+              "bombs": 0,
+              "obstacles": 14814,
+              "nps": 2.991,
+              "length": 736,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 15872,
+              "chroma": true,
+              "me": false,
+              "ne": true,
+              "cinema": false,
+              "seconds": 256.744,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 73021,
+      "name": "Shred - LeKtriQue",
+      "description": "Our first full on Triple R collab, that i've been waiting to do for ages ^^\nRuckus\nRustic\nRexxz\n\nWe all did a lot of different sections, so its for you to guess who did which part \n\nExpert+ and Lightshow diff only\nBPM: 128\n\nWe all hope that you enjoy our collab",
+      "uploader": {
+        "id": 3835,
+        "name": "rexxz",
+        "hash": "5cff0b7598cc5a672c85311e",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7598cc5a672c85311e?d=retro"
+      },
+      "metadata": {
+        "bpm": 128,
+        "duration": 292,
+        "songName": "Shred",
+        "songSubName": "",
+        "songAuthorName": "LeKtriQue",
+        "levelAuthorName": "Rexxz, Ruckus, Rustic"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 14,
+        "downvotes": 0,
+        "score": 0.7787
+      },
+      "uploaded": "2020-12-20T13:59:59.086Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "385378501898352f466c30ddacfedfbe28c696fa",
+          "key": "11c68",
+          "state": "Published",
+          "createdAt": "2020-12-20T13:59:59.086Z",
+          "sageScore": 7,
+          "diffs": [
+            {
+              "njs": 20,
+              "offset": 0.5,
+              "notes": 0,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 0,
+              "length": 0,
+              "characteristic": "Standard",
+              "difficulty": "Easy",
+              "events": 11874,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 0,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 20,
+              "offset": 0.5,
+              "notes": 1327,
+              "bombs": 40,
+              "obstacles": 164,
+              "nps": 4.656,
+              "length": 608,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 11874,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 285,
+              "paritySummary": {
+                "errors": 17,
+                "warns": 14,
+                "resets": 12
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 50885,
+      "name": "Igorrr - Polyphonic Rust",
+      "description": "Cool lighting with boring mapping lol.\n\nSpent 4 hours in total on this map.",
+      "uploader": {
+        "id": 681,
+        "name": "mrsmile",
+        "hash": "5cff0b7798cc5a672c856253",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7798cc5a672c856253?d=retro"
+      },
+      "metadata": {
+        "bpm": 132,
+        "duration": 257,
+        "songName": "Polyphonic Rust",
+        "songSubName": "",
+        "songAuthorName": "Igorrr",
+        "levelAuthorName": "mrSmile"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 0.5942
+      },
+      "uploaded": "2020-07-24T14:37:38.278Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "9d01be2104e124cefd6b7404c663bbc9e1cead8d",
+          "key": "c6c5",
+          "state": "Published",
+          "createdAt": "2020-07-24T14:37:38.278Z",
+          "sageScore": 9,
+          "diffs": [
+            {
+              "njs": 22,
+              "offset": 0.2,
+              "notes": 1167,
+              "bombs": 0,
+              "obstacles": 65,
+              "nps": 5.104,
+              "length": 503,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 4518,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 228.636,
+              "paritySummary": {
+                "errors": 3,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 22,
+              "offset": 0.2,
+              "notes": 0,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 0,
+              "length": 0,
+              "characteristic": "Lightshow",
+              "difficulty": "Easy",
+              "events": 4518,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 0,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 45947,
+      "name": "Team Grimoire vs Laur - Grievous Lady",
+      "description": "attempt #2\n\nMapped by: NustyFrozen & roeek\n\nModded by:\nzhaey\neZconfirmed\nhelloiamdaan\nrustic\nPbjtime12\nKleiark\nthanks very much to kleiark & zhaey for noticing little stuff\n\noh yea 2nd drop doesn't switch hands RIGHT HAND GANG :-)",
+      "uploader": {
+        "id": 20697,
+        "name": "nustyfrozen",
+        "hash": "5cff0b7698cc5a672c853e2c",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7698cc5a672c853e2c?d=retro"
+      },
+      "metadata": {
+        "bpm": 210,
+        "duration": 240,
+        "songName": "Grievous Lady",
+        "songSubName": "",
+        "songAuthorName": "Team Grimoire vs Laur",
+        "levelAuthorName": "NustyFrozen, roeek"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 0.5942
+      },
+      "uploaded": "2020-06-17T18:59:36.008Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "6d6aa4638d4946b9441b939a36c2cd813a31d5a3",
+          "key": "b37b",
+          "state": "Published",
+          "createdAt": "2020-06-17T18:59:36.008Z",
+          "sageScore": 5,
+          "diffs": [
+            {
+              "njs": 24,
+              "offset": -0.31931058,
+              "notes": 1652,
+              "bombs": 43,
+              "obstacles": 131,
+              "nps": 7.558,
+              "length": 765,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 6465,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 218.571,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39658,
+      "name": "Alles nur geklaut",
+      "description": "I made an other german Bob.\r\nHope you all enjoy it.\r\n\r\nHuge thanks to Muttentwitch, Sehria_K and Rustic for testing and feedback.",
+      "uploader": {
+        "id": 20806,
+        "name": "arombolosch",
+        "hash": "5ddab4e9137f26000659de41",
+        "avatar": "https://www.gravatar.com/avatar/5ddab4e9137f26000659de41?d=retro"
+      },
+      "metadata": {
+        "bpm": 160,
+        "duration": 150,
+        "songName": "Alles nur geklaut",
+        "songSubName": "",
+        "songAuthorName": "Die Prinzen",
+        "levelAuthorName": "Arombolosch"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 19,
+        "downvotes": 0,
+        "score": 0.7971
+      },
+      "uploaded": "2020-04-14T16:32:43.630Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "c34019fbc0e4ab6f60a313b6bac17af8fb6ffb5b",
+          "key": "9aea",
+          "state": "Published",
+          "createdAt": "2020-04-14T16:32:43.630Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 14,
+              "offset": 0.7,
+              "notes": 401,
+              "bombs": 8,
+              "obstacles": 36,
+              "nps": 2.805,
+              "length": 381,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 2872,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 142.875,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 4
+              }
+            },
+            {
+              "njs": 18,
+              "offset": 0,
+              "notes": 570,
+              "bombs": 0,
+              "obstacles": 21,
+              "nps": 3.916,
+              "length": 388,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 2872,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 145.5,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 20,
+              "offset": -0.2,
+              "notes": 972,
+              "bombs": 0,
+              "obstacles": 4,
+              "nps": 6.677,
+              "length": 388,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 2898,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 145.5,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 36986,
+      "name": "Zomboy - End Game (TYNAN Remix)",
+      "description": "Maps by JewelsVR, Ruckus and Rustic\r\nhttps://www.youtube.com/watch?v=yCDbRcQ8Smw",
+      "uploader": {
+        "id": 12996,
+        "name": "rustic",
+        "hash": "5cff0b7298cc5a672c84e8c4",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84e8c4?d=retro"
+      },
+      "metadata": {
+        "bpm": 150,
+        "duration": 252,
+        "songName": "End Game",
+        "songSubName": "(TYNAN Remix)",
+        "songAuthorName": "Zomboy",
+        "levelAuthorName": "JewelsVR, Ruckus, Rustic"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 1,
+        "upvotes": 50,
+        "downvotes": 1,
+        "score": 0.8342
+      },
+      "uploaded": "2020-03-15T22:14:24.249Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "711bd9db9a1d0de684f11ae6ce332818ebdc57ed",
+          "key": "907a",
+          "state": "Published",
+          "createdAt": "2020-03-15T22:14:24.249Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 20,
+              "offset": 0,
+              "notes": 611,
+              "bombs": 0,
+              "obstacles": 18002,
+              "nps": 2.687,
+              "length": 568.563,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 8220,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 227.425,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 20,
+              "offset": 0,
+              "notes": 882,
+              "bombs": 0,
+              "obstacles": 18002,
+              "nps": 3.667,
+              "length": 601.344,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 8218,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 240.538,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 20,
+              "offset": -0.4,
+              "notes": 1126,
+              "bombs": 366,
+              "obstacles": 83,
+              "nps": 4.618,
+              "length": 609.57,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 8218,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 243.828,
+              "paritySummary": {
+                "errors": 1,
+                "warns": 3,
+                "resets": 22
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 36351,
+      "name": "xilent - interluden // human_error",
+      "description": "Hey! :)\n\nThis is a map inspired by rustic's old map, he even let me use the audio!\nhttps://www.youtube.com/watch?v=D913xkEnz4U\n\nI spent a long time on this map, so give it an upvote if you enjoyed it! This is my first time using walls too :D\n\nHere's a cool cinematic preview in case you are too lazy to download it: https://youtu.be/_VJAWjBKxU4",
+      "uploader": {
+        "id": 2940,
+        "name": "swifter1243",
+        "hash": "5dcf3af29eccad0006a0b45f",
+        "avatar": "https://www.gravatar.com/avatar/5dcf3af29eccad0006a0b45f?d=retro"
+      },
+      "metadata": {
+        "bpm": 150,
+        "duration": 360,
+        "songName": "interluden // human_error",
+        "songSubName": "",
+        "songAuthorName": "xilent",
+        "levelAuthorName": "Swifter1243"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 10,
+        "downvotes": 0,
+        "score": 0.7571
+      },
+      "uploaded": "2020-03-07T18:33:47.858Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "bb968ac72848b5dfb04831ed792bec02822aa3cd",
+          "key": "8dff",
+          "state": "Published",
+          "createdAt": "2020-03-07T18:33:47.858Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 19,
+              "offset": 0,
+              "notes": 1186,
+              "bombs": 0,
+              "obstacles": 3263,
+              "nps": 3.505,
+              "length": 845.938,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 6317,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 338.375,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 35808,
+      "name": "Armed and Ready [Acoustic] (RWBY: Volume 6 Soundtrack) - Jeff Williams ft. Casey Lee Williams & The Hit Points",
+      "description": "\"Armed and Ready\" is a song featured in RWBY Volume 4. The Acoustic version with The Hit Points instrumentals is incorporated into the RWBY: Volume 6 Soundtrack. ",
+      "uploader": {
+        "id": 58338,
+        "name": "Joetastic",
+        "hash": "5cff0b7498cc5a672c85050e",
+        "avatar": "https://cdn.beatmaps.io/avatar/227767566402191360.png"
+      },
+      "metadata": {
+        "bpm": 148,
+        "duration": 268,
+        "songName": "Armed and Ready (Acoustic)",
+        "songSubName": "ft. Casey Lee Williams & The Hit Points",
+        "songAuthorName": "Jeff Williams",
+        "levelAuthorName": "Joetastic"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 37,
+        "downvotes": 2,
+        "score": 0.8009
+      },
+      "uploaded": "2020-02-29T15:30:46.608Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "5e03db21f5ce4251e8a0eb0727bafb6908591940",
+          "key": "8be0",
+          "state": "Published",
+          "createdAt": "2020-02-29T15:30:46.608Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 11,
+              "offset": 0,
+              "notes": 673,
+              "bombs": 0,
+              "obstacles": 14,
+              "nps": 2.528,
+              "length": 656.75,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 12535,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 266.25,
+              "paritySummary": {
+                "errors": 16,
+                "warns": 13,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 13.5,
+              "offset": 0,
+              "notes": 1158,
+              "bombs": 0,
+              "obstacles": 19,
+              "nps": 4.349,
+              "length": 656.75,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 12535,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 266.25,
+              "paritySummary": {
+                "errors": 18,
+                "warns": 22,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 16,
+              "offset": 0,
+              "notes": 1433,
+              "bombs": 0,
+              "obstacles": 19,
+              "nps": 5.382,
+              "length": 656.75,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 12535,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 266.25,
+              "paritySummary": {
+                "errors": 12,
+                "warns": 18,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 25738,
+      "name": "Into The Zone (JSAB Edit) - Shirobon",
+      "description": "I tried to make this map look like JSAB level of this song! i hope you like it!\nYou can watch a gameplay of the map here: https://www.youtube.com/watch?v=L2-0Buno0GE&feature=youtu.be\ni know that Rustic made a map for this song (which is Much, MUCHHHH better than this one) but by the time he did that map i was already done with this one because someone asked me to make a JSAB edition, and i worked hard on it so i didnt want to just delete it when all i had left is the lights :( i still hope you will like it even if its not as good^^",
+      "uploader": {
+        "id": 1708,
+        "name": "layanmeta",
+        "hash": "5cff0b7698cc5a672c8539a1",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7698cc5a672c8539a1?d=retro"
+      },
+      "metadata": {
+        "bpm": 122,
+        "duration": 105,
+        "songName": "Into The Zone",
+        "songSubName": "Shirobon ",
+        "songAuthorName": "Shirobon ",
+        "levelAuthorName": "Layanmeta"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 7,
+        "downvotes": 0,
+        "score": 0.7326
+      },
+      "uploaded": "2019-09-19T15:40:47.588Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "8ba75963478ef4452c0608134cd17740d88f81fd",
+          "key": "648a",
+          "state": "Published",
+          "createdAt": "2019-09-19T15:40:47.588Z",
+          "sageScore": 5,
+          "diffs": [
+            {
+              "njs": 16,
+              "offset": 0,
+              "notes": 391,
+              "bombs": 0,
+              "obstacles": 2126,
+              "nps": 3.99,
+              "length": 199.25,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 1623,
+              "chroma": false,
+              "me": true,
+              "ne": false,
+              "cinema": false,
+              "seconds": 97.992,
+              "paritySummary": {
+                "errors": 19,
+                "warns": 14,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 24000,
+      "name": "Crush On You - Nero (KillSonik Remix)",
+      "description": "This map takes inspiration from mappers like Rustic, folks who make high-energy workout maps with dazzling lights and fun patterns.\n\nI've sunk dozens of hours into this one, and I have a blast playing it. I hope you do too :)\n\nThanks to RedMagi for playtesting, map has been reworked with that feedback in mind.",
+      "uploader": {
+        "id": 26847,
+        "name": "joshwcomeau",
+        "hash": "5d152d44f8aa08000618017e",
+        "avatar": "https://www.gravatar.com/avatar/5d152d44f8aa08000618017e?d=retro"
+      },
+      "metadata": {
+        "bpm": 140,
+        "duration": 158,
+        "songName": "Crush On You",
+        "songSubName": "KillSonik Remix",
+        "songAuthorName": "Nero",
+        "levelAuthorName": "Josh Comeau"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 0.6408
+      },
+      "uploaded": "2019-08-18T15:34:35.089Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "9dc34a2b418eb57effbe408310f24c24baa7d6c4",
+          "key": "5dc0",
+          "state": "Published",
+          "createdAt": "2019-08-18T15:34:35.089Z",
+          "sageScore": 5,
+          "diffs": [
+            {
+              "njs": 18,
+              "offset": 1,
+              "notes": 629,
+              "bombs": 59,
+              "obstacles": 24,
+              "nps": 4.368,
+              "length": 336,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 2859,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 144,
+              "paritySummary": {
+                "errors": 29,
+                "warns": 60,
+                "resets": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 23883,
+      "name": "Dreamer - Martin Garrix feat. Mike Yung",
+      "description": "Cubes by Heisy\nLights by Rustic\nVery cute song :)",
+      "uploader": {
+        "id": 27983,
+        "name": "heisenbergirl",
+        "hash": "5cff0b7298cc5a672c84ec30",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84ec30?d=retro"
+      },
+      "metadata": {
+        "bpm": 105,
+        "duration": 194,
+        "songName": "Dreamer",
+        "songSubName": "",
+        "songAuthorName": "Martin Garrix ft. Mike Yung",
+        "levelAuthorName": "Heisenberg and Rustic"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 0.692
+      },
+      "uploaded": "2019-08-16T15:13:30.578Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "516f616e5dc9c3b5c4e7f217e72d5012eab092dc",
+          "key": "5d4b",
+          "state": "Published",
+          "createdAt": "2019-08-16T15:13:30.578Z",
+          "sageScore": 7,
+          "diffs": [
+            {
+              "njs": 15,
+              "offset": 0,
+              "notes": 0,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 0,
+              "length": 0,
+              "characteristic": "Standard",
+              "difficulty": "Easy",
+              "events": 1205,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 0,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 15,
+              "offset": 0,
+              "notes": 568,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 3.03,
+              "length": 328,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 1205,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 187.429,
+              "paritySummary": {
+                "errors": 49,
+                "warns": 48,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 21747,
+      "name": "Beat Saber XIX, by KoleAb",
+      "description": "One year of Beat Saber has passed and it’s time to go down memory lane. Or maybe you’ve just started playing Beat Saber and would like to catch up on what songs have been among the most popular ones? Then this map is for you!\n\nA solo compilation project originally started by Ab, he asked Kolezan to help him out with the audio editing. We’ve used the original maps for the songs (with permission from the map author) to change (and hopefully improve), create updated or new difficulties based or inspired by these original maps. Ab recreated or touched up the original lights for all songs.\n\n(Preview video will come at a later date!)\n\nSongs and original authors:\n1. Reality Check Through The Skull, by Shad\n2. Through The Fire And The Flames, by Freeek\n3. Believer, by Rustic\n4. K/DA, by MinorSetback\n5. Gangnam Style, by GreatYazer\n6. Ignite, by Joetastic\n7. Senpai Notice Me, by JackoDEJ\n8. Overkill, by Nuketime\n9. Centipede, by Purphoros\n10. Routine, by Hexagonial, Splakie, Puds\n11. Bubble Tea, by Roee-K\n12. Rockerfeller Streets, by RinkuSenpai\n13. Brain Power (SDVX), by Hexagonial, Loloppe\n14. Cycle Hit, by Hexagonial, Fromen, Moriik\n15. Avalanche, by Zorowo\n16. Freedom Dive, by Roffle\n\nSeveral months in the working, we hope this compilation makes justice to the songs and maps, and that everyone can enjoy this trip down memory lane and/or create new memories from playing our map!\n\nEnjoy!\n/Kole-Ab",
+      "uploader": {
+        "id": 30541,
+        "name": "kolezan",
+        "hash": "5cff0b7398cc5a672c84fcbb",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7398cc5a672c84fcbb?d=retro"
+      },
+      "metadata": {
+        "bpm": 260,
+        "duration": 407,
+        "songName": "Beat Saber XIX",
+        "songSubName": "",
+        "songAuthorName": "Various Songs",
+        "levelAuthorName": "Various Mappers"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 39,
+        "downvotes": 3,
+        "score": 0.7904
+      },
+      "uploaded": "2019-06-29T16:22:12.100Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "90f5d8673ee4e39897ead572fc98e5c1171027e6",
+          "key": "54f3",
+          "state": "Published",
+          "createdAt": "2019-06-29T16:22:12.100Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 13,
+              "offset": 1,
+              "notes": 1285,
+              "bombs": 55,
+              "obstacles": 44,
+              "nps": 3.212,
+              "length": 1733.609,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 14338,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 400.064,
+              "paritySummary": {
+                "errors": 198,
+                "warns": 143,
+                "resets": 2
+              }
+            },
+            {
+              "njs": 15,
+              "offset": 0,
+              "notes": 1917,
+              "bombs": 64,
+              "obstacles": 48,
+              "nps": 4.788,
+              "length": 1734.869,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 14338,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 400.354,
+              "paritySummary": {
+                "errors": 207,
+                "warns": 212,
+                "resets": 6
+              }
+            },
+            {
+              "njs": 20,
+              "offset": 0.6,
+              "notes": 2459,
+              "bombs": 35,
+              "obstacles": 53,
+              "nps": 6.142,
+              "length": 1734.87,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 16053,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 400.355,
+              "paritySummary": {
+                "errors": 163,
+                "warns": 135,
+                "resets": 7
+              }
+            },
+            {
+              "njs": 13,
+              "offset": 0,
+              "notes": 0,
+              "bombs": 0,
+              "obstacles": 0,
+              "nps": 0,
+              "length": 0,
+              "characteristic": "Lightshow",
+              "difficulty": "Easy",
+              "events": 14338,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 0,
+              "paritySummary": {
+                "errors": 0,
+                "warns": 0,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 7316,
+      "name": "[HallowBeats] The Ghost - Niviro",
+      "description": "Here's another HallowBeats song!\r\nCheck out our other maps, from BennyTheBeast, Bomb, Freeek, GreatYazer, Purphoros, and Rustic!\r\n\r\nPreview for this map: https://www.youtube.com/watch?v=3vYMhOnzWek",
+      "uploader": {
+        "id": 47059,
+        "name": "rocket",
+        "hash": "5cff0b7398cc5a672c84f1c0",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7398cc5a672c84f1c0?d=retro"
+      },
+      "metadata": {
+        "bpm": 128,
+        "duration": 184,
+        "songName": "The Ghost",
+        "songSubName": "Niviro",
+        "songAuthorName": "[HallowBeats] Rocket",
+        "levelAuthorName": "rocket"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 1,
+        "upvotes": 39,
+        "downvotes": 0,
+        "score": 0.8353
+      },
+      "uploaded": "2018-10-28T16:02:53Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "17f181ac3319695cef8b129fd0d3a1a8d54afac3",
+          "key": "1c94",
+          "state": "Published",
+          "createdAt": "2018-10-28T16:02:53Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 12,
+              "offset": 0,
+              "notes": 187,
+              "bombs": 0,
+              "obstacles": 20,
+              "nps": 1.061,
+              "length": 376,
+              "characteristic": "Standard",
+              "difficulty": "Easy",
+              "events": 1239,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 176.25,
+              "paritySummary": {
+                "errors": 9,
+                "warns": 10,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 12,
+              "offset": 0,
+              "notes": 382,
+              "bombs": 0,
+              "obstacles": 20,
+              "nps": 2.167,
+              "length": 376,
+              "characteristic": "Standard",
+              "difficulty": "Normal",
+              "events": 1239,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 176.25,
+              "paritySummary": {
+                "errors": 42,
+                "warns": 48,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 12,
+              "offset": 0,
+              "notes": 558,
+              "bombs": 0,
+              "obstacles": 20,
+              "nps": 3.166,
+              "length": 376,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 1239,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 176.25,
+              "paritySummary": {
+                "errors": 49,
+                "warns": 59,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 12,
+              "offset": 0,
+              "notes": 661,
+              "bombs": 0,
+              "obstacles": 20,
+              "nps": 3.75,
+              "length": 376,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 1239,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 176.25,
+              "paritySummary": {
+                "errors": 50,
+                "warns": 96,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6487,
+      "name": "Noisestorm - Timewarp",
+      "description": "Collaboration between Rustic & Fafurion\r\nhttps://www.youtube.com/watch?v=w3EVzAgji8M",
+      "uploader": {
+        "id": 12996,
+        "name": "rustic",
+        "hash": "5cff0b7298cc5a672c84e8c4",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84e8c4?d=retro"
+      },
+      "metadata": {
+        "bpm": 128,
+        "duration": 281,
+        "songName": "Timewarp",
+        "songSubName": "Noisestorm",
+        "songAuthorName": "Rustic and Fafurion",
+        "levelAuthorName": "rustic"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 19,
+        "downvotes": 1,
+        "score": 0.77
+      },
+      "uploaded": "2018-10-08T17:38:34Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "abd161f3af4c583c96882961260ae391a5760b72",
+          "key": "1957",
+          "state": "Published",
+          "createdAt": "2018-10-08T17:38:34Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 13,
+              "offset": 0,
+              "notes": 1034,
+              "bombs": 0,
+              "obstacles": 84,
+              "nps": 3.742,
+              "length": 589.5,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 4114,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 276.328,
+              "paritySummary": {
+                "errors": 60,
+                "warns": 84,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5309,
+      "name": "Starship - We Built This City",
+      "description": "Collab map between BennyDaBeast, Rustic and GreatYazer\r\nExper / Hard / Normal\r\nhttps://www.youtube.com/watch?v=KnLnUBIbfbM\r\nhttps://streamable.com/s8xvc",
+      "uploader": {
+        "id": 12996,
+        "name": "rustic",
+        "hash": "5cff0b7298cc5a672c84e8c4",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84e8c4?d=retro"
+      },
+      "metadata": {
+        "bpm": 143,
+        "duration": 298,
+        "songName": "We Built this City",
+        "songSubName": "Starship",
+        "songAuthorName": "GreatYazer, Rustic, BennyDaBeast",
+        "levelAuthorName": "rustic"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 1,
+        "upvotes": 177,
+        "downvotes": 12,
+        "score": 0.8466
+      },
+      "uploaded": "2018-09-12T19:05:18Z",
+      "automapper": false,
+      "ranked": true,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "477fac9561e8931c7efaf49faa065611348f159d",
+          "key": "14bd",
+          "state": "Published",
+          "createdAt": "2018-09-12T19:05:18Z",
+          "sageScore": 5,
+          "diffs": [
+            {
+              "njs": 10,
+              "offset": 0,
+              "notes": 472,
+              "bombs": 26,
+              "obstacles": 32,
+              "nps": 1.64,
+              "length": 686,
+              "characteristic": "Standard",
+              "difficulty": "Normal",
+              "events": 1843,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 287.832,
+              "paritySummary": {
+                "errors": 64,
+                "warns": 56,
+                "resets": 0
+              },
+              "stars": 1.03
+            },
+            {
+              "njs": 10,
+              "offset": 0,
+              "notes": 759,
+              "bombs": 26,
+              "obstacles": 34,
+              "nps": 2.633,
+              "length": 687,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 1843,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 288.252,
+              "paritySummary": {
+                "errors": 69,
+                "warns": 90,
+                "resets": 0
+              },
+              "stars": 1.66
+            },
+            {
+              "njs": 11,
+              "offset": 0,
+              "notes": 967,
+              "bombs": 26,
+              "obstacles": 36,
+              "nps": 3.355,
+              "length": 687,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 1843,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 288.252,
+              "paritySummary": {
+                "errors": 71,
+                "warns": 126,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5186,
+      "name": "Soulless 4 - ExileLord (Collab chart)",
+      "description": "5802 notes.\r\n6811 lights.\r\n4 mappers.\r\n1 epic collab.\r\n\r\nExpert+ Collab Playthrough: https://youtu.be/O5d1mTyQTpI\r\n\r\nCredits\r\n\r\n0:11 - 3:50    | OrangeW\r\n3:51- 6:25     | Roffle\r\n6:26 - 10:39  | Rustic\r\n10:39 - END  | Freeek\r\nFull Lighting | Freeek\r\n\r\n\r\n\r\n\r\n--- OrangeW ---\r\nTop 3 Global Beat Saber Players\r\nMade Clash Clash, Glorious Crown.\r\nTwitch: https://www.twitch.tv/orangew2\r\nTwitter: https://twitter.com/OrangeW_\r\n\r\n\r\n--- Roffle ---\r\nMade Freedom Dive, Everything will Freeze, Brain power, Furiosa Melodia.\r\nFind him on the modding Discord!\r\n\r\n\r\n--- Rustic ---\r\nMade Believer, Popcorn Funk, Everything by 'Prototypraptor', Gravity, Uprising.\r\nYoutube: https://bit.ly/2N0UXR6\r\nTwitter: https://twitter.com/ThisRustic\r\n\r\n--- Freeek ---\r\nMade TTFAF, Blue, Beat it, Knights of Cydonia.\r\nTwitch: https://www.twitch.tv/freeek\r\nTwitter: https://twitter.com/freeek323\r\nYoutube: https://www.youtube.com/freeek",
+      "uploader": {
+        "id": 47581,
+        "name": "freeek",
+        "hash": "5cff0b7298cc5a672c84e8ad",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84e8ad?d=retro"
+      },
+      "metadata": {
+        "bpm": 250,
+        "duration": 746,
+        "songName": "Soulless 4",
+        "songSubName": "ExileLord",
+        "songAuthorName": "OrangeW-Roffle-Rustic-Freeek",
+        "levelAuthorName": "freeek"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 3,
+        "downvotes": 3,
+        "score": 0.5
+      },
+      "uploaded": "2018-09-09T03:23:40Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "67322d6acc4faab4f4edae9f39c70cd727db3977",
+          "key": "1442",
+          "state": "Published",
+          "createdAt": "2018-09-09T03:23:40Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 14,
+              "offset": 0,
+              "notes": 5802,
+              "bombs": 199,
+              "obstacles": 157,
+              "nps": 7.857,
+              "length": 3077,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 6811,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 738.48,
+              "paritySummary": {
+                "errors": 589,
+                "warns": 326,
+                "resets": 15
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4339,
+      "name": "Last Dance (Custic Remix) - Dua Lipa",
+      "description": "Difficulties: Expert+, Expert, Hard, Normal\r\nYouTube Preview: https://youtu.be/R82tIOsEzGU",
+      "uploader": {
+        "id": 30311,
+        "name": "bennydabeast",
+        "hash": "5cff0b7298cc5a672c84e98d",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84e98d?d=retro"
+      },
+      "metadata": {
+        "bpm": 136,
+        "duration": 227,
+        "songName": "Last Dance (Custic Remix)",
+        "songSubName": "Dua Lipa",
+        "songAuthorName": "BennyDaBeast",
+        "levelAuthorName": "bennydabeast"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 2,
+        "upvotes": 33,
+        "downvotes": 3,
+        "score": 0.7762
+      },
+      "uploaded": "2018-08-20T21:09:27Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "f1655fa1992bc9e841c915d0d32475506922a670",
+          "key": "10f3",
+          "state": "Published",
+          "createdAt": "2018-08-20T21:09:27Z",
+          "sageScore": 4,
+          "diffs": [
+            {
+              "njs": 10,
+              "offset": 0,
+              "notes": 301,
+              "bombs": 1,
+              "obstacles": 0,
+              "nps": 1.496,
+              "length": 456,
+              "characteristic": "Standard",
+              "difficulty": "Normal",
+              "events": 1625,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 201.176,
+              "paritySummary": {
+                "errors": 79,
+                "warns": 39,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 10,
+              "offset": 0,
+              "notes": 473,
+              "bombs": 1,
+              "obstacles": 3,
+              "nps": 2.351,
+              "length": 455.996,
+              "characteristic": "Standard",
+              "difficulty": "Hard",
+              "events": 1625,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 201.175,
+              "paritySummary": {
+                "errors": 57,
+                "warns": 49,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 10,
+              "offset": 0,
+              "notes": 818,
+              "bombs": 1,
+              "obstacles": 5,
+              "nps": 4.066,
+              "length": 456,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 1625,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 201.176,
+              "paritySummary": {
+                "errors": 96,
+                "warns": 101,
+                "resets": 0
+              }
+            },
+            {
+              "njs": 10,
+              "offset": 0,
+              "notes": 875,
+              "bombs": 1,
+              "obstacles": 5,
+              "nps": 4.349,
+              "length": 456,
+              "characteristic": "Standard",
+              "difficulty": "ExpertPlus",
+              "events": 1625,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 201.176,
+              "paritySummary": {
+                "errors": 99,
+                "warns": 113,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1299,
+      "name": "NOW Thats What I Call B.S. VOL.1",
+      "description": "A mashup of some popular Beat Saber custom songs =P\r\nBeats: 1,060 | BPM 150 |  Notes: 1,581 | Time: 7:04\r\nExpert only (but don't be afraid its not TTFAF)\r\n\r\nThis is a colab that ReddRumn, A Pervy Sage, and I (SuperToilet) made. It features Believer, Awe, Cascade, and a few other songs in a remix. Our goal was to make a mashup of what we felt were fun and popular maps and combine all of them into one long Beat Saber track. \r\n\r\nFeel free to give a special thanks to ReddRumn for doing an awesome job editing the audio. We couldn't have done it without him.\r\n\r\nAnd lastly, a special thanks to the following people for letting us use their charts to make this happen! (there are also links to the original songs if you would like to check out the full versions)\r\n\r\nRustic\r\nImagine Dragons - Believer : https://beatsaver.com/details.php?id=31 \r\nPrototyperaptor - Awe    : https://beatsaver.com/details.php?id=953\r\n\r\nSqueaksies\r\nFlower Dance - DJ Okawari : https://beatsaver.com/details.php?id=596\r\n\r\nPurphoros\r\nEvery Time We Touch - Cascada : https://beatsaver.com/details.php?id=383\r\n\r\nOrchan\r\nStonebank - Be Alright : https://beatsaver.com/details.php?id=1567\r\n\r\nRickput\r\nDM DOKURO - Reality Check : https://beatsaver.com/details.php?id=906\r\n\r\nAPervySage\r\nMarshmello - Alone : https://beatsaver.com/details.php?id=1379\r\n\r\nand my map ;D\r\nJoJo's Op 4 : https://beatsaver.com/details.php?id=565",
+      "uploader": {
+        "id": 14017,
+        "name": "tehsupertoilet",
+        "hash": "5cff0b7298cc5a672c84e934",
+        "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84e934?d=retro"
+      },
+      "metadata": {
+        "bpm": 150,
+        "duration": 424,
+        "songName": "NOW",
+        "songSubName": "Thats What I Call B.S. VOL.1",
+        "songAuthorName": "A Pervy Redd Toilet?",
+        "levelAuthorName": "tehsupertoilet"
+      },
+      "stats": {
+        "plays": 0,
+        "downloads": 0,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 0.6706
+      },
+      "uploaded": "2018-06-14T04:17:47Z",
+      "automapper": false,
+      "ranked": false,
+      "qualified": false,
+      "versions": [
+        {
+          "hash": "711929af695b540e5353ad545c7e0ddb144606c9",
+          "key": "513",
+          "state": "Published",
+          "createdAt": "2018-06-14T04:17:47Z",
+          "sageScore": 6,
+          "diffs": [
+            {
+              "njs": 10,
+              "offset": 0,
+              "notes": 1581,
+              "bombs": 8,
+              "obstacles": 14,
+              "nps": 3.843,
+              "length": 1028.386,
+              "characteristic": "Standard",
+              "difficulty": "Expert",
+              "events": 5062,
+              "chroma": false,
+              "me": false,
+              "ne": false,
+              "cinema": false,
+              "seconds": 411.354,
+              "paritySummary": {
+                "errors": 262,
+                "warns": 172,
+                "resets": 0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "user": {
+    "id": 12996,
+    "name": "rustic",
+    "hash": "5cff0b7298cc5a672c84e8c4",
+    "avatar": "https://www.gravatar.com/avatar/5cff0b7298cc5a672c84e8c4?d=retro"
+  }
+}

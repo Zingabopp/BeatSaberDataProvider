@@ -19,9 +19,9 @@ namespace SongFeedReaders.Services
         private object _initializeLock = new object();
         private Task<bool>? initializeTask;
 
-        private readonly string? FilePath;
+        public string? FilePath { get; set; }
         public TimeSpan MaxAge { get; set; } = TimeSpan.FromDays(2);
-        public bool AllowWebFetch { get; set; }
+        public bool AllowWebFetch { get; set; } = true;
         public bool CacheToDisk { get; set; }
         public AndruzzScrapedInfoProvider() { }
         public AndruzzScrapedInfoProvider(string filePath)
@@ -137,7 +137,8 @@ namespace SongFeedReaders.Services
                 if (downloadResponse.Content != null)
                 {
                     using Stream scrapeStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                    if (CacheToDisk && !string.IsNullOrWhiteSpace(FilePath))
+                    string? filePath = FilePath;
+                    if (CacheToDisk && !string.IsNullOrWhiteSpace(filePath))
                     {
                         using GZipStream gstream = new GZipStream(scrapeStream, CompressionMode.Decompress);
                         using MemoryDownloadContainer container = new MemoryDownloadContainer();
@@ -147,12 +148,12 @@ namespace SongFeedReaders.Services
                         try
                         {
                             using Stream s = container.GetResultStream();
-                            using Stream fs = File.Create(FilePath);
+                            using Stream fs = File.Create(filePath);
                             await s.CopyToAsync(fs).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
-                            Logger?.Warning($"Error caching Andruzz's scraped data to file '{FilePath}': {ex.Message}");
+                            Logger?.Warning($"Error caching Andruzz's scraped data to file '{filePath}': {ex.Message}");
                         }
                     }
                     else

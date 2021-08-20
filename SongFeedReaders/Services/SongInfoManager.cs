@@ -92,9 +92,19 @@ namespace SongFeedReaders.Services
             else
                 return SongInfoResponse.FailedResponse;
         }
-        public void AddProvider<T>() where T : ISongInfoProvider, new() => AddProvider(new T());
-        public void AddProvider<T>(string providerId, int priority = 100) where T : ISongInfoProvider, new()
-            => AddProvider(new T(), providerId, priority);
+        public T AddProvider<T>() where T : ISongInfoProvider, new()
+        {
+            T provider = new T();
+            AddProvider(provider);
+            return provider;
+        }
+
+        public T AddProvider<T>(string providerId, int priority = 100) where T : ISongInfoProvider, new()
+        {
+            T provider = new T();
+            AddProvider(provider, providerId, priority);
+            return provider;
+        }
 
         public void AddProvider(ISongInfoProvider provider)
         {

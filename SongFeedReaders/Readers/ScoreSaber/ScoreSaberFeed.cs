@@ -185,7 +185,7 @@ namespace SongFeedReaders.Readers.ScoreSaber
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting the first page in ScoreSaberReader.GetSongsFromScoreSaberAsync(): {ex.Message}";
-                return new PageReadResult(uri, new List<ScrapedSong>(), new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.Unknown);
+                return new PageReadResult(uri, new List<ScrapedSong>(), null, null, 0, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.Unknown);
             }
             finally
             {
@@ -193,10 +193,16 @@ namespace SongFeedReaders.Readers.ScoreSaber
                 response = null;
             }
             bool isLastPage;
+            ScrapedSong? firstSong = null;
+            ScrapedSong? lastSong = null;
+            int songsOnPage = 0;
             try
             {
                 List<ScrapedSong>? diffs = GetSongsFromPageText(pageText, uri, Settings.StoreRawData || StoreRawData);
-                isLastPage = diffs.Count < SongsPerPage;
+                firstSong = diffs?.FirstOrDefault();
+                lastSong = diffs?.LastOrDefault();
+                songsOnPage = diffs?.Count ?? 0;
+                isLastPage = (diffs?.Count ?? 0) < SongsPerPage;
                 foreach (ScrapedSong? diff in diffs)
                 {
                     if (!songs.ContainsKey(diff.Hash) && (Settings.Filter == null || Settings.Filter(diff)))
@@ -209,16 +215,16 @@ namespace SongFeedReaders.Readers.ScoreSaber
             {
                 string message = "Unable to parse JSON from text";
                 Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(uri, null,  new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                return new PageReadResult(uri, null, firstSong, lastSong, songsOnPage, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
             catch (Exception ex)
             {
                 string message = $"Unhandled exception from GetSongsFromPageText() while parsing {uri}";
                 Logger?.Debug($"{message}: {ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                return new PageReadResult(uri, null, firstSong, lastSong, songsOnPage, new FeedReaderException(message, ex, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
             }
 
-            return new PageReadResult(uri, songs.Values.ToList(), isLastPage);
+            return new PageReadResult(uri, songs.Values.ToList(), firstSong, lastSong, songsOnPage, isLastPage);
         }
 
         /// <summary>

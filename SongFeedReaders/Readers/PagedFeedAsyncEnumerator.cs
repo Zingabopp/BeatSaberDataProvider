@@ -137,7 +137,7 @@ namespace SongFeedReaders.Readers
             {
                 page = CurrentPage - 1;
                 if (page < 1)
-                    return new PageReadResult(PagedFeed.GetUriForPage(page), new List<ScrapedSong>(), new IndexOutOfRangeException($"Page {page} is below the minimum of 1."), PageErrorType.PageOutOfRange);
+                    return new PageReadResult(PagedFeed.GetUriForPage(page), new List<ScrapedSong>(), null, null, 0, new IndexOutOfRangeException($"Page {page} is below the minimum of 1."), PageErrorType.PageOutOfRange);
                 CurrentPage--;
             }
             if (cancellationToken.IsCancellationRequested)

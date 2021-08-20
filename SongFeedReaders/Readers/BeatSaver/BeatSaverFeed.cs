@@ -24,7 +24,7 @@ namespace SongFeedReaders.Readers.BeatSaver
         //private static readonly string AUTHORKEY = "{AUTHOR}";
         private static readonly string AUTHORIDKEY = "{AUTHORID}";
         public static readonly string PAGEKEY = "{PAGE}";
-        public static readonly string SEARCHTYPEKEY = "{SEARCHTYPE}"; // text or advanced
+        //public static readonly string SEARCHTYPEKEY = "{SEARCHTYPE}"; // text or advanced
         public static readonly string PARAMETERSKEY = "{PARAMETERS}";
         public static readonly string SEARCHQUERY = "{SEARCHQUERY}";
         public static readonly int GlobalSongsPerPage = 20;
@@ -53,7 +53,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 //{ (BeatSaverFeedName)4, new FeedInfo("Downloads", "BeatSaver Downloads", WebUtils.BeatSaverUri.AbsolutePath + "/maps/downloads/" + PAGEKEY, DescriptionDownloads) },
                 { BeatSaverFeedName.Search,
                     new FeedInfo("Search", "BeatSaver Search",
-                        WebUtils.BeatSaverApiUri + $"search/{SEARCHTYPEKEY}/{PAGEKEY}?q={SEARCHQUERY}", DescriptionSearch) },
+                        WebUtils.BeatSaverApiUri + $"search/text/{PAGEKEY}?q={SEARCHQUERY}", DescriptionSearch) },
             };
 
         public static Dictionary<BeatSaverFeedName, FeedInfo> Feeds => _feeds;
@@ -218,6 +218,9 @@ namespace SongFeedReaders.Readers.BeatSaver
             //int? lastPage;
             bool isLastPage = false;
             IWebResponseMessage? response = null;
+            ScrapedSong? firstSong = null;
+            ScrapedSong? lastSong = null;
+            int songsOnPage = 0;
             try
             {
                 response = await WebUtils.GetBeatSaverAsync(uri, cancellationToken).ConfigureAwait(false);
@@ -231,7 +234,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 if (result?["docs"] == null)
                 {
                     Logger?.Warning($"Error checking Beat Saver's {Name} feed.");
-                    return new PageReadResult(uri, null, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
+                    return new PageReadResult(uri, null, null, null, 0, new FeedReaderException($"Error getting page in BeatSaverFeed.GetSongsFromPageAsync()", null, FeedReaderFailureCode.PageFailed), PageErrorType.ParsingError);
                 }
                 //if (configuredLastPage > 0)
                 //    isLastPage = Math.Min(configuredLastPage, lastPage.Value) <= page;
@@ -239,6 +242,10 @@ namespace SongFeedReaders.Readers.BeatSaver
                 //    isLastPage = page >= lastPage.Value;
                 newSongs = new List<ScrapedSong>();
                 var scrapedSongs = BeatSaverReader.ParseSongsFromJson(result, uri, Settings.StoreRawData || StoreRawData);
+                firstSong = scrapedSongs.FirstOrDefault();
+                lastSong = scrapedSongs.LastOrDefault();
+                songsOnPage = scrapedSongs.Count;
+
                 foreach (var song in scrapedSongs)
                 {
                     if (Settings.Filter == null || Settings.Filter(song))
@@ -277,7 +284,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 string message = $"Unable to parse JSON from text on page {uri.ToString()}";
                 Logger?.Debug(message);
                 Logger?.Debug($"{ex.Message}\n{ex.StackTrace}");
-                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.ParsingError);
+                return new PageReadResult(uri, null, firstSong, lastSong, songsOnPage, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.ParsingError);
             }
             catch (OperationCanceledException ex)
             {
@@ -286,7 +293,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             catch (Exception ex)
             {
                 string message = $"Uncaught error getting page {uri} in BeatSaverFeed.GetSongsFromPageAsync(): {ex.Message}";
-                return new PageReadResult(uri, null, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.ParsingError);
+                return new PageReadResult(uri, null, firstSong, lastSong, songsOnPage, new FeedReaderException(message, ex, FeedReaderFailureCode.SourceFailed), PageErrorType.ParsingError);
             }
             finally
             {
@@ -296,7 +303,7 @@ namespace SongFeedReaders.Readers.BeatSaver
             //if (lastPage.HasValue && !isLastPage)
             //    return new BeatSaverPageResult(pageUri, newSongs, page, lastPage.Value);
             //else
-            return new PageReadResult(uri, newSongs, isLastPage);
+            return new PageReadResult(uri, newSongs, firstSong, lastSong, songsOnPage, isLastPage);
         }
         /// <summary>
         /// 

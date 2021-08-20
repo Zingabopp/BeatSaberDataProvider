@@ -9,7 +9,7 @@ namespace SongFeedReaders.Readers.BeatSaver
     public class SearchQueryBuilder
     {
         private static readonly string CRITERIA_KEY = "{CRITERIA}";
-        private static readonly string SEARCHTYPEKEY = BeatSaverFeed.SEARCHTYPEKEY; // text or advanced
+        //private static readonly string SEARCHTYPEKEY = BeatSaverFeed.SEARCHTYPEKEY; // text or advanced
         private static readonly string SEARCHQUERYKEY = BeatSaverFeed.PARAMETERSKEY;
         private static readonly string PAGEKEY = BeatSaverFeed.PAGEKEY;
         private static readonly string BaseUrl = BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl;
@@ -40,11 +40,12 @@ namespace SongFeedReaders.Readers.BeatSaver
         public string GetBaseUrl()
         {
             string url = BaseUrl;
-            if (SearchType == BeatSaverSearchType.all)
-                return url.Replace(SEARCHTYPEKEY, "text").Replace(CRITERIA_KEY, Criteria);
+            //if (SearchType == BeatSaverSearchType.all)
+            //    return url.Replace(SEARCHTYPEKEY, "text").Replace(CRITERIA_KEY, Criteria);
 
-            url = url.Replace(SEARCHTYPEKEY, "advanced");
-            url = url.Replace(SEARCHQUERYKEY, GetQueryString());
+            //url = url.Replace(SEARCHTYPEKEY, "advanced");
+            //url = url.Replace(SEARCHQUERYKEY, GetQueryString());
+            url = url.Replace(SEARCHQUERYKEY, Criteria);
             return url;
         }
 

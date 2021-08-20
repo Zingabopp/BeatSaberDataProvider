@@ -12,6 +12,8 @@ namespace SongFeedReaders.Readers
         public DateTime CurrentEarliest { get; protected set; }
         public DateTime CurrentLatest { get; protected set; }
 
+        private Uri? LastFetchedUri;
+
         public DatedFeedAsyncEnumerator(IDatedFeed datedFeed, bool cachePages = false)
             : this(datedFeed, FeedDate.Default, cachePages) { }
 
@@ -34,10 +36,10 @@ namespace SongFeedReaders.Readers
                 CanMoveNext = false;
                 CanMovePrevious = false;
             }
-            else if(result.Count > 0)
+            else if(result.SongsOnPage > 0)
             {
-                CurrentLatest = result.Songs.First().UploadDate;
-                CurrentEarliest = result.Songs.Last().UploadDate;
+                CurrentLatest = result.FirstSong.UploadDate;
+                CurrentEarliest = result.LastSong.UploadDate;
                 if (dateDirection == DateDirection.Before)
                     CanMoveNext = true;
                 else
@@ -57,12 +59,19 @@ namespace SongFeedReaders.Readers
             PageReadResult? result = null;
             Uri? pageUri = null;
             FeedDate feedDate = default;
+            bool criticalFailure = false;
             try
             {
                 await _semaphore.WaitAsync(cancellationToken);
                 feedDate = new FeedDate(CurrentEarliest, DateDirection.Before);
                 pageUri = DatedFeed.GetUriForDate(feedDate);
+                if (pageUri == LastFetchedUri)
+                {
+                    criticalFailure = true;
+                    throw new FeedReaderException($"URL '{pageUri}' was previously read, aborting to avoid possible infinite loop.");
+                }
                 result = await DatedFeed.GetSongsAsync(pageUri, cancellationToken).ConfigureAwait(false);
+                LastFetchedUri = pageUri;
             }
             catch(OperationCanceledException ex)
             {
@@ -70,7 +79,9 @@ namespace SongFeedReaders.Readers
             }
             catch (Exception ex)
             {
-                result = new PageReadResult(pageUri, null, ex, PageErrorType.Unknown);
+                if (criticalFailure)
+                    throw;
+                result = new PageReadResult(pageUri, null, null, null, 0, ex, PageErrorType.Unknown);
             }
             finally
             {

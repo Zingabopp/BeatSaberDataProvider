@@ -26,7 +26,7 @@ namespace SongFeedReaders.Readers.BeatSaver
 
         public Uri GetUriForPage(int pageNum)
         {
-            return new Uri(BaseUrl.Replace(BeatSaverFeed.PAGEKEY, pageNum.ToString()));
+            return new Uri(BaseUrl.Replace(BeatSaverFeed.PAGEKEY, pageNum.ToString()).Replace(BeatSaverFeed.SEARCHQUERY, Criteria));
         }
     }
 }

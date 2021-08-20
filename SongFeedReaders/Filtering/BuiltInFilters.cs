@@ -9,26 +9,32 @@ namespace SongFeedReaders.Filtering
     {
         public static Func<ScrapedSong, bool> ThreeSixtyDegree => new Func<ScrapedSong, bool>(song =>
         {
-            JToken? meta = song?.JsonData?["metadata"];
-            JToken? chara = meta?["characteristics"];
-            if (chara == null) return false;
-            return chara.Any(t => (t["name"]?.Value<string>() ?? string.Empty) == "360Degree");
+            JToken? latest = song?.JsonData?["versions"]?.First;
+            JToken? diffs = latest?["diffs"];
+            if (diffs == null)
+                return false;
+            bool has360 = diffs.Any(t => (t["characteristic"]?.Value<string>() ?? string.Empty) == "360Degree");
+            return has360;
         });
 
         public static Func<ScrapedSong, bool> NinetyDegree => new Func<ScrapedSong, bool>(song =>
         {
-            JToken? meta = song?.JsonData?["metadata"];
-            JToken? chara = meta?["characteristics"];
-            if (chara == null) return false;
-            return chara.Any(t => (t["name"]?.Value<string>() ?? string.Empty) == "90Degree");
+            JToken? latest = song?.JsonData?["versions"]?.First;
+            JToken? diffs = latest?["diffs"];
+            if (diffs == null)
+                return false;
+            bool has90 = diffs.Any(t => (t["characteristic"]?.Value<string>() ?? string.Empty) == "90Degree");
+            return has90;
         });
 
         public static Func<ScrapedSong, bool> OneSaber => new Func<ScrapedSong, bool>(song =>
         {
-            JToken? meta = song?.JsonData?["metadata"];
-            JToken? chara = meta?["characteristics"];
-            if (chara == null) return false;
-            return chara.Any(t => (t["name"]?.Value<string>() ?? string.Empty) == "OneSaber");
+            JToken? latest = song?.JsonData?["versions"]?.First;
+            JToken? diffs = latest?["diffs"];
+            if (diffs == null)
+                return false;
+            bool hasOneSaber = diffs.Any(t => (t["characteristic"]?.Value<string>() ?? string.Empty) == "OneSaber");
+            return hasOneSaber;
         });
 
 

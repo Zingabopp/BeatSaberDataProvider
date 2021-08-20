@@ -171,6 +171,9 @@
     <None Update="Data\SongInfoProvider\songDetails2_20210817">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Data\SongInfoProvider\songDetails2_20210819.gz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

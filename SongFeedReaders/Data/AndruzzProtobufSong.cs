@@ -36,7 +36,10 @@ namespace SongFeedReaders.Data
         public readonly AndruzzProtobufSong[] songs = null!;
 
         public DateTime ScrapeTime => AndruzzProtobufSong.epoch.AddSeconds(scrapeEndedTimeUnix);
-
+        public override string ToString()
+        {
+            return $"v{formatVersion}|{ScrapeTime:g}";
+        }
     }
 
     [ProtoContract]
@@ -69,18 +72,17 @@ namespace SongFeedReaders.Data
         [ProtoMember(14)]
         public readonly uint rankedChangeUnix;
 
+        private uint _mapId;
         [ProtoMember(6)]
         public uint mapId
         {
             get
             {
-                if (uint.TryParse(Key, out uint result))
-                    return result;
-                else
-                    return 0;
+                return _mapId;
             }
             set
             {
+                _mapId = value;
                 Key = value.ToString("X");
             }
         }
@@ -132,7 +134,8 @@ namespace SongFeedReaders.Data
             rankedState = RankedStatus.Unranked;
         }
     }
-    /* Unneeded for now.
+    // Unneeded for now.
+    /*
     [ProtoContract]
     public class AndruzzProtobufDiff
     {

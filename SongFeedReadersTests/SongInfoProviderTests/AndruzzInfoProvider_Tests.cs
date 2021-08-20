@@ -23,12 +23,18 @@ namespace SongFeedReadersTests.SongInfoProviderTests
         [TestMethod]
         public async Task AndruzzProviderTest()
         {
-            
+            string filePath = Path.Combine("Data", "SongInfoProvider", "songDetails2_20210817");
             var manager = new SongInfoManager();
             SongFeedReaders.Logging.LoggingController.DefaultLogger = new SongFeedReaders.Logging.FeedReaderLogger();
-            var andruzz = new AndruzzScrapedInfoProvider(Path.Combine("Data", "SongInfoProvider", "songDetails2"));
+            var andruzz = new AndruzzScrapedInfoProvider(filePath)
+            {
+                CacheToDisk = false,
+                AllowWebFetch = false
+            };
             manager.AddProvider(andruzz);
+            Assert.IsFalse(andruzz.Available);
             var response = await manager.GetSongByKeyAsync("b");
+            Assert.IsTrue(andruzz.Available);
             Assert.IsTrue(response.Success);
             ScrapedSong song = response.Song ?? throw new AssertFailedException("Song is null");
             Assert.AreEqual("B", song.Key);

@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using WebUtilities.DownloadContainers;
 
 namespace SongFeedReaders.Services
 {
@@ -20,6 +21,8 @@ namespace SongFeedReaders.Services
 
         private readonly string? FilePath;
         public TimeSpan MaxAge { get; set; } = TimeSpan.FromDays(2);
+        public bool AllowWebFetch { get; set; }
+        public bool CacheToDisk { get; set; }
         public AndruzzScrapedInfoProvider() { }
         public AndruzzScrapedInfoProvider(string filePath)
         {
@@ -41,11 +44,68 @@ namespace SongFeedReaders.Services
                 return finished;
             }
         }
-        private enum DataSource
+        private async Task<bool> InitializeDataInternal()
         {
-            GitHub,
-            File
+            AndruzzProtobufContainer? songContainer = null;
+            string source = "None";
+            bool fetchWeb = AllowWebFetch;
+            try
+            {
+                string? filePath = FilePath;
+                if (filePath != null && filePath.Length > 0)
+                {
+                    songContainer = ParseFile(filePath);
+                    if (songContainer != null)
+                    {
+                        source = $"File|{filePath}";
+                        TimeSpan dataAge = DateTime.UtcNow - songContainer.ScrapeTime;
+                        if (dataAge < MaxAge)
+                            fetchWeb = false;
+                        else
+                            Logger?.Debug($"Cached data is outdated ({songContainer.ScrapeTime:g}).");
+                    }
+                }
+
+                if (fetchWeb)
+                {
+                    AndruzzProtobufContainer? webContainer = await ParseGzipWebSource(new Uri(ScrapedDataUrl)).ConfigureAwait(false);
+
+                    if (webContainer != null)
+                    {
+                        songContainer = webContainer;
+                        source = $"GitHub|{ScrapedDataUrl}";
+                    }
+                    else if (songContainer != null)
+                        Logger?.Warning($"Unable to fetch updated data from web, using cached data.");
+                }
+                AndruzzProtobufSong[]? songs = songContainer?.songs;
+                if (songs != null)
+                {
+                    CreateDictionaries(songs.Length);
+                    foreach (AndruzzProtobufSong song in songs)
+                    {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                        if (song.Hash != null)
+                            _byHash[song.Hash] = song;
+                        if (song.Key != null && song.Key.Length > 0)
+                            _byKey[song.Key] = song;
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                    }
+                    _available = true;
+                    Logger?.Debug($"{songs?.Length ?? 0} songs data loaded from '{source}', format version {songContainer?.formatVersion}, last updated {songContainer?.ScrapeTime:g}");
+                }
+                else
+                {
+                    Logger?.Warning("Unable to load Andruzz's Scrapped Data.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger?.Warning($"Error loading Andruzz's Scrapped Data: {ex.Message}");
+            }
+            return true;
         }
+
 
         private static AndruzzProtobufContainer? ParseFile(string filePath)
         {
@@ -67,7 +127,7 @@ namespace SongFeedReaders.Services
             return songContainer;
         }
 
-        private static async Task<AndruzzProtobufContainer?> ParseGzipWebSource(Uri uri)
+        private async Task<AndruzzProtobufContainer?> ParseGzipWebSource(Uri uri)
         {
             AndruzzProtobufContainer? songContainer = null;
             try
@@ -77,8 +137,30 @@ namespace SongFeedReaders.Services
                 if (downloadResponse.Content != null)
                 {
                     using Stream scrapeStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                    using GZipStream gstream = new GZipStream(scrapeStream, CompressionMode.Decompress);
-                    songContainer = ParseProtobuf(gstream);
+                    if (CacheToDisk && !string.IsNullOrWhiteSpace(FilePath))
+                    {
+                        using GZipStream gstream = new GZipStream(scrapeStream, CompressionMode.Decompress);
+                        using MemoryDownloadContainer container = new MemoryDownloadContainer();
+                        await container.ReceiveDataAsync(gstream).ConfigureAwait(false);
+                        using Stream ps = container.GetResultStream();
+                        songContainer = ParseProtobuf(ps);
+                        try
+                        {
+                            using Stream s = container.GetResultStream();
+                            using Stream fs = File.Create(FilePath);
+                            await s.CopyToAsync(fs).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger?.Warning($"Error caching Andruzz's scraped data to file '{FilePath}': {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        using GZipStream gstream = new GZipStream(scrapeStream, CompressionMode.Decompress);
+                        songContainer = ParseProtobuf(gstream);
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -86,65 +168,6 @@ namespace SongFeedReaders.Services
                 Logger?.Warning($"Error loading Andruzz's Scrapped Data from GitHub: {ex.Message}");
             }
             return songContainer;
-        }
-
-        private async Task<bool> InitializeDataInternal()
-        {
-            Stream? scrapeStream = null;
-            Stream? protobuf = null;
-            AndruzzProtobufContainer? songContainer = null;
-            DataSource source = DataSource.GitHub;
-            TimeSpan dataAge = TimeSpan.MaxValue;
-            try
-            {
-                string? filePath = FilePath;
-                if (filePath != null && filePath.Length > 0)
-                {
-                    songContainer = ParseFile(filePath);
-                    if(songContainer != null)
-                    {
-                        source = DataSource.File;
-                        dataAge = DateTime.UtcNow - songContainer.ScrapeTime;
-                    }
-                }
-
-                if (songContainer?.songs == null 
-                    || songContainer.songs.Length == 0 
-                    || dataAge > MaxAge)
-                {
-                    songContainer = await ParseGzipWebSource(new Uri(ScrapedDataUrl)).ConfigureAwait(false);
-                    source = DataSource.GitHub;
-                }
-                if (songContainer?.songs != null)
-                {
-                    CreateDictionaries(songContainer.songs.Length);
-                    foreach (AndruzzProtobufSong song in songContainer.songs)
-                    {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                        if (song.Hash != null)
-                            _byHash[song.Hash] = song;
-                        if (song.Key != null && song.Key.Length > 0)
-                            _byKey[song.Key] = song;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-                    }
-
-                    Logger?.Debug($"{songContainer.songs?.Length ?? 0} songs data loaded from '{source}', format version {songContainer.formatVersion}, last updated {songContainer.ScrapeTime:g}");
-                }
-                else
-                {
-                    Logger?.Warning("Unable to load Andruzz's Scrapped Data.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger?.Warning($"Error loading Andruzz's Scrapped Data: {ex.Message}");
-            }
-            finally
-            {
-                protobuf?.Dispose();
-                scrapeStream?.Dispose();
-            }
-            return true;
         }
 
         private void CreateDictionaries(int size)
@@ -160,7 +183,7 @@ namespace SongFeedReaders.Services
             return Serializer.Deserialize<AndruzzProtobufContainer>(protobufStream);
         }
 
-        private bool _available = true;
+        private bool _available = false;
         public override bool Available => _available;
 
         public override async Task<ScrapedSong?> GetSongByHashAsync(string hash, CancellationToken cancellationToken)

@@ -80,6 +80,7 @@ namespace SongFeedReaders.Services
         }
 
         protected SongInfoProviderException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext)
+            : base(serializationInfo, streamingContext)
         {
         }
     }

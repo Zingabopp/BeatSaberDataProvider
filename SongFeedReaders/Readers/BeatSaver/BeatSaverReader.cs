@@ -325,11 +325,10 @@ namespace SongFeedReaders.Readers.BeatSaver
 
             string pageText;
             JObject? result = null;
-            SearchQueryBuilder queryBuilder = new SearchQueryBuilder(BeatSaverSearchType.all, authorName);
 
             Logger?.Debug($"Checking response for the author ID.");
-            Uri? sourceUri = new Uri(BeatSaverFeed.Feeds[BeatSaverFeedName.Search].BaseUrl.Replace(SEARCHTYPEKEY, "text").Replace(SEARCHQUERY, queryBuilder.GetQueryString()).Replace(PAGEKEY, 0.ToString()));
-            IWebResponseMessage? response = null;
+            Uri? sourceUri = new Uri($"https://api.beatsaver.com/users/name/{authorName}");
+            IWebResponseMessage ? response = null;
             try
             {
                 response = await WebUtils.GetBeatSaverAsync(sourceUri, cancellationToken).ConfigureAwait(false);
@@ -380,7 +379,7 @@ namespace SongFeedReaders.Readers.BeatSaver
                 response?.Dispose();
                 response = null;
             }
-            if (result?["user"] is JObject user && user["id"] is JToken idProp)
+            if (result != null && result["id"] is JToken idProp)
             {
                 int mapperIdInt = idProp.Value<int>();
                 if (mapperIdInt > 0)

@@ -51,7 +51,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 {
                     _feeds = new Dictionary<BeastSaberFeedName, FeedInfo>()
                     {
-                        { (BeastSaberFeedName)0, new FeedInfo("Follows", "BeastSaber Follows", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY, DescriptionFollows) },
+                        { (BeastSaberFeedName)0, new FeedInfo("Follows", "BeastSaber Follows", "https://bsaber.com/wp-json/bsaber-api/songs/?followed_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage, DescriptionFollows) },
                         { (BeastSaberFeedName)1, new FeedInfo("Bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage, DescriptionBookmarks)},
                         { (BeastSaberFeedName)2, new FeedInfo("Curator Recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage, DescriptionCuratorRecommended) }
                     };

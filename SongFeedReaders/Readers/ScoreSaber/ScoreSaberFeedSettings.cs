@@ -150,14 +150,14 @@ namespace SongFeedReaders.Readers.ScoreSaber
             if (!Enum.IsDefined(typeof(ScoreSaberFeedName), feedIndex))
                 throw new ArgumentOutOfRangeException(nameof(feedIndex), $"No ScoreSaberFeed defined for an index of {feedIndex}.");
             FeedIndex = feedIndex;
-            SongsPerPage = 100;
+            SongsPerPage = 20;
             StartingPage = 1;
         }
 
         public ScoreSaberFeedSettings(ScoreSaberFeedName feed)
         {
             Feed = feed;
-            SongsPerPage = 100;
+            SongsPerPage = 20;
             StartingPage = 1;
         }
         #endregion

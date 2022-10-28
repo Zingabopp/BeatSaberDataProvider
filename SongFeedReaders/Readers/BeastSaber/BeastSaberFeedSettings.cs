@@ -36,7 +36,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <summary>
         /// Number of songs per page for this feed.
         /// </summary>
-        public int SongsPerPage { get { return FeedIndex == 0 ? BeastSaberFeed.SongsPerXmlPage : BeastSaberFeed.SongsPerJsonPage; } }
+        public int SongsPerPage { get; set; } = 50;
 
         /// <summary>
         /// Maximum songs to retrieve, will stop the reader before MaxPages is met. Use 0 for unlimited.
@@ -82,6 +82,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                 StartingPage = StartingPage,
                 Username = Username,
                 StoreRawData = StoreRawData,
+                SongsPerPage = SongsPerPage,
                 Filter = (Func<ScrapedSong, bool>?)Filter?.Clone(),
                 StopWhenAny = (Func<ScrapedSong, bool>?)StopWhenAny?.Clone(),
             };
@@ -125,7 +126,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         /// <param name="feedIndex"></param>
         /// <param name="maxPages"></param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="feedIndex"/> is not a valid <see cref="BeastSaberFeedName"/></exception>
-        public BeastSaberFeedSettings(int feedIndex, string username = null)
+        public BeastSaberFeedSettings(int feedIndex, string? username = null)
         {
             if (!Enum.IsDefined(typeof(BeastSaberFeedName), feedIndex))
                 throw new ArgumentOutOfRangeException(nameof(feedIndex), $"No BeastSaberFeed defined for an index of {feedIndex}.");
@@ -135,7 +136,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             Username = username ?? string.Empty;
         }
 
-        public BeastSaberFeedSettings(BeastSaberFeedName feed, string username = null)
+        public BeastSaberFeedSettings(BeastSaberFeedName feed, string? username = null)
         {
             Feed = feed;
             MaxPages = 0;

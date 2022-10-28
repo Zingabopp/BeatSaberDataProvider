@@ -25,6 +25,7 @@ namespace SongFeedReaders.Readers.BeastSaber
         }
         private const string USERNAMEKEY = "{USERNAME}";
         private const string PAGENUMKEY = "{PAGENUM}";
+        private const string SONGSPERPAGEKEY = "{SONGSPERPAGE}";
         private const string XML_TITLE_KEY = "SongTitle";
         private const string XML_DOWNLOADURL_KEY = "DownloadURL";
         private const string XML_HASH_KEY = "Hash";
@@ -51,9 +52,9 @@ namespace SongFeedReaders.Readers.BeastSaber
                 {
                     _feeds = new Dictionary<BeastSaberFeedName, FeedInfo>()
                     {
-                        { (BeastSaberFeedName)0, new FeedInfo("Follows", "BeastSaber Follows", "https://bsaber.com/members/" + USERNAMEKEY + "/wall/followings/feed/?acpage=" + PAGENUMKEY, DescriptionFollows) },
-                        { (BeastSaberFeedName)1, new FeedInfo("Bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage, DescriptionBookmarks)},
-                        { (BeastSaberFeedName)2, new FeedInfo("Curator Recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SongsPerJsonPage, DescriptionCuratorRecommended) }
+                        { (BeastSaberFeedName)0, new FeedInfo("Follows", "BeastSaber Follows", $"https://bsaber.com/wp-json/bsaber-api/songs/?followed_by={USERNAMEKEY}&count={SONGSPERPAGEKEY}&page={PAGENUMKEY}", DescriptionFollows) },
+                        { (BeastSaberFeedName)1, new FeedInfo("Bookmarks", "BeastSaber Bookmarks", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=" + USERNAMEKEY + "&page=" + PAGENUMKEY + "&count=" + SONGSPERPAGEKEY, DescriptionBookmarks)},
+                        { (BeastSaberFeedName)2, new FeedInfo("Curator Recommended","BeastSaber CuratorRecommended", "https://bsaber.com/wp-json/bsaber-api/songs/?bookmarked_by=curatorrecommended&page=" + PAGENUMKEY + "&count=" + SONGSPERPAGEKEY, DescriptionCuratorRecommended) }
                     };
                 }
                 return _feeds;
@@ -100,6 +101,11 @@ namespace SongFeedReaders.Readers.BeastSaber
                     valid = false;
                 }
             }
+            if (BeastSaberFeedSettings.SongsPerPage <= 0)
+            {
+                message = $"SongsPerPage must be > 0";
+                valid = false;
+            }
             if (!valid && throwException)
                 throw new InvalidFeedSettingsException(message);
             return valid;
@@ -127,14 +133,9 @@ namespace SongFeedReaders.Readers.BeastSaber
             BeastSaberFeedSettings = (BeastSaberFeedSettings)settings.Clone();
             Feed = BeastSaberFeedSettings.Feed;
             FeedInfo = Feeds[BeastSaberFeedSettings.Feed];
-            if (Feed != BeastSaberFeedName.Following)
-            {
-                SongsPerPage = BeastSaberFeedSettings.SongsPerPage;
-                if (SongsPerPage < 1)
-                    SongsPerPage = SongsPerJsonPage;
-            }
-            else
-                SongsPerPage = SongsPerXmlPage;
+            SongsPerPage = BeastSaberFeedSettings.SongsPerPage;
+            if (SongsPerPage < 1)
+                SongsPerPage = SongsPerJsonPage;
             Username = BeastSaberFeedSettings.Username;
         }
         /// <summary>
@@ -146,7 +147,10 @@ namespace SongFeedReaders.Readers.BeastSaber
         public Uri GetUriForPage(int page)
         {
             EnsureValidSettings();
-            return new Uri(FeedInfo.BaseUrl.Replace(PAGENUMKEY, page.ToString()).Replace(USERNAMEKEY, Username));
+            return new Uri(FeedInfo.BaseUrl
+                .Replace(PAGENUMKEY, page.ToString())
+                .Replace(USERNAMEKEY, Username)
+                .Replace(SONGSPERPAGEKEY, SongsPerPage.ToString()));
         }
 
         /// <summary>
@@ -200,7 +204,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                     await Task.Delay(20000).ConfigureAwait(false);
                     response = await WebUtils.WebClient.GetAsync(pageUri, cancellationToken).ConfigureAwait(false);
                 }
-                if (response == null) 
+                if (response == null)
                     throw new WebClientException($"Response was null for '{pageUri}'.");
                 response.EnsureSuccessStatusCode();
                 contentTypeStr = response.Content?.ContentType?.ToLower();
@@ -242,7 +246,7 @@ namespace SongFeedReaders.Readers.BeastSaber
             try
             {
                 var scrapedSongs = GetSongsFromPageText(pageText, pageUri, contentType, Settings.StoreRawData || StoreRawData);
-                isLastPage = scrapedSongs.Count == 0; 
+                isLastPage = scrapedSongs.Count == 0;
                 firstSong = scrapedSongs.FirstOrDefault();
                 lastSong = scrapedSongs.LastOrDefault();
                 songsOnPage = scrapedSongs.Count;
@@ -372,7 +376,7 @@ namespace SongFeedReaders.Readers.BeastSaber
                     string? hash = node[XML_HASH_KEY]?.InnerText?.ToUpper();
                     string? mapperName = node[XML_AUTHOR_KEY]?.InnerText;
                     string? songKey = node[XML_SONGKEY_KEY]?.InnerText;
-                    if(hash == null || hash.Length == 0) // TODO: Could use Key if Hash was null.
+                    if (hash == null || hash.Length == 0) // TODO: Could use Key if Hash was null.
                     {
                         Logger?.Warning($"Skipping BeastSaber song with null hash.");
                         continue;
